@@ -1,10 +1,9 @@
-======
+
 ABOUT:
 ======
 
-The Kenna toolkit is designed to make our customers lives' easier.
+The Kenna toolkit is a powerful set of functions for data and api manipulation outside of the Kenna platform.  
 
-===================
 USAGE INSTRUCTIONS:
 ===================
 
