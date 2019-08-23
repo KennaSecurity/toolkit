@@ -9,7 +9,7 @@ def metadata
 		description: "This task does blah blah blah (TODO)",
 		options: [
 			{:name => "kenna_api_token", 
-				:type => "api_token", 
+				:type => "api_key", 
 				:required => true, 
 				:default => nil, 
 				:description => "Kenna API Key" },

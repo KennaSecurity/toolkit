@@ -4,8 +4,8 @@ LABEL maintainer="Kenna Security"
 USER root
 ADD . /opt/toolkit
 
-VOLUME  /opt/toolkit/input  # input directory
-VOLUME  /opt/toolkit/output # output directory
+#VOLUME  /opt/toolkit/input  # input directory
+#VOLUME  /opt/toolkit/output # output directory
 
 WORKDIR /opt/toolkit
 
