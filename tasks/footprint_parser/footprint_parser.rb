@@ -1,3 +1,6 @@
+require 'fileutils'
+
+
 module Kenna 
 module Toolkit
 class FootprintParser < Kenna::Toolkit::BaseTask
@@ -21,7 +24,7 @@ class FootprintParser < Kenna::Toolkit::BaseTask
         {:name => "input_directory", 
           :type => "filename", 
           :required => false, 
-          :default => "input/footprinting/parse", 
+          :default => "input/footprinting", 
           :description => "Path to footprinting data, relative to #{$basedir}"  },
         {:name => "output_directory", 
           :type => "filename", 
@@ -102,9 +105,12 @@ class FootprintParser < Kenna::Toolkit::BaseTask
       command_line = "bundle exec ruby #{$basedir}/tasks/footprint_parser/translators/#{f[:name]}_kdi_translator.rb #{$basedir}/#{@options[:input_directory]}/#{f[:name]}.csv"
       output = `#{command_line}`
       
+      # Make the directory if it eodesnt exist
+      FileUtils.mkdir_p "#{$basedir}/#{@options[:output_directory]}"
+
       output_file = "#{$basedir}/#{@options[:output_directory]}/#{f[:name]}.json"
       print_good "Writing output to #{output_file}"
-      File.open(output_file,"w").do {|f| f.puts output_file}
+      File.open(output_file,"w"){|f| f.puts output_file}
     end
 
   end

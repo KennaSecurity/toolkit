@@ -56,17 +56,17 @@ module Kenna
     ### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ###
     ###
-    verified_filename = "#{current_verified_file_dir}/#{specific_file}"
-    first_row_confirmed = CSV.parse(read_input_file(verified_filename), encoding: "UTF-8").first
-    raise "Missing verification file: #{verified_filename}" unless first_row_confirmed
-
+    
+    ### verified_filename = "#{current_verified_file_dir}/#{specific_file}"
+    ###first_row_confirmed = CSV.parse(read_input_file(verified_filename), encoding: "UTF-8").first
+    ###raise "Missing verification file: #{verified_filename}" unless first_row_confirmed
 
     # if they don't match, bail out
-    unless first_row == first_row_confirmed
-      raise "Cowardly refusing to run! #{parse_file.path} appears to have changed!" 
-    end
+    ###unless first_row == first_row_confirmed
+    ###  raise "Cowardly refusing to run! #{parse_file.path} appears to have changed!" 
+    ###end
 
-    raise "Invalid value for first_row: #{first_row}" unless first_row.kind_of?(Array)
+    ###raise "Invalid value for first_row: #{first_row}" unless first_row.kind_of?(Array)
 
   first_row
   end
