@@ -1,0 +1,2 @@
+
+ruby add_assets.rb <token> "ip_address" "field_mapping.csv" "../DataExport_KennaTest3.csv" "tag_column_meta.csv" 
