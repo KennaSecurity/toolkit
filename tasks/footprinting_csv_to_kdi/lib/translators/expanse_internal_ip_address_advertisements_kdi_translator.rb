@@ -48,11 +48,15 @@ def create_asset_vuln(ip_address, vuln_id, first_seen, last_seen)
 end
 
 # verify we have a valid file
-headers = verify_file_headers(ARGV[0])
+#headers = verify_file_headers(ARGV[0])
+headers = [] 
 
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|
   # skip first
-  next if index == 0
+  if index == 0
+    headers = row.to_a
+    next 
+  end
 
   #
   get_value_by_header(row, headers,"lastObservation.configuration.internalIps")

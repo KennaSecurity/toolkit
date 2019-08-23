@@ -44,8 +44,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
         {:name => "input_directory", 
           :type => "filename", 
           :required => false, 
-          :default => "
-          /footprinting", 
+          :default => "/input/footprinting", 
           :description => "Path to footprinting data, relative to #{$basedir}"  },
         {:name => "output_directory", 
           :type => "filename", 
@@ -74,9 +73,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
     parse_csv_files_to_kdi
 
     # and upload 
-    if @options[:upload_to_api]
-      upload_results
-    end
+    upload_results
 
     print_good "Done!"
 
@@ -120,7 +117,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
       translator_name = f[:translator] ? "#{f[:translator]}_kdi_translator.rb" : "#{f[:name]}_kdi_translator.rb"
       
       # HAX - run this until we convert into classes
-      command_line = "bundle exec ruby #{$basedir}/tasks/footprinting_csv_to_kdi/lib/translators/#{translator_name} #{$basedir}/#{@options[:input_directory]}/#{f[:name]}.csv"
+      command_line = "bundle exec ruby #{$basedir}/tasks/footprinting_csv_to_kdi/lib/translators/#{translator_name} /#{$basedir}/#{@options[:input_directory]}/#{f[:name].strip}.csv"
       output = `#{command_line}`
       
       # Make the directory if it eodesnt exist
@@ -128,7 +125,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
       output_file = "#{$basedir}/#{@options[:output_directory]}/#{f[:name]}.json"
       print_good "Writing output to #{output_file}"
-      File.open(output_file,"w"){|f| f.puts output_file}
+      File.open(output_file,"w"){|f| f.puts output}
     end
 
   end
@@ -170,11 +167,11 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
     @config.each do |f|
 
-      @filename = "#{$basedir}/#{@options[:output_directory]}/footprinting/#{f[:name]}.json" 
+      @filename = "#{$basedir}/#{@options[:output_directory]}/#{f[:name]}.json" 
 
       shortname = @filename.split("/").last
 
-      connector_endpoint = "#{@enna_api_endpoint}/#{f[:connector_id]}/data_file?run=true"
+      connector_endpoint = "#{kenna_api_endpoint}/#{f[:connector_id]}/data_file?run=true"
 
       unless f[:connector_id]
         print_error "WARNING! Skipping connector #{f[:name]}, no connector id specified!"
@@ -194,16 +191,16 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
         )
 
         query_response_json = JSON.parse(query_response.body)
-        _log "Success!" if query_response_json.fetch("success")
+        print_good "Success!" if query_response_json.fetch("success")
 
         running = true
 
         connector_check_endpoint = "#{kenna_api_endpoint}/#{f[:connector_id]}"
         while running do
-          _log "Waiting for 30 seconds... "
+          print_good "Waiting for 30 seconds... "
           sleep(30)
 
-          #_log "Checking on connector status..."
+          #print_good "Checking on connector status..."
           connector_check_response = RestClient::Request.execute(
             method: :get,
             url: connector_check_endpoint,
@@ -211,14 +208,14 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
           )
 
           connector_check_json = JSON.parse(connector_check_response)['connector']
-          _log "#{connector_check_json["name"]} running" if connector_check_json["running"]
+          print_good "#{connector_check_json["name"]} running" if connector_check_json["running"]
 
           # check our value to see if we need to keep going
           running = connector_check_json["running"]
         end  
 
       rescue RestClient::UnprocessableEntity => e
-        _log "Unprocessable Entity: #{e.message}..."
+        print_error "Unprocessable Entity: #{e.message}..."
       rescue RestClient::BadRequest => e
         print_error "Bad Request: #{e.message}... #{e}"
       rescue RestClient::Exception => e
@@ -242,16 +239,6 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
     def directory_exists?(directory)
       Dir.exists?(directory)
     end
-
-    def _log(line)
-
-      print_line = "#{Time.now.strftime("%Y%m%dT%H%m%s")} (#{@filename.split("/").last}): #{line}"
-      #output_filename = "upload.log"
-      #File.open(output_filename,'a+').write print_line
-      print_good print_line 
-
-    end
-
 
   end
 

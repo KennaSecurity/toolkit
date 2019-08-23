@@ -45,8 +45,8 @@ module Kenna
     specific_file = filename.split("/").last(2).join("/")
 
     # then grab the headers
-    first_row = CSV.parse(read_input_file(filename), encoding: "UTF-8").first
-    raise "Missing source file: #{specific_file}" unless first_row
+    #first_row = CSV.parse(read_input_file(filename), encoding: "UTF-8").first
+    #raise "Missing source file: #{specific_file}" unless first_row
 
     # then get the file we know we can parse 
     ###
@@ -69,7 +69,8 @@ module Kenna
 
     ###raise "Invalid value for first_row: #{first_row}" unless first_row.kind_of?(Array)
 
-  first_row
+  #first_row
+  ""
   end
 
   def base_directory

@@ -50,12 +50,16 @@ def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
 end
 
 # verify we have a valid file
-headers = verify_file_headers(ARGV[0])
+#headers = verify_file_headers(ARGV[0])
+headers = [] 
 
 # iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|
   # skip first
-  next if index == 0
+  if index == 0
+    headers = row.to_a
+    next 
+  end
 
   # create the asset
   ip_address = get_value_by_header(row, headers,"ip")

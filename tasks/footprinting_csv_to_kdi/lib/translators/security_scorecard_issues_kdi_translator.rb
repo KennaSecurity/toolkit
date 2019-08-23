@@ -76,7 +76,7 @@ def create_asset_vuln(url, ip_address, hostname, port, vuln_id, status, first_se
 end
 
 ###### FIRST CHECK THE FILE!! (See helpers)
-headers = verify_file_headers(ARGV[0])
+#headers = verify_file_headers(ARGV[0])
 
 # iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|

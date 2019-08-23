@@ -86,7 +86,7 @@ end
 
 
 # iterate through the findings, looking for CVEs
-headers = verify_file_headers(ARGV[0])
+#headers = verify_file_headers(ARGV[0])
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|
   # skip first
   next if index == 0
