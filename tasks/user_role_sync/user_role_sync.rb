@@ -60,8 +60,7 @@ end
 def run(options)
 	super
 	
-	print_good "DONE! #{metadata[:name]} got arguments: #{@options}"
-	return
+	print_good "#{metadata[:name]} got arguments: #{@options}"
 
 	#debug flag
 	@debug = @options[:debug]
