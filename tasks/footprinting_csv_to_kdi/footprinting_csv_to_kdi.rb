@@ -69,7 +69,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
     end
 
     # parse them up
-    #parse_csv_files_to_kdi
+    parse_csv_files_to_kdi
 
     # and upload 
     if @options[:upload_to_api]
@@ -82,9 +82,13 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
   def parse_configuration_file
     filename = "#{$basedir}/#{@options[:connector_config_file]}"
-    puts "Attempting to parse config file: #{filename}"
+    print_good "Attempting to parse config file: #{filename}"
     config = File.open(filename,"r").read
-    JSON.parse(config, { symbolize_names: true })
+    begin 
+      JSON.parse(config, { symbolize_names: true })
+    rescue JSON::ParserError 
+      print_error "FATAL! Unable to parse json file: #{filename}"
+    end
   end
 
   # 
@@ -171,12 +175,12 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
       connector_endpoint = "#{@enna_api_endpoint}/#{f[:connector_id]}/data_file?run=true"
 
       unless f[:connector_id]
-        _log "WARNING! Skipping connector #{f[:name]}, no connector id specified!"
+        print_error "WARNING! Skipping connector #{f[:name]}, no connector id specified!"
         next 
       end
 
       begin
-        _log "Sending request"
+        print_good "Sending request"
         query_response = RestClient::Request.execute(
           method: :post,
           url: connector_endpoint,
@@ -214,23 +218,23 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
       rescue RestClient::UnprocessableEntity => e
         _log "Unprocessable Entity: #{e.message}..."
       rescue RestClient::BadRequest => e
-        _log "Bad Request: #{e.message}... #{e}"
+        print_error "Bad Request: #{e.message}... #{e}"
       rescue RestClient::Exception => e
-        _log "Unknown Exception... #{e}"
+        print_error "Unknown Exception... #{e}"
 
         @retries ||= 0
         if @retries < @MAX_RETRIES
-          _log "Retrying in 60s..."
+          print_error "Retrying in 60s..."
           @retries += 1
           sleep(60)
           retry
         else
-         _log "Max retries hit, failing with... #{e}"
+         print_error "Max retries hit, failing with... #{e}"
 
         end
       end
 
-      _log "Done!"
+      print_good "Done!"
     end
 
     def directory_exists?(directory)
