@@ -92,15 +92,20 @@ def run(options)
 	print_good "Found #{num_lines} lines."
 	start_time = Time.now
 
-	# Pull Existing Roles and Users from Kenna Instance
-	# and store for lookups
-	@role_list = JSON.parse(pull_roles_list)
-	@user_list = JSON.parse(pull_user_list)
+	# # Pull Existing Roles and Users from Kenna Instance
+	# # and store for lookups
+	# @role_list = JSON.parse(pull_roles_list)
+	# @user_list = JSON.parse(pull_user_list)
 
 	output_filename = "#{$basedir}/output/user-role-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 	@log_output = File.open(output_filename,'a+')
 	@log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
 	# binding.pry
+
+	# Pull Existing Roles and Users from Kenna Instance
+	# and store for lookups
+	@role_list = JSON.parse(pull_roles_list)
+	@user_list = JSON.parse(pull_user_list)
 
 	print_good @role_list if @debug
 	print_good @user_list if @debug
@@ -174,6 +179,7 @@ end
 
 def pull_roles_list
 	begin
+		puts @role_post_url
 		query_post_return = RestClient::Request.execute(
 			method: :get,
 			proxy: @proxy_string,
