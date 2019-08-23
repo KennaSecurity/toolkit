@@ -39,6 +39,14 @@ class BaseTask
     # TODO !! - validate arguments based on their type here
     # !!!!!!!
 
+    # Convert booleans to an actual false value
+    #opts.each do |o,v|
+    #  if o[:type] == "boolean" && o[:value] == "false"
+    #    print_good "Converted #{o[:name]} to false value"
+    #    o[:value] = false
+    #  end
+    #end
+
     # if we made it here, we have the right arguments!
     @options = opts
 
