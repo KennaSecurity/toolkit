@@ -1,7 +1,7 @@
 [
   {
     "name": "bitsight_application_security",
-    "connector_id": 148278,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -23,7 +23,7 @@
   },
   {
     "name": "bitsight_dkim",
-    "connector_id": 148277,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -39,7 +39,7 @@
   },
   {
     "name": "bitsight_dnssec",
-    "connector_id": 145511,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -55,7 +55,7 @@
   },
   {
     "name": "bitsight_insecure_systems",
-    "connector_id": 149332,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -71,7 +71,7 @@
   },
   {
     "name": "bitsight_open_ports",
-    "connector_id": 148249,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -90,7 +90,7 @@
   },
   {
     "name": "bitsight_patching_cadence",
-    "connector_id": 148248,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -106,7 +106,7 @@
   },
   {
     "name": "bitsight_server_software",
-    "connector_id": 148247,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -125,7 +125,7 @@
   },
   {
     "name": "bitsight_spf",
-    "connector_id": 148246,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -141,7 +141,7 @@
   },
   {
     "name": "bitsight_ssl_certificates",
-    "connector_id": 148245,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -167,7 +167,7 @@
   },
   {
     "name": "bitsight_ssl_configurations",
-    "connector_id": 148276,
+    "connector_id": 0,
     "headers": [
       "risk vector",
       "first seen",
@@ -191,7 +191,7 @@
   },
   {
     "name": "expanse_application_server_software",
-    "connector_id": 148262,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -447,7 +447,7 @@
   },
   {
     "name": "expanse_development_environments",
-    "connector_id": 148258,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -492,7 +492,7 @@
   },
   {
     "name": "expanse_dns_servers",
-    "connector_id": 147874,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -535,7 +535,7 @@
   },
   {
     "name": "expanse_expired_when_scanned_certificate_advertisements",
-    "connector_id": 148261,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -609,7 +609,7 @@
   },
   {
     "name": "expanse_ftps_servers",
-    "connector_id": 148263,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -682,7 +682,7 @@
   },
   {
     "name": "expanse_healthy_certificate_advertisements",
-    "connector_id": 149331,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -756,7 +756,7 @@
   },
   {
     "name": "expanse_insecure_signature_certificate_advertisements",
-    "connector_id": 148266,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -830,7 +830,7 @@
   },
   {
     "name": "expanse_internal_ip_address_advertisements",
-    "connector_id": 148281,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -871,7 +871,7 @@
   },
   {
     "name": "expanse_load_balancers",
-    "connector_id": 149330,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1094,7 +1094,7 @@
   },
   {
     "name": "expanse_long_expiration_certificate_advertisements",
-    "connector_id": 148270,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1168,7 +1168,7 @@
   },
   {
     "name": "expanse_mysql_servers",
-    "connector_id": 148275,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1215,7 +1215,7 @@
   },
   {
     "name": "expanse_open_ports",
-    "connector_id": 148250,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1254,7 +1254,7 @@
   },
   {
     "name": "expanse_pop3_servers",
-    "connector_id": 147888,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1419,7 +1419,7 @@
   },
   {
     "name": "expanse_self_signed_certificate_advertisements",
-    "connector_id": 148267,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1493,7 +1493,7 @@
   },
   {
     "name": "expanse_server_software",
-    "connector_id": 149333,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1749,7 +1749,7 @@
   },
   {
     "name": "expanse_short_key_certificate_advertisements",
-    "connector_id": 148273,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1823,7 +1823,7 @@
   },
   {
     "name": "expanse_sip_servers",
-    "connector_id": 148271,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -1870,7 +1870,7 @@
   },
   {
     "name": "expanse_smtp_servers",
-    "connector_id": 147894,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2040,7 +2040,7 @@
   },
   {
     "name": "expanse_snmp_servers",
-    "connector_id": 147893,
+    "connector_id": 0,
     "headers": [
       "ip",
       "port",
@@ -2053,7 +2053,7 @@
   },
   {
     "name": "expanse_ssh_servers",
-    "connector_id": 148272,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2098,7 +2098,7 @@
   },
   {
     "name": "expanse_telnet_servers",
-    "connector_id": 147891,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2139,7 +2139,7 @@
   },
   {
     "name": "expanse_unencrypted_ftp_servers",
-    "connector_id": 147896,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2212,7 +2212,7 @@
   },
   {
     "name": "expanse_unencrypted_logins",
-    "connector_id": 147898,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2333,7 +2333,7 @@
   },
   {
     "name": "expanse_web_servers",
-    "connector_id": 147895,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2604,7 +2604,7 @@
   },
   {
     "name": "expanse_wildcard_certificate_advertisements",
-    "connector_id": 148274,
+    "connector_id": 0,
     "headers": [
       "businessunit.id",
       "businessunit.name",
@@ -2678,7 +2678,7 @@
   },
   {
     "name": "riskiq_ips",
-    "connector_id": 149334,
+    "connector_id": 0,
     "headers": [
       "﻿ip address",
       "open ports",
@@ -2694,7 +2694,7 @@
   {
     "name": "riskiq_open_port_database_servers",
     "translator": "riskiq_open_ports",
-    "connector_id": 148253,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2708,7 +2708,7 @@
   {
     "name": "riskiq_open_port_iot",
     "translator": "riskiq_open_ports",
-    "connector_id": 148254,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2722,7 +2722,7 @@
   {
     "name": "riskiq_open_port_networking_equipment",
     "translator": "riskiq_open_ports",
-    "connector_id": 148256,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2736,7 +2736,7 @@
   {
     "name": "riskiq_open_port_registered",
     "translator": "riskiq_open_ports",
-    "connector_id": 148257,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2750,7 +2750,7 @@
   {
     "name": "riskiq_open_port_remote_access",
     "translator": "riskiq_open_ports",
-    "connector_id": 148254,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2764,7 +2764,7 @@
   {
     "name": "riskiq_open_port_system",
     "translator": "riskiq_open_ports",
-    "connector_id": 148255,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2778,7 +2778,7 @@
   {
     "name": "riskiq_open_port_web_servers",
     "translator": "riskiq_open_ports",
-    "connector_id": 148251,
+    "connector_id": 0,
     "headers": [
       "﻿ip",
       "tags",
@@ -2791,7 +2791,7 @@
   },
   {
     "name": "riskiq_websites",
-    "connector_id": 148280,
+    "connector_id": 0,
     "headers": [
       "asn_fullname",
       "assetid",
@@ -2876,7 +2876,7 @@
   },
   {
     "name": "security_scorecard_issues",
-    "connector_id": 148279,
+    "connector_id": 0,
     "headers": [
       "issue id",
       "factor name",

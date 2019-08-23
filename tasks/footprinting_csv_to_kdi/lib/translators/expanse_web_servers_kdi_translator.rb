@@ -53,6 +53,7 @@ headers = []
 
 # iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|
+ 
   # skip first
   if index == 0
     headers = row.to_a
