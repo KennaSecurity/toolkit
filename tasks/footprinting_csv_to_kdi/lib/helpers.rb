@@ -16,7 +16,7 @@ module Kenna
   module Helpers
 
   def read_input_file(filename)
-    output = File.open(filename,"r").read 
+    output = File.open(filename,"r").read.gsub!("\r", '') 
   output.sanitize_unicode
   end
 
