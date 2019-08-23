@@ -86,23 +86,24 @@ def run(options)
 	@user_file_list = []
 	@user_id = ''
 
-	num_lines = CSV.read(@csv_file).length
-	puts "Found #{num_lines} lines."
+	csv_file_path = "#{$basedir}/#{@csv_file}"
+	print_good "Attempting to read from #{csv_file_path}"
+	num_lines = CSV.read(csv_file_path).length
+	print_good "Found #{num_lines} lines."
 	start_time = Time.now
-
 
 	# Pull Existing Roles and Users from Kenna Instance
 	# and store for lookups
 	@role_list = JSON.parse(pull_roles_list)
 	@user_list = JSON.parse(pull_user_list)
 
-	output_filename = "output/user-role-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+	output_filename = "#{$basedir}/output/user-role-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 	@log_output = File.open(output_filename,'a+')
 	@log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
 	# binding.pry
 
-	puts @role_list if @debug
-	puts @user_list if @debug
+	print_good @role_list if @debug
+	print_good @user_list if @debug
 
 	# Iterate through CSV
 	# CSV.foreach(@csv_file, :headers => true) do |row|
@@ -123,33 +124,33 @@ def run(options)
 
 			#append to list
 			@user_file_list << row[@email_col]
-			puts "------"  if @debug
-			puts @user_file_list  if @debug
-			puts "------"  if @debug
+			print_good "------"  if @debug
+			print_good @user_file_list  if @debug
+			print_good "------"  if @debug
 
-			puts "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
+			print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
 			@log_output << "\r" + "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
 
 			if !role_exists(role_name)
 				# Role Doesn't Exist
-				puts "Role Does Not Exist. Creating Role."
+				print_good "Role Does Not Exist. Creating Role."
 				@log_output <<  "\r" + "Role Does Not Exist. Creating Role."
 				create_role(role_name)
 				#Refresh Role List
 				@role_list = JSON.parse(pull_roles_list)
 			else
-				puts "Role Already Exists."
+				print_error "Role Already Exists."
 				@log_output << "\r" + "Role Already Exists."
 			end
 
 			if !user_exists(email_address)
 				# User Doesn't Exist
-				puts "User Does Not Exist. Creating User."
+				print_good "User Does Not Exist. Creating User."
 				@log_output << "\r" + "User Does Not Exist. Creating User."
 				create_user(first_name,last_name,email_address, role_name)
 			else
 				# User Exists
-				puts "User Already Exists. Updating User."
+				print_error "User Already Exists. Updating User."
 				@log_output << "\r" +  "User Already Exists. Updating User."
 				update_user(@user_id.to_s,first_name,last_name,email_address, role_name)
 				@user_id = ''
@@ -160,11 +161,11 @@ def run(options)
 
 
 	# Remove Users not included in the new data file
-	# puts "REMOVING USERS!!!"
+	# print_good "REMOVING USERS!!!"
 
 	# remove_users
 
-	puts "DONE!"
+	print_good "DONE!"
 	@log_output << "\r" +  "DONE!"
 	@log_output.close
 end
@@ -182,8 +183,8 @@ def pull_roles_list
 		) 
 
 	rescue Exception => e
-		puts e.message  
-		puts e.backtrace.inspect
+		print_good e.message  
+		print_good e.backtrace.inspect
 		@log_output << "\r" +  e.message
 	    @log_output << "\r" +  e.backtrace.inspect
 	end
@@ -200,8 +201,8 @@ def pull_user_list
 		) 
 
 	rescue Exception => e
-		puts e.message  
-		puts e.backtrace.inspect
+		print_good e.message  
+		print_good e.backtrace.inspect
 		@log_output << "\r" +  e.message
 	    @log_output << "\r" +  e.backtrace.inspect
 	end
@@ -220,7 +221,7 @@ def create_role(role_name)
 			"access_level" => "read"
         }
     }
-    puts json_data if @debug
+    print_good json_data if @debug
 
 	begin
 		query_post_return = RestClient::Request.execute(
@@ -232,8 +233,8 @@ def create_role(role_name)
 		) 
 
 	rescue Exception => e
-		puts e.message  
-		puts e.backtrace.inspect
+		print_error e.message  
+		print_error e.backtrace.inspect
 	end
 end
 
@@ -258,7 +259,7 @@ def create_user(fname,lname,email,role_name)
 			"role"=>role_name
         }
     }
-	#puts json_data
+	#print_good json_data
 	begin
 		query_post_return = RestClient::Request.execute(
 			method: :post,
@@ -268,15 +269,15 @@ def create_user(fname,lname,email,role_name)
 			headers: @headers
 	    )
 	rescue RestClient::UnprocessableEntity => e
-		puts e.message
-		puts "Unable to create this user (email:#{email})"
+		print_good e.message
+		print_error "Unable to create this user (email:#{email})"
 		@log_output << "\r" +  e.message
 		@log_output << "\r" +  "Unable to create this user (email:#{email})"
 	rescue Exception => e
-		puts e.message
-	    puts e.backtrace.inspect
+		print_error e.message
+	  print_error e.backtrace.inspect
 		@log_output << "\r" +  e.message
-	    @log_output << "\r" +  e.backtrace.inspect
+	  @log_output << "\r" +  e.backtrace.inspect
 	end
 end
 
@@ -288,7 +289,7 @@ def update_user(uid,fname,lname,email,role_name)
 
 	# Check for Admin users
 	if user['role'] == 'administrator'
-		puts "User #{email} is Administrator and will not be updated."
+		print_good "User #{email} is Administrator and will not be updated."
 		@log_output << "\r" + "User #{email} is Administrator and will not be updated."
 	else
 	
@@ -301,16 +302,16 @@ def update_user(uid,fname,lname,email,role_name)
 				"role"=>role_name
 	        }
 	    }
-		puts json_data if @debug
+		print_good json_data if @debug
 		
 		url = @user_post_url + '/'+ uid
-		puts url if @debug
+		print_good url if @debug
 
 		# binding.pry
 
 		# Check for Role change
 		if user['role'] != role_name 
-			puts "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
+			print_good "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
 			@log_output << "\r" + "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
 		end
 
@@ -323,13 +324,13 @@ def update_user(uid,fname,lname,email,role_name)
 				headers: @headers
 		    )
 		rescue RestClient::UnprocessableEntity => e
-			puts e.message
-			puts "Unable to update this user (id:#{uid} email:#{email})"
+			print_error e.message
+			print_error "Unable to update this user (id:#{uid} email:#{email})"
 			@log_output << "\r" +  e.message
 			@log_output << "\r" +  "Unable to update this user (id:#{uid} email:#{email})"
 		rescue Exception => e
-			puts e.message
-		    puts e.backtrace.inspect
+			print_error e.message
+		  print_error e.backtrace.inspect
 			@log_output << "\r" +  e.message
 		    @log_output << "\r" +  e.backtrace.inspect
 		end
@@ -338,7 +339,7 @@ end
 
 def delete_user(uid)
 	url = @user_post_url + '/'+ uid
-	puts url #if @debug
+	print_good url #if @debug
 
 	begin
 		query_post_return = RestClient::Request.execute(
@@ -348,13 +349,13 @@ def delete_user(uid)
 			headers: @headers
 	    )
 	rescue RestClient::UnprocessableEntity => e
-		puts e.message
-		puts "Unable to delete this user (id:#{uid})"
+		print_error e.message
+		print_error "Unable to delete this user (id:#{uid})"
 		@log_output << "\r" +  e.message
 		@log_output << "\r" +  "Unable to delete this user (id:#{uid})"
 	rescue Exception => e
-		puts e.message
-	    puts e.backtrace.inspect
+		print_error e.message
+	  print_error e.backtrace.inspect
 		@log_output << "\r" +  e.message
 	    @log_output << "\r" +  e.backtrace.inspect
 	end
@@ -369,14 +370,14 @@ end
 def remove_users
 	
 	# binding.pry
-	# puts "in remove_users"
+	# print_good "in remove_users"
 
 	curr_users_array = field_values(@user_list["users"], "id", "email")
 
 	curr_users_array.each do |id, email|
 		# binding.pry
 		if !@user_file_list.include? email
-			puts "Deleting #{email} with ID: #{id}"
+			print_good "Deleting #{email} with ID: #{id}"
 			@log_output << "\r" +  "Deleting #{email} with ID: #{id}"
 			delete_user(id.to_s)
 		end
