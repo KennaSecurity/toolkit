@@ -751,7 +751,7 @@ module Kenna
       create_mapping(description,recommendation).each do |map|
         map[:matches].each do |match|
           if ( match[:source] == source && match[:vuln_id] =~ vuln_id )
-            #File.open("#{base_directory}/output/mapping.txt","a"){|f| f.puts "MAPPED vuln of type: \"#{source} #{vuln_id}\" - CWE: #{map[:cwe]}, NAME: #{map[:name]}" };nil
+            File.open("#{$basedir}/output/footprint_parser_mapping.txt","a"){|f| f.puts "MAPPED vuln of type: \"#{source} #{vuln_id}\" - CWE: #{map[:cwe]}, NAME: #{map[:name]}" };nil
             return {
               source: "Kenna",
               name: map[:name],
@@ -763,7 +763,7 @@ module Kenna
         end
       end
 
-      File.open("#{base_directory}/output/mapping.txt","a"){|f| f.puts "UNMAPPED vuln of type: \"#{source} #{vuln_id}\"" };nil
+      File.open("#{$basedir}/output/footprint_parser_mapping.txt","a"){|f| f.puts "UNMAPPED vuln of type: \"#{source} #{vuln_id}\"" };nil
 
       # we didnt map it, so just pass it back
       return {

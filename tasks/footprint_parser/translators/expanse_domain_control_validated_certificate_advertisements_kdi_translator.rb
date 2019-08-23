@@ -3,6 +3,7 @@
 require_relative "lib/mapping"
 require_relative "lib/helpers"
 
+
 require 'json'
 require 'csv'
 
@@ -64,7 +65,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -76,23 +77,19 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
-
-  serial = get_value_by_header(row, headers,"certificate.serialNumber")
-  issuer = get_value_by_header(row, headers,"certificate.issuer")
-  alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
+  serial = get_value_by_header(row, headers,"ip")
+  issuer = get_value_by_header(row, headers,"firstObservation.configuration.certificate.issuer")
+  alternative_names = get_value_by_header(row, headers,("firstObservation.configuration.certificate.subjectAlternativeNames")
   provider = get_value_by_header(row, headers,"provider")
-  valid_not_before = get_value_by_header(row, headers,"certificate.validNotBefore")
-  valid_not_after = get_value_by_header(row, headers,"certificate.validNotAfter")
 
-  vuln_id = "certificate_long_expiration_#{serial}"
-  description = "Detected certificate with long expiration\n"
+  vuln_id = "certificate_domain_control_validated_#{serial}"
+  description = "Detected Domain Control Validated Certificate\n"
+  description << "Provider: #{provider}\n"
   description << "Serial: #{serial}\n"
-  description << "Valid Not Before: #{valid_not_before}\n"
-  description << "Valid Not After: #{valid_not_after}\n"
   description << "Issuer: #{issuer}\n"
   description << "Subject Alt Names: #{alternative_names}\n"
 
-  recommendation = "Verify and if required, re-issue certificate or remove system" # TODO?
+  recommendation = "No action required" # TODO?
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 
@@ -101,5 +98,5 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
 end
 
-kdi_output = generate_kdi_file
+kdi_output = { skip_autoclose: false, assets: $assets, vuln_defs: $vuln_defs }
 puts JSON.pretty_generate kdi_output

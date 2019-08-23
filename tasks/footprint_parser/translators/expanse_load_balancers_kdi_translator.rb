@@ -32,7 +32,7 @@ def create_asset(ip_address, hostname=nil)
   $assets << asset
 end
 
-def create_asset_vuln(ip_address, vuln_id, first_seen, last_seen)
+def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
 
   # grab the asset
   asset = $assets.select{|a| a[:ip_address] == ip_address}.first
@@ -41,6 +41,7 @@ def create_asset_vuln(ip_address, vuln_id, first_seen, last_seen)
     scanner_identifier: "#{vuln_id}",
     scanner_type: SCAN_SOURCE,
     created_at: first_seen,
+    port: port.to_i,
     last_seen_at: last_seen,
     status: "open"
   }
@@ -54,15 +55,15 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
   # skip first
   next if index == 0
 
-  #
-  get_value_by_header(row, headers,"lastObservation.configuration.internalIps")
-
+  # create the asset
+  hostname = get_value_by_header(row, headers,"firstObservation.hostname").gsub("*.","")
   ip_address = get_value_by_header(row, headers,"ip")
-  create_asset ip_address #, hostname
-
+  port = get_value_by_header(row, headers,"port")
+  create_asset ip_address, hostname
+  
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -74,15 +75,18 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
-  internal_ips = get_value_by_header(row, headers,"lastObservation.configuration.internalIps")
-  finding_id = unique_finding_string(internal_ips)
-  vuln_id = "internal_ip_address_advertisement_#{finding_id}"
-  description = "Internal IPs leaked: #{internal_ips}"
-  recommendation = "Adjust the configuration of the system to prevent internal IPs from being leaked"
+  lb = get_value_by_header(row, headers,"firstObservation.configuration.loadBalancer")
+  lbpool = get_value_by_header(row, headers,"firstObservation.configuration.loadBalancerPool")
+
+  finding_id = unique_finding_string("#{lb} #{lbpool}")
+
+  vuln_id = "detected_load_balancer_#{finding_id}"
+  description = "Load Balancer detected: #{lb} #{lbpool}"
+  recommendation = "No action required."
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 
-  create_asset_vuln ip_address, vuln_id, first_seen, last_seen
+  create_asset_vuln ip_address, port, vuln_id, first_seen, last_seen
   create_vuln_def mapped_vuln[:name], vuln_id, mapped_vuln[:description], mapped_vuln[:recommendation], mapped_vuln[:cwe]
 
 end

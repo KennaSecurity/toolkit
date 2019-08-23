@@ -1,5 +1,4 @@
 #encoding: utf-8
-
 require_relative "lib/mapping"
 require_relative "lib/helpers"
 
@@ -51,6 +50,7 @@ end
 # verify we have a valid file
 headers = verify_file_headers(ARGV[0])
 
+# iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |row,index|
   # skip first
   next if index == 0
@@ -63,7 +63,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -75,17 +75,18 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
-  serial = get_value_by_header(row, headers,"certificate.serialNumber")
-  issuer = get_value_by_header(row, headers,"certificate.issuer")
-  alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
-  
-  vuln_id = "certificate_self_signed_#{serial}"
-  description = "Detected self-signed certificate \n"
-  description << "Serial: #{serial}\n"
-  description << "Issuer: #{issuer}\n"
-  description << "Subject Alt Names: #{alternative_names}\n"
-  
-  recommendation = "Verify and if required, re-issue certificate or remove system" # TODO?
+  software = get_value_by_header(row, headers, "lastObservation.configuration.hasServerSoftware")
+  app_server_software = get_value_by_header(row, headers, "lastObservation.configuration.hasApplicationServerSoftware")
+  certificate = get_value_by_header(row, headers, "lastObservation.configuration.certificate")
+
+  app_server_string = unique_finding_string("#{software} #{app_server_software} #{certificate}")
+  vuln_id = "detected_webserver_#{app_server_string}"
+  description = "Detected Webserver:\n"
+  description << "Web Server Software: #{software}"
+  description << "Application Server Software: #{app_server_software}"
+  description << "Certificate: #{certificate}"
+
+  recommendation = "Verify the software is up to date."
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 

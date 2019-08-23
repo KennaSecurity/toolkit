@@ -54,7 +54,7 @@ headers = verify_file_headers(ARGV[0])
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |row,index|
   # skip first
   next if index == 0
-
+  
   # create the asset
   hostname = get_value_by_header(row, headers,"firstObservation.hostname").gsub("*.","")
   ip_address = get_value_by_header(row, headers,"ip")
@@ -63,7 +63,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -79,16 +79,18 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
   issuer = get_value_by_header(row, headers,"certificate.issuer")
   alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
   provider = get_value_by_header(row, headers,"provider")
-  valid_until = get_value_by_header(row, headers,"certificate.validNotAfter")
-
-  vuln_id = "certificate_healthy_#{serial}"
-  description = "Detected Healthy Certificate\n"
+  key_length = get_value_by_header(row, headers,"certificate.publicKeyBits") 
+  algorithm = get_value_by_header(row, headers,"certificate.publicKeyAlgorithm")
+  
+  vuln_id = "certificate_short_key_#{serial}"
+  description = "Detected certificate with short key \n"
   description << "Serial: #{serial}\n"
-  description << "Valid Until: #{valid_until}\n"
+  description << "Public Key Length: #{key_length}\n"
+  description << "Signature Algorithm: #{algorithm}\n"
   description << "Issuer: #{issuer}\n"
   description << "Subject Alt Names: #{alternative_names}\n"
 
-  recommendation = "No action required."
+  recommendation = "Verify and if required, re-issue certificate or remove system" # TODO?
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 

@@ -3,6 +3,7 @@
 require_relative "lib/mapping"
 require_relative "lib/helpers"
 
+
 require 'json'
 require 'csv'
 
@@ -45,16 +46,17 @@ def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
     last_seen_at: last_seen,
     status: "open"
   }
-
 end
+
 
 # verify we have a valid file
 headers = verify_file_headers(ARGV[0])
 
+# iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |row,index|
   # skip first
   next if index == 0
-  
+
   # create the asset
   hostname = get_value_by_header(row, headers,"firstObservation.hostname").gsub("*.","")
   ip_address = get_value_by_header(row, headers,"ip")
@@ -63,7 +65,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -79,18 +81,15 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
   issuer = get_value_by_header(row, headers,"certificate.issuer")
   alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
   provider = get_value_by_header(row, headers,"provider")
-  key_length = get_value_by_header(row, headers,"certificate.publicKeyBits") 
-  algorithm = get_value_by_header(row, headers,"certificate.publicKeyAlgorithm")
-  
-  vuln_id = "certificate_short_key_#{serial}"
-  description = "Detected certificate with short key \n"
+
+  vuln_id = "certificate_expired_when_scanned_#{serial}"
+  description = "Detected Expired Certificate\n"
   description << "Serial: #{serial}\n"
-  description << "Public Key Length: #{key_length}\n"
-  description << "Signature Algorithm: #{algorithm}\n"
   description << "Issuer: #{issuer}\n"
   description << "Subject Alt Names: #{alternative_names}\n"
+  description << "Provider: #{provider}"
 
-  recommendation = "Verify and if required, re-issue certificate or remove system" # TODO?
+  recommendation = "Re-issue certificate or remove system" # TODO?
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 

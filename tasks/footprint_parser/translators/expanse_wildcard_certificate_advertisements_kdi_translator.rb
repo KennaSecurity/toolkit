@@ -3,6 +3,7 @@
 require_relative "lib/mapping"
 require_relative "lib/helpers"
 
+
 require 'json'
 require 'csv'
 
@@ -51,6 +52,7 @@ end
 # verify we have a valid file
 headers = verify_file_headers(ARGV[0])
 
+# iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |row,index|
   # skip first
   next if index == 0
@@ -60,10 +62,10 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
   ip_address = get_value_by_header(row, headers,"ip")
   port = get_value_by_header(row, headers,"port")
   create_asset ip_address, hostname
-  
+
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -75,14 +77,17 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
-  lb = get_value_by_header(row, headers,"firstObservation.configuration.loadBalancer")
-  lbpool = get_value_by_header(row, headers,"firstObservation.configuration.loadBalancerPool")
-
-  finding_id = unique_finding_string("#{lb} #{lbpool}")
-
-  vuln_id = "detected_load_balancer_#{finding_id}"
-  description = "Load Balancer detected: #{lb} #{lbpool}"
-  recommendation = "No action required."
+  serial = get_value_by_header(row, headers,"certificate.serialNumber")
+  issuer = get_value_by_header(row, headers,"certificate.issuer")
+  alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
+  
+  vuln_id = "wildcard_certificate_#{serial}"
+  description = "Detected Wildcard Certificate\n"
+  description << "Serial: #{serial}\n"
+  description << "Issuer: #{issuer}\n"
+  description << "Subject Alt Names: #{alternative_names}\n"
+  
+  recommendation = "Verify and if required, re-issue certificate or remove system"
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 

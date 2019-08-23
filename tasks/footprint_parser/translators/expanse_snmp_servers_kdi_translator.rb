@@ -63,7 +63,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
   
   first = get_value_by_header(row, headers,"First Observed")
   last = get_value_by_header(row, headers,"Last Observed")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today

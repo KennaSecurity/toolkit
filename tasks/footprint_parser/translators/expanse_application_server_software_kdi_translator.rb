@@ -1,6 +1,8 @@
 #encoding: utf-8
+
 require_relative "lib/mapping"
 require_relative "lib/helpers"
+
 
 require 'json'
 require 'csv'
@@ -50,20 +52,23 @@ end
 # verify we have a valid file
 headers = verify_file_headers(ARGV[0])
 
-# iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |row,index|
+  
   # skip first
   next if index == 0
 
   # create the asset
-  hostname = get_value_by_header(row, headers,"firstObservation.hostname").gsub("*.","")
   ip_address = get_value_by_header(row, headers,"ip")
-  port = get_value_by_header(row, headers,"port")
-  create_asset ip_address, hostname
+  port = get_value_by_header(row, headers,"port") || 0
+  
+  # NOTE this could have multiple values...
+  hostname = get_value_by_header(row, headers,"firstObservation.hostname")
+
+  create_asset ip_address
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -75,17 +80,11 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
-  software = get_value_by_header(row, headers, "lastObservation.configuration.hasServerSoftware")
-  app_server_software = get_value_by_header(row, headers, "lastObservation.configuration.hasApplicationServerSoftware")
-  certificate = get_value_by_header(row, headers, "lastObservation.configuration.certificate")
+  software = get_value_by_header(row, headers,"lastObservation.configuration.serverSoftware")
+  app_server_string = unique_finding_string(software)
 
-  app_server_string = unique_finding_string("#{software} #{app_server_software} #{certificate}")
-  vuln_id = "detected_webserver_#{app_server_string}"
-  description = "Detected Webserver:\n"
-  description << "Web Server Software: #{software}"
-  description << "Application Server Software: #{app_server_software}"
-  description << "Certificate: #{certificate}"
-
+  vuln_id = "application_server_software_#{app_server_string}"
+  description = "Application Server Software: #{software}"
   recommendation = "Verify the software is up to date."
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)

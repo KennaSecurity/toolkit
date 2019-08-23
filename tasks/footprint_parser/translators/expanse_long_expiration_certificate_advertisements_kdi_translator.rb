@@ -3,7 +3,6 @@
 require_relative "lib/mapping"
 require_relative "lib/helpers"
 
-
 require 'json'
 require 'csv'
 
@@ -46,8 +45,8 @@ def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
     last_seen_at: last_seen,
     status: "open"
   }
-end
 
+end
 
 # verify we have a valid file
 headers = verify_file_headers(ARGV[0])
@@ -65,7 +64,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
 
   first = get_value_by_header(row, headers,"firstObservation.scanned")
   last = get_value_by_header(row, headers,"lastObservation.scanned")
-  if 
+  if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
     first_seen = Date.today
@@ -77,19 +76,23 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8").each_with_index do |
     last_seen = Date.today
   end
 
+
   serial = get_value_by_header(row, headers,"certificate.serialNumber")
   issuer = get_value_by_header(row, headers,"certificate.issuer")
   alternative_names = get_value_by_header(row, headers,"certificate.subjectAlternativeNames")
   provider = get_value_by_header(row, headers,"provider")
+  valid_not_before = get_value_by_header(row, headers,"certificate.validNotBefore")
+  valid_not_after = get_value_by_header(row, headers,"certificate.validNotAfter")
 
-  vuln_id = "certificate_expired_when_scanned_#{serial}"
-  description = "Detected Expired Certificate\n"
+  vuln_id = "certificate_long_expiration_#{serial}"
+  description = "Detected certificate with long expiration\n"
   description << "Serial: #{serial}\n"
+  description << "Valid Not Before: #{valid_not_before}\n"
+  description << "Valid Not After: #{valid_not_after}\n"
   description << "Issuer: #{issuer}\n"
   description << "Subject Alt Names: #{alternative_names}\n"
-  description << "Provider: #{provider}"
 
-  recommendation = "Re-issue certificate or remove system" # TODO?
+  recommendation = "Verify and if required, re-issue certificate or remove system" # TODO?
 
   mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 

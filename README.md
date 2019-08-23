@@ -15,7 +15,7 @@ Building The Image:
 
 Build the image using the following command: 
 
-```toolkit master [20190821]$ docker build . -t toolkit
+```toolkit master [20190821]$ docker build . -t toolkit:latest
 Sending build context to Docker daemon  695.8MB
 Step 1/9 : FROM quay.io/kennasecurity/ruby:2.6.2
  ---> f06698035a65

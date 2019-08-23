@@ -1,5 +1,8 @@
 require 'digest'
 
+# hack - remove this when fully integrated
+$basedir = "/opt/toolkit"
+
 class String
   def sanitize_unicode
     self.encode("UTF-8", { 
@@ -8,7 +11,6 @@ class String
      :replace => "?" }).gsub("\u0000","")
   end
 end
-
 
 module Kenna
   module Helpers
