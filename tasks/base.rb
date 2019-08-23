@@ -29,9 +29,9 @@ class BaseTask
       exit
     end
 
-    # !!!!!!
-    # TODO!! - validate arguments based on their type here
-    # !!!!!!
+    # !!!!!!!
+    # TODO !! - validate arguments based on their type here
+    # !!!!!!!
 
     # if we made it here, we have the right arguments!
     @options = opts
