@@ -17,19 +17,19 @@ Build the image using the following command:
 
 ```toolkit master [20190821]$ docker build . -t toolkit:latest
 Sending build context to Docker daemon  695.8MB
-Step 1/9 : FROM quay.io/kennasecurity/ruby:2.6.2
+Step 1/8 : FROM quay.io/kennasecurity/ruby:2.6.2
  ---> f06698035a65
-Step 2/9 : LABEL maintainer="Kenna Security"
+Step 2/8 : LABEL maintainer="Kenna Security"
  ---> Using cache
  ... 
 <snip>
  ... 
  ---> 6c825c96c9d7
-Step 9/9 : ENTRYPOINT ["bundle", "exec", "/opt/app/src/toolkit.sh" ]
+Step 8/8 : ENTRYPOINT ["./toolkit.sh" ]
  ---> Running in 29e51e6d8537
 Removing intermediate container 29e51e6d8537
  ---> ef90eefdb0ce
-Successfully built toolkit```
+Successfully built toolkit:latest```
 
 Launching the Docker Image: 
 ===========================
@@ -66,6 +66,18 @@ Getting Data Into the System (and Getting the Output OUT)!
 ==========================================================
 
 The Docker image is set up with VOLUMES in order to mount two directories at runtime. One directory for input and another for output. These are configured at runtime, so check the instructions below on how to specify the paths when launching an image.
+
+==============
+TOOLKIT TASKS: 
+==============
+
+The tasks are currently being converted over from scripts, these are the current tasks available: 
+
+ - asset_upload_tag: This task does uploads assets through the API
+ - example: Just an Example.
+ - help: Print the Help
+ - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
+ - user_role_sync: This task creates users and assigns them to roles via the API
 
 ==================
 TOOLKIT CHANGELOG:
