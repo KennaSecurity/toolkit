@@ -71,11 +71,11 @@ Getting Data Into the System (and Getting the Output OUT)!
 
 The Docker image is set up with VOLUMES in order to mount two directories at runtime. One directory for input and another for output. These are configured at runtime, so check the instructions below on how to specify the paths when launching an image.
 
-==============
-TOOLKIT TASKS: 
-==============
 
-The tasks are currently being converted over from scripts, these are the current tasks available: 
+TOOLKIT CAPABILITIES (TASKS): 
+=============================
+
+These are the current tasks available: 
 
  - asset_upload_tag: This task does uploads assets through the API
  - example: Just an Example.
@@ -83,18 +83,17 @@ The tasks are currently being converted over from scripts, these are the current
  - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
  - user_role_sync: This task creates users and assigns them to roles via the API
 
-==================
 TOOLKIT CHANGELOG:
 ==================
 	
 20190821:
  - Initial discussions and implementation by @jcran and @dbro
 
-=============
 CONTRIBUTORS:
 =============
- - @linda
- - @jcran
- - @dbro
-
+ - @linda (original scripts, ideas)
+ - @jgamblin (docker work,ideas)
+ - @jcran (initial implementation, various tasks)
+ - @dbro (initial implementation and testing, various tasks)
+ 
 
