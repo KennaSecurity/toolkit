@@ -14,7 +14,8 @@ Building The Image:
 
 Build the image using the following command: 
 
-```toolkit master [20190821]$ docker build . -t toolkit:latest
+```
+toolkit master [20190821]$ docker build . -t toolkit:latest
 Sending build context to Docker daemon  695.8MB
 Step 1/8 : FROM quay.io/kennasecurity/ruby:2.6.2
  ---> f06698035a65
@@ -28,7 +29,8 @@ Step 8/8 : ENTRYPOINT ["./toolkit.sh" ]
  ---> Running in 29e51e6d8537
 Removing intermediate container 29e51e6d8537
  ---> ef90eefdb0ce
-Successfully built toolkit:latest```
+Successfully built toolkit:latest
+```
 
 Launching the Docker Image: 
 ===========================
@@ -46,7 +48,10 @@ For scripts that touch the API, you'll need to pass the following in:
  - kenna_api_host
  - kenna_api_key
 
-Each script may have its own arguments, so we make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by semicolons. For example: ```'arg1=val1;arg2=val2;arg3=val3'```
+Each script may have its own arguments, so we make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by semicolons. For example: 
+```
+'arg1=val1;arg2=val2;arg3=val3'
+```
 
 This format allows us to have a standar interface to the scripts, and to easily pass script-specific arguments in. An example argument string that can be passed to a docker run: 
 ```
@@ -83,7 +88,7 @@ TOOLKIT CHANGELOG:
 ==================
 	
 20190821:
- - Initial Commit
+ - Initial discussions and implementation by @jcran and @dbro
 
 =============
 CONTRIBUTORS:
