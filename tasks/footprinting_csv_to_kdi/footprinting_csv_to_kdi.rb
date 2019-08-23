@@ -44,7 +44,8 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
         {:name => "input_directory", 
           :type => "filename", 
           :required => false, 
-          :default => "input/footprinting", 
+          :default => "
+          /footprinting", 
           :description => "Path to footprinting data, relative to #{$basedir}"  },
         {:name => "output_directory", 
           :type => "filename", 
@@ -57,6 +58,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
   def run(options)
     super
+
 
     @config = parse_configuration_file
 
