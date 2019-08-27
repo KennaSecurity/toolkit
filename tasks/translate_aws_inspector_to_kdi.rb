@@ -31,7 +31,12 @@ def metadata
           :required => false, 
           :default => "us-east-1", 
           :description => "This is the AWS secret key used to query the API." 
-        }
+        }, 
+        { :name => "output_directory", 
+          :type => "filename", 
+          :required => false, 
+          :default => "output/inspector", 
+          :description => "Path to parsing output, relative to #{$basedir}"  }
       ]
     }
 end
@@ -79,11 +84,17 @@ def run(opts)
     end
   end
 
-  kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+  # create output dir
+  output_dir = "#{$basedir}/#{@options[:output_directory]}"
+  FileUtils.mkdir_p output_dir
   
-  print_good "Output:"
+  # create full output path
+  output_path = "#{output_dir}/inspector.kdi.json"
 
-  puts JSON.pretty_generate kdi_output
+  # write a file with the output
+  kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+  print_good "Output being written to: #{output_path}"
+  File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
 
 end
 
