@@ -48,28 +48,33 @@ For scripts that touch the API, you'll need to pass the following in:
  - kenna_api_host
  - kenna_api_key
 
-Each script may have its own arguments, so we make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by semicolons. For example: 
+Each tasks has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by colons. An example: 
 ```
-'arg1=val1;arg2=val2;arg3=val3'
+'arg1=val1:arg2=val2:arg3=val3'
 ```
 
-This format allows us to have a standar interface to the scripts, and to easily pass script-specific arguments in. An example argument string that can be passed to a docker run: 
+The only required argument in all cases is the 'task' argument which specifies the functionality:
 ```
- 'kenna_script=hello_world;kenna_api_host=api.kennasecurity.com;kenna_api_key=asdfadsfasdfasdfasdf;arg1=val1;arg2=val2'
+ 'task=example:kenna_api_host=api.kennasecurity.com'
 ```
 
 An Example Run: 
 ```
-$ ARGUMENTS='kenna_api_host=api.kennasecurity.com;kenna_api_key=asdfadsfasdfasdfasdf'
-$ docker run -v ~/Desktop/toolkit_output:/opt/app/src/output \
-  -v ~/Desktop/toolkit_input:/opt/app/src/input  \
-  -t toolkit $ARGUMENTS
+$ docker run \
+  -v ~/Desktop/toolkit_output:/opt/app/src/output \
+  -v ~/Desktop/toolkit_input:/opt/app/src/input \
+  -t toolkit:latest task=example:kenna_api_host=api.kennasecurity.com;kenna_api_key=[REDACTED]
+```
+
+Another example run ('translate_aws_inspector_to_kdi' task) with a single mapped volume (output): 
+```
+docker run -v ~/Desktop/toolkit_output:/opt/toolkit/output toolkit:latest task=translate_aws_inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
 ```
 
 Getting Data Into the System (and Getting the Output OUT)! 
 ==========================================================
 
-The Docker image is set up with VOLUMES in order to mount two directories at runtime. One directory for input and another for output. These are configured at runtime, so check the instructions below on how to specify the paths when launching an image.
+Volumes can be mounted in docker in order to allow interaction with the local filesystem. One directory for input and another for output are often required. These volumes are configured at runtime, so check the examples above on how to specify the paths when launching an image.
 
 
 TOOLKIT CAPABILITIES (TASKS): 
@@ -79,13 +84,15 @@ These are the current tasks available:
 
  - asset_upload_tag: This task does uploads assets through the API
  - example: Just an Example.
- - help: Print the Help
  - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
+ - translate_aws_inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
  - user_role_sync: This task creates users and assigns them to roles via the API
 
 TOOLKIT CHANGELOG:
 ==================
-	
+
+20190827:	
+ - Add translate_aws_inspector_to_kdi script
 20190821:
  - Initial discussions and implementation by @jcran and @dbro
 
