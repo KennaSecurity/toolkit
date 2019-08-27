@@ -10,4 +10,7 @@ source 'https://rubygems.org'
 
 gem 'rest-client'
 gem 'json'
+gem 'aws-sdk-inspector'
+
+
 gem 'pry'
