@@ -66,9 +66,9 @@ $ docker run \
   -t toolkit:latest task=example:kenna_api_host=api.kennasecurity.com;kenna_api_key=[REDACTED]
 ```
 
-Another example run ('translate_aws_inspector_to_kdi' task) with a single mapped volume (output): 
+Another example run ('inspector_to_kdi' task) with a single mapped volume (output): 
 ```
-docker run -v ~/Desktop/toolkit_output:/opt/toolkit/output toolkit:latest task=translate_aws_inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
+docker run -v ~/Desktop/toolkit_output:/opt/toolkit/output toolkit:latest task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
 ```
 
 Getting Data Into the System (and Getting the Output OUT)! 
@@ -85,7 +85,7 @@ These are the current tasks available:
  - asset_upload_tag: This task does uploads assets through the API
  - example: Just an Example.
  - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
- - translate_aws_inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
+ - inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
  - user_role_sync: This task creates users and assigns them to roles via the API
 
 TOOLKIT CHANGELOG:

@@ -2,13 +2,12 @@ require 'aws-sdk-inspector'
 
 module Kenna 
 module Toolkit
-class TranslateAwsInspectorToKdi < Kenna::Toolkit::BaseTask
-
+class InspectorToKdi < Kenna::Toolkit::BaseTask
 
 def metadata 
     {
-      id: "translate_aws_inspector_to_kdi",
-      name: "Translate AWS Inspector To KDI",
+      id: "inspector_to_kdi",
+      name: "Inspector To KDI Translato",
       description: "This task pulls results from AWS inspector and translates them into JSON",
       options: [
         { 
