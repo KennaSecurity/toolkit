@@ -35,16 +35,46 @@ class InspectApiToken < Kenna::Toolkit::BaseTask
     end
 
     api_client = Kenna::Api.new(api_token, api_host)
-    
 
-    print_good
-    print_good "Connectors: #{api_client.get_connectors["connectors"].count}"
-    #print_good "Connector Runs: #{api_client.get_connector_runs["connector_runs"].count}"
-    print_good "Users: #{api_client.get_users["users"].count}"
-    print_good "Roles: #{api_client.get_roles["roles"].count}"
-    print_good "Asset Groups: #{api_client.get_asset_groups["asset_groups"].count}"
-    print_good "Vulns: #{api_client.get_vulns["vulnerabilities"].count}"
-    print_good
+    # get connectors
+    response = api_client.get_connectors
+    if response[:status] == "success"
+      print_good "Connectors: #{response[:results]["connectors"].count}"
+    else 
+      print_error "Connectors: #{response[:message]}"
+    end
+
+    # get users
+    response = api_client.get_users
+    if response[:status] == "success"
+      print_good "Users: #{response[:results]["users"].count}"
+    else 
+      print_error "Users: #{response[:message]}"
+    end
+    
+    # get roles
+    response = api_client.get_roles
+    if response[:status] == "success"
+      print_good "Roles: #{response[:results]["roles"].count}"
+    else 
+      print_error "Roles: #{response[:message]}"
+    end
+
+    # get asset groups
+    response = api_client.get_asset_groups
+    if response[:status] == "success"
+      print_good "Asset Groups: #{response[:results]["asset_groups"].count}"
+    else 
+      print_error "Asset_Groups: #{response[:message]}"
+    end
+
+    # get vulns
+    response = api_client.get_vulns
+    if response[:status] == "success"
+      print_good "Vulns: #{response[:results]["vulnerabilities"].count}"
+    else 
+      print_error "Vulns: #{response[:message]}"
+    end
 
   end
 

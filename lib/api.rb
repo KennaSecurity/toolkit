@@ -40,14 +40,14 @@ module Kenna
 
       headers = { 'X-Risk-Token': "#{@token}" }
       endpoint = "#{@base_url}/#{resource}"
+      out = { method: "#{method}", resource: "#{resource}"} 
 
       if method == :get
         
         begin 
           results = RestClient.get endpoint, headers
         rescue RestClient::Forbidden => e
-          out = { message: "Access Denied" } 
-          return
+          out.merge!({status: "fail", message: "access denied", results: {} })
         end
 
       elsif method == :post
@@ -55,22 +55,23 @@ module Kenna
         begin 
           results = RestClient.post endpoint, body, headers
         rescue RestClient::Forbidden => e
-          out = { message: "Access Denied" } 
-          return
+          out.merge!({status: "fail", message: "access denied", results: {} })
         end
   
       else 
         # uknown method
-        out = { message: "Unknown API method" } 
+        out.merge!({status: "fail", message: "unknown method", results: {} })
       end
 
+      # parse up the results
       begin 
-        out = JSON.parse(results)
+        parsed_results = JSON.parse(results)
+        out.merge!({status: "success", results: parsed_results })
       rescue
-        raise "Unable to parse JSON!"
+        out.merge!({status: "fail", message: "error parsing", results: {} })
       end
 
-    out.merge({message: "Success"})
+    out 
     end
 
 
