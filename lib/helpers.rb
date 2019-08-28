@@ -27,15 +27,15 @@ module Kenna
         puts "[ ]                                                               "
       end
 
-      def print(message)
+      def print(message=nil)
         puts "[ ] #{message}"
       end
 
-      def print_good(message)
+      def print_good(message=nil)
         puts "[+] #{message}"
       end
 
-      def print_error(message)
+      def print_error(message=nil)
         puts "[!] #{message}"
       end
     end

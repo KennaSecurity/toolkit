@@ -1,3 +1,7 @@
+# require task-specific libraries etc 
+
+require_relative '../lib/api' # kenna api client 
+
 module Kenna
 module Toolkit
 class BaseTask

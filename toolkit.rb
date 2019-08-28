@@ -16,6 +16,7 @@ require_relative 'tasks/base'
 require_relative 'tasks/asset_upload_tag/add_assets'
 require_relative 'tasks/example'
 require_relative 'tasks/footprinting_csv_to_kdi/footprinting_csv_to_kdi'
+require_relative 'tasks/inspect_api_token'
 require_relative 'tasks/inspector_to_kdi'
 require_relative 'tasks/user_role_sync/user_role_sync'
 
@@ -67,6 +68,8 @@ when "help"
   print_usage && exit
 when "footprinting_csv_to_kdi"
   Kenna::Toolkit::FootprintingCsvToKdi.new.run(args)
+when "inspect_api_token"
+  Kenna::Toolkit::InspectApiToken.new.run(args)
 when "inspector_to_kdi"
   Kenna::Toolkit::InspectorToKdi.new.run(args)
 when "user_role_sync"
