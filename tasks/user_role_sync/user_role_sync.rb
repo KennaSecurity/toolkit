@@ -6,7 +6,7 @@ def metadata
 	{
 		id: "user_role_sync",
 		name: "User Role Sync",
-		description: "This task does blah blah blah (TODO)",
+		description: "This task creates users and assigns them to roles via the API",
 		options: [
 			{:name => "kenna_api_token", 
 				:type => "api_key", 

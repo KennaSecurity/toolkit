@@ -1,84 +1,111 @@
-======
+
 ABOUT:
 ======
 
-The Kenna toolkit is designed to make our customers lives' easier.
+The Kenna toolkit is a powerful set of functions for data and api manipulation outside of the Kenna platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
 
-===================
-USAGE INSTRUCTIONS:
-===================
+USAGE:
+======
 
 Building The Image: 
 ==================
 
-(First, make sure you have Docker installed)
+First, make sure you have Docker installed! Then, build the image using the following command: 
 
-Build the image using the following command: 
-
-```toolkit master [20190821]$ docker build . -t toolkit
+```
+toolkit master [20190821]$ docker build . -t toolkit:latest
 Sending build context to Docker daemon  695.8MB
-Step 1/9 : FROM quay.io/kennasecurity/ruby:2.6.2
+Step 1/8 : FROM quay.io/kennasecurity/ruby:2.6.2
  ---> f06698035a65
-Step 2/9 : LABEL maintainer="Kenna Security"
- ---> Using cache
- ... 
 <snip>
- ... 
- ---> 6c825c96c9d7
-Step 9/9 : ENTRYPOINT ["bundle", "exec", "/opt/app/src/toolkit.sh" ]
- ---> Running in 29e51e6d8537
-Removing intermediate container 29e51e6d8537
- ---> ef90eefdb0ce
-Successfully built toolkit```
+Successfully built toolkit:latest
+```
 
 Launching the Docker Image: 
 ===========================
 
-Sweet, now you have an image, and are ready to launch it!
+Excellent, now you have an image, and are ready to launch it!
 
-The docker image uses docker "volumes" in order to get data into the system and out of it. Below is an example that maps the two volumes. To learn more about how docker volumes work, you can visit this link: https://docs.docker.com/storage/volumes/
-
-Arguments ARE REQUIRED for some scripts, so you'll want to pay close attention to this section. There is a standard way of passing arguments in, and few you'll want to make note of. 
- 
- - kenna_script
-
-For scripts that touch the API, you'll need to pass the following in: 
- 
- - kenna_api_host
- - kenna_api_key
-
-Each script may have its own arguments, so we make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by semicolons. For example: ```'arg1=val1;arg2=val2;arg3=val3'```
-
-This format allows us to have a standar interface to the scripts, and to easily pass script-specific arguments in. An example argument string that can be passed to a docker run: 
 ```
- 'kenna_script=hello_world;kenna_api_host=api.kennasecurity.com;kenna_api_key=asdfadsfasdfasdfasdf;arg1=val1;arg2=val2'
+$ docker run -t toolkit:latest
+[+] ========================================================      
+[+]  Welcome to the Kenna Security API & Scripting Toolkit!       
+[+] ========================================================      
+[ ]                                                               
+<snip> 
 ```
 
-An Example Run: 
+If everything's working, lets move on to accessing the toolkit's functionality through tasks. 
+
+Calling a Specific Task:
+========================
+
+In order to utilize the toolkit's funcitonality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names! 
+
 ```
-$ ARGUMENTS='kenna_api_host=api.kennasecurity.com;kenna_api_key=asdfadsfasdfasdfasdf'
-$ docker run -v ~/Desktop/toolkit_output:/opt/app/src/output \
-  -v ~/Desktop/toolkit_input:/opt/app/src/input  \
-  -t toolkit $ARGUMENTS
+$ docker run -t toolkit:latest task=example
 ```
+
+Calling a Task with Arguments:
+==============================
+
+Sometimes, you'll need to send arguments to tasks in order to specify how they should behave. 
+
+Each tasks has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by colons. An example: 
+```
+'arg1=val1:arg2=val2:arg3=val3'
+```
+
+Here's an example ('inspector_to_kdi' task) with arguments being passed to it:
+
+```
+docker run task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
+```
+
+
 
 Getting Data Into the System (and Getting the Output OUT)! 
 ==========================================================
 
-The Docker image is set up with VOLUMES in order to mount two directories at runtime. One directory for input and another for output. These are configured at runtime, so check the instructions below on how to specify the paths when launching an image.
+Many tasks will require input and output json or log files.  The toolkit uses directories under /opt/toolkit to facilitate input and output.
+ 
+ - Default Input Directory: /opt/toolkit/input
+ - Default Output Directory: /opt/toolkit/output
 
-==================
+Below is an example that maps volumes to directories on the local system - both input and output. 
+
+```
+$ docker run \
+  -v ~/Desktop/toolkit_output:/opt/app/src/output \
+  -v ~/Desktop/toolkit_input:/opt/app/src/input \
+  -t toolkit:latest task=example
+```
+
+
+TOOLKIT CAPABILITIES (TASKS): 
+=============================
+
+These are the current tasks available: 
+
+ - asset_upload_tag: This task does uploads assets through the API
+ - example: Just an Example.
+ - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
+ - inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
+ - user_role_sync: This task creates users and assigns them to roles via the API
+
 TOOLKIT CHANGELOG:
 ==================
-	
-20190821:
- - Initial Commit
 
-=============
+20190827:	
+ - Add translate_aws_inspector_to_kdi script
+20190821:
+ - Initial discussions and implementation by @jcran and @dbro
+
 CONTRIBUTORS:
 =============
- - @linda
- - @jcran
- - @dbro
-
+ - @linda (original scripts, ideas)
+ - @jgamblin (docker work,ideas)
+ - @jcran (initial implementation, various tasks)
+ - @dbro (initial implementation and testing, various tasks)
+ 
 

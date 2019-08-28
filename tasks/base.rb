@@ -1,3 +1,7 @@
+# require task-specific libraries etc 
+
+require_relative '../lib/api' # kenna api client 
+
 module Kenna
 module Toolkit
 class BaseTask
@@ -29,9 +33,23 @@ class BaseTask
       exit
     end
 
+    # No missing arguments, so let's add in our default arguments now
+    metadata[:options].each do |o|
+      print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"
+      opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym]
+    end
+
     # !!!!!!!
     # TODO !! - validate arguments based on their type here
     # !!!!!!!
+
+    # Convert booleans to an actual false value
+    #opts.each do |o,v|
+    #  if o[:type] == "boolean" && o[:value] == "false"
+    #    print_good "Converted #{o[:name]} to false value"
+    #    o[:value] = false
+    #  end
+    #end
 
     # if we made it here, we have the right arguments!
     @options = opts
@@ -39,7 +57,7 @@ class BaseTask
     # Print out the options so the user knows and logs what we're doing
     @options.each do |k,v| 
       if k =~ /key/ ||  k =~ /token/ # special case anything that has key in it
-        print_good "Got option: #{k}: ********#{v[-4..-1]}"
+        print_good "Got option: #{k}: *******************"
       else 
         print_good "Got option: #{k}: #{v}"
       end
