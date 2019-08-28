@@ -2,79 +2,84 @@
 ABOUT:
 ======
 
-The Kenna toolkit is a powerful set of functions for data and api manipulation outside of the Kenna platform.  
+The Kenna toolkit is a powerful set of functions for data and api manipulation outside of the Kenna platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
 
-USAGE INSTRUCTIONS:
-===================
+USAGE:
+======
 
 Building The Image: 
 ==================
 
-(First, make sure you have Docker installed)
-
-Build the image using the following command: 
+First, make sure you have Docker installed! Then, build the image using the following command: 
 
 ```
 toolkit master [20190821]$ docker build . -t toolkit:latest
 Sending build context to Docker daemon  695.8MB
 Step 1/8 : FROM quay.io/kennasecurity/ruby:2.6.2
  ---> f06698035a65
-Step 2/8 : LABEL maintainer="Kenna Security"
- ---> Using cache
- ... 
 <snip>
- ... 
- ---> 6c825c96c9d7
-Step 8/8 : ENTRYPOINT ["./toolkit.sh" ]
- ---> Running in 29e51e6d8537
-Removing intermediate container 29e51e6d8537
- ---> ef90eefdb0ce
 Successfully built toolkit:latest
 ```
 
 Launching the Docker Image: 
 ===========================
 
-Sweet, now you have an image, and are ready to launch it!
+Excellent, now you have an image, and are ready to launch it!
 
-The docker image uses docker "volumes" in order to get data into the system and out of it. Below is an example that maps the two volumes. To learn more about how docker volumes work, you can visit this link: https://docs.docker.com/storage/volumes/
+```
+$ docker run -t toolkit:latest
+[+] ========================================================      
+[+]  Welcome to the Kenna Security API & Scripting Toolkit!       
+[+] ========================================================      
+[ ]                                                               
+<snip> 
+```
 
-Arguments ARE REQUIRED for some scripts, so you'll want to pay close attention to this section. There is a standard way of passing arguments in, and few you'll want to make note of. 
- 
- - kenna_script
+If everything's working, lets move on to accessing the toolkit's functionality through tasks. 
 
-For scripts that touch the API, you'll need to pass the following in: 
- 
- - kenna_api_host
- - kenna_api_key
+Calling a Specific Task:
+========================
+
+In order to utilize the toolkit's funcitonality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names! 
+
+```
+$ docker run -t toolkit:latest task=example
+```
+
+Calling a Task with Arguments:
+==============================
+
+Sometimes, you'll need to send arguments to tasks in order to specify how they should behave. 
 
 Each tasks has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by colons. An example: 
 ```
 'arg1=val1:arg2=val2:arg3=val3'
 ```
 
-The only required argument in all cases is the 'task' argument which specifies the functionality:
+Here's an example ('inspector_to_kdi' task) with arguments being passed to it:
+
 ```
- 'task=example:kenna_api_host=api.kennasecurity.com'
+docker run task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
 ```
 
-An Example Run: 
-```
-$ docker run \
-  -v ~/Desktop/toolkit_output:/opt/app/src/output \
-  -v ~/Desktop/toolkit_input:/opt/app/src/input \
-  -t toolkit:latest task=example:kenna_api_host=api.kennasecurity.com;kenna_api_key=[REDACTED]
-```
 
-Another example run ('inspector_to_kdi' task) with a single mapped volume (output): 
-```
-docker run -v ~/Desktop/toolkit_output:/opt/toolkit/output toolkit:latest task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
-```
 
 Getting Data Into the System (and Getting the Output OUT)! 
 ==========================================================
 
-Volumes can be mounted in docker in order to allow interaction with the local filesystem. One directory for input and another for output are often required. These volumes are configured at runtime, so check the examples above on how to specify the paths when launching an image.
+Many tasks will require input and output json or log files.  The toolkit uses directories under /opt/toolkit to facilitate input and output.
+ 
+ - Default Input Directory: /opt/toolkit/input
+ - Default Output Directory: /opt/toolkit/output
+
+Below is an example that maps volumes to directories on the local system - both input and output. 
+
+```
+$ docker run \
+  -v ~/Desktop/toolkit_output:/opt/app/src/output \
+  -v ~/Desktop/toolkit_input:/opt/app/src/input \
+  -t toolkit:latest task=example
+```
 
 
 TOOLKIT CAPABILITIES (TASKS): 
