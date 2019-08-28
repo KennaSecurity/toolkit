@@ -1,6 +1,6 @@
 module Kenna 
 module Toolkit
-class AddAssets < Kenna::Toolkit::BaseTask
+class AssetUploadTag < Kenna::Toolkit::BaseTask
 
   def metadata 
     {
@@ -61,11 +61,12 @@ class AddAssets < Kenna::Toolkit::BaseTask
     @csv_file = @options[:csv_file]
 
     #ARGV.length == 5 ? @tag_column_file = ARGV[4] : @tag_column_file = nil
-    @tag_column_file = tag_column_file
+    # @tag_column_file = tag_column_file
+    @tag_column_file = @options[:tag_mapping_file]
 
     #Variables we'll need later
     @debug = true
-    @post_url = 'https://api.blue.us.kennasecurity.com/assets'
+    @post_url = "https://#{@options[:kenna_api_host]}/assets"
     @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
     @tag_columns = []
@@ -74,6 +75,8 @@ class AddAssets < Kenna::Toolkit::BaseTask
     enc_colon = "%3A"
     enc_dblquote = "%22"
     enc_space = "%20"
+
+    puts "Path:#{$basedir}/#{@csv_file}"
 
 
     ## Set columns to use for tagging, if a @tag_column_file is provided
@@ -188,6 +191,7 @@ class AddAssets < Kenna::Toolkit::BaseTask
     # ========================
 
       puts json_data
+      puts @post_url
       begin
         query_post_return = RestClient::Request.execute(
           method: :post,

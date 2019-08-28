@@ -1,2 +1,11 @@
 
+Below are the syntax for running the script from both the command-line and through the docker container.  Both need the correct API Token set within the command prior to running.
+
+Interactive Script from CLI:
+
 ruby add_assets.rb <token> "ip_address" "field_mapping.csv" "../DataExport_KennaTest3.csv" "tag_column_meta.csv" 
+
+Run through Docker Container:
+
+docker run -t -i -v /Users/davidbrothers/Desktop/testinput:/opt/toolkit/input -v /Users/davidbrothers/Desktop/testoutput:/opt/toolkit/output toolkit:latest task=asset_upload_tag:kenna_api_token=<token>:kenna_api_host=api.kennasecurity.com:primary_locator=ip_address:csv_file=input/testassetdata.csv:field_mapping_file=input/field_mapping.csv:tag_mapping_file=input/tag_mapping.csv
+

@@ -78,7 +78,7 @@ def run(options)
 
 	#Variables we'll need later
 	@role_post_url = "https://#{@api_host}/roles"
-	@user_post_url = "https://#{@api_host}/user"
+	@user_post_url = "https://#{@api_host}/users"
 	@headers = {'content-type' => 'application/json', 'X-Risk-Token' => @api_token }
 	@role_found = false
 	@role_list = ''
@@ -113,7 +113,7 @@ def run(options)
 	# Iterate through CSV
 	# CSV.foreach(@csv_file, :headers => true) do |row|
 	# Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
-	CSV.open(@csv_file, 'r:bom|utf-8', :headers => true) do |csv|
+	CSV.open(csv_file_path, 'r:bom|utf-8', :headers => true) do |csv|
 		csv.each() do |row|
 
 			current_line = $.
@@ -179,6 +179,7 @@ end
 
 def pull_roles_list
 	begin
+
 		puts @role_post_url
 		query_post_return = RestClient::Request.execute(
 			method: :get,
@@ -204,7 +205,7 @@ def pull_user_list
 			url: @user_post_url,
 			# payload: json_data,
 			headers: @headers
-		) 
+		).body 
 
 	rescue Exception => e
 		print_good e.message  
