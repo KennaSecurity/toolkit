@@ -60,13 +60,13 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   end
 
   # create the asset
-  hostname = get_value_by_header(row, headers,"firstObservation.hostname").gsub("*.","")
+  hostname = get_value_by_header(row, headers,"firstObservation_hostname").gsub("*.","")
   ip_address = get_value_by_header(row, headers,"ip")
   port = get_value_by_header(row, headers,"port")
   create_asset ip_address, hostname
 
-  first = get_value_by_header(row, headers,"firstObservation.scanned")
-  last = get_value_by_header(row, headers,"lastObservation.scanned")
+  first = get_value_by_header(row, headers,"firstObservation_scanned")
+  last = get_value_by_header(row, headers,"lastObservation_scanned")
   if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
@@ -79,10 +79,10 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
     last_seen = Date.today
   end
 
-  greeting = get_value_by_header(row, headers, "firstObservation.configuration.connectGreeting")
-  is_encrypted = get_value_by_header(row, headers, "firstObservation.configuration.isEncrypted")
-  is_implicit = get_value_by_header(row, headers, "firstObservation.configuration.isImplicit")
-  certificate = get_value_by_header(row, headers, "firstObservation.configuration.certificate")
+  greeting = get_value_by_header(row, headers, "firstObservation_configuration_connectGreeting")
+  is_encrypted = get_value_by_header(row, headers, "firstObservation_configuration_isEncrypted")
+  is_implicit = get_value_by_header(row, headers, "firstObservation_configuration_isImplicit")
+  certificate = get_value_by_header(row, headers, "firstObservation_configuration_certificate")
   
   description = "Pop3 Server detected:\n"
   description << "Connect Greeting: #{greeting}\n"

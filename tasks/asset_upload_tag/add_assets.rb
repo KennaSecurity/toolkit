@@ -76,20 +76,20 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
     enc_dblquote = "%22"
     enc_space = "%20"
 
-    puts "Path:#{$basedir}/#{@csv_file}"
+    print_good "Path:#{$basedir}/#{@csv_file}"
 
 
     ## Set columns to use for tagging, if a @tag_column_file is provided
 
     # tag_columns = File.readlines(@tag_column_file).map{|line| line.strip}.uniq.reject(&:empty?) if !@tag_column_file.nil?
     num_lines = CSV.read(@csv_file).length
-    puts "Found #{num_lines} lines."
+    print_good "Found #{num_lines} lines."
 
     # binding.pry
 
-    puts "Setting Field Mappings"
+    print_good "Setting Field Mappings"
     set_field_mappings(@field_mapping_file)
-    puts "Setting Tag Mappings"
+    print_good "Setting Tag Mappings"
     set_tag_mapping(@tag_column_file)
 
     # binding.pry
@@ -124,7 +124,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
 
       # binding.pry
       
-      puts "#{ip_address}"
+      print_good "#{ip_address}"
       json_data = {
         'asset' => {
           'primary_locator' => "#{@primary_locator}",
@@ -180,18 +180,18 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
 
       # binding.pry
 
-      puts "========================"
-      puts json_data
-      puts "------------------------"
-      puts tag_list
-      puts "========================"
+      print_good "========================"
+      print_good json_data
+      print_good "------------------------"
+      print_good tag_list
+      print_good "========================"
 
     # ========================
     # Add Asset
     # ========================
 
-      puts json_data
-      puts @post_url
+      print_good json_data
+      print_good @post_url
       begin
         query_post_return = RestClient::Request.execute(
           method: :post,
@@ -201,11 +201,16 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
         )
       rescue RestClient::UnprocessableEntity 
 
-        puts "#{query_post_return}"
+        print_error "#{query_post_return}"
+      
+      rescue RestClient::TooManyRequests
+
+        print_error "Too many requests, sleeping 60s..."
+        sleep 60
 
       rescue RestClient::BadRequest
         
-        puts "Unable to add....Primary Locator data missing for this item."  
+        print_error "Unable to add....Primary Locator data missing for this item."  
 
       end
 
@@ -229,8 +234,8 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
         }## Push tags to assets
 
         tag_api_url = "#{@post_url}/#{asset_id}/tags"
-        puts tag_api_url if @debug
-        puts tag_update_json if @debug
+        print_good tag_api_url if @debug
+        print_good tag_update_json if @debug
 
         tag_update_response = RestClient::Request.execute(
           method: :put,
@@ -275,7 +280,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       end
     end
 
-    puts 'Finished with field mapping'
+    print_good 'Finished with field mapping'
   end
 
 
@@ -284,9 +289,9 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       CSV.foreach(csv_file, :headers => true, :encoding => "UTF-8"){|row|
         @tag_columns << Array[row[0],row[1],row[2]]
       }
-      puts "tag_columns = #{@tag_columns.to_s}" if @debug
+      print_good "tag_columns = #{@tag_columns.to_s}" if @debug
     else
-      puts "No Tag File Specified."
+      print_error "No Tag File Specified."
     end
   end
 

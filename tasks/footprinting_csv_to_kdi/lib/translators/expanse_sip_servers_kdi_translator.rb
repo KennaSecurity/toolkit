@@ -60,7 +60,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   end
   
   # create the asset
-  hostname = get_value_by_header(row, headers, "lastObservation.hostname") 
+  hostname = get_value_by_header(row, headers, "lastObservation_hostname") 
   next unless hostname # skip if we can't parse
 
   hostname = hostname.gsub("*.","")
@@ -70,8 +70,8 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   port = get_value_by_header(row, headers, "port")
   create_asset ip_address, hostname
 
-  first = get_value_by_header(row, headers, "firstObservation.scanned")
-  last = get_value_by_header(row, headers, "lastObservation.scanned")
+  first = get_value_by_header(row, headers, "firstObservation_scanned")
+  last = get_value_by_header(row, headers, "lastObservation_scanned")
   if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
@@ -84,9 +84,9 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
     last_seen = Date.today
   end
 
-  response_status = get_value_by_header(row, headers, "firstObservation.configuration.responseStatusAndReason")
-  version = get_value_by_header(row, headers, "firstObservation.configuration.version")
-  headers = get_value_by_header(row, headers, "firstObservation.configuration.headers")
+  response_status = get_value_by_header(row, headers, "firstObservation_configuration_responseStatusAndReason")
+  version = get_value_by_header(row, headers, "firstObservation_configuration_version")
+  headers = get_value_by_header(row, headers, "firstObservation_configuration_headers")
   #body = get_value_by_header(row, headers, "firstObservation.configuration.body")
 
   finding_id = unique_finding_string("#{response_status} #{version} #{headers}")

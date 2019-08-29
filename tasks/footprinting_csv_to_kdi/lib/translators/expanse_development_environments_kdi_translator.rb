@@ -66,8 +66,8 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   port = get_value_by_header(row, headers,"port")
 
   # grab the first hostname if it exists
-  if get_value_by_header(row, headers,"firstObservation.hostname")
-    hostname = get_value_by_header(row, headers,"firstObservation.hostname")
+  if get_value_by_header(row, headers,"firstObservation_hostname")
+    hostname = get_value_by_header(row, headers,"firstObservation_hostname")
   else
     hostname = nil
   end

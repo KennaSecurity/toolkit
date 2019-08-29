@@ -62,12 +62,12 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   port = get_value_by_header(row, headers,"port") || 0
   
   # NOTE this could have multiple values...
-  hostname = get_value_by_header(row, headers,"firstObservation.hostname")
+  hostname = get_value_by_header(row, headers,"firstObservation_hostname")
 
   create_asset ip_address
 
-  first = get_value_by_header(row, headers,"firstObservation.scanned")
-  last = get_value_by_header(row, headers,"lastObservation.scanned")
+  first = get_value_by_header(row, headers,"firstObservation_scanned")
+  last = get_value_by_header(row, headers,"lastObservation_scanned")
   if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
@@ -80,7 +80,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
     last_seen = Date.today
   end
 
-  software = get_value_by_header(row, headers,"lastObservation.configuration.serverSoftware")
+  software = get_value_by_header(row, headers,"lastObservation.configuration_serverSoftware")
   app_server_string = unique_finding_string(software)
 
   vuln_id = "application_server_software_#{app_server_string}"
