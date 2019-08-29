@@ -58,6 +58,19 @@ def create_asset_vuln(url, ip_address, hostname, port, vuln_id, status, first_se
     asset = $assets.select{|a| a[:ip_address] == ip_address && a[:hostname] == hostname }.first
   end
 
+  unless asset 
+    out = "Unable to proceed!\n"
+    out << "url: #{url}!\n"
+    out << "ip_address: #{ip_address}!\n"
+    out << "hostname: #{hostname}!\n"
+    out << "port: #{port}!\n"
+    out << "vuln_id: #{vuln_id}!\n"
+    out << "status: #{status}!\n"
+    out << "first_seen: #{first_seen}!\n"
+    out << "last_seen: #{last_seen}!\n"
+    raise "Error finding asset!\n#{out}"
+  end
+
   vuln = {
     scanner_identifier: "#{vuln_id}",
     scanner_type: SCAN_SOURCE,
@@ -70,6 +83,9 @@ def create_asset_vuln(url, ip_address, hostname, port, vuln_id, status, first_se
 
   #puts "asset: #{asset}"
   #puts "vuln: #{vuln}"
+
+  puts "Asset: #{asset}"
+  puts "Vuln: #{vuln}"
 
   asset[:vulns] << vuln
 
@@ -85,6 +101,7 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
 
   # create the asset
   hostname = row[19] || row[9]
+  hostname = nil unless hostname && hostname.length > 0
   url = row[34]
   ip_addresses = "#{row[8]}"
   ip_address = ip_addresses.split(" ").first
@@ -92,12 +109,12 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   # skip anything without a url for now
   if url
     create_url_asset url
-  elsif ip_address && hostname
+  elsif ip_address
     create_ip_asset hostname, ip_address
   elsif hostname
     create_ip_asset hostname
   else
-    raise "ERROR! Dont know what to do with this row... #{row}"
+    puts "ERROR! Dont know what to do with this row... #{row.to_s[0..79]}"
   end
 
   # if so, create vuln and attach to asset

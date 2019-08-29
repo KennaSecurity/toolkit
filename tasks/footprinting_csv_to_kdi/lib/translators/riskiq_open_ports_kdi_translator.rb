@@ -65,27 +65,21 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   next if index == 0
 
   # create the asset
-  ip_address = row[0]
-
-  ports = _parse_ports(row[4])
+  ip_address = row[3]
+  port = row[6]
+  first_seen = row[7]
+  last_seen = row[8]
 
   create_asset ip_address
-  #puts "#{ip_address} Ports: #{ports}"
 
-  ports.each do |p|
-    port = p[:number]
-    first_seen = p[:first_seen]
-    last_seen = p[:last_seen]
+  vuln_id = "open_port_tcp_#{port}"
+  description = "Open Port: #{port}"
+  recommendation = "Verify the port should be open"
 
-    vuln_id = "open_port_tcp_#{port}"
-    description = "Open Port: #{port}"
-    recommendation = "Verify the port should be open"
+  mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
 
-    mapped_vuln = get_canonical_vuln_details(SCAN_SOURCE, "#{vuln_id}", description, recommendation)
-
-    create_asset_vuln ip_address, port, vuln_id, first_seen, last_seen
-    create_vuln_def mapped_vuln[:name], vuln_id, mapped_vuln[:description], mapped_vuln[:recommendation], mapped_vuln[:cwe]
-  end
+  create_asset_vuln ip_address, port, vuln_id, first_seen, last_seen
+  create_vuln_def mapped_vuln[:name], vuln_id, mapped_vuln[:description], mapped_vuln[:recommendation], mapped_vuln[:cwe]
 
 end
 

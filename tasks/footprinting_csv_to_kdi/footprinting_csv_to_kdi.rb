@@ -111,6 +111,9 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
     # for each entry in the config, read the file, parse it into output
     @config.each do |f|
+
+      next if f[:disabled] == true
+
       print_good "Running #{f[:name]}"
 
       # if we have an explicit translator, use that, otherwise just use the name 
@@ -124,7 +127,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
       FileUtils.mkdir_p "#{$basedir}/#{@options[:output_directory]}"
 
       output_file = "#{$basedir}/#{@options[:output_directory]}/#{f[:name]}.json"
-      print_good "Writing output to #{output_file}"
+      #print_good "Writing output to #{output_file}"
       File.open(output_file,"w"){|f| f.puts output}
     end
 
@@ -157,10 +160,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
     ## 
     unless kenna_api_token
       print_good "Unable to find API Token, cowardly refusing to continue!"
-      print_good "Please add an API Token in a file named .token and retry"
-      print_good 
-      print_good "Note that if you're running in a container, you'll need to rebuild"
-      print_good 
+      print_good
       exit -1 
     end 
 

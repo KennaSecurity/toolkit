@@ -54,6 +54,7 @@ headers = []
 
 # iterate through the findings, looking for CVEs
 CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_sep: ",").each_with_index do |row,index|
+  
   # skip first
   if index == 0
     headers = row.to_a
@@ -61,12 +62,12 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   end
 
   # create the asset
-  ip_address = get_value_by_header(row, headers,"IP")
-  port = get_value_by_header(row, headers,"Port").gsub("UDP","")
+  ip_address = get_value_by_header(row, headers,"firstObservation_ip")
+  port = get_value_by_header(row, headers,"firstObservation_port")
   create_asset ip_address #, hostname
   
-  first = get_value_by_header(row, headers,"First Observed")
-  last = get_value_by_header(row, headers,"Last Observed")
+  first = get_value_by_header(row, headers,"firstObservation_scanned")
+  last = get_value_by_header(row, headers,"lastObservation_scanned")
   if first
     first_seen = Date.strptime("#{first}", "%Y-%m-%d")
   else
