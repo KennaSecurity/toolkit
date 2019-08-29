@@ -236,7 +236,6 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
           method: :put,
           url: tag_api_url,
           headers: @headers,
-          proxy: @proxy_string,
           payload: tag_update_json,
           timeout: 10
         )

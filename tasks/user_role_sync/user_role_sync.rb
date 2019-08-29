@@ -183,7 +183,6 @@ def pull_roles_list
 		puts @role_post_url
 		query_post_return = RestClient::Request.execute(
 			method: :get,
-			proxy: @proxy_string,
 			url: @role_post_url,
 			# payload: json_data,
 			headers: @headers
@@ -193,7 +192,7 @@ def pull_roles_list
 		print_good e.message  
 		print_good e.backtrace.inspect
 		@log_output << "\r" +  e.message
-	    @log_output << "\r" +  e.backtrace.inspect
+	  @log_output << "\r" +  e.backtrace.inspect
 	end
 end
 
@@ -201,7 +200,6 @@ def pull_user_list
 	begin
 		query_post_return = RestClient::Request.execute(
 			method: :get,
-			proxy: @proxy_string,
 			url: @user_post_url,
 			# payload: json_data,
 			headers: @headers
@@ -211,7 +209,7 @@ def pull_user_list
 		print_good e.message  
 		print_good e.backtrace.inspect
 		@log_output << "\r" +  e.message
-	    @log_output << "\r" +  e.backtrace.inspect
+	  @log_output << "\r" +  e.backtrace.inspect
 	end
 end
 
