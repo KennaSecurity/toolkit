@@ -27,17 +27,30 @@ module Kenna
         puts "[ ]                                                               "
       end
 
+      def timestamp
+        DateTime.now.strftime("%Y%m%d%H")
+      end
+
+      def timestamp_long
+        DateTime.now.strftime("%Y%m%d%H%M%S")
+      end
+
       def print(message=nil)
-        puts "[ ] #{message}"
+        puts "[ ] (#{timestamp_long}) #{message}"
       end
 
       def print_good(message=nil)
-        puts "[+] #{message}"
+        puts "[+] (#{timestamp_long}) #{message}"
       end
 
       def print_error(message=nil)
-        puts "[!] #{message}"
+        puts "[!] (#{timestamp_long}) #{message}"
       end
+
+      def print_debug(message=nil)
+        puts "[X] (#{timestamp_long}) #{message}"
+      end
+
     end
   end
 end
