@@ -46,12 +46,7 @@ def metadata
 			{:name => "debug", :type => "boolean", 
 				:required => false, 
 				:default => false, 
-				:description => "Debug Flag" },
-			{:name => "proxy_string", 
-				:type => "string", 
-				:required => false, 
-				:default => "",
-				:description => "A Proxy Server String" }
+				:description => "Debug Flag" }
 		]
 	}
 end
@@ -73,7 +68,6 @@ def run(options)
 	@firstname_col = @options[:firstname_column]
 	@lastname_col = @options[:lastname_column]
 	@role_col =  @options[:role_column]
-	@proxy_string = @options[:proxy_string]
 
 
 	#Variables we'll need later
@@ -231,7 +225,6 @@ def create_role(role_name)
 	begin
 		query_post_return = RestClient::Request.execute(
 			method: :post,
-			proxy: @proxy_string,
 			url: @role_post_url,
 			payload: json_data,
 			headers: @headers
@@ -268,7 +261,6 @@ def create_user(fname,lname,email,role_name)
 	begin
 		query_post_return = RestClient::Request.execute(
 			method: :post,
-			proxy: @proxy_string,
 			url: @user_post_url,
 			payload: json_data,
 			headers: @headers
@@ -323,7 +315,6 @@ def update_user(uid,fname,lname,email,role_name)
 		begin
 			query_post_return = RestClient::Request.execute(
 				method: :put,
-				proxy: @proxy_string,
 				url: url,
 				payload: json_data,
 				headers: @headers
@@ -349,7 +340,6 @@ def delete_user(uid)
 	begin
 		query_post_return = RestClient::Request.execute(
 			method: :delete,
-			proxy: @proxy_string,
 			url: url,
 			headers: @headers
 	    )
