@@ -187,7 +187,7 @@ def pull_roles_list
 			url: @role_post_url,
 			# payload: json_data,
 			headers: @headers
-		) 
+		).body
 
 	rescue Exception => e
 		print_good e.message  
