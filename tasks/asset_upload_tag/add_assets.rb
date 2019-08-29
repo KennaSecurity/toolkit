@@ -237,15 +237,21 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
         print_good tag_api_url if @debug
         print_good tag_update_json if @debug
 
-        tag_update_response = RestClient::Request.execute(
-          method: :put,
-          url: tag_api_url,
-          headers: @headers,
-          payload: tag_update_json,
-          timeout: 10
-        )
+        begin 
+          tag_update_response = RestClient::Request.execute(
+            method: :put,
+            url: tag_api_url,
+            headers: @headers,
+            payload: tag_update_json,
+            timeout: 10
+          )
+        rescue RestClient::TooManyRequests
+          print_error "Too many requests, sleeping 60s..."
+          sleep 60
+        end
 
-        sleep(0.02)
+
+        sleep(0.25)
 
       end
 
