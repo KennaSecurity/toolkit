@@ -65,7 +65,7 @@ docker run task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS
 Getting Data Into the System (and Getting the Output OUT)! 
 ==========================================================
 
-Many tasks will require input and output json or log files.  The toolkit's tasks use directories relative to "/opt/toolkit" to facilitate input and output.
+Many tasks will require input and output json or log files. The way to handle this is with docker volumes. Volumes can be mapped into the container's OS at runtime.  The toolkit's tasks are programmed to use directories relative to "/opt/toolkit" to facilitate input and output. Specifically, tasks shoudl use these directories as the base when looking for files:
  
  - Default Input Directory: /opt/toolkit/input
  - Default Output Directory: /opt/toolkit/output
@@ -78,7 +78,6 @@ $ docker run \
   -v ~/Desktop/toolkit_output:/opt/toolkit/output \
   -t toolkit:latest task=example
 ```
-
 
 TOOLKIT CAPABILITIES (TASKS): 
 =============================
