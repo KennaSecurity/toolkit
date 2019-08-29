@@ -62,12 +62,10 @@ Here's an example ('inspector_to_kdi' task) with arguments being passed to it:
 docker run task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
 ```
 
-
-
 Getting Data Into the System (and Getting the Output OUT)! 
 ==========================================================
 
-Many tasks will require input and output json or log files.  The toolkit uses directories under /opt/toolkit to facilitate input and output.
+Many tasks will require input and output json or log files.  The toolkit's tasks use directories relative to "/opt/toolkit" to facilitate input and output.
  
  - Default Input Directory: /opt/toolkit/input
  - Default Output Directory: /opt/toolkit/output
@@ -76,8 +74,8 @@ Below is an example that maps volumes to directories on the local system - both 
 
 ```
 $ docker run \
-  -v ~/Desktop/toolkit_output:/opt/app/src/output \
-  -v ~/Desktop/toolkit_input:/opt/app/src/input \
+  -v ~/Desktop/toolkit_input:/opt/toolkit/input \
+  -v ~/Desktop/toolkit_output:/opt/toolkit/output \
   -t toolkit:latest task=example
 ```
 
