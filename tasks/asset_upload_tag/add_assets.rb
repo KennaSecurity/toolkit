@@ -78,7 +78,6 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
 
     print_good "Path:#{$basedir}/#{@csv_file}"
 
-
     ## Set columns to use for tagging, if a @tag_column_file is provided
 
     # tag_columns = File.readlines(@tag_column_file).map{|line| line.strip}.uniq.reject(&:empty?) if !@tag_column_file.nil?
