@@ -1,0 +1,60 @@
+module Kenna 
+module Toolkit
+class UploadFile < Kenna::Toolkit::BaseTask
+
+  def metadata 
+    {
+      id: "upload_file",
+      name: "Upload File",
+      description: "This task uploads a file to a specified connector",
+      options: [
+        {:name => "kenna_api_token", 
+          :type => "api_key", 
+          :required => true, 
+          :default => nil, 
+          :description => "Kenna API Key" },
+        {:name => "kenna_api_host", 
+          :type => "hostname", 
+          :required => false  , 
+          :default => "api.kennasecurity.com", 
+          :description => "Kenna API Hostname" },
+        {:name => "connector_id", 
+          :type => "integer", 
+          :required => true, 
+          :default => 1, 
+          :description => "Kenna Connector ID" },
+        {:name => "file", 
+          :type => "filename", 
+          :required => true, 
+          :default => "input/file.xml", 
+          :description => "Path to the data file, relative to #{$basedir}"  }
+        ]
+    }
+  end
+
+  def run(options)
+    super
+   
+    api_host = @options[:kenna_api_host]
+    api_token = @options[:kenna_api_token]
+    connector_id = @options[:connector_id]
+    filepath = "#{$basedir}/#{@options[:file]}"
+
+    # TODO. ... handled upstream?
+    #unless api_host && api_token
+    #  print_error "Cannot proceed, missing required options"
+    #  return
+    #end
+
+    api_client = Kenna::Api.new(api_token, api_host)
+
+    print_good "Attempting to upload #{filepath}"
+    api_client.upload_to_connector(connector_id,filepath)
+
+    print_good "Done!"
+
+  end
+
+end
+end
+end

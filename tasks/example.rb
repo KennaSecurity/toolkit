@@ -32,10 +32,8 @@ class Example < Kenna::Toolkit::BaseTask
 
     print_good "Input:\n#{`ls -latr /opt/toolkit/input`}"
     print_good "Output:\n#{`ls -latr /opt/toolkit/output`}"
-
-
   end
-
+  
 end
 end
 end

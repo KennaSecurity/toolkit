@@ -19,6 +19,7 @@ require_relative 'tasks/footprinting_csv_to_kdi/footprinting_csv_to_kdi'
 require_relative 'tasks/inspect_api_token'
 require_relative 'tasks/inspector_to_kdi'
 require_relative 'tasks/user_role_sync/user_role_sync'
+require_relative 'tasks/upload_file'
 
 ### GLOBAL VARIABLES - ONLY SET THESE ONCE
 $basedir = "/opt/toolkit"
@@ -72,6 +73,8 @@ when "inspect_api_token"
   Kenna::Toolkit::InspectApiToken.new.run(args)
 when "inspector_to_kdi"
   Kenna::Toolkit::InspectorToKdi.new.run(args)
+when "upload_file"
+  Kenna::Toolkit::UploadFile.new.run(args)
 when "user_role_sync"
   Kenna::Toolkit::UserRoleSync.new.run(args)
 else

@@ -36,7 +36,7 @@ module Kenna
 
     def upload_to_connector(connector_id, filepath)
     
-      MAX_RETRIES = 3
+      max_retries = 3
 
       kenna_api_endpoint = "#{@base_url}/connectors"
 
@@ -48,63 +48,63 @@ module Kenna
   
       connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file?run=true"
 
-        begin
-          print_good "Sending request"
-          query_response = RestClient::Request.execute(
-            method: :post,
-            url: connector_endpoint,
-            headers: headers,
-            payload: {
-              multipart: true,
-              file: File.new(filepath)
-            }
+      begin
+        print_good "Sending request"
+        query_response = RestClient::Request.execute(
+          method: :post,
+          url: connector_endpoint,
+          headers: headers,
+          payload: {
+            multipart: true,
+            file: File.new(filepath)
+          }
+        )
+
+        query_response_json = JSON.parse(query_response.body)
+        print_good "Success!" if query_response_json.fetch("success")
+
+        running = true
+
+        connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
+        while running do
+          print_good "Waiting for 30 seconds... "
+          sleep(30)
+
+          #print_good "Checking on connector status..."
+          connector_check_response = RestClient::Request.execute(
+            method: :get,
+            url: connector_check_endpoint,
+            headers: headers
           )
 
-          query_response_json = JSON.parse(query_response.body)
-          print_good "Success!" if query_response_json.fetch("success")
+          connector_check_json = JSON.parse(connector_check_response)['connector']
+          print_good "#{connector_check_json["name"]} running" if connector_check_json["running"]
 
-          running = true
+          # check our value to see if we need to keep going
+          running = connector_check_json["running"]
+        end  
 
-          connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
-          while running do
-            print_good "Waiting for 30 seconds... "
-            sleep(30)
+      rescue RestClient::UnprocessableEntity => e
+        print_error "Unprocessable Entity: #{e.message}..."
+      rescue RestClient::BadRequest => e
+        print_error "Bad Request: #{e.message}... #{e}"
+      rescue RestClient::Exception => e
+        print_error "Unknown Exception... #{e}"
 
-            #print_good "Checking on connector status..."
-            connector_check_response = RestClient::Request.execute(
-              method: :get,
-              url: connector_check_endpoint,
-              headers: headers
-            )
-
-            connector_check_json = JSON.parse(connector_check_response)['connector']
-            print_good "#{connector_check_json["name"]} running" if connector_check_json["running"]
-
-            # check our value to see if we need to keep going
-            running = connector_check_json["running"]
-          end  
-
-        rescue RestClient::UnprocessableEntity => e
-          print_error "Unprocessable Entity: #{e.message}..."
-        rescue RestClient::BadRequest => e
-          print_error "Bad Request: #{e.message}... #{e}"
-        rescue RestClient::Exception => e
-          print_error "Unknown Exception... #{e}"
-
-          retries ||= 0
-          if retries < MAX_RETRIES
-            print_error "Retrying in 60s..."
-            retries += 1
-            sleep(60)
-            retry
-          else
-           print_error "Max retries hit, failing with... #{e}"
-
-          end
+        retries ||= 0
+        if retries < max_retries
+          print_error "Retrying in 60s..."
+          retries += 1
+          sleep(60)
+          retry
+        else
+         print_error "Max retries hit, failing with... #{e}"
+         return
         end
 
-        print_good "Done!"
       end
+
+      print_good "Done!"
     end
 
     private
