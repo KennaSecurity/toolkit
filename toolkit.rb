@@ -9,6 +9,9 @@ require 'csv'
 require_relative 'lib/helpers'
 include Kenna::Toolkit::Helpers
 
+# Task manager
+require_relative 'lib/task_manager'
+
 # tasks / scripts
 require_relative 'tasks/base'
 

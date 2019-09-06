@@ -7,6 +7,10 @@ module Toolkit
 class BaseTask
   include Kenna::Toolkit::Helpers
 
+  def self.inherited(base)
+    Kenna::Toolkit::TaskManager.register(base)
+  end
+
   # all tasks must implement a run method and call super, so 
   # this code should be run immediately upon entry into the task
   def run(opts)
