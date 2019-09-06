@@ -5,6 +5,9 @@ require 'rest-client'
 require 'json'
 require 'csv'
 
+# initialize monkeypatches & other hacks
+require_relative 'initialize/string'
+
 # local deps
 require_relative 'lib/helpers'
 include Kenna::Toolkit::Helpers
