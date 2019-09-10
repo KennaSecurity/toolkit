@@ -111,6 +111,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
 
       #your csv column names should match these if you don't want to change the script
       next if row["#{@ip_address_col}"].nil?
+      
       ip_address = row["#{@ip_address_col}"]
       hostname = row["#{@hostname_col}"]
       url = row["#{@url_col}"]
@@ -192,15 +193,27 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       print_good json_data
       print_good @post_url
       begin
+        
         query_post_return = RestClient::Request.execute(
           method: :post,
           url: @post_url,
           payload: json_data,
           headers: @headers
         )
+
+        # Need to find the new asset ID 
+        # asset_id = query_post_return........
+        asset_id = JSON.parse(query_post_return)["asset"]["id"]
+
+      rescue JSON::ParserError => e 
+        
+        print_error "Failed to parse correctly"
+        next
+
       rescue RestClient::UnprocessableEntity 
 
         print_error "#{query_post_return}"
+        next
       
       rescue RestClient::TooManyRequests
 
@@ -210,14 +223,9 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       rescue RestClient::BadRequest
         
         print_error "Unable to add....Primary Locator data missing for this item."  
+        next 
 
       end
-
-      # binding.pry
-
-      # Need to find the new asset ID 
-      # asset_id = query_post_return........
-      asset_id = JSON.parse(query_post_return)["asset"]["id"]
 
       # ========================
       # Add Tags
@@ -248,7 +256,6 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
           print_error "Too many requests, sleeping 60s..."
           sleep 60
         end
-
 
         sleep(0.25)
 
