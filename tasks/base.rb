@@ -39,9 +39,9 @@ class BaseTask
 
     # No missing arguments, so let's add in our default arguments now
     metadata[:options].each do |o|
-      print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"
-      opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym]
-    end
+      print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"  unless (o[:default] == "" || !o[:default])
+      opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym] # but still set it to whatever
+    end 
 
     # !!!!!!!
     # TODO !! - validate arguments based on their type here
@@ -61,7 +61,7 @@ class BaseTask
     # Print out the options so the user knows and logs what we're doing
     @options.each do |k,v| 
       if k =~ /key/ ||  k =~ /token/ # special case anything that has key in it
-        print_good "Got option: #{k}: *******************"
+        print_good "Got option: #{k}: #{v[0]}*******#{v[-3..-1]}"
       else 
         print_good "Got option: #{k}: #{v}"
       end

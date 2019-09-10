@@ -6,9 +6,9 @@ class InspectorToKdi < Kenna::Toolkit::BaseTask
 
 def metadata 
     {
-      id: "inspector_to_kdi",
-      name: "Inspector To KDI Translato",
-      description: "This task pulls results from AWS inspector and translates them into JSON",
+      id: "aws_inspector_to_kdi",
+      name: "AWS Inspector To KDI Translator",
+      description: "This task pulls results from AWS inspector API and translates them into KDI JSON",
       options: [
         { 
           :name => "aws_region", 
@@ -94,7 +94,6 @@ def run(opts)
   kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
   print_good "Output being written to: #{output_path}"
   File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
-
 end
 
 def create_asset(fqdn, instance_id)

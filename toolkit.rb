@@ -18,18 +18,15 @@ require_relative 'lib/task_manager'
 # tasks / scripts
 require_relative 'tasks/base'
 
-# Specific tasks 
-require_relative 'tasks/asset_upload_tag/add_assets'
-require_relative 'tasks/example'
-require_relative 'tasks/footprinting_csv_to_kdi/footprinting_csv_to_kdi'
-require_relative 'tasks/inspect_api_token'
-require_relative 'tasks/inspector_to_kdi'
-require_relative 'tasks/user_role_sync/user_role_sync'
-require_relative 'tasks/upload_file'
-
 ### GLOBAL VARIABLES - ONLY SET THESE ONCE
 $basedir = "/opt/toolkit"
 ### END GLOBALS
+
+
+# LoadS pecific tasks 
+Dir["#{$basedir}/tasks/*.rb"].each { |file| require_relative(file) }
+Dir["#{$basedir}/tasks/*/*.rb"].each { |file| require_relative(file) }
+
 
 # First split up whatever we got
 args_array = "#{ARGV[0]}".split(":")
@@ -48,9 +45,9 @@ args_array.each do |arg|
 
   # make sure all arguments were well formed
   unless arg_name && arg_value
-    puts "[!] FATAL! Invalid Argument: #{arg}"
-    puts "[!] All arguments should take the form [name]=[value]"
-    puts "[!] Multiple arguments should be separated by a semicolon (;)"
+    print_error "FATAL! Invalid Argument: #{arg}"
+    print_error "All arguments should take the form [name]=[value]"
+    print_error "Multiple arguments should be separated by a semicolon (;)"
     exit
   end
 
@@ -60,7 +57,7 @@ end
 
 # Fail if we didnt get a task 
 unless args[:task]
-  puts "[!] FATAL! Missing required argument: 'task'"
+  print_error "FATAL! Missing required argument: 'task'"
   print_usage
   exit
 end
@@ -77,8 +74,10 @@ when "footprinting_csv_to_kdi"
   Kenna::Toolkit::FootprintingCsvToKdi.new.run(args)
 when "inspect_api_token"
   Kenna::Toolkit::InspectApiToken.new.run(args)
-when "inspector_to_kdi"
-  Kenna::Toolkit::InspectorToKdi.new.run(args)
+when "aws_guardduty_to_kdi"
+  Kenna::Toolkit::AwsGuarddutyToKdi.new.run(args)
+when "aws_inspector_to_kdi"
+  Kenna::Toolkit::AwsInspectorToKdi.new.run(args)
 when "upload_file"
   Kenna::Toolkit::UploadFile.new.run(args)
 when "user_role_sync"
