@@ -81,12 +81,6 @@ def create_asset_vuln(url, ip_address, hostname, port, vuln_id, status, first_se
   # save port if we have it
   vuln[:port] = port if port
 
-  #puts "asset: #{asset}"
-  #puts "vuln: #{vuln}"
-
-  puts "Asset: #{asset}"
-  puts "Vuln: #{vuln}"
-
   asset[:vulns] << vuln
 
 end

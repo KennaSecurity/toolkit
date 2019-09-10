@@ -61,7 +61,7 @@ class BaseTask
     # Print out the options so the user knows and logs what we're doing
     @options.each do |k,v| 
       if k =~ /key/ ||  k =~ /token/ # special case anything that has key in it
-        print_good "Got option: #{k}: #{v[0]}*******#{v[-3..-1]}"
+        print_good "Got option: #{k}: #{v[0]}*******#{v[-3..-1]}" if v
       else 
         print_good "Got option: #{k}: #{v}"
       end
