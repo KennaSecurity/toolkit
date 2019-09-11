@@ -99,7 +99,7 @@ module Toolkit
 	  #   solution: string, (steps or links for remediation teams)
 	  # }
 	  def create_kdi_vuln_def(args)
-	    raise "Unable to detect vuln defs array! Did you create one called '@assets'? " unless @assets
+	    raise "Unable to detect vuln defs array! Did you create one called '@vuln_defs'? " unless @vuln_defs
 	    return unless @vuln_defs.select{|a| a[:scanner_identifier] == args[:scanner_identifier] }.empty?
 	    
 	    # just shove the stuff in 
