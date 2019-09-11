@@ -1,11 +1,13 @@
 # require task-specific libraries etc 
 
 require_relative '../lib/api' # kenna api client 
+require_relative '../lib/kdi_helpers'
 
 module Kenna
 module Toolkit
 class BaseTask
   include Kenna::Toolkit::Helpers
+  include Kenna::Toolkit::KdiHelpers
 
   def self.inherited(base)
     Kenna::Toolkit::TaskManager.register(base)
