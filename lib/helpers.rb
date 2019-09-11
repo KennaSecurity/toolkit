@@ -21,11 +21,11 @@ module Kenna
         puts "[ ] Example:                                                      "
         puts "[ ] ruby toolkit.rb task=example:option1=true:option2=abc         "
         puts "[ ]                                                               "
-        puts "[ ] If you have questions or require assistance, please contact   "
-        puts "[ ] support@kennasecurity.com                                     "
+        puts "[ ] At this time, toolkit usage is strictly UNSUPPORTED.          "
+        puts "[ ]                                                               "
         puts "[ ]                                                               "
         puts "[ ] Tasks:"
-        TaskManager.tasks.each do |t|
+        TaskManager.tasks.sort_by{|x| x.new.metadata[:id] }.each do |t|
           task = t.new
           puts "[+]  - \033[1m#{task.metadata[:id]}\033[0m: #{task.metadata[:description]}"
         end

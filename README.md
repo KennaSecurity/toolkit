@@ -87,7 +87,8 @@ These are the current tasks available:
  - asset_upload_tag: This task does uploads assets through the API
  - example: Just an Example.
  - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
- - inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
+ - aws_inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
+ - aws_guardduty_to_kdi: This task hits the AWS Guarduty API and outputs the results to a file in the output directory.
  - user_role_sync: This task creates users and assigns them to roles via the API
 
 TOOLKIT CHANGELOG:

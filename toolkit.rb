@@ -19,7 +19,7 @@ require_relative 'lib/task_manager'
 require_relative 'tasks/base'
 
 ### GLOBAL VARIABLES - ONLY SET THESE ONCE
-$basedir = "/opt/toolkit"
+$basedir = "#{File.expand_path(File.dirname(__FILE__))}"
 ### END GLOBALS
 
 

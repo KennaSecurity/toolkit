@@ -1,8 +1,5 @@
 require 'digest'
 
-# hack - remove this when fully integrated
-$basedir = "/opt/toolkit"
-
 class String
   def sanitize_unicode
     self.encode("UTF-8", { 
