@@ -12,8 +12,9 @@ end
 module Kenna
   module Helpers
 
-  def read_input_file(filename)
-    output = File.open(filename,"r").read.gsub!("\r", '') 
+  def read_input_file(filename, windows=true)
+    output = File.open(filename,"r").read
+    output = output.gsub!("\r", '') if windows
   output.sanitize_unicode
   end
 
@@ -35,14 +36,14 @@ module Kenna
     "#{base_directory}/data/archive/parse_20190503"
   end
 
-  def verify_file_headers(filename)
+  def verify_file_headers(filename, windows=true)
     # A simple way to check if we're the same as what we expected!
 
     # first get the file we want to parse_20190503
     specific_file = filename.split("/").last(2).join("/")
 
     # then grab the headers
-    #first_row = CSV.parse(read_input_file(filename), encoding: "UTF-8").first
+    first_row = CSV.parse(read_input_file(filename, windows), encoding: "UTF-8").first
     #raise "Missing source file: #{specific_file}" unless first_row
 
     # then get the file we know we can parse 
@@ -66,8 +67,7 @@ module Kenna
 
     ###raise "Invalid value for first_row: #{first_row}" unless first_row.kind_of?(Array)
 
-  #first_row
-  ""
+  first_row
   end
 
   def base_directory

@@ -1,3 +1,4 @@
+
 #encoding: utf-8
 require_relative "../mapping"
 require_relative "../helpers"
@@ -9,6 +10,7 @@ require 'csv'
 include Kenna::Helpers
 include Kenna::Mapping::External
 
+$basedir = "/opt/toolkit"
 $assets = []
 $vuln_defs = []
 

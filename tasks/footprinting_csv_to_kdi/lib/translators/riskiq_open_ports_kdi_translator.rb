@@ -10,6 +10,7 @@ require 'csv'
 include Kenna::Helpers
 include Kenna::Mapping::External
 
+$basedir = "/opt/toolkit"
 $assets = []
 $vuln_defs = []
 
@@ -51,7 +52,7 @@ def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
   asset[:vulns] << {
     scanner_identifier: "#{vuln_id}",
     scanner_type: SCAN_SOURCE,
-    created_at: first_seen,
+    created_at: first_seen || DateTime.now,
     port: port.to_i,
     last_seen_at: last_seen,
     status: "open"

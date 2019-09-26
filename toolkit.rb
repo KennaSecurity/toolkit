@@ -20,8 +20,8 @@ require_relative 'tasks/base'
 
 ### GLOBAL VARIABLES - ONLY SET THESE ONCE
 $basedir = "#{File.expand_path(File.dirname(__FILE__))}"
+puts "Base Directory: #{$basedir}"
 ### END GLOBALS
-
 
 # LoadS pecific tasks 
 Dir["#{$basedir}/tasks/*.rb"].each { |file| require_relative(file) }

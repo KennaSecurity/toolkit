@@ -112,7 +112,8 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
         scanner_type: f.service.service_name,
         scanner_score: f.severity, 
         created_at: f.created_at,
-        last_seen_at: f.updated_at
+        last_seen_at: f.updated_at,
+        status: "open"
       }
       create_kdi_asset_vuln(aws_account_id, :external_id, vuln_attributes)
       

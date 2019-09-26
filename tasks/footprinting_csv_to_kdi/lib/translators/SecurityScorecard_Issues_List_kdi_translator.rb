@@ -9,6 +9,7 @@ require 'csv'
 include Kenna::Helpers
 include Kenna::Mapping::External
 
+$basedir = "/opt/toolkit"
 $assets = []
 $vuln_defs = []
 
@@ -108,7 +109,8 @@ CSV.parse(read_input_file("#{ARGV[0]}"), encoding: "UTF-8", row_sep: :auto, col_
   elsif hostname
     create_ip_asset hostname
   else
-    puts "ERROR! Dont know what to do with this row... #{row.to_s[0..79]}"
+    #puts "ERROR! Dont know what to do with this row... #{row.to_s[0..79]}"
+    next # silently skip 
   end
 
   # if so, create vuln and attach to asset

@@ -9,6 +9,7 @@ require 'csv'
 include Kenna::Helpers
 include Kenna::Mapping::External
 
+$basedir = "/opt/toolkit"
 $assets = []
 $vuln_defs = []
 

@@ -1,3 +1,4 @@
+
 #encoding: utf-8
 require_relative "../mapping"
 require_relative "../helpers"
@@ -11,6 +12,7 @@ include Kenna::Mapping::External
 
 SCAN_SOURCE="Bitsight"
 
+$basedir = "/opt/toolkit"
 $assets = []
 $vuln_defs = []
 
