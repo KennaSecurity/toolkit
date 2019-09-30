@@ -2,7 +2,7 @@ require 'aws-sdk-inspector'
 
 module Kenna 
 module Toolkit
-class InspectorToKdi < Kenna::Toolkit::BaseTask
+class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
 
 def metadata 
     {
