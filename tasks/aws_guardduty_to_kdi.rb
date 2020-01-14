@@ -51,10 +51,10 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
     aws_access_key = @options[:aws_access_key]
     aws_secret_key = @options[:aws_secret_key]
 
-    unless aws_region && aws_access_key && aws_secret_key
-      print_error "Unable to proceed, missing required option!"
-      exit 
-    end
+    #unless aws_region && aws_access_key && aws_secret_key
+    #  print_error "Unable to proceed, missing required option!"
+    #  exit 
+    #end
 
     @assets = []
     @vuln_defs = []

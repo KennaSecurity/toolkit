@@ -10,7 +10,7 @@ class UploadFile < Kenna::Toolkit::BaseTask
       options: [
         {:name => "kenna_api_token", 
           :type => "api_key", 
-          :required => true, 
+          :required => false, 
           :default => nil, 
           :description => "Kenna API Key" },
         {:name => "kenna_api_host", 
@@ -25,7 +25,7 @@ class UploadFile < Kenna::Toolkit::BaseTask
           :description => "Kenna Connector ID" },
         {:name => "file", 
           :type => "filename", 
-          :required => true, 
+          :required => false, 
           :default => "input/file.xml", 
           :description => "Path to the data file, relative to #{$basedir}"  }
         ]

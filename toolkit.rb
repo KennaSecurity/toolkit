@@ -12,6 +12,9 @@ require_relative 'initialize/string'
 require_relative 'lib/helpers'
 include Kenna::Toolkit::Helpers
 
+# libraries
+require_relative 'lib/data/digital_footprinting'
+
 # Task manager
 require_relative 'lib/task_manager'
 
@@ -70,14 +73,17 @@ when "example"
   Kenna::Toolkit::Example.new.run(args)
 when "help"
   print_usage && exit
-when "footprinting_csv_to_kdi"
-  Kenna::Toolkit::FootprintingCsvToKdi.new.run(args)
-when "inspect_api_token"
-  Kenna::Toolkit::InspectApiToken.new.run(args)
+
 when "aws_guardduty_to_kdi"
   Kenna::Toolkit::AwsGuarddutyToKdi.new.run(args)
 when "aws_inspector_to_kdi"
   Kenna::Toolkit::AwsInspectorToKdi.new.run(args)
+when "bitsight_api"
+  Kenna::Toolkit::BitsightApi.new.run(args)
+when "footprinting_csv_to_kdi"
+  Kenna::Toolkit::FootprintingCsvToKdi.new.run(args)
+when "inspect_api_token"
+  Kenna::Toolkit::InspectApiToken.new.run(args)
 when "upload_file"
   Kenna::Toolkit::UploadFile.new.run(args)
 when "user_role_sync"

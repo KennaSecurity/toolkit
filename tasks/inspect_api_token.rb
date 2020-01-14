@@ -29,10 +29,10 @@ class InspectApiToken < Kenna::Toolkit::BaseTask
     api_token = @options[:kenna_api_token]
 
     # TODO. ... handled upstream?
-    unless api_host && api_token
-      print_error "Cannot proceed, missing required options"
-      return
-    end
+    #unless api_host && api_token
+    #  print_error "Cannot proceed, missing required options"
+    #  return
+    #end
 
     api_client = Kenna::Api.new(api_token, api_host)
 

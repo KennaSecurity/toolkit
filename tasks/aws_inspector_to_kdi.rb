@@ -48,10 +48,10 @@ def run(opts)
   aws_access_key = @options[:aws_access_key]
   aws_secret_key = @options[:aws_secret_key]
 
-  unless aws_region && aws_access_key && aws_secret_key
-    print_error "Unable to proceed, missing required option!"
-    exit 
-  end
+  #unless aws_region && aws_access_key && aws_secret_key
+  #  print_error "Unable to proceed, missing required option!"
+  #  exit 
+  #end
 
   @assets = []
   @vuln_defs = []
@@ -136,6 +136,7 @@ end
 
 def get_inspector_findings(region, access_key,secret_key)
   begin
+    
     # do stuff
     inspector = Aws::Inspector::Client.new({
       region: region,
