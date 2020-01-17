@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 class UploadFile < Kenna::Toolkit::BaseTask
 
-  def metadata 
+  def self.metadata 
     {
       id: "upload_file",
       name: "Upload File",

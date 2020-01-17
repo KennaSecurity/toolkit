@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 class BitsightApi < Kenna::Toolkit::BaseTask
 
-  def metadata 
+  def self.metadata 
     {
       id: "bitsight_api",
       name: "Bitsight API",

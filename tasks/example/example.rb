@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 class Example < Kenna::Toolkit::BaseTask
 
-  def metadata 
+  def self.metadata 
     {
       id: "example",
       name: "Example Task",

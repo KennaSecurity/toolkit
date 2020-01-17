@@ -2,8 +2,7 @@
 
 Adds new assets to Kenna
 
-If you don't want to make any changes to the code, use the following column names in your csv file, 
-order doesn't matter except the first column should be ip_address:
+If you don't want to make any changes to the code, use the following column names in your csv file, order doesn't matter except the first column should be ip_address:
 
     ip_address
     hostname
@@ -14,12 +13,8 @@ order doesn't matter except the first column should be ip_address:
     file
     application
 
-Required Ruby classes/gems:
+USAGE:
 
-    rest-client
-    json
-    csv
-
-Usage: add_assets.rb applicationkey primarylocator csvfilelocation (optional_csv_headerfile)
+docker run -t -i -v /my/local/input:/opt/toolkit/input -v /my/local/output:/opt/toolkit/output toolkit:latest task=asset_upload_tag:kenna_api_token=<token>:kenna_api_host=api.kennasecurity.com:primary_locator=ip_address:csv_file=input/testassetdata.csv:field_mapping_file=input/field_mapping.csv:tag_mapping_file=input/tag_mapping.csv
 
 Rows missing data for the Primary Locator will fail and give an error message. 

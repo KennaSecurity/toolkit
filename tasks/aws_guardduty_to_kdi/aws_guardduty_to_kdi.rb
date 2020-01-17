@@ -7,40 +7,40 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
 
   include Kenna::Toolkit::KdiHelpers
 
-  def metadata 
-      {
-        id: "aws_guardduty_to_kdi",
-        name: "AWS GuardDuty To KDI Translator",
-        description: "This task pulls results from AWS GuardDuty API and translates them into KDI JSON",
-        options: [
-          { 
-            :name => "aws_region", 
-            :type => "string", 
-            :required => false, 
-            :default => "us-east-1", 
-            :description => "This is the AWS region." 
-          },
-          { 
-            :name => "aws_access_key", 
-            :type => "string", 
-            :required => true, 
-            :default => "", 
-            :description => "This is the AWS access key used to query the API." 
-          },
-          { 
-            :name => "aws_secret_key", 
-            :type => "string", 
-            :required => true, 
-            :default => "", 
-            :description => "This is the AWS secret key used to query the API." 
-          }, 
-          { :name => "output_directory", 
-            :type => "filename", 
-            :required => false, 
-            :default => "output/guardduty", 
-            :description => "Path to parsing output, relative to #{$basedir}"  }
-        ]
-      }
+  def self.metadata 
+    {
+      id: "aws_guardduty_to_kdi",
+      name: "AWS GuardDuty To KDI Translator",
+      description: "This task pulls results from AWS GuardDuty API and translates them into KDI JSON",
+      options: [
+        { 
+          :name => "aws_region", 
+          :type => "string", 
+          :required => false, 
+          :default => "us-east-1", 
+          :description => "This is the AWS region." 
+        },
+        { 
+          :name => "aws_access_key", 
+          :type => "string", 
+          :required => true, 
+          :default => "", 
+          :description => "This is the AWS access key used to query the API." 
+        },
+        { 
+          :name => "aws_secret_key", 
+          :type => "string", 
+          :required => true, 
+          :default => "", 
+          :description => "This is the AWS secret key used to query the API." 
+        }, 
+        { :name => "output_directory", 
+          :type => "filename", 
+          :required => false, 
+          :default => "output/guardduty", 
+          :description => "Path to parsing output, relative to #{$basedir}"  }
+      ]
+    }
   end
 
   def run(opts)

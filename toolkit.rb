@@ -26,10 +26,9 @@ $basedir = "#{File.expand_path(File.dirname(__FILE__))}"
 puts "Base Directory: #{$basedir}"
 ### END GLOBALS
 
-# LoadS pecific tasks 
+# Load specific tasks 
 Dir["#{$basedir}/tasks/*.rb"].each { |file| require_relative(file) }
 Dir["#{$basedir}/tasks/*/*.rb"].each { |file| require_relative(file) }
-
 
 # First split up whatever we got
 args_array = "#{ARGV[0]}".split(":")
@@ -67,27 +66,13 @@ end
 
 # handle task request
 case args[:task]
-when "asset_upload_tag"
-  Kenna::Toolkit::AssetUploadTag.new.run(args)
-when "example"
-  Kenna::Toolkit::Example.new.run(args)
-when "help"
-  print_usage && exit
-
-when "aws_guardduty_to_kdi"
-  Kenna::Toolkit::AwsGuarddutyToKdi.new.run(args)
-when "aws_inspector_to_kdi"
-  Kenna::Toolkit::AwsInspectorToKdi.new.run(args)
-when "bitsight_api"
-  Kenna::Toolkit::BitsightApi.new.run(args)
-when "footprinting_csv_to_kdi"
-  Kenna::Toolkit::FootprintingCsvToKdi.new.run(args)
-when "inspect_api_token"
-  Kenna::Toolkit::InspectApiToken.new.run(args)
-when "upload_file"
-  Kenna::Toolkit::UploadFile.new.run(args)
-when "user_role_sync"
-  Kenna::Toolkit::UserRoleSync.new.run(args)
-else
-  puts "[!] Error! Unknown task requested!"
+  when "help"
+    print_usage && exit
+  else
+    task_class = Kenna::Toolkit::TaskManager.find_task_by_id(args[:tas])
+    if task_class
+      task.class.new.run(args)
+    else
+      puts "[!] Error. Unknown task requested!"
+    end
 end

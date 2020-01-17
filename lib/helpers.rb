@@ -25,9 +25,9 @@ module Kenna
         puts "[ ]                                                               "
         puts "[ ]                                                               "
         puts "[ ] Tasks:"
-        TaskManager.tasks.sort_by{|x| x.new.metadata[:id] }.each do |t|
+        TaskManager.tasks.sort_by{|x| x.metadata[:id] }.each do |t|
           task = t.new
-          puts "[+]  - \033[1m#{task.metadata[:id]}\033[0m: #{task.metadata[:description]}"
+          puts "[+]  - \033[1m#{task.class.metadata[:id]}\033[0m: #{task.class.metadata[:description]}"
         end
         puts "[ ]                                                               "
       end

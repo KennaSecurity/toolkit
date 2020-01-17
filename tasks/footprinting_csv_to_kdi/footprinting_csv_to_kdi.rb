@@ -10,7 +10,7 @@ module Kenna
 module Toolkit
 class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
 
-  def metadata 
+  def self.metadata 
     {
       id: "footprinting_csv_to_kdi",
       name: "Footprinting Data CSV -> KDI Converter",

@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 class AssetUploadTag < Kenna::Toolkit::BaseTask
 
-  def metadata 
+  def self.metadata 
     {
       id: "add_assets",
       name: "Add Assets",

@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 class UserRoleSync < Kenna::Toolkit::BaseTask
 
-def metadata 
+def self.metadata 
 	{
 		id: "user_role_sync",
 		name: "User Role Sync",
