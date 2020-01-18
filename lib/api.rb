@@ -40,7 +40,7 @@ module Kenna
     end
 
     def get_asset_tags(asset_id)
-      _kenna_api_request(:get, "assets/#{asset_id}/tags"
+      _kenna_api_request(:get, "assets/#{asset_id}/tags")
     end
 
     def get_applications
@@ -61,7 +61,7 @@ module Kenna
     end
 
     def get_asset_group_fixes(asset_group_id)
-      _kenna_api_request(:get, "asset_groups#{asset_group_id}/fixes")
+      _kenna_api_request(:get, "asset_groups/#{asset_group_id}/fixes")
     end
 
     def get_scanner_vuln_details(vuln_id)
