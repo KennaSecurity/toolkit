@@ -91,19 +91,11 @@ These are the current tasks available:
  - aws_guardduty_to_kdi: This task hits the AWS Guarduty API and outputs the results to a file in the output directory.
  - user_role_sync: This task creates users and assigns them to roles via the API
 
-TOOLKIT CHANGELOG:
-==================
-
-20190827:	
- - Add translate_aws_inspector_to_kdi script
-20190821:
- - Initial discussions and implementation by @jcran and @dbro
-
 CONTRIBUTORS:
 =============
- - @linda (original scripts, ideas)
- - @jgamblin (docker work,ideas)
- - @jcran (initial implementation, various tasks)
+ - @kenna-bmcdevitt (api client) 
+ - @linda (original scripts)
+ - @jgamblin (docker work)
  - @dbro (initial implementation and testing, various tasks)
- 
+ - @jcran (initial implementation, various tasks)
 
