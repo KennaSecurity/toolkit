@@ -29,7 +29,6 @@ class Client
       result = JSON.parse response_body
 
       # do stuff with the data 
-      print_good "Got #{result["data"].count} results"
       out.concat(result["data"])
 
       # prepare the next request
@@ -59,7 +58,6 @@ class Client
       result = JSON.parse response_body
 
       # do stuff with the data 
-      print_good "Got #{result["data"].count} results"
       out.concat(result["data"])
 
       # prepare the next request
