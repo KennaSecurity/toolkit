@@ -46,7 +46,8 @@ module Toolkit
 	    asset[:tags] = tags 
 	    asset[:priority] = priority 
 	    asset[:vulns] = []
-	   
+		 
+			#puts "Creating KDI asset: #{asset}"
 	    @assets << asset
 
 	  true
@@ -76,10 +77,12 @@ module Toolkit
 	    asset = @assets.select{|a| a[asset_locator] == asset_id }.first
 
 	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless asset && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-	      raise "Unable to find asset with #{asset_locator} of #{asset_id}" 
+	    unless asset #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+				puts "Unable to find asset with #{asset_locator} of #{asset_id}, creating a new one"
+				create_kdi_asset({asset_locator.to_sym => args[:scanner_identifier]}, asset_locator) 
 	    end 
 
+			#puts "Creating KDI asset/vuln on #{asset_id} with args: #{args}"
 	    asset[:vulns] << args
 
 	  true

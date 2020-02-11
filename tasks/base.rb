@@ -18,7 +18,7 @@ class BaseTask
   def run(opts)
 
     # pull our required arguments out 
-    required_options = metadata[:options].select{|a| a[:required]}
+    required_options = self.class.metadata[:options].select{|a| a[:required]}
 
     # colllect all the missing arguments
     missing_options = []
@@ -40,10 +40,11 @@ class BaseTask
     end
 
     # No missing arguments, so let's add in our default arguments now
-    metadata[:options].each do |o|
+    self.class.metadata[:options].each do |o|
       print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"  unless (o[:default] == "" || !o[:default])
       opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym] # but still set it to whatever
-    end 
+      opts[o[:name].to_sym] = nil if opts[o[:name].to_sym] == "" # set empty string to nil so it's a little easier to check for that 
+    end
 
     # !!!!!!!
     # TODO !! - validate arguments based on their type here
@@ -70,7 +71,7 @@ class BaseTask
     end
 
     print_good ""
-    print_good "Launching the #{metadata[:name]} task!"
+    print_good "Launching the #{self.class.metadata[:name]} task!"
     print_good "" 
   end
 

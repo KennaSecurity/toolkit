@@ -12,7 +12,7 @@ module Kenna
       end
 
       def self.find_by_id(provided_id)
-        @tasks.select{|x| x.metadata.id == provided_id }
+        @tasks.select{|x| x.metadata[:id] == provided_id }.first
       end
 
     end
