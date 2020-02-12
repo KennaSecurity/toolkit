@@ -27,8 +27,6 @@ require_relative '../tasks/base'
 $basedir = "#{File.expand_path("..", File.dirname(__FILE__))}"
 ### END GLOBALS
 
-puts "BASE: #{$basedir}"
-
 # Tasks
-Dir["#{$basedir}/tasks/*.rb"].each { |file| require_relative(file) }
-Dir["#{$basedir}/tasks/*/*.rb"].each { |file| require_relative(file) }
+Dir.glob("#{$basedir}/tasks/*.rb").each { |file| require_relative(file) }
+Dir.glob("#{$basedir}/tasks/*/*.rb").each { |file| require_relative(file) }

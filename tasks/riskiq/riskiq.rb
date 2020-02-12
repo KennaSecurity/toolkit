@@ -2,7 +2,7 @@ require_relative 'lib/client'
 
 module Kenna 
 module Toolkit
-class ExpanseTask < Kenna::Toolkit::BaseTask
+class RiskIqTask < Kenna::Toolkit::BaseTask
 
   def self.metadata 
     {

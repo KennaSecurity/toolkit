@@ -34,6 +34,143 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     }
   end
 
+=begin
+  def get_value_by_header(row, headers, field_name)
+
+    # in case we get a string
+    headers = headers.split(",") if headers.kind_of? String
+
+    #puts "Getting value for field name: #{field_name} from: #{headers}"
+
+    i = headers.find_index(field_name)
+    return nil unless i 
+    raise "Invalid index: #{i} for field_name: #{field_name}. All headers: #{headers}" unless i 
+
+  "#{row[i]}"
+  end
+
+  def exposures_by_type_csv(exposure_type)
+    exposures = []
+    csv = @client.cloud_exposure_csv("ftp-servers")
+    # Go through the CSV, pulling out the appropriate values
+    csv.each_with_index do |row, index|
+      next if index == 0 #skip the first 
+
+      exposure_details = {}
+      exposure_details[:ip] = get_value_by_header(row, csv.first, "ip")
+      exposure_details[:hostname] = get_value_by_header(row, csv.first, "lastObservation.hostname")
+      exposure_details[:domain] = get_value_by_header(row, csv.first, "domain")
+      exposure_details[:port] =  get_value_by_header(row, csv.first, "port")
+      exposure_details[:severity] = get_value_by_header(row, csv.first, "severity")
+      exposure_details[:type] =  get_value_by_header(row, csv.first, "type") 
+      exposures << exposure_details
+    end
+  
+  exposures 
+  end
+=end
+
+  ###
+  ### Each entry (type) should have a set of mappings for each KDI section:
+  ###   Asset
+  ###   Vuln
+  ###   VulnDef
+  ###
+  ### Also, each mapping should be one of the following types: 
+  ###   calc - just copies data from the source 
+  ###   copy - just copies data from the source 
+  ###   data - static data, use directly without worrying about source data
+  ###
+  def field_mapping_by_type
+    {
+      'dns-servers' => {
+        'asset' => [  
+          {action: "copy", source: "domain", target: "domain" },
+          {action: "copy", source: "hostname", target: "hostname" },
+          {action: "copy", source: "ip", target: "ip_address" }
+        ],
+        'vuln' => [
+          {action: "copy", source: "port", target: "port" },
+          {action: "copy", source: "severity", target: "severity" },
+          {action: "data", data: "Expanse", target: "scanner_type" },
+        ],
+        'vuln_def' => [
+          {action: "copy", data: "Open Port", target: "decription" },
+          {action: "copy", data: "Investigate", target: "remediation" }
+        ]
+      }, 
+      'ftp-servers' => {
+        'asset' => [  
+          {action: "copy", source: "domain", target: "domain" },
+          {action: "copy", source: "hostname", target: "hostname" },
+          {action: "copy", source: "ip", target: "ip_address" }
+        ],
+        'vuln' => [
+          {action: "copy", source: "port", target: "port" },
+          {action: "copy", source: "severity", target: "severity" },
+          {action: "data", data: "Expanse", target: "scanner_type" },
+        ],
+        'vuln_def' => [
+          {action: "copy", data: "Open Port", target: "decription" },
+          {action: "copy", data: "Investigate", target: "remediation" }
+        ]
+      }, 
+      'ftps-servers' => {
+        'asset' => [  
+          {action: "copy", source: "domain", target: "domain" },
+          {action: "copy", source: "hostname", target: "hostname" },
+          {action: "copy", source: "ip", target: "ip_address" }
+        ],
+        'vuln' => [
+          {action: "copy", source: "port", target: "port" },
+          {action: "copy", source: "severity", target: "severity" },
+          {action: "data", data: "Expanse", target: "scanner_type" }
+        ],
+        'vuln_def' => [
+          {action: "data", data: "Open Port", target: "decription" },
+          {action: "data", data: "Investigate", target: "remediation" }
+        ]
+      }
+    }
+  end
+
+  # this method does the actual mapping, as specified
+  # in the field_mapping_by_type method
+  def map_fields(exposure_type, exposure)
+    
+    # grab the relevant mapping
+    mapping_areas = field_mapping_by_type[exposure_type] # asset, vuln, vuln_def
+
+    # then execute the mapping 
+    out = {}
+
+    ## For each area (asset,vuln,vuln_def) in the mapping
+    mapping_areas.each do |area,mapping|
+      out[area] = {}
+
+      ## For each item in the mapping
+      mapping.each do |map_item|
+        target = map_item[:target]
+        map_action = map_item[:action]
+        
+        ## Perform the requested mapping action
+
+        if map_action == "calc" # call a lambda, passing in the whole exposure
+          result = map_item[:lambda].call(exposure) 
+          out[area][target] = result
+        elsif map_action == "copy" # copy from source data
+          out[area][target] = exposure[map_item[:source]]
+        elsif map_action == "data" # static data 
+          out[area][target] = map_item[:data]
+        end
+
+      end
+    end
+
+  out 
+  end
+
+
   def run(options)
     super
   
@@ -53,11 +190,37 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
     print_good "Valid key, proceeding!"
 
+    
+    exposure_types = @client.cloud_exposure_types.map{|x| x["type"]}
+    print_good "Getting results for exposure types: #{exposure_types}"
+
+    exposure_types.sort.each do |et|
+
+      unless field_mapping_by_type[et]
+        print_error "ERROR! Unmapped exposure type: #{et}, skipping"
+        next
+      end
+     
+      # get all exposures of this type
+      exposures = @client.cloud_exposures([et])
+      next unless exposures.count > 0  #skip empty
+
+      # map fields for those expsures
+      result = exposures.map{|e| map_fields(et, e)}
+
+      # convert to KDI 
+      result.each do |r|
+        create_kdi_asset(r["asset"], "ip_address", tags=[], priority=10)
+        create_kdi_asset_vuln(r["asset"]["ip_address"], "ip_address", r["vuln"])      
+        create_kdi_vuln_def(r["vuln_def"])
+      end
+
+    end 
+
+    
 =begin
     # iterate through the assets!
-    print_good "Getting Bitsight assets for your company"
-    get_bitsight_assets_for_company(bitsight_api_key, company_guid).each do |f|
-
+    
       # Create the assets!
       #  
       #  {
@@ -82,13 +245,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       #  vulns: * (If an asset contains no open vulns, this can be an empty array, 
       #            but to avoid vulnerabilities from being closed, use the skip-autoclose flag) ]
       #  }
-      
-      asset_attributes = {
-        ip_address: f,
-      }
-      # create_kdi_asset(args, asset_locator, tags=[], priority=10)
-      print_good "Creating asset: #{f}"
-      create_kdi_asset(asset_attributes, :ip_address, ["Bitsight"]) 
     
       # Create the vuln!
       # 
