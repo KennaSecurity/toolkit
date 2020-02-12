@@ -1,1 +1,1 @@
-This task connects to the expanse api and pulls digital footprinting data. 
+This task connects to the RiskIQ api and pulls digital footprinting data. 

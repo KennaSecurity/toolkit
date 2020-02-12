@@ -12,4 +12,7 @@ gem 'rest-client'
 gem 'json'
 gem 'aws-sdk-inspector'
 gem 'aws-sdk-guardduty'
+
+# TESTING
 gem 'pry'
+gem 'rspec'

@@ -14,7 +14,7 @@ class Client
   end
 
   def successfully_authenticated?
-    @token.length > 0
+    @token && @token.length > 0
   end
 
   def exposures
@@ -128,7 +128,6 @@ class Client
 =end 
 
   def cloud_exposure_csv(exposure_type)
-    
     # get the CSV 
     url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}/csv" #?page[limit]=#{limit}&page[offset]=#{offset}"
     response = RestClient.get(url, @headers)
