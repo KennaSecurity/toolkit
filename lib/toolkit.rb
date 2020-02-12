@@ -10,8 +10,8 @@ require_relative '../initialize/string'
 require_relative 'helpers'
 include Kenna::Toolkit::Helpers
 
-# libraries
-require_relative 'data/digital_footprinting'
+# Shared libraries
+require_relative 'data/digi_footprint_finding_mapping'
 
 # Task manager
 require_relative 'task_manager'

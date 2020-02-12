@@ -1,6 +1,6 @@
 module Kenna
 module Data
-module DigitalFootprinting
+module DigiFootprintFindingMapping
 
   def create_mapping(description="",recommendation="")
     [
