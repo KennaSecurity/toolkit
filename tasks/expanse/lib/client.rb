@@ -54,7 +54,7 @@ class Client
 
     while more_results
       url = "https://expander.qadium.com/api/v2/exposures/ip-ports?limit=#{limit}&offset=#{offset}"
-      response_body = RestClient.get(url, @headers )
+      response_body = RestClient.get(url, @headers)
       result = JSON.parse response_body
 
       # do stuff with the data 
