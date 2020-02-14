@@ -1,34 +1,7 @@
 #!/usr/bin/ruby
 
-# standard dependencies
-require 'rest-client'
-require 'json'
-require 'csv'
-
-# initialize monkeypatches & other hacks
-require_relative 'initialize/string'
-
-# local deps
-require_relative 'lib/helpers'
-include Kenna::Toolkit::Helpers
-
-# libraries
-require_relative 'lib/data/digital_footprinting'
-
-# Task manager
-require_relative 'lib/task_manager'
-
-# tasks / scripts
-require_relative 'tasks/base'
-
-### GLOBAL VARIABLES - ONLY SET THESE ONCE
-$basedir = "#{File.expand_path(File.dirname(__FILE__))}"
-puts "Base Directory: #{$basedir}"
-### END GLOBALS
-
-# Load specific tasks 
-Dir["#{$basedir}/tasks/*.rb"].each { |file| require_relative(file) }
-Dir["#{$basedir}/tasks/*/*.rb"].each { |file| require_relative(file) }
+# all dependencies
+require_relative "lib/toolkit"
 
 # First split up whatever we got
 args_array = "#{ARGV[0]}".split(":")
@@ -69,9 +42,10 @@ case args[:task]
   when "help"
     print_usage && exit
   else
-    task_class = Kenna::Toolkit::TaskManager.find_task_by_id(args[:tas])
+    task_class = Kenna::Toolkit::TaskManager.find_by_id("#{args[:task]}".strip)
     if task_class
-      task.class.new.run(args)
+      puts "Running: #{task_class}"
+      task_class.new.run(args)
     else
       puts "[!] Error. Unknown task requested!"
     end

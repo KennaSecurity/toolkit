@@ -1,0 +1,1 @@
+This task connects to the RiskIQ api and pulls digital footprinting data. 

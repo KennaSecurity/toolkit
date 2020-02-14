@@ -2,11 +2,12 @@ module Kenna
 module Toolkit
 class Example < Kenna::Toolkit::BaseTask
 
-  def self.metadata 
+  def self.metadata
     {
       id: "example",
       name: "Example Task",
       description: "This task is simply an example!",
+      disabled: true,
       options: [
         { 
           :name => "example_option", 

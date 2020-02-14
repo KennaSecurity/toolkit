@@ -1,18 +1,27 @@
+require_relative 'lib/bitsight_helpers'
+
 module Kenna 
 module Toolkit
-class BitsightApi < Kenna::Toolkit::BaseTask
+class BitsightTask < Kenna::Toolkit::BaseTask
+
+  include Kenna::Toolkit::BitsightHelpers
 
   def self.metadata 
     {
-      id: "bitsight_api",
-      name: "Bitsight API",
-      description: "This task connects to the Bitsight API and translates into the Kenna Platform.",
+      id: "bitsight",
+      name: "Bitsight",
+      description: "This task connects to the Bitsight API and pulls results into the Kenna Platform.",
       options: [
         { :name => "bitsight_api_key", 
           :type => "string", 
           :required => true, 
-          :default => "us-east-1", 
-          :description => "This is the AWS access key used to query the API." },
+          :default => "", 
+          :description => "This is the Bitsight key used to query the API." },
+        { :name => "bitsight_company_guid", 
+          :type => "string", 
+          :required => false, 
+          :default => "", 
+          :description => "This is the Bitsight company GUID used to query the API." },
         { :name => "kenna_api_token", 
           :type => "api_key", 
           :required => false, 
@@ -27,7 +36,7 @@ class BitsightApi < Kenna::Toolkit::BaseTask
           :type => "filename", 
           :required => false, 
           :default => "output/bitsight", 
-          :description => "If set, will write a file upon completion. Path i relative to #{$basedir}"  }
+          :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
       ]
     }
   end
@@ -38,6 +47,7 @@ class BitsightApi < Kenna::Toolkit::BaseTask
     api_host = @options[:kenna_api_host]
     api_token = @options[:kenna_api_token]
     bitsight_api_key = @options[:bitsight_api_key]
+    company_guid = @options[:bitsight_company_guid]
 
     @assets = []
     @vuln_defs = []
@@ -46,12 +56,17 @@ class BitsightApi < Kenna::Toolkit::BaseTask
       print_bad "Unable to proceed, invalid key for Bitsight?"
       return 
     end
-    
     print_good "Valid key, proceeding!"
+  
+    unless company_guid
+      print_good "Getting my company's ID"
+      company_guid = get_my_company(bitsight_api_key)
+    end
 
-    # iterate through the findings!
-    print_good "Getting Bitsight findings for your company"
-    get_my_company_bitsight_assets(bitsight_api_key).each do |f|
+=begin
+    # iterate through the assets!
+    print_good "Getting Bitsight assets for your company"
+    get_bitsight_assets_for_company(bitsight_api_key, company_guid).each do |f|
 
       # Create the assets!
       #  
@@ -135,6 +150,10 @@ class BitsightApi < Kenna::Toolkit::BaseTask
       # def create_kdi_vuln_def(args)
       #create_kdi_vuln_def(vuln_def_attributes)
     end
+=end
+
+    print_good "Getting findings for company: #{company_guid}"
+    create_bitsight_findings_for_company(bitsight_api_key, company_guid)
 
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
 
@@ -153,30 +172,7 @@ class BitsightApi < Kenna::Toolkit::BaseTask
     #
     # TODO... upload 
     #
-  end
-
-  def valid_bitsight_api_key?(bitsight_api_key)
-    response = RestClient.get("https://#{bitsight_api_key}:@api.bitsighttech.com/")
-    result = JSON.parse(response.body)
-    result.has_key? "disclaimer"
-  end
-  
-  def get_my_company_bitsight_assets(bitsight_api_key)
-
-    # First get my company
-    response = RestClient.get("https://#{bitsight_api_key}:@api.bitsighttech.com/portfolio")
-    portfolio = JSON.parse(response.body)
-    my_company_guid = portfolio["my_company"]["guid"]
-
-
-    # then get the findings for it 
-    #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
-    endpoint = "https://#{bitsight_api_key}:@api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/assets/statistics"
-    response = RestClient.get(endpoint)
-    result = JSON.parse(response.body)
-
-  result["assets"].map{|x| x["asset"]}  
-  end
+  end    
 
 end
 end
