@@ -95,8 +95,8 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           {action: "data", data: "Expanse", target: "scanner_type" },
         ],
         'vuln_def' => [
-          {action: "copy", data: "Open Port", target: "decription" },
-          {action: "copy", data: "Investigate", target: "remediation" }
+          {action: "data", data: "Open Port", target: "decription" },
+          {action: "data", data: "Investigate", target: "remediation" }
         ]
       }, 
       'ftp-servers' => {
@@ -111,8 +111,8 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           {action: "data", data: "Expanse", target: "scanner_type" },
         ],
         'vuln_def' => [
-          {action: "copy", data: "Open Port", target: "decription" },
-          {action: "copy", data: "Investigate", target: "remediation" }
+          {action: "data", data: "Open Port", target: "decription" },
+          {action: "data", data: "Investigate", target: "remediation" }
         ]
       }, 
       'ftps-servers' => {
