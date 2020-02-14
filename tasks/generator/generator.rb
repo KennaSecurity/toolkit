@@ -11,7 +11,7 @@ module Kenna
         options: [
           { :name => "output_directory", 
             :type => "filename", 
-            :required => true, 
+            :required => false, 
             :default => "output/generator", 
             :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
         ]
@@ -117,7 +117,7 @@ module Kenna
 
       generated_ip = "#{rand(255)}.#{rand(255)}.#{rand(255)}.#{rand(255)}"
       cve_name = c.strip
-      
+
       ## Create an asset
       asset_attributes = { :ip_address => generated_ip }
       create_kdi_asset(asset_attributes, :ip_address, ["Randomly Generated", "Another Tag"]) 
