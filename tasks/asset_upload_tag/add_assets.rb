@@ -7,6 +7,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       id: "add_assets",
       name: "Add Assets",
       description: "This task does blah blah blah (TODO)",
+      disabled: true, 
       options: [
         {:name => "kenna_api_token", 
           :type => "api_key", 
