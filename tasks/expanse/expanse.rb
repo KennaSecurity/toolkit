@@ -85,50 +85,51 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     {
       'dns-servers' => {
         'asset' => [  
-          {action: "copy", source: "domain", target: "domain" },
-          {action: "copy", source: "hostname", target: "hostname" },
-          {action: "copy", source: "ip", target: "ip_address" }
+          { action: "copy", source: "domain", target: "domain" },
+          { action: "copy", source: "hostname", target: "hostname" },
+          { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
-          {action: "copy", source: "port", target: "port" },
-          {action: "copy", source: "severity", target: "severity" },
-          {action: "data", data: "Expanse", target: "scanner_type" },
+          { action: "copy", source: "port", target: "port" },
+          { action: "copy", source: "severity", target: "severity" },
+          { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
-          {action: "data", data: "Open Port", target: "decription" },
-          {action: "data", data: "Investigate", target: "remediation" }
+          { action: "data", target: "description",  data: "Open Port" },
+          { action: "data", target: "remediation", data: "Investigate" },
+          { action: "calc", target: "extra_attribute", lambda: lambda{|x| "some value" } }
         ]
       }, 
       'ftp-servers' => {
         'asset' => [  
-          {action: "copy", source: "domain", target: "domain" },
-          {action: "copy", source: "hostname", target: "hostname" },
-          {action: "copy", source: "ip", target: "ip_address" }
+          { action: "copy", source: "domain", target: "domain" },
+          { action: "copy", source: "hostname", target: "hostname" },
+          { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
-          {action: "copy", source: "port", target: "port" },
-          {action: "copy", source: "severity", target: "severity" },
-          {action: "data", data: "Expanse", target: "scanner_type" },
+          { action: "copy", source: "port", target: "port" },
+          { action: "copy", source: "severity", target: "severity" },
+          { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
-          {action: "data", data: "Open Port", target: "decription" },
-          {action: "data", data: "Investigate", target: "remediation" }
+          { action: "data", target: "decription", data: "Open Port" },
+          { action: "data", target: "remediation", data: "Investigate" }
         ]
       }, 
       'ftps-servers' => {
         'asset' => [  
-          {action: "copy", source: "domain", target: "domain" },
-          {action: "copy", source: "hostname", target: "hostname" },
-          {action: "copy", source: "ip", target: "ip_address" }
+          { action: "copy", source: "domain", target: "domain" },
+          { action: "copy", source: "hostname", target: "hostname" },
+          { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
-          {action: "copy", source: "port", target: "port" },
-          {action: "copy", source: "severity", target: "severity" },
-          {action: "data", data: "Expanse", target: "scanner_type" }
+          { action: "copy", source: "port", target: "port" },
+          { action: "copy", source: "severity", target: "severity" },
+          { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
-          {action: "data", data: "Open Port", target: "decription" },
-          {action: "data", data: "Investigate", target: "remediation" }
+          { action: "data", target: "description",  data: "Open Port" },
+          { action: "data", target: "remediation", data: "Investigate" }
         ]
       }
     }
@@ -156,8 +157,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         ## Perform the requested mapping action
 
         if map_action == "calc" # call a lambda, passing in the whole exposure
-          result = map_item[:lambda].call(exposure) 
-          out[area][target] = result
+          out[area][target] = map_item[:lambda].call(exposure)
         elsif map_action == "copy" # copy from source data
           out[area][target] = exposure[map_item[:source]]
         elsif map_action == "data" # static data 
