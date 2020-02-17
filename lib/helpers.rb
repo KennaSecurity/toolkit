@@ -53,7 +53,7 @@ module Kenna
       end
 
       def print_debug(message=nil)
-        puts "[X] (#{timestamp_long}) #{message}"
+        puts "[X] (#{timestamp_long}) #{message}" if @options[:debug]
       end
 
       def read_input_file(filename)

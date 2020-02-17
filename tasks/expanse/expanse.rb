@@ -70,8 +70,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       'vuln_def' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
         { action: "proc", target: "description", proc: lambda{|x| "Open Port: #{x["port"]}" } },
-        { action: "data", target: "remediation", data: "Investigate this exposure" },
-        { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
+        { action: "data", target: "remediation", data: "Investigate this Exposure!" }
       ]
     }
   end
@@ -92,18 +91,36 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       'application-server-software' => {
         'asset' => [ ],
         'vuln' => [
-          { action: "proc", target: "scanner_identifier", proc: lambda{|x| "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
           },
          ],
         'vuln_def' => [ 
-          { action: "proc", target: "description", proc: lambda{|x| "Exposed App Server Software: #{x["firstObservation"]["configuration"]["applicationServerSoftware"]}" } },
-          { action: "proc", target: "scanner_identifier", proc: lambda{|x| "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+          { action: "proc", target: "description", proc: lambda{|x| 
+            "Exposed App Server Software: #{x["firstObservation"]["configuration"]["applicationServerSoftware"]}" } },
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
           }
         ]
       },
       'bacnet-servers' => {}, 
       'dns-servers' => {}, 
       'ethernet-ip-servers' => {}, 
+      'insecure-signature-certificate-advertisements' => {
+        'asset' => [],
+        'vuln' => [
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "insecure_signature_certificate_advertisement_#{x["certificate"]["id"]}".to_string_identifier }
+          },
+         ],
+        'vuln_def' => [ 
+          { action: "proc", target: "description", proc: lambda{|x| 
+            "Insecure Signature Certificate: #{JSON.pretty_generate(x["certificate"])}" } },
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "insecure_signature_certificate_advertisement_#{x["certificate"]["id"]}".to_string_identifier }
+          }
+        ]
+      },
       'ftp-servers' => {}, 
       'ftps-servers' => {}, 
       'memcached-servers' => {}, 
@@ -182,11 +199,11 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ###
     if @options[:exposure_types]
       exposure_types = @options[:exposure_types]
-      #print_debug "DEBUG Getting results for exposure_types:\n#{JSON.pretty_generate(exposure_types)}"      
+      print_debug "DEBUG Getting results for exposure_types:\n#{JSON.pretty_generate(exposure_types)}"      
     else
       exposure_counts = @client.cloud_exposure_counts
       exposure_types = exposure_counts.map{|x| x["type"] }
-      #print_debug "Getting results for exposures:\n#{JSON.pretty_generate(exposure_counts)}"      
+      print_debug "Getting results for exposures:\n#{JSON.pretty_generate(exposure_counts)}"      
     end
   
 
@@ -206,14 +223,14 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
       # map fields for those expsures
       result = exposures.map do |e| 
-        #puts "Got Exposure:\n#{JSON.pretty_generate(e)}"
+        print_debug "Got Exposure #{et}:\n#{JSON.pretty_generate(e)}"
         map_fields(et, e) 
       end
 
       # convert to KDI 
       result.each do |r|
-        create_kdi_asset(r["asset"], "ip_address", tags=[], priority=10)
-        create_kdi_asset_vuln(r["asset"]["ip_address"], "ip_address", r["vuln"])      
+        create_kdi_asset(r["asset"])
+        create_kdi_asset_vuln(r["asset"], r["vuln"])      
         create_kdi_vuln_def(r["vuln_def"])
       end
 

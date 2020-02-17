@@ -86,8 +86,6 @@ class Client
 
           # get each one 
           result_id  = r["id"]
-          print "Getting result: #{result_id}"
-
           url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}/#{URI.escape(result_id)}"
 
           response_body = RestClient.get(url, @headers)

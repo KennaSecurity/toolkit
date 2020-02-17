@@ -27,30 +27,23 @@ module Toolkit
 	  #            but to avoid vulnerabilities from being closed, use the skip-autoclose flag) ]
 	  #  }
 	  #
-	  def create_kdi_asset(args, asset_locator, tags=[], priority=10)
+	  def create_kdi_asset(asset_hash)
 	    raise "Unable to detect assets array! Did you create one called '@assets'? " unless @assets
 
 	    # if we already have it, skip ... do this by selecting based on our dedupe field
 	    # and making sure we don't already have it
-	    return nil unless @assets.select{|a| a[asset_locator] == args[asset_locator] }.empty?
-
-	    asset = {} 
-
-	    # Push all attributes into our asset 
-	    args.each do |k,v|
-	      asset[k] = v
-	    end
-
-	    # set any other key attributes we've been passed, using smart defaults if they
-	    # weren't passed from the user
-	    asset["tags"] = tags 
-	    asset["priority"] = priority 
-	    asset["vulns"] = []
+	    return nil unless @assets.select{|a| a == asset_hash }.empty?
 		 
-			#puts "Creating KDI asset: #{asset}"
-	    @assets << asset
+			# create default values
+			asset_hash["priority"] = 10 unless asset_hash["priority"] 
+			asset_hash["tags"] = [] unless asset_hash["tags"] 
+			asset_hash["vulns"] = []
 
-	  true
+			# store it in our temp store
+	    @assets << asset_hash
+
+		# return it
+	  asset_hash
 	  end
 
 	  # create an instance of a vulnerability in our 
@@ -70,22 +63,23 @@ module Toolkit
 	  #  status: string, * (required - valid values open, closed, false_positive, risk_accepted)
 	  #  port: integer
 	  # }
-	  def create_kdi_asset_vuln(asset_id, asset_locator, args)
+	  def create_kdi_asset_vuln(asset_hash, vuln_hash)
 	    raise "Unable to detect assets array! Did you create one called '@assets'? " unless @assets
 
 	    # check to make sure it doesnt exist
-	    asset = @assets.select{|a| a[asset_locator] == asset_id }.first
+	    a = @assets.select{|a| a == asset_hash }.first
 
 	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless asset #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-				puts "Unable to find asset with #{asset_locator} of #{asset_id}, creating a new one"
-				create_kdi_asset({asset_locator.to_sym => args["scanner_identifier"]}, asset_locator) 
+	    unless asset_hash #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+				puts "Unable to find asset #{asset_hash}, creating a new one... "
+				create_kdi_asset asset_hash
+				a = @assets.select{|a| a == asset_hash }.first
 	    end 
 
 			#puts "Creating KDI asset/vuln on #{asset_id} with args: #{args}"
-	    asset["vulns"] << args
-
-	  true
+			a["vulns"] << vuln_hash
+		
+		vuln_hash
 	  end
 
 	  # Args can have the following key value pairs: 
@@ -101,7 +95,8 @@ module Toolkit
 	  #   description:  string, (full description of the vuln)
 	  #   solution: string, (steps or links for remediation teams)
 	  # }
-	  def create_kdi_vuln_def(vuln_def)
+		def create_kdi_vuln_def(vuln_def)
+			
 	    raise "Unable to detect vuln defs array! Did you create one called '@vuln_defs'? " unless @vuln_defs
 	    return unless @vuln_defs.select{|vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
 
