@@ -89,9 +89,11 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
       #  }
       aws_account_id = f.account_id
       asset_attributes = {
-        external_id: aws_account_id
+        "external_id" => aws_account_id,
+        "tags" => ["AWSRegion: #{f.region}"]
       }
-      create_kdi_asset(asset_attributes, :external_id, ["AWSRegion: #{f.region}"]) 
+      print_debug "Creating asset: #{aws_account_id}"
+      create_kdi_asset(asset_attributes) 
     
       # Create the vuln!
       # 
@@ -108,16 +110,15 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
       #  status: string, * (required - valid values open, closed, false_positive, risk_accepted)
       #  port: integer
       vuln_attributes = {
-        scanner_identifier: f.id,
-        scanner_type: f.service.service_name,
-        scanner_score: f.severity, 
-        created_at: f.created_at,
-        last_seen_at: f.updated_at,
-        status: "open"
+        "scanner_identifier" => f.id,
+        "scanner_type" => f.service.service_name,
+        "scanner_score" => f.severity, 
+        "created_at" => f.created_at,
+        "last_seen_at" => f.updated_at,
+        "status" => "open"
       }
-      create_kdi_asset_vuln(aws_account_id, :external_id, vuln_attributes)
-      
-      print_good "Creating vuln def: #{f.title}"
+      print_debug "Creating vuln def: #{f.title}"
+      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
       
       # Create the vuln def! 
       # 
@@ -133,10 +134,10 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
       #   solution: string, (steps or links for remediation teams)
       # }
       vuln_def_attributes = {
-        scanner_identifier: f.id,
-        scanner_type: f.service.service_name,
-        name: f.title,
-        description: f.description
+        "scanner_identifier" => f.id,
+        "scanner_type" => f.service.service_name,
+        "name" => f.title,
+        "description" => f.description
       }
       create_kdi_vuln_def(vuln_def_attributes)
     end

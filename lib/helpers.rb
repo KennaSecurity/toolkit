@@ -18,6 +18,8 @@ module Kenna
         puts "[ ] To see the usage for a given tasks, simply pass the task name      "
         puts "[ ] via the task=[name] argument and the options, separated by colons. "
         puts "[ ]                                                                    " 
+        puts "[ ] For VERBOSE output, set the verbose=true option.                   " 
+        puts "[ ]                                                                    " 
         puts "[ ] Example:                                                           "
         puts "[ ] ruby toolkit.rb task=example:option1=true:option2=abc              "
         puts "[ ]                                                                    "
@@ -53,7 +55,7 @@ module Kenna
       end
 
       def print_debug(message=nil)
-        puts "[X] (#{timestamp_long}) #{message}" if @options[:debug]
+        puts "[X] (#{timestamp_long}) #{message}" if @options[:debug] || @options[:verbose] 
       end
 
       def read_input_file(filename)

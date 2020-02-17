@@ -119,24 +119,27 @@ module Kenna
       cve_name = c.strip
 
       ## Create an asset
-      asset_attributes = { :ip_address => generated_ip }
-      create_kdi_asset(asset_attributes, :ip_address, ["Randomly Generated", "Another Tag"]) 
+      asset_attributes = { 
+        "ip_address" => generated_ip,
+        "tags" => ["Randomly Generated", "Another Tag"]
+      }
+      create_kdi_asset(asset_attributes) 
 
       ## Create a vuln
       vuln_attributes = { 
-        :ip_address => generated_ip, 
-        :scanner_type => "generator",
-        :created_at => Time.now.utc,
-        :last_seen_at => current_time,
-        :scanner_identifier => "#{cve_name}", 
-        :status => "open"
+        "ip_address" => generated_ip, 
+        "scanner_type" => "generator",
+        "created_at" => Time.now.utc,
+        "last_seen_at" => current_time,
+        "scanner_identifier" => "#{cve_name}", 
+        "status" => "open"
       }
-      create_kdi_asset_vuln(generated_ip, :ip_address, vuln_attributes)
+      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
       ## Create a vuln def
       vuln_def_attributes = {
-        :scanner_type => "generator",
-        :scanner_identifier => "#{cve_name}"
+        "scanner_type" => "generator",
+        "scanner_identifier" => "#{cve_name}"
       }
       create_kdi_vuln_def(vuln_def_attributes) 
     end

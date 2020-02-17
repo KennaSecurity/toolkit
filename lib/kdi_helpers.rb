@@ -36,7 +36,7 @@ module Toolkit
 		 
 			# create default values
 			asset_hash["priority"] = 10 unless asset_hash["priority"] 
-			asset_hash["tags"] = [] unless asset_hash["tags"] 
+			asset_hash["tags"] = [] unless asset_hash["tags"]
 			asset_hash["vulns"] = []
 
 			# store it in our temp store
@@ -77,6 +77,7 @@ module Toolkit
 	    end 
 
 			#puts "Creating KDI asset/vuln on #{asset_id} with args: #{args}"
+			vuln_hash["status"] = "open" unless vuln_hash["status"]
 			a["vulns"] << vuln_hash
 		
 		vuln_hash
