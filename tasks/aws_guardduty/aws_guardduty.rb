@@ -9,8 +9,8 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
 
   def self.metadata 
     {
-      id: "aws_guardduty_to_kdi",
-      name: "AWS GuardDuty To KDI Translator",
+      id: "aws_guardduty",
+      name: "AWS GuardDuty",
       description: "This task pulls results from AWS GuardDuty API and translates them into KDI JSON",
       options: [
         { 
