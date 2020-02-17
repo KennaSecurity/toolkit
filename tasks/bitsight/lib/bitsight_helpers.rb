@@ -46,46 +46,44 @@ module BitsightHelpers
     finding["assets"].each do |a|
 
       asset_name = a["asset"]
-    
+      default_tags = ["Bitsight"]
+
       if a["is_ip"] # TODO ... keep severity  ]
-        asset_attributes = {:ip_address => asset_name }
-        asset_locator = :ip_address
+        asset_attributes = {:ip_address => asset_name, :tags => default_tags }
       else 
-        asset_attributes = {:hostname => asset_name }
-        asset_locator = :hostname
+        asset_attributes = {:hostname => asset_name, :tags => default_tags}
       end
 
-      # TODO
-      # other attributes
-      #priority = 10 if 
-      #finding["importance"]
-      #finding["criticality"]
-
-      create_kdi_asset(asset_attributes, asset_locator, ["Bitsight"]) 
+      create_kdi_asset(asset_attributes) 
     
       # then create each vuln for this asset
       vuln_attributes = {
-        scanner_identifier: finding["risk_vector"],
-        scanner_type: "Bitsight #{finding["risk_vector_label"]}",
-        scanner_score: finding["severity"].to_i * 10 ,  # TODO # severity, severity_category
-        created_at: finding["first_seen"],
-        last_seen_at: finding["last_seen"],
-        status: "open"
+        "scanner_identifier" => finding["risk_vector"],
+        "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
+        "scanner_score" => finding["severity"].to_i * 10 ,  # TODO # severity, severity_category
+        "created_at" => finding["first_seen"],
+        "last_seen_at" => finding["last_seen"]
       }
       
       # def create_kdi_asset_vuln(asset_id, asset_locator, args)
-      create_kdi_asset_vuln(asset_name, asset_locator, vuln_attributes)
+      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
     end
 
     vuln_def_attributes = {
-      scanner_identifier: finding["risk_vector"],
-      scanner_type: "Bitsight #{finding["risk_vector_label"]}",
-      name: finding["name"],
-      #description: finding["details"]      
+      "scanner_identifier" => finding["risk_vector"],
+      "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
+      "name" => finding["name"],
+      "description" => finding["details"]      
     }
     create_kdi_vuln_def(vuln_def_attributes)
 
-    { "assets" => finding["assets"], "type" => finding["risk_vector"], "first_seen" => finding["first_seen"], "last_seen" => finding["last_seen"], "details" => finding["details"] }
+    { 
+      "assets" => finding["assets"], 
+      "type" => finding["risk_vector"], 
+      "first_seen" => finding["first_seen"], 
+      "last_seen" => finding["last_seen"], 
+      "details" => finding["details"] 
+    }
   end
 
   def create_bitsight_findings_for_company(bitsight_api_key, my_company_guid)

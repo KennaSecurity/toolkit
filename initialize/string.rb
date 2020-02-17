@@ -5,4 +5,16 @@ class String
      :invalid => :replace,
      :replace => "?" }).gsub("\u0000","")
   end
+
+
+  def to_string_identifier
+    self.gsub!(".","_")
+    self.gsub!("~","_")
+    self.gsub!("/","_")
+    self.gsub!("\\","_")
+    self.gsub!("+","_")
+    self.gsub!("-","_")
+  self.downcase
+  end
+
 end
