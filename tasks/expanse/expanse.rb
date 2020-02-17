@@ -48,8 +48,8 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       out = 50
     when "ROUTINE"
       out = 10
-    when "UNCATEGORIZED"
-      out = 1
+    when "UNCATEGORIZED" # default a little higher so it's looked at.
+      out = 25
     end
   out 
   end
