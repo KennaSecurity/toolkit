@@ -34,6 +34,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     }
   end
 
+  def map_exposure_severity(sev_word)
+    case sev_word
+    when "ROUTINE"
+      out = 3
+    when "UNCATEGORIZED"
+      out = 1
+    end
+  out 
+  end
+
 =begin
   def get_value_by_header(row, headers, field_name)
 
@@ -90,14 +100,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "copy", source: "port", target: "port" },
-          { action: "copy", source: "severity", target: "severity" },
+          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
           { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "data", target: "description",  data: "Open Port" },
           { action: "data", target: "remediation", data: "Investigate" },
-          { action: "calc", target: "extra_attribute", lambda: lambda{|x| "some value" } }
+          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
         ]
       }, 
       'ftp-servers' => {
@@ -107,13 +119,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "copy", source: "port", target: "port" },
-          { action: "copy", source: "severity", target: "severity" },
+          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
           { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "data", target: "decription", data: "Open Port" },
-          { action: "data", target: "remediation", data: "Investigate" }
+          { action: "data", target: "remediation", data: "Investigate" }, 
+          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
         ]
       }, 
       'ftps-servers' => {
@@ -123,13 +138,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           { action: "copy", source: "ip", target: "ip_address" }
         ],
         'vuln' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "copy", source: "port", target: "port" },
-          { action: "copy", source: "severity", target: "severity" },
+          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
           { action: "data", target: "scanner_type", data: "Expanse" }
         ],
         'vuln_def' => [
+          { action: "copy", source: "id", target: "scanner_identifier"},
           { action: "data", target: "description",  data: "Open Port" },
-          { action: "data", target: "remediation", data: "Investigate" }
+          { action: "data", target: "remediation", data: "Investigate" }, 
+          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
         ]
       }
     }
@@ -156,8 +174,9 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         
         ## Perform the requested mapping action
 
-        if map_action == "calc" # call a lambda, passing in the whole exposure
-          out[area][target] = map_item[:lambda].call(exposure)
+        if map_action == "proc" # call a lambda, passing in the whole exposure
+          puts "Calling Proc on #{exposure}"
+          out[area][target] = map_item[:proc].call(exposure)
         elsif map_action == "copy" # copy from source data
           out[area][target] = exposure[map_item[:source]]
         elsif map_action == "data" # static data 
@@ -190,7 +209,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
     print_good "Valid key, proceeding!"
 
-    
     exposure_types = @client.cloud_exposure_types.map{|x| x["type"]}
     print_good "Getting results for exposure types: #{exposure_types}"
 
@@ -214,6 +232,21 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         create_kdi_asset_vuln(r["asset"]["ip_address"], "ip_address", r["vuln"])      
         create_kdi_vuln_def(r["vuln_def"])
       end
+
+      kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+
+      # create output dir
+      if @options[:output_directory]
+        output_dir = "#{$basedir}/#{@options[:output_directory]}"
+        FileUtils.mkdir_p output_dir
+        
+        # create full output path
+        output_path = "#{output_dir}/expanse-#{et}.kdi.json"
+
+        print_good "Output being written to: #{output_path}"
+        File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+      end
+
 
     end 
 
@@ -297,20 +330,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       #create_kdi_vuln_def(vuln_def_attributes)
     end
 =end
-
-    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-
-    # create output dir
-    if @options[:output_directory]
-      output_dir = "#{$basedir}/#{@options[:output_directory]}"
-      FileUtils.mkdir_p output_dir
-      
-      # create full output path
-      output_path = "#{output_dir}/expanse.kdi.json"
-
-      print_good "Output being written to: #{output_path}"
-      File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
-    end
 
     #
     # TODO... upload 

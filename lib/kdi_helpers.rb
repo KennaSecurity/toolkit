@@ -43,9 +43,9 @@ module Toolkit
 
 	    # set any other key attributes we've been passed, using smart defaults if they
 	    # weren't passed from the user
-	    asset[:tags] = tags 
-	    asset[:priority] = priority 
-	    asset[:vulns] = []
+	    asset["tags"] = tags 
+	    asset["priority"] = priority 
+	    asset["vulns"] = []
 		 
 			#puts "Creating KDI asset: #{asset}"
 	    @assets << asset
@@ -79,11 +79,11 @@ module Toolkit
 	    # SAnity check to make sure we are pushing data into the correct asset 
 	    unless asset #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 				puts "Unable to find asset with #{asset_locator} of #{asset_id}, creating a new one"
-				create_kdi_asset({asset_locator.to_sym => args[:scanner_identifier]}, asset_locator) 
+				create_kdi_asset({asset_locator.to_sym => args["scanner_identifier"]}, asset_locator) 
 	    end 
 
 			#puts "Creating KDI asset/vuln on #{asset_id} with args: #{args}"
-	    asset[:vulns] << args
+	    asset["vulns"] << args
 
 	  true
 	  end
@@ -101,12 +101,9 @@ module Toolkit
 	  #   description:  string, (full description of the vuln)
 	  #   solution: string, (steps or links for remediation teams)
 	  # }
-	  def create_kdi_vuln_def(args)
+	  def create_kdi_vuln_def(vuln_def)
 	    raise "Unable to detect vuln defs array! Did you create one called '@vuln_defs'? " unless @vuln_defs
-	    return unless @vuln_defs.select{|a| a[:scanner_identifier] == args[:scanner_identifier] }.empty?
-	    
-	    # just shove the stuff in 
-	    vuln_def = args 
+	    return unless @vuln_defs.select{|vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
 
 	    @vuln_defs << vuln_def
 	  
