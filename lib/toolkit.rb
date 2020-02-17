@@ -4,6 +4,7 @@ require 'json'
 require 'csv'
 
 # initialize monkeypatches & other hacks
+require_relative '../initialize/hash'
 require_relative '../initialize/string'
 
 # local deps

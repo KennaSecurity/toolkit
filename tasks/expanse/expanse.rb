@@ -15,6 +15,11 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
           :required => true, 
           :default => "", 
           :description => "This is the Expanse key used to query the API." },
+        { :name => "expanse_api_key", 
+          :type => "string", 
+          :required => false, 
+          :default => "", 
+          :description => "Comma-separated list of exposure types. If not set, all exposures will be included" },
         { :name => "kenna_api_token", 
           :type => "api_key", 
           :required => false, 
@@ -34,51 +39,42 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     }
   end
 
-  def map_exposure_severity(sev_word)
+  def map_scanner_severity(sev_word)
+    out = 0
     case sev_word
+    when "CRITICAL"
+      out = 100
+    when "WARNING"
+      out = 50
     when "ROUTINE"
-      out = 3
+      out = 10
     when "UNCATEGORIZED"
       out = 1
     end
   out 
   end
 
-=begin
-  def get_value_by_header(row, headers, field_name)
-
-    # in case we get a string
-    headers = headers.split(",") if headers.kind_of? String
-
-    #puts "Getting value for field name: #{field_name} from: #{headers}"
-
-    i = headers.find_index(field_name)
-    return nil unless i 
-    raise "Invalid index: #{i} for field_name: #{field_name}. All headers: #{headers}" unless i 
-
-  "#{row[i]}"
+  def default_field_mapping
+    {
+      'asset' => [  
+        { action: "copy", source: "parentDomain", target: "domain" },
+        { action: "copy", source: "domain", target: "hostname" },
+        { action: "copy", source: "ip", target: "ip_address" }
+      ],
+      'vuln' => [
+        { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
+        { action: "copy", source: "port", target: "port" },
+        { action: "proc", target: "scanner_score", proc: lambda{|x| map_scanner_severity(x["severity"]) } },
+        { action: "data", target: "scanner_type", data: "Expanse" }
+      ],
+      'vuln_def' => [
+        { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
+        { action: "proc", target: "description", proc: lambda{|x| "Open Port: #{x["port"]}" } },
+        { action: "data", target: "remediation", data: "Investigate this exposure" },
+        { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
+      ]
+    }
   end
-
-  def exposures_by_type_csv(exposure_type)
-    exposures = []
-    csv = @client.cloud_exposure_csv("ftp-servers")
-    # Go through the CSV, pulling out the appropriate values
-    csv.each_with_index do |row, index|
-      next if index == 0 #skip the first 
-
-      exposure_details = {}
-      exposure_details[:ip] = get_value_by_header(row, csv.first, "ip")
-      exposure_details[:hostname] = get_value_by_header(row, csv.first, "lastObservation.hostname")
-      exposure_details[:domain] = get_value_by_header(row, csv.first, "domain")
-      exposure_details[:port] =  get_value_by_header(row, csv.first, "port")
-      exposure_details[:severity] = get_value_by_header(row, csv.first, "severity")
-      exposure_details[:type] =  get_value_by_header(row, csv.first, "type") 
-      exposures << exposure_details
-    end
-  
-  exposures 
-  end
-=end
 
   ###
   ### Each entry (type) should have a set of mappings for each KDI section:
@@ -93,63 +89,36 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
   ###
   def field_mapping_by_type
     {
-      'dns-servers' => {
-        'asset' => [  
-          { action: "copy", source: "domain", target: "domain" },
-          { action: "copy", source: "hostname", target: "hostname" },
-          { action: "copy", source: "ip", target: "ip_address" }
-        ],
+      'application-server-software' => {
+        'asset' => [ ],
         'vuln' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "copy", source: "port", target: "port" },
-          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
-          { action: "data", target: "scanner_type", data: "Expanse" }
-        ],
-        'vuln_def' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "data", target: "description",  data: "Open Port" },
-          { action: "data", target: "remediation", data: "Investigate" },
-          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+          },
+         ],
+        'vuln_def' => [ 
+          { action: "proc", target: "description", proc: lambda{|x| "Exposed App Server Software: #{x["firstObservation"]["configuration"]["applicationServerSoftware"]}" } },
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+          }
         ]
-      }, 
-      'ftp-servers' => {
-        'asset' => [  
-          { action: "copy", source: "domain", target: "domain" },
-          { action: "copy", source: "hostname", target: "hostname" },
-          { action: "copy", source: "ip", target: "ip_address" }
-        ],
-        'vuln' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "copy", source: "port", target: "port" },
-          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
-          { action: "data", target: "scanner_type", data: "Expanse" }
-        ],
-        'vuln_def' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "data", target: "decription", data: "Open Port" },
-          { action: "data", target: "remediation", data: "Investigate" }, 
-          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
-        ]
-      }, 
-      'ftps-servers' => {
-        'asset' => [  
-          { action: "copy", source: "domain", target: "domain" },
-          { action: "copy", source: "hostname", target: "hostname" },
-          { action: "copy", source: "ip", target: "ip_address" }
-        ],
-        'vuln' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "copy", source: "port", target: "port" },
-          { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
-          { action: "data", target: "scanner_type", data: "Expanse" }
-        ],
-        'vuln_def' => [
-          { action: "copy", source: "id", target: "scanner_identifier"},
-          { action: "data", target: "description",  data: "Open Port" },
-          { action: "data", target: "remediation", data: "Investigate" }, 
-          { action: "proc", target: "extra_attribute", proc: lambda{|x| "some value" } }
-        ]
-      }
+      },
+      'bacnet-servers' => {}, 
+      'dns-servers' => {}, 
+      'ethernet-ip-servers' => {}, 
+      'ftp-servers' => {}, 
+      'ftps-servers' => {}, 
+      'memcached-servers' => {}, 
+      'modbus-servers' => {}, 
+      'ms-sql-servers' => {}, 
+      'my-sql-servers' => {}, 
+      'pop3-servers' => {}, 
+      'rdp-servers' => {},
+      'smb-servers' => {},
+      'snmp-servers' => {},
+      'ssh-servers' => {},
+      'upnp-servers' => {},
+      'web-servers' => {},
+      'vnc-servers' => {},
+      'vx-works-servers' => {}
     }
   end
 
@@ -158,7 +127,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
   def map_fields(exposure_type, exposure)
     
     # grab the relevant mapping
-    mapping_areas = field_mapping_by_type[exposure_type] # asset, vuln, vuln_def
+    mapping_areas = default_field_mapping.deep_merge(field_mapping_by_type[exposure_type]) # asset, vuln, vuln_def
 
     # then execute the mapping 
     out = {}
@@ -175,7 +144,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         ## Perform the requested mapping action
 
         if map_action == "proc" # call a lambda, passing in the whole exposure
-          puts "Calling Proc on #{exposure}"
           out[area][target] = map_item[:proc].call(exposure)
         elsif map_action == "copy" # copy from source data
           out[area][target] = exposure[map_item[:source]]
@@ -209,22 +177,38 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
     print_good "Valid key, proceeding!"
 
-    exposure_types = @client.cloud_exposure_types.map{|x| x["type"]}
-    print_good "Getting results for exposure types: #{exposure_types}"
+    ### 
+    ### Get the list of exposure types
+    ###
+    if @options[:exposure_types]
+      exposure_types = @options[:exposure_types]
+      #print_debug "DEBUG Getting results for exposure_types:\n#{JSON.pretty_generate(exposure_types)}"      
+    else
+      exposure_counts = @client.cloud_exposure_counts
+      exposure_types = exposure_counts.map{|x| x["type"] }
+      #print_debug "Getting results for exposures:\n#{JSON.pretty_generate(exposure_counts)}"      
+    end
+  
 
+    ###
+    ### For exach exposure type
+    ###
     exposure_types.sort.each do |et|
 
       unless field_mapping_by_type[et]
-        print_error "ERROR! Unmapped exposure type: #{et}, skipping"
+        print_error "WARNING! Unmapped exposure type: #{et}, skipping"
         next
       end
      
       # get all exposures of this type
-      exposures = @client.cloud_exposures([et])
+      exposures = @client.cloud_exposures(1, 1, [et]) # TODO DEBUG ETC ETC ETC
       next unless exposures.count > 0  #skip empty
 
       # map fields for those expsures
-      result = exposures.map{|e| map_fields(et, e)}
+      result = exposures.map do |e| 
+        #puts "Got Exposure:\n#{JSON.pretty_generate(e)}"
+        map_fields(et, e) 
+      end
 
       # convert to KDI 
       result.each do |r|
@@ -233,22 +217,22 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         create_kdi_vuln_def(r["vuln_def"])
       end
 
-      kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-
-      # create output dir
-      if @options[:output_directory]
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        FileUtils.mkdir_p output_dir
-        
-        # create full output path
-        output_path = "#{output_dir}/expanse-#{et}.kdi.json"
-
-        print_good "Output being written to: #{output_path}"
-        File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
-      end
-
-
     end 
+
+    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+   
+    # create output dir
+    if @options[:output_directory]
+      output_dir = "#{$basedir}/#{@options[:output_directory]}"
+      FileUtils.mkdir_p output_dir
+      
+      # create full output path
+      output_path = "#{output_dir}/expanse.kdi.json"
+
+      print_good "Output being written to: #{output_path}"
+      File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+    end
+
 
     
 =begin

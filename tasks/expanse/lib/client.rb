@@ -17,7 +17,7 @@ class Client
     @token && @token.length > 0
   end
 
-  def exposures
+  def exposures(max_pages=100, limit_per_page=1000)
     return nil unless successfully_authenticated?
 
     # start with sensible defaults
@@ -26,8 +26,12 @@ class Client
     more_results = true 
     out = []
 
-    while more_results
-      url = "https://expander.qadium.com/api/v2/configurations/exposures?limit=#{limit}&offset=#{offset}"
+    # hack!
+    pages = 0 
+
+    while more_results && pages < max_pages
+      pages += 1 
+      url = "https://expander.qadium.com/api/v2/configurations/exposures?limit=#{limit_per_page}&offset=#{offset}"
       response_body = RestClient.get(url, @headers)
       result = JSON.parse response_body
 
@@ -35,7 +39,7 @@ class Client
       out.concat(result["data"])
 
       # prepare the next request
-      offset += limit
+      offset += limit_per_page
       if result["pagination"]
         more_results = result["pagination"]["next"]
       else 
@@ -46,13 +50,13 @@ class Client
   out 
   end
 
-  def cloud_exposure_types
+  def cloud_exposure_counts
     url = "https://expander.expanse.co/api/v1/summaries/cloud/counts"
     response_body = RestClient.get(url, @headers)
     result = JSON.parse(response_body)["data"]
   end
 
-  def cloud_exposures(limit_types=["ftp-servers"])
+  def cloud_exposures(max_pages=100, limit_per_page=1000, limit_types=["ftp-servers"])
     return nil unless successfully_authenticated?
 
     if limit_types.empty?
@@ -68,13 +72,13 @@ class Client
 
       # start with sensible defaults
       offset = 0
-      limit = 1000
       more_results = true 
+      pages = 0 
 
-      while more_results
+      while more_results && (pages < max_pages)
         
         # get the listing 
-        url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}?page[limit]=#{limit}&page[offset]=#{offset}"
+        url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}?page[limit]=#{limit_per_page}&page[offset]=#{offset}"
         response = RestClient.get(url, @headers)
         result = JSON.parse(response.body)
 
@@ -95,7 +99,7 @@ class Client
         end
 
         # prepare the next request
-        offset += limit
+        offset += limit_per_page
         if result["pagination"]
           more_results = result["pagination"]["next"]
         else 
@@ -136,7 +140,7 @@ class Client
   end
     
 
-
+=begin
   def open_ports
     return nil unless successfully_authenticated?
 
@@ -164,6 +168,7 @@ class Client
     end
   out 
   end
+=end
 
 end
 end
