@@ -6,8 +6,8 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
 
   def self.metadata 
     {
-      id: "aws_inspector_to_kdi",
-      name: "AWS Inspector To KDI Translator",
+      id: "aws_inspector",
+      name: "AWS Inspector",
       description: "This task pulls results from AWS inspector API and translates them into KDI JSON",
       options: [
         { 
