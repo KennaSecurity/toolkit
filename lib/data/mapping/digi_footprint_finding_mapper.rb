@@ -7,7 +7,6 @@ class DigiFootprintFindingMapper
   def self.get_canonical_vuln_details(orig_source, specific_details)
 
     orig_vuln_id = specific_details["scanner_identifier"]
-    puts "DEBUG Getting Vuln ID for #{orig_vuln_id}"
 
     orig_description = specific_details["description"]
     orig_recommendation = specific_details["recommendation"]
@@ -19,7 +18,6 @@ class DigiFootprintFindingMapper
       map[:matches].each do |match|
         next unless match[:source] == orig_source 
         if match[:vuln_id] =~ orig_vuln_id
-          puts "DEBUG Got VulnDef Match for #{orig_vuln_id}!"
           out = {
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
@@ -40,8 +38,6 @@ class DigiFootprintFindingMapper
         source: orig_source,
       }.stringify_keys.merge(specific_details)
     end
-
-    puts "DEBUG Returning #{out}"
 
   out 
   end
@@ -637,6 +633,10 @@ class DigiFootprintFindingMapper
       description: "This server has a weak SSL configuration. #{description}",
       recommendation: "Correct the SSL configuration on the server. #{recommendation}",
       matches: [
+        {
+          source: "Expanse",
+          vuln_id: /^insecure_signature_certificate_advertisement_.*$/
+        },
         {
           source: "Bitsight",
           vuln_id: /^ssl_certificates_large_number_of_dns_names_.*$/
