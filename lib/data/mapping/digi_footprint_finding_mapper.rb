@@ -21,8 +21,10 @@ class DigiFootprintFindingMapper
         if match[:vuln_id] =~ orig_vuln_id
           puts "DEBUG Got VulnDef Match for #{orig_vuln_id}!"
           out = {
+            scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
+            cwe_id: map[:cwe],
             description: "#{map[:description]}".strip,
             recommendation: "#{map[:recommendation]}".strip
           }.stringify_keys
@@ -34,11 +36,9 @@ class DigiFootprintFindingMapper
     if out.empty?
       #puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}" 
       out = {
+        scanner_identifier: orig_vuln_id,
         source: orig_source,
-        name: orig_vuln_id,
-        description: orig_description,
-        recommendation: orig_recommendation
-      }.stringify_keys
+      }.stringify_keys.merge(specific_details)
     end
 
     puts "DEBUG Returning #{out}"

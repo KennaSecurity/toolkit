@@ -99,7 +99,7 @@ module Toolkit
 		def create_kdi_vuln_def(vuln_def)
 			
 	    raise "Unable to detect vuln defs array! Did you create one called '@vuln_defs'? " unless @vuln_defs
-	    return unless @vuln_defs.select{|vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
+			return unless @vuln_defs.select{|vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
 
 	    @vuln_defs << vuln_def
 	  
