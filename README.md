@@ -102,7 +102,7 @@ These are the current tasks available:
 [ ] For VERBOSE output, set the verbose=true option.                   
 [ ]                                                                    
 [ ] Example:                                                           
-[ ] ruby toolkit.rb task=example:option1=true:option2=abc              
+[ ] docker run -it jcran/toolkit:latest toolkit.sh task=example:option1=true:option2=abc              
 [ ]                                                                    
 [ ] At this time, toolkit usage is strictly UNSUPPORTED.               
 [ ]                                                                    
