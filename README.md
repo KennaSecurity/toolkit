@@ -84,12 +84,41 @@ TOOLKIT CAPABILITIES (TASKS):
 
 These are the current tasks available: 
 
- - asset_upload_tag: This task does uploads assets through the API
- - example: Just an Example.
- - footprinting_csv_to_kdi: Convert Digital Footprinting CSV files to KDI and upload.
- - aws_inspector_to_kdi: This task hits the AWS Inspector API and outputs the results to a file in the output directory.
- - aws_guardduty_to_kdi: This task hits the AWS Guarduty API and outputs the results to a file in the output directory.
- - user_role_sync: This task creates users and assigns them to roles via the API
+```                                                            
+[+] ========================================================           
+[+]  Welcome to the Kenna Security API & Scripting Toolkit!            
+[+] ========================================================           
+[ ]                                                                    
+[ ] Usage:                                                             
+[ ]                                                                    
+[ ] In order to use the toolkit, you must pass a 'task' argument       
+[ ] which specifies the function to perform. Each task has a set       
+[ ] of required and optional parameters which can be passed to         
+[ ] it via the command line.                                           
+[ ]                                                                    
+[ ] To see the usage for a given tasks, simply pass the task name      
+[ ] via the task=[name] argument and the options, separated by colons. 
+[ ]                                                                    
+[ ] For VERBOSE output, set the verbose=true option.                   
+[ ]                                                                    
+[ ] Example:                                                           
+[ ] ruby toolkit.rb task=example:option1=true:option2=abc              
+[ ]                                                                    
+[ ] At this time, toolkit usage is strictly UNSUPPORTED.               
+[ ]                                                                    
+[ ]                                                                    
+[ ] Tasks:
+[+]  - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
+[+]  - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
+[+]  - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
+[+]  - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
+[+]  - footprinting_csv_to_kdi: This task parses digital footprinting data from CSV files into KDI and optionally uploads them.
+[+]  - inspect_api_token: This task pulls results from AWS inspector and translates them into JSON
+[+]  - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
+[+]  - upload_file: This task uploads a file to a specified connector
+[+]  - user_role_sync: This task creates users and assigns them to roles via the API
+[ ]                                                                    
+```
 
 CONTRIBUTORS:
 =============

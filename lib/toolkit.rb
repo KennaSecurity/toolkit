@@ -11,8 +11,8 @@ require_relative '../initialize/string'
 require_relative 'helpers'
 include Kenna::Toolkit::Helpers
 
-# Shared libraries
-require_relative 'data/digi_footprint_finding_mapping'
+# Shared libraries / mapping / data etc
+require_relative 'data/mapping/digi_footprint_finding_mapper'
 
 # Task manager
 require_relative 'task_manager'
