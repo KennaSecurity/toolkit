@@ -59,7 +59,8 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       'asset' => [  
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
-        { action: "copy", source: "ip", target: "ip_address" }
+        { action: "copy", source: "ip", target: "ip_address" },
+        { action: "proc", target: "tags", proc: lambda{|x| x["businessUnits"].map{|x| x["name"] } } }  
       ],
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
@@ -69,7 +70,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       ],
       'vuln_def' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
-        { action: "proc", target: "description", proc: lambda{|x| "Open Port: #{x["port"]}" } },
+        { action: "proc", target: "description", proc: lambda{|x| "Port #{x["port"]}" } },
         { action: "data", target: "remediation", data: "Investigate this Exposure!" }
       ]
     }
@@ -89,21 +90,22 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
   def field_mapping_by_type
     {
       'application-server-software' => {
-        'asset' => [ ],
+        'asset' => [],
         'vuln' => [
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
-            "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+            "application_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
           },
          ],
         'vuln_def' => [ 
           { action: "proc", target: "description", proc: lambda{|x| 
             "Exposed App Server Software: #{x["firstObservation"]["configuration"]["applicationServerSoftware"]}" } },
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
-            "app_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
+            "application_server_software_#{x["firstObservation"]["configuration"]["applicationServerSoftware"]}".to_string_identifier }
           }
         ]
       },
       'bacnet-servers' => {}, 
+      'development-environments' => {},
       'dns-servers' => {}, 
       'ethernet-ip-servers' => {}, 
       'insecure-signature-certificate-advertisements' => {
@@ -127,12 +129,47 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       'modbus-servers' => {}, 
       'ms-sql-servers' => {}, 
       'my-sql-servers' => {}, 
-      'pop3-servers' => {}, 
+      'net-bios-name-servers' => {},
+      'pop3-servers' => {
+        'asset' => [],
+        'vuln' => [
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "detected_server_pop3_#{x["cloudAssetId"]}".to_string_identifier }
+          },
+         ],
+        'vuln_def' => [ 
+          { action: "proc", target: "description", proc: lambda{|x| 
+            "Detected Pop3 Server with configuration: #{JSON.pretty_generate(x["firstObservation"]["configuration"])}" } },
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "detected_server_pop3_#{x["cloudAssetId"]}".to_string_identifier }
+          }
+        ]
+      }, 
       'rdp-servers' => {},
+      'server-software' => {
+        'asset' => [],
+        'vuln' => [
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "server_software_#{x["firstObservation"]["configuration"]["serverSoftware"]}".to_string_identifier }
+          },
+         ],
+        'vuln_def' => [ 
+          { action: "proc", target: "description", proc: lambda{|x| 
+            "Exposed Server Software: #{x["firstObservation"]["configuration"]["serverSoftware"]}" } },
+          { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
+            "server_software_#{x["firstObservation"]["configuration"]["serverSoftware"]}".to_string_identifier }
+          }
+        ]
+      },
+      'sip-servers' => {},
       'smb-servers' => {},
+      'smtp-servers' => {},
       'snmp-servers' => {},
       'ssh-servers' => {},
+      'telnet-servers' => {},
       'upnp-servers' => {},
+      'unencrypted-logins' => {},
+      'unencrypted-ftp-servers' => {},
       'web-servers' => {},
       'vnc-servers' => {},
       'vx-works-servers' => {}
@@ -231,7 +268,13 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       result.each do |r|
         create_kdi_asset(r["asset"])
         create_kdi_asset_vuln(r["asset"], r["vuln"])      
-        create_kdi_vuln_def(r["vuln_def"])
+
+        # Normalize
+        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+        vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"])
+        
+        # Create the vuln def 
+        create_kdi_vuln_def(vd)
       end
 
     end 

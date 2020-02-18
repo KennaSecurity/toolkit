@@ -6,6 +6,47 @@ module Toolkit
 module Expanse
 class Client
 
+  ###
+  ### TODO - add back later during rework for scale 
+  ###
+
+=begin
+  def get_value_by_header(row, headers, field_name)
+
+    # in case we get a string
+    headers = headers.split(",") if headers.kind_of? String
+
+    #puts "Getting value for field name: #{field_name} from: #{headers}"
+
+    i = headers.find_index(field_name)
+    return nil unless i 
+    raise "Invalid index: #{i} for field_name: #{field_name}. All headers: #{headers}" unless i 
+
+  "#{row[i]}"
+  end
+
+  def exposures_by_type_csv(exposure_type)
+    exposures = []
+    csv = @client.cloud_exposure_csv("ftp-servers")
+    # Go through the CSV, pulling out the appropriate values
+    csv.each_with_index do |row, index|
+      next if index == 0 #skip the first 
+
+      exposure_details = {}
+      exposure_details[:ip] = get_value_by_header(row, csv.first, "ip")
+      exposure_details[:hostname] = get_value_by_header(row, csv.first, "lastObservation.hostname")
+      exposure_details[:domain] = get_value_by_header(row, csv.first, "domain")
+      exposure_details[:port] =  get_value_by_header(row, csv.first, "port")
+      exposure_details[:severity] = get_value_by_header(row, csv.first, "severity")
+      exposure_details[:type] =  get_value_by_header(row, csv.first, "type") 
+      exposures << exposure_details
+    end
+  
+  exposures 
+  end
+=end
+
+
   def initialize(api_key)
     url = "https://expander.qadium.com/api/v1/idtoken"
     response = RestClient.get(url, {:Authorization => "Bearer #{api_key}"})

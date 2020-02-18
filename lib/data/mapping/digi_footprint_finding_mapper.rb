@@ -4,36 +4,46 @@ module Data
 module Mapping
 class DigiFootprintFindingMapper
   
-  def self.get_canonical_vuln_details(source, vuln_id, description="", recommendation="", cwe_id=nil)
+  def self.get_canonical_vuln_details(orig_source, specific_details)
+
+    orig_vuln_id = specific_details["scanner_identifier"]
+    puts "DEBUG Getting Vuln ID for #{orig_vuln_id}"
+
+    orig_description = specific_details["description"]
+    orig_recommendation = specific_details["recommendation"]
+    out = {}
 
     # Do the mapping
     ###################
-    _mapping_data(description,recommendation).each do |map|
+    _mapping_data(orig_description,orig_recommendation).each do |map|
       map[:matches].each do |match|
-        if ( match[:source] == source && match[:vuln_id] =~ vuln_id )
-          File.open("#{$basedir}/output/footprint_parser_mapping.txt","a"){|f| f.puts "MAPPED vuln of type: \"#{source} #{vuln_id}\" - CWE: #{map[:cwe]}, NAME: #{map[:name]}" };nil
-          return {
-            source: "Kenna",
+        next unless match[:source] == orig_source 
+        if match[:vuln_id] =~ orig_vuln_id
+          puts "DEBUG Got VulnDef Match for #{orig_vuln_id}!"
+          out = {
+            source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
-            description: map[:description],
-            recommendation: map[:recommendation],
-            cwe: map[:cwe]
+            description: "#{map[:description]}".strip,
+            recommendation: "#{map[:recommendation]}".strip
           }.stringify_keys
         end
       end
     end
 
-   # File.open("#{$basedir}/output/footprint_parser_mapping.txt","a"){|f| f.puts "UNMAPPED vuln of type: \"#{source} #{vuln_id}\"" };nil
-
     # we didnt map it, so just pass it back
-    return {
-      source: source,
-      name: vuln_id,
-      cwe: cwe_id,
-      description: description,
-      recommendation: recommendation
-    }.stringify_keys
+    if out.empty?
+      #puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}" 
+      out = {
+        source: orig_source,
+        name: orig_vuln_id,
+        description: orig_description,
+        recommendation: orig_recommendation
+      }.stringify_keys
+    end
 
+    puts "DEBUG Returning #{out}"
+
+  out 
   end
 
   def self.get_mapping_stats
@@ -50,9 +60,9 @@ class DigiFootprintFindingMapper
       map[:matches].each do |m|
         stats[:bitsight] << m[:vuln_id] if m[:source] == "Bitsight"
         stats[:expanse]  << m[:vuln_id] if m[:source] == "Expanse"
-        stats[:intrigue]  << m[:vuln_id] if m[:source] == "Intrigue"
+        stats[:intrigue] << m[:vuln_id] if m[:source] == "Intrigue"
         stats[:riskiq]  << m[:vuln_id] if m[:source] == "RiskIQ"
-        stats[:ssc]  << m[:vuln_id] if m[:source] == "SecurityScorecard"
+        stats[:ssc] << m[:vuln_id] if m[:source] == "SecurityScorecard"
       end
     end
 
@@ -79,7 +89,7 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Expanse",
-          vuln_id: /^open_port_.*$/
+          vuln_id: /^open_port_\d+$/
         },
         {
           source: "Intrigue",
