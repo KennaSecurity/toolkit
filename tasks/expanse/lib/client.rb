@@ -123,6 +123,8 @@ class Client
         response = RestClient.get(url, @headers)
         result = JSON.parse(response.body)
 
+        print "Got #{result["data"].count} exposures"
+
         result["data"].each do |r|
 
           # get each one 
