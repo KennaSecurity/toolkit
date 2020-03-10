@@ -17,9 +17,11 @@ require_relative 'data/mapping/digi_footprint_finding_mapper'
 # Task manager
 require_relative 'task_manager'
 
-# API Helpers
-require_relative 'api' # kenna api client 
-require_relative 'kdi_helpers'
+# kenna api client 
+require_relative 'api/client' 
+
+# KDI Helpers
+require_relative 'kdi/kdi_helpers'
 
 # tasks / scripts
 require_relative '../tasks/base'

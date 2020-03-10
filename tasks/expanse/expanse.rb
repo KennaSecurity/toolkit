@@ -52,17 +52,17 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
   def run(options)
     super
-  
-    kenna_api_host = @options[:kenna_api_host]
-    kenna_api_token = @options[:kenna_api_token]
-    kenna_connector_id = @options[:kenna_connector_id]
 
+    # Get options
+    kenna_api_host = @options[:kenna_api_host]
+    kenna_api_token = @options[:kenna_api_key]
+    kenna_connector_id = @options[:kenna_connector_id]
     expanse_api_key = @options[:expanse_api_key]
 
     # create an api client
     @expanse = Kenna::Toolkit::Expanse::Client.new(expanse_api_key)
-    @kenna = Kenna::Api.new(kenna_api_token, kenna_api_host)
-  
+    @kenna = Kenna::Api::Client.new(kenna_api_token, kenna_api_host)
+      
     @assets = []
     @vuln_defs = []
 

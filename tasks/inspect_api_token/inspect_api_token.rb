@@ -34,7 +34,7 @@ class InspectApiToken < Kenna::Toolkit::BaseTask
     #  return
     #end
 
-    api_client = Kenna::Api.new(api_token, api_host)
+    api_client = Kenna::Api::Client.new(api_token, api_host)
 
     # get connectors
     response = api_client.get_connectors

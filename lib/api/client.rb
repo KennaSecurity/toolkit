@@ -1,5 +1,6 @@
 module Kenna
-   class Api
+module Api
+   class Client
 
     def version
       0
@@ -165,8 +166,10 @@ module Kenna
         print_error "Unprocessable Entity: #{e.message}..."
       rescue RestClient::BadRequest => e
         print_error "Bad Request: #{e.message}... #{e}"
-      rescue RestClient::Exception => e
-        print_error "Unknown Exception... #{e}"
+      rescue RestClient::Unauthorized => e
+        print_error "Unauthorized: #{e.message}... #{e}"
+      rescue RestClient::Exception  => e
+        print_error "Unknown Exception: #{e}"
 
         retries ||= 0
         if retries < max_retries
@@ -227,4 +230,5 @@ module Kenna
 
 
   end
+end
 end
