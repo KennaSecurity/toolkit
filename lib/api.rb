@@ -158,7 +158,9 @@ module Kenna
           # check our value to see if we need to keep going
           running = connector_check_json["running"]
         end  
-
+      
+      rescue RestClient::Exceptions::OpenTimeout => e 
+        print_error "Timeout: #{e.message}..."
       rescue RestClient::UnprocessableEntity => e
         print_error "Unprocessable Entity: #{e.message}..."
       rescue RestClient::BadRequest => e
