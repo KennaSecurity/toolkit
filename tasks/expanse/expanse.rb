@@ -68,7 +68,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
     # verify we have a good key before proceeding
     unless @expanse.successfully_authenticated?
-      print_bad "Unable to proceed, invalid key for Expanse?"
+      print_error "Unable to proceed, invalid key for Expanse?"
       return 
     end
     print_good "Valid key, proceeding!"

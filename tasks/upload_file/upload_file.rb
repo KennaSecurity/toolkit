@@ -21,7 +21,7 @@ class UploadFile < Kenna::Toolkit::BaseTask
         {:name => "connector_id", 
           :type => "integer", 
           :required => true, 
-          :default => 1, 
+          :default => -1, 
           :description => "Kenna Connector ID" },
         {:name => "file", 
           :type => "filename", 

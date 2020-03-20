@@ -1,16 +1,43 @@
 
+======
 ABOUT:
 ======
 
-The Kenna toolkit is a powerful set of functions for data and api manipulation outside of the Kenna platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
+The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
 
+======
 USAGE:
 ======
 
-Building The Image: 
-==================
+Requirements: 
+=============
+ - Docker Desktop, or an orchestrator capable of running a standalone docker image 
+ - 8GB RAM (this is relative, some tasks will require much less memory)
 
-First, make sure you have Docker installed! Then, build the image using the following command: 
+Running the latest image (from DockerHub):
+==========================================
+
+The easiest way to get started is to use the pre-built image on Dockerhub. This is currently hosted in the 'jcran' account, but will move to a more official account soon. 
+
+```
+### A first example that will pull the latest image, and print the list of tasks
+IMAGE="jcran/toolkit:latest" && docker pull $IMAGE && docker run -it $IMAGE
+```
+
+```
+### A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task... in this case, the expanse task.
+IMAGE="jcran/toolkit:latest" && \
+KENNA_API_KEY=XXXX && \
+EXPANSE_API_KEY=YYYY && \
+docker pull $IMAGE && docker run -it $IMAGE task=expanse:kenna_api_key=$KENNA_API_KEY:expanse_api_key=$EXPANSE_API_KEY
+```
+
+Building your own Image: 
+========================
+
+If you've made some modifications to the code and/or just want to build the image yourself, you can easily do that. 
+
+Then, build the image using the following command: 
 
 ```
 toolkit master [20190821]$ docker build . -t toolkit:latest
@@ -21,8 +48,8 @@ Step 1/8 : FROM quay.io/kennasecurity/ruby:2.6.2
 Successfully built toolkit:latest
 ```
 
-Launching the Docker Image: 
-===========================
+Launching your own Docker Image: 
+================================
 
 Excellent, now you have an image, and are ready to launch it!
 
@@ -36,6 +63,7 @@ $ docker run -t toolkit:latest
 ```
 
 If everything's working, lets move on to accessing the toolkit's functionality through tasks. 
+
 
 Calling a Specific Task:
 ========================
@@ -79,6 +107,7 @@ $ docker run \
   -t toolkit:latest task=example
 ```
 
+======
 TOOLKIT CAPABILITIES (TASKS): 
 =============================
 

@@ -53,7 +53,7 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     @vuln_defs = []
 
     unless valid_bitsight_api_key?(bitsight_api_key)
-      print_bad "Unable to proceed, invalid key for Bitsight?"
+      print_error "Unable to proceed, invalid key for Bitsight?"
       return 
     end
     print_good "Valid key, proceeding!"

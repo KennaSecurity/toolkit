@@ -58,7 +58,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     @vuln_defs = []
 
     unless @client.successfully_authenticated?
-      print_bad "Unable to proceed, invalid key for Expanse?"
+      print_error "Unable to proceed, invalid key for Expanse?"
       return 
     end
     print_good "Valid key, proceeding!"
