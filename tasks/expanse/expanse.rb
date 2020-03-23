@@ -154,6 +154,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       unless field_mapping_for_cloud_exposures[et]
         print_error "Skipping unmapped exposure type: #{et}!"
         unmapped = true 
+        next
       end
     
       # get all exposures of this type
