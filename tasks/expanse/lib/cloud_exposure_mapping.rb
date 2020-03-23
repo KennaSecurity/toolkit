@@ -107,10 +107,10 @@ module CloudExposureMapping
         ]
       },
       'bacnet-servers' => {}, 
-      'certificate-advertisements' => {}, 
+      '-certificate-advertisements' => {}, 
       'development-environments' => {},
       'dns-servers' => {}, 
-      'domain-control-validated-certificate-advertisements' => {
+      '-domain-control-validated-certificate-advertisements' => {
         'asset' => [],
         'vuln' => [
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 

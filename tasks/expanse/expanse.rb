@@ -152,7 +152,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
       unmapped = false
       unless field_mapping_for_cloud_exposures[et]
-        print_error "WARNING! Unmapped exposure type: #{et}!"
+        print_error "Skipping unmapped exposure type: #{et}!"
         unmapped = true 
       end
     
@@ -166,11 +166,12 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         print_debug "Debug mode, override max to: #{max_pages * max_per_page} for  #{et}"
       end
 
+      print_good "Working on cloud exposure: #{et}!"
       cloud_exposures = @expanse.cloud_exposures(max_pages,max_per_page,[et])
     
       # skip if we don't have any 
       unless cloud_exposures.count > 0 #skip empty
-        print_good "No exposures of type #{et} found!"
+        print_debug "No exposures of type #{et} found!"
         next
       end
 
