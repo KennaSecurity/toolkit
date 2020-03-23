@@ -44,7 +44,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
-          :default => "output/expanse", 
+          :default => "output/expanse/", 
           :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
         ]
     }
@@ -83,7 +83,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
    
     ###
-    ### Write the file 
+    ### Always write the file 
     ### 
 
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
@@ -100,20 +100,24 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ###
 
     # optionally upload the file if a connector ID has been specified 
-    #if kenna_connector_id && kenna_api_host && kenna_api_token
+    if kenna_connector_id && kenna_api_host && kenna_api_token
   
       print_good "Attempting to upload to Kenna api"
       print_good "Kenna API host: #{kenna_api_host}"
 
       # upload it 
-      @kenna.upload_to_connector(kenna_connector_id, output_path)
+      if kenna_connector_id && kenna_connector_id != -1 
+        @kenna.upload_to_connector(kenna_connector_id, output_path)
+        # delete the temp file 
+        File.delete(output_path)
+      else 
+        print_error "Invalid Connector ID, unable to upload."
+      end
 
-      # delete the temp file 
-      File.delete(output_path)
 
-    #else # just tell the user where the output is 
+    else # just tell the user where the output is 
       print_good "Output is available at: #{output_path}"
-    #end
+    end
 
   end    
 
@@ -127,6 +131,10 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
   def create_kdi_from_cloud_exposures
    
+    print_good
+    print_good "Working on Cloud Exposures"
+    print_good
+
     ### 
     ### Get the list of exposure types
     ###
@@ -138,7 +146,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
   
     ###
-    ### For exach exposure type
+    ### For eachs exposure type
     ###
     exposure_types.sort.each do |et|
 
@@ -149,7 +157,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       end
     
       # get all exposures of this type
-      cloud_exposures = @expanse.cloud_exposures(1, 1, [et])
+      max_pages = 1000
+      max_per_page = 10000
+
+      if @options[:debug]
+        max_pages = 1 
+        max_per_page = 1
+        print_debug "Debug mode, override max to: #{max_pages * max_per_page} for  #{et}"
+      end
+
+      cloud_exposures = @expanse.cloud_exposures(max_pages,max_per_page,[et])
     
       # skip if we don't have any 
       unless cloud_exposures.count > 0 #skip empty
@@ -171,28 +188,16 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
         # Normalize
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-        vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"])
+        vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
+        
+        # set scanner type
+        vd["scanner_type"] = "Expanse"
         
         # Create the vuln def 
         create_kdi_vuln_def(vd)
       end
 
     end 
-  end
-
-  def map_scanner_severity(sev_word)
-    out = 0
-    case sev_word
-    when "CRITICAL"
-      out = 100
-    when "WARNING"
-      out = 50
-    when "ROUTINE"
-      out = 10
-    when "UNCATEGORIZED" # default a little higher so it's looked at.
-      out = 25
-    end
-  out 
   end
 
   

@@ -1,9 +1,8 @@
-
 ======
 ABOUT:
 ======
 
-The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
+The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
 
 ======
 USAGE:
@@ -27,8 +26,6 @@ IMAGE="jcran/toolkit:latest" && docker pull $IMAGE && docker run -it $IMAGE
 ```
 ### A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task... in this case, the expanse task.
 IMAGE="jcran/toolkit:latest" && \
-KENNA_API_KEY=XXXX && \
-EXPANSE_API_KEY=YYYY && \
 docker pull $IMAGE && docker run -it $IMAGE task=expanse:kenna_api_key=$KENNA_API_KEY:expanse_api_key=$EXPANSE_API_KEY
 ```
 

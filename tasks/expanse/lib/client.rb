@@ -6,7 +6,6 @@ module Toolkit
 module Expanse
 class Client
 
-
   def initialize(api_key)
     url = "https://expander.qadium.com/api/v1/idtoken"
     response = RestClient.get(url, {:Authorization => "Bearer #{api_key}"})
@@ -41,7 +40,7 @@ class Client
       response_body = RestClient.get(url, @headers)
       result = JSON.parse response_body
 
-      print_debug "Got #{result["data"].count} exposures."
+      #print_debug "Got #{result["data"].count} exposures."
 
       # do stuff with the data 
       out.concat(result["data"])
@@ -93,7 +92,7 @@ class Client
         response = RestClient.get(url, @headers)
         result = JSON.parse(response.body)
 
-        print_debug "Got #{result["data"].count} cloud exposures of type: #{exposure_type}"
+        #print_debug "Got #{result["data"].count} cloud exposures of type: #{exposure_type}"
 
         out.concat result["data"]
 

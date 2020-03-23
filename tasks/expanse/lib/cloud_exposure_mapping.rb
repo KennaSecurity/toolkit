@@ -3,6 +3,22 @@ module Toolkit
 module Expanse
 module CloudExposureMapping
 
+  def map_exposure_severity(sev_word)
+    out = 0
+    case sev_word
+    when "CRITICAL"
+      out = 10
+    when "WARNING"
+      out = 6
+    when "ROUTINE"
+      out = 1
+    when "UNCATEGORIZED" # default a little higher so it's looked at.
+      out = 3
+    end
+  out 
+  end
+
+
   def default_cloud_exposure_field_mapping
     {
       'asset' => [  
@@ -15,7 +31,7 @@ module CloudExposureMapping
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
         { action: "copy", source: "port", target: "port" },
-        { action: "proc", target: "scanner_score", proc: lambda{|x| map_scanner_severity(x["severity"]) } },
+        { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
         { action: "data", target: "scanner_type", data: "Expanse" }
       ],
       'vuln_def' => [
@@ -25,7 +41,6 @@ module CloudExposureMapping
       ]
     }
   end
-
 
   # this method does the actual mapping, as specified
   # in the field_mapping_by_type method
@@ -95,7 +110,7 @@ module CloudExposureMapping
       'certificate-advertisements' => {}, 
       'development-environments' => {},
       'dns-servers' => {}, 
-      '-domain-control-validated-certificate-advertisements' => {
+      'domain-control-validated-certificate-advertisements' => {
         'asset' => [],
         'vuln' => [
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
@@ -225,7 +240,7 @@ module CloudExposureMapping
           }
         ]
       },
-      '-server-software' => {
+      'server-software' => {
         'asset' => [],
         'vuln' => [
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
@@ -264,7 +279,7 @@ module CloudExposureMapping
       'upnp-servers' => {},
       'unencrypted-logins' => {},
       'unencrypted-ftp-servers' => {},
-      '-web-servers' => {},
+      'web-servers' => {},
       'wildcard-certificate-advertisements' => {
         'asset' => [],
         'vuln' => [
