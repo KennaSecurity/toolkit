@@ -27,6 +27,13 @@ class BaseTask
       missing_options << req if missing
     end
 
+    # Task help! 
+    if opts[:help]
+      print_task_help self.class.metadata[:id]
+      print_good "Returning!"
+      exit 
+    end
+
     # if we do have missing ones, lets warn the user here and return
     unless missing_options.empty?
       print_error "Required Options Missing, Cannot Continue!"
@@ -35,6 +42,7 @@ class BaseTask
       end
       exit
     end
+    
 
     # No missing arguments, so let's add in our default arguments now
     self.class.metadata[:options].each do |o|

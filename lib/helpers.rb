@@ -58,6 +58,13 @@ module Kenna
         puts "[D] (#{timestamp_long}) #{message}" if @options[:debug]
       end
 
+      def print_task_help(task_name)
+        task = TaskManager.tasks.select{|x| x.metadata[:id] == task_name }.first.new
+        task.class.metadata[:options].each do |o|
+          puts "- Task Option: #{o[:name]} (#{o[:type]}): #{o[:description]}"
+        end
+      end
+
       def read_input_file(filename)
         output = File.open(filename,"r").read.gsub!("\r", '') 
       output.sanitize_unicode
