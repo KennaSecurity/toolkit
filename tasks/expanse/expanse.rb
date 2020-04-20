@@ -75,7 +75,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
     # create an api client
     @expanse = Kenna::Toolkit::Expanse::Client.new(expanse_api_key)
-    @kenna = Kenna::Api::Client.new(kenna_api_token, kenna_api_host)
       
     @assets = []
     @vuln_defs = []
@@ -102,11 +101,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       print_good "Working on cloud exposures"
       create_kdi_from_cloud_exposures
     end
-
-    ####
-    # write KDI format
-    ####
-    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
    
     ####
     # Write KDI format
@@ -121,9 +115,9 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ####
     ### Finish by uploading if we're all configured
     ####
-    if connector_id && api_host && api_token
-      print_good "Attempting to upload to Kenna API at #{api_host}"
-      upload_to_kenna connector_id, api_host, api_token, kdi_output
+    if kenna_connector_id && kenna_api_host && kenna_api_token
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
     end
 
   end    

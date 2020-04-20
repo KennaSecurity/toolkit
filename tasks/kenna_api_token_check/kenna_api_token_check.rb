@@ -1,12 +1,12 @@
 module Kenna 
 module Toolkit
-class InspectApiToken < Kenna::Toolkit::BaseTask
+class KennaApiTokenCheck < Kenna::Toolkit::BaseTask
 
   def self.metadata 
     {
-      id: "inspect_api_token",
-      name: "Inspect API Token",
-      description: "This task pulls results from AWS inspector and translates them into JSON",
+      id: "kenna_api_token_check",
+      name: "Kenna API Token Check",
+      description: "This task simply verifies a Kenna AOU token vs a given host",
       options: [
         {:name => "kenna_api_token", 
           :type => "api_key", 
@@ -27,12 +27,6 @@ class InspectApiToken < Kenna::Toolkit::BaseTask
     
     api_host = @options[:kenna_api_host]
     api_token = @options[:kenna_api_token]
-
-    # TODO. ... handled upstream?
-    #unless api_host && api_token
-    #  print_error "Cannot proceed, missing required options"
-    #  return
-    #end
 
     api_client = Kenna::Api::Client.new(api_token, api_host)
 
