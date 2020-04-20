@@ -61,18 +61,3 @@ describe "Toolkit" do
 
 end
 end
-
-=begin
-  toolkit>guid = get_my_company key
-  NoMethodError: undefined method `get_my_company' for main:Object
-  from (pry):3:in `<main>'
-  toolkit>include Kenna::Toolkit::BitsightHelpers
-  => Object
-  toolkit>include Kenna::Toolkit::KdiHelpers
-  => Object
-  toolkit>include Kenna::Toolkit::Helpers
-  => Object
-  toolkit>guid = get_my_company key
-  => "a940bb61-33c4-42c9-9231-c8194c305db3"
-  toolkit>create_bitsight_findings_for_company key, guid #, company_guid
-=end
