@@ -1,10 +1,10 @@
-======
+
 ABOUT:
 ======
 
 The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the (docker) command line.
 
-======
+
 USAGE:
 ======
 
@@ -104,7 +104,6 @@ $ docker run \
   -t toolkit:latest task=example
 ```
 
-======
 TOOLKIT CAPABILITIES (TASKS): 
 =============================
 
@@ -130,16 +129,16 @@ These are the current tasks available:
 [ ] Example:                                                           
 [ ] docker run -it jcran/toolkit:latest toolkit.sh task=example:option1=true:option2=abc              
 [ ]                                                                    
-[ ] At this time, toolkit usage is strictly UNSUPPORTED.               
+[ ] At this time, toolkit usage is strictly *UNSUPPORTED*.               
 [ ]                                                                    
 [ ]                                                                    
 [ ] Tasks:
 [+]  - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
-[+]  - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
+[+]  - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI
 [+]  - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
 [+]  - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 [+]  - footprinting_csv_to_kdi: This task parses digital footprinting data from CSV files into KDI and optionally uploads them.
-[+]  - inspect_api_token: This task pulls results from AWS inspector and translates them into JSON
+[+]  - kenna_api_token_check: This task simply verifies a Kenna AOU token vs a given host
 [+]  - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
 [+]  - upload_file: This task uploads a file to a specified connector
 [+]  - user_role_sync: This task creates users and assigns them to roles via the API
