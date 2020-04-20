@@ -3,6 +3,7 @@
 module Kenna
 module Toolkit
 class BaseTask
+  
   include Kenna::Toolkit::Helpers
   include Kenna::Toolkit::KdiHelpers
 
@@ -43,7 +44,6 @@ class BaseTask
       exit
     end
     
-
     # No missing arguments, so let's add in our default arguments now
     self.class.metadata[:options].each do |o|
       print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"  unless (o[:default] == "" || !o[:default])
@@ -51,19 +51,33 @@ class BaseTask
       opts[o[:name].to_sym] = nil if opts[o[:name].to_sym] == "" # set empty string to nil so it's a little easier to check for that 
     end
 
-    # !!!!!!!
-    # TODO !! - validate arguments based on their type here
-    # !!!!!!!
+    #### !!!!!!!
+    #### Convert arguments to ruby types based on their type here
+    #### !!!!!!!
 
     # Convert booleans to an actual false value
-    #opts.each do |o,v|
-    #  if o[:type] == "boolean" && o[:value] == "false"
-    #    print_good "Converted #{o[:name]} to false value"
-    #    o[:value] = false
-    #  end
-    #end
+    opts.each do |oname,ovalue|
 
-    # if we made it here, we have the right arguments!
+      # get the option specfics by iterating through our hash
+      option_hash = self.class.metadata[:options].select{|a| a[:name] == oname.to_s.strip }.first
+      next unless option_hash
+
+      expected_type = option_hash[:type]
+      next unless expected_type
+    
+      if expected_type == "boolean"
+        if ovalue == "false"
+          print_good "Converting #{oname} to false value" if opts[:debug]
+          opts[oname] = false
+        elsif ovalue == "true"
+          print_good "Converting #{oname} to true value" if opts[:debug]
+          opts[oname] = true
+        end
+      end
+
+    end
+
+    # if we made it here, we have the right arguments, and the right types!
     @options = opts
 
     # Print out the options so the user knows and logs what we're doing

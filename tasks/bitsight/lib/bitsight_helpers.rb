@@ -39,9 +39,7 @@ module BitsightHelpers
   result["assets"].map{|x| x["asset"] }  
   end
 
-  def parse_bitsight_finding(finding)
-
-    puts "Working on finding #{JSON.pretty_generate(finding)}"
+  def add_finding_to_working_kdi(finding)
 
     finding["assets"].each do |a|
 
@@ -77,7 +75,7 @@ module BitsightHelpers
     }
     create_kdi_vuln_def(vuln_def_attributes)
 
-    { 
+    out = { 
       "assets" => finding["assets"], 
       "type" => finding["risk_vector"], 
       "first_seen" => finding["first_seen"], 
@@ -86,7 +84,9 @@ module BitsightHelpers
     }
   end
 
-  def create_bitsight_findings_for_company(bitsight_api_key, my_company_guid)
+
+
+  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid)
     findings = []
     # then get the assets for it 
     #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
@@ -107,7 +107,7 @@ module BitsightHelpers
 
       # do the right thing with the findings here 
       result["results"].each do |finding|
-        findings << parse_bitsight_finding(finding)
+        add_finding_to_working_kdi(finding)
       end
       
       # check for more 
@@ -115,7 +115,7 @@ module BitsightHelpers
       more_findings = endpoint && endpoint.length > 0 
 
     end
-  findings
+
   end
 
   
