@@ -2,11 +2,8 @@ require 'rspec'
 
 require_relative "../../../lib/toolkit.rb"
 
-
 describe "Kenna" do 
 describe "Toolkit" do 
-
-
   describe "BitsightTask" do
   
     include Kenna::Toolkit::BitsightHelpers

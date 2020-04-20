@@ -99,7 +99,8 @@ module Kenna
 
           # upload it 
           if connector_id && connector_id != -1 
-            @kenna.upload_to_connector(connector_id, output_path)
+            kenna = Kenna::Api::Client.new(kenna_api_token, kenna_api_host)
+            kenna.upload_to_connector(connector_id, output_path)
           else 
             print_error "Invalid Connector ID (#{connector_id}), unable to upload."
           end
