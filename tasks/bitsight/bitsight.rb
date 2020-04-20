@@ -49,69 +49,43 @@ class BitsightTask < Kenna::Toolkit::BaseTask
   def run(options)
     super
   
-    api_host = @options[:kenna_api_host]
-    api_token = @options[:kenna_api_token]
+    kenna_api_host = @options[:kenna_api_host]
+    kenna_api_token = @options[:kenna_api_key]
+    kenna_connector_id = @options[:kenna_connector_id]
     bitsight_api_key = @options[:bitsight_api_key]
-    company_guid = @options[:bitsight_company_guid]
+    bitsight_company_guid = @options[:bitsight_company_guid]
 
-
-    unless valid_bitsight_api_key?(bitsight_api_key)
+    ### Basic Sanity checking
+    if valid_bitsight_api_key?(bitsight_api_key)
+      print_good "Valid key, proceeding!"
+    else
       print_error "Unable to proceed, invalid key for Bitsight?"
       return 
     end
-    print_good "Valid key, proceeding!"
   
-    unless company_guid
+    ### If we weren't passed an org, we'll need to get one
+    unless bitsight_company_guid
       print_good "Getting my company's ID"
-      company_guid = get_my_company(bitsight_api_key)
+      bitsight_company_guid = get_my_company(bitsight_api_key)
     end
 
-    @assets = []
-    @vuln_defs = []
+    ### This does the work. Connects to API and shoves everything into memory as KDI
+    @assets = []; @vuln_defs = [] # currently a necessary side-effect
+    get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid)
 
-    print_good "Getting findings for company: #{company_guid}"
-    get_bitsight_findings_and_create_kdi(bitsight_api_key, company_guid)
-
-    ####
-    # Write KDI format
-    ####
+    ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-   
-    ###
-    ### Always write the file 
-    ### 
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    FileUtils.mkdir_p output_dir
-    
-    # create full output path
-    output_path = "#{output_dir}/bitsight.kdi.json"
+    filename = "bitsight.kdi.json"
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
 
-    # write it
-    File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
-
-    ####
-    ### Finish by uploading, or just tell the user 
-    ####
-
-    # optionally upload the file if a connector ID has been specified 
+    ### Finish by uploading if we're all configured
     if kenna_connector_id && kenna_api_host && kenna_api_token
-  
-      print_good "Attempting to upload to Kenna API"
-      print_good "Kenna API host: #{kenna_api_host}"
-
-      # upload it 
-      if kenna_connector_id && kenna_connector_id != -1 
-        @kenna.upload_to_connector(kenna_connector_id, output_path)
-        # delete the temp file 
-        File.delete(output_path)
-      else 
-        print_error "Invalid Connector ID, unable to upload."
-      end
-
-
-    else # just tell the user where the output is 
-      print_good "Output is available at: #{output_path}"
+      print_good "Attempting to upload to Kenna API at #{api_host}"
+      upload_to_kenna connector_id, api_host, api_token, kdi_output
     end
+    
 
   end    
 

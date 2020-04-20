@@ -108,40 +108,22 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ####
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
    
-    ###
-    ### Always write the file 
-    ### 
+    ####
+    # Write KDI format
+    ####
+    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    FileUtils.mkdir_p output_dir
-    
-    # create full output path
-    output_path = "#{output_dir}/expanse.kdi.json"
-
-    # write it
-    File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+    filename = "expanse.kdi.json"
+    # actually write it 
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
 
     ####
-    ### Finish by uploading, or just tell the user 
+    ### Finish by uploading if we're all configured
     ####
-
-    # optionally upload the file if a connector ID has been specified 
-    if kenna_connector_id && kenna_api_host && kenna_api_token
-  
-      print_good "Attempting to upload to Kenna API"
-      print_good "Kenna API host: #{kenna_api_host}"
-
-      # upload it 
-      if kenna_connector_id && kenna_connector_id != -1 
-        @kenna.upload_to_connector(kenna_connector_id, output_path)
-        # delete the temp file 
-        File.delete(output_path)
-      else 
-        print_error "Invalid Connector ID, unable to upload."
-      end
-
-
-    else # just tell the user where the output is 
-      print_good "Output is available at: #{output_path}"
+    if connector_id && api_host && api_token
+      print_good "Attempting to upload to Kenna API at #{api_host}"
+      upload_to_kenna connector_id, api_host, api_token, kdi_output
     end
 
   end    

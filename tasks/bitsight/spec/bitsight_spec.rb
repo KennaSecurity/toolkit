@@ -49,7 +49,7 @@ describe "Toolkit" do
 
       # parses a finding an sticks it in our array
       @assets = []; @vuln_defs = []; # required for kdi creation
-      add_finding_to_working_kdi example_finding
+      _add_finding_to_working_kdi example_finding
 
       expect(@assets).to be_a Array
       expect(@assets.first).to be_a Hash

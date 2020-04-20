@@ -2,6 +2,45 @@ module Kenna
 module Toolkit
 module BitsightHelpers
 
+
+  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid)
+    findings = []
+    # then get the assets for it 
+    #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
+    more_findings = true
+    endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=100&offset=0"
+
+    while more_findings
+    
+      response = RestClient::Request.new(
+        :method => :get,
+        :url => endpoint,
+        :user => bitsight_api_key,
+        :password => "",
+        :headers => { :accept => :json, :content_type => :json }
+      ).execute
+
+      result = JSON.parse(response.body)
+
+      # do the right thing with the findings here 
+      result["results"].each do |finding|
+        _add_finding_to_working_kdi(finding)
+      end
+      
+      # check for more 
+      endpoint = result["links"]["next"]
+      more_findings = endpoint && endpoint.length > 0
+
+      if more_findings && endpoint =~ /0.0.0.0/
+        print_error "WARNING: endpoint is not well formed, doing a gsub on: #{endpoint}"
+        endpoint.gsub!("https://0.0.0.0:8000/customer-api/", "https://api.bitsighttech.com/")
+      end
+
+    end
+
+  end
+
+
   def get_my_company(bitsight_api_key)
     # First get my company
     response = RestClient.get("https://#{bitsight_api_key}:@api.bitsighttech.com/portfolio")
@@ -39,7 +78,9 @@ module BitsightHelpers
   result["assets"].map{|x| x["asset"] }  
   end
 
-  def add_finding_to_working_kdi(finding)
+  private 
+
+  def _add_finding_to_working_kdi(finding)
 
     finding["assets"].each do |a|
 
@@ -82,40 +123,6 @@ module BitsightHelpers
       "last_seen" => finding["last_seen"], 
       "details" => finding["details"] 
     }
-  end
-
-
-
-  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid)
-    findings = []
-    # then get the assets for it 
-    #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
-    more_findings = true
-    endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=100&offset=0"
-
-    while more_findings
-    
-      response = RestClient::Request.new(
-        :method => :get,
-        :url => endpoint,
-        :user => bitsight_api_key,
-        :password => "",
-        :headers => { :accept => :json, :content_type => :json }
-      ).execute
-
-      result = JSON.parse(response.body)
-
-      # do the right thing with the findings here 
-      result["results"].each do |finding|
-        add_finding_to_working_kdi(finding)
-      end
-      
-      # check for more 
-      endpoint = result["links"]["next"]
-      more_findings = endpoint && endpoint.length > 0 
-
-    end
-
   end
 
   
