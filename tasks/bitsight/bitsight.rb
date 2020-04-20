@@ -85,7 +85,6 @@ class BitsightTask < Kenna::Toolkit::BaseTask
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
       upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
     end
-    
 
   end    
 
