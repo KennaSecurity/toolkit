@@ -124,7 +124,7 @@ These are the current tasks available:
 [ ] To see the usage for a given tasks, simply pass the task name      
 [ ] via the task=[name] argument and the options, separated by colons. 
 [ ]                                                                    
-[ ] For VERBOSE output, set the verbose=true option.                   
+[ ] For DEBUG output and functionality, set the debug=true option.                   
 [ ]                                                                    
 [ ] Example:                                                           
 [ ] docker run -it jcran/toolkit:latest toolkit.sh task=example:option1=true:option2=abc              

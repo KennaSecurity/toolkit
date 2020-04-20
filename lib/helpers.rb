@@ -18,7 +18,7 @@ module Kenna
         puts "[ ] To see the usage for a given tasks, simply pass the task name      "
         puts "[ ] via the task=[name] argument and the options, separated by colons. "
         puts "[ ]                                                                    " 
-        puts "[ ] For VERBOSE output, set the verbose=true option.                   " 
+        puts "[ ] For DEBUG output and functionality, set the debug=true option.     " 
         puts "[ ]                                                                    " 
         puts "[ ] Example:                                                           "
         puts "[ ] ruby toolkit.rb task=example:option1=true:option2=abc              "
