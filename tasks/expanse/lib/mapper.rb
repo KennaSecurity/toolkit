@@ -1,7 +1,7 @@
 module Kenna
 module Toolkit
 module Expanse
-module ExposureMapping
+module Mapper
 
 def map_exposure_severity(sev_word)
   out = 0

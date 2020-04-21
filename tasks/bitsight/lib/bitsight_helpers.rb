@@ -2,7 +2,6 @@ module Kenna
 module Toolkit
 module BitsightHelpers
 
-
   def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid)
     findings = []
     # then get the assets for it 
@@ -24,6 +23,8 @@ module BitsightHelpers
 
       # do the right thing with the findings here 
       result["results"].each do |finding|
+
+        #puts "DEBUG finding: #{finding}\n"
         _add_finding_to_working_kdi(finding)
       end
       
@@ -37,9 +38,7 @@ module BitsightHelpers
       end
 
     end
-
   end
-
 
   def get_my_company(bitsight_api_key)
     # First get my company
@@ -49,16 +48,21 @@ module BitsightHelpers
   end
 
   def valid_bitsight_api_key?(bitsight_api_key)
+    
     endpoint = "https://api.bitsighttech.com/"
-    response = RestClient::Request.new(
-      :method => :get,
-      :url => endpoint,
-      :user => bitsight_api_key,
-      :password => "",
-      :headers => { :accept => :json, :content_type => :json }
-    ).execute
-    result = JSON.parse(response.body)
-    result.has_key? "disclaimer"
+    begin 
+      response = RestClient::Request.new(
+        :method => :get,
+        :url => endpoint,
+        :user => bitsight_api_key,
+        :password => "",
+        :headers => { :accept => :json, :content_type => :json }
+      ).execute
+      result = JSON.parse(response.body)
+      result.has_key? "disclaimer"
+    rescue RestClient::Unauthorized => e 
+      return false
+    end
   end
   
   def get_bitsight_assets_for_company(bitsight_api_key, my_company_guid)
@@ -97,7 +101,7 @@ module BitsightHelpers
     
       # then create each vuln for this asset
       vuln_attributes = {
-        "scanner_identifier" => finding["risk_vector"],
+        "scanner_identifier" => "#{finding["temporary_id"]}",
         "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
         "scanner_score" => finding["severity"].to_i * 10 ,  # TODO # severity, severity_category
         "created_at" => finding["first_seen"],
@@ -109,12 +113,18 @@ module BitsightHelpers
     end
 
     vuln_def_attributes = {
-      "scanner_identifier" => finding["risk_vector"],
+      "scanner_identifier" => finding["temporary_id"],
       "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
-      "name" => finding["name"],
+      "name" => finding["risk_vector"],
       "description" => finding["details"]      
     }
-    create_kdi_vuln_def(vuln_def_attributes)
+    
+    ###
+    ### Put them through our mapper 
+    ###
+    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+    vd = fm.get_canonical_vuln_details("Bitsight", vuln_def_attributes)
+    create_kdi_vuln_def(vd)
 
     out = { 
       "assets" => finding["assets"], 
