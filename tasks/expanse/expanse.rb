@@ -2,7 +2,7 @@
 require_relative 'lib/client'
 
 # cloud exposure field mapping
-require_relative 'lib/exposure_mapping'
+require_relative 'lib/mapper'
 require_relative 'lib/cloud_exposure_mapping'
 require_relative 'lib/standard_exposure_mapping'
 
@@ -10,7 +10,7 @@ module Kenna
 module Toolkit
 class ExpanseTask < Kenna::Toolkit::BaseTask
 
-  include Kenna::Toolkit::Expanse::ExposureMapping
+  include Kenna::Toolkit::Expanse::Mapper
   include Kenna::Toolkit::Expanse::CloudExposureMapping
   include Kenna::Toolkit::Expanse::StandardExposureMapping
 
@@ -138,13 +138,13 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
 
     # convert to KDI 
+    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
     result.each do |r|
 
       create_kdi_asset(r["asset"])
       create_kdi_asset_vuln(r["asset"], r["vuln"])      
 
       # Normalize
-      fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
       vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
       
       # set scanner type
