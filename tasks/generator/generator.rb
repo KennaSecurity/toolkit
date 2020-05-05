@@ -107,7 +107,7 @@ module Kenna
         vuln_attributes = { 
           "ip_address" => generated_ip, 
           "scanner_type" => "generator",
-          "created_at" => Time.now.utc.to_,
+          "created_at" => Time.now.utc.to_s,
           "last_seen_at" => current_time,
           "scanner_identifier" => "#{cve_name}", 
           "status" => "open"
