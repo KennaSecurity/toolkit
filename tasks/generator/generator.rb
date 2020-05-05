@@ -5,7 +5,7 @@ module Kenna
     def self.metadata
       {
         id: "kenna_demo_data_generator",
-        name: "Kenna Demo Data Generator (of demo data)",
+        name: "Kenna Demo Data Generator",
         description: "This task generates some demo data in KDI format!",
         disabled: true,
         options: [
