@@ -4,10 +4,10 @@ module Kenna
   
     def self.metadata
       {
-        id: "kenna_demo_data_generator",
+        id: "generator",
         name: "Kenna Demo Data Generator",
         description: "This task generates some demo data in KDI format!",
-        disabled: true,
+        disabled: false,
         options: [
           { :name => "kenna_api_token", 
             :type => "api_key", 
@@ -125,14 +125,14 @@ module Kenna
       ### Write KDI format
       kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
       output_dir = "#{$basedir}/#{@options[:output_directory]}"
-      filename = "generated.kdi.json"
+      filename = "generator.kdi.json"
       write_file output_dir, filename, JSON.pretty_generate(kdi_output)
       print_good "Output is available at: #{output_dir}/#{filename}"
 
       ### Finish by uploading if we're all configured
       if kenna_connector_id && kenna_api_host && kenna_api_token
         print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-        upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
+        upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
       end
 
     end

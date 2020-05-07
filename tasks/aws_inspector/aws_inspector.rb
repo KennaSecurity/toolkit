@@ -110,7 +110,7 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
     ####
     if kenna_connector_id && kenna_api_host && kenna_api_token
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
+      upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
     end
 
   end
