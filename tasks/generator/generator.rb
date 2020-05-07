@@ -7,7 +7,7 @@ module Kenna
         id: "kenna_demo_data_generator",
         name: "Kenna Demo Data Generator (of demo data)",
         description: "This task generates some demo data in KDI format!",
-        disabled: true,
+        disabled: false,
         options: [
           { :name => "kenna_api_token", 
             :type => "api_key", 
@@ -132,7 +132,7 @@ module Kenna
       ### Finish by uploading if we're all configured
       if kenna_connector_id && kenna_api_host && kenna_api_token
         print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-        upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
+        upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
       end
 
     end

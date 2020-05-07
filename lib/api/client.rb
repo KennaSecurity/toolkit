@@ -132,7 +132,7 @@ module Api
           headers: headers,
           payload: {
             multipart: true,
-            file: File.new(filepath)
+            file: File.open(filepath,"r")
           }
         )
 
@@ -154,7 +154,7 @@ module Api
           )
 
           connector_check_json = JSON.parse(connector_check_response)['connector']
-          print_good "#{connector_check_json["name"]} running" if connector_check_json["running"]
+          print_good "#{connector_check_json["name"]} connector running!" if connector_check_json["running"]
 
           # check our value to see if we need to keep going
           running = connector_check_json["running"]
