@@ -32,7 +32,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
-          :default => "output/bitsight", 
+          :default => "output/security_scorecard", 
           :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
       ]
     }
