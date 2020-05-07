@@ -4,7 +4,7 @@ module Kenna
   
     def self.metadata
       {
-        id: "kenna_demo_data_generator",
+        id: "generator",
         name: "Kenna Demo Data Generator",
         description: "This task generates some demo data in KDI format!",
         disabled: false,
@@ -125,7 +125,7 @@ module Kenna
       ### Write KDI format
       kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
       output_dir = "#{$basedir}/#{@options[:output_directory]}"
-      filename = "generated.kdi.json"
+      filename = "generator.kdi.json"
       write_file output_dir, filename, JSON.pretty_generate(kdi_output)
       print_good "Output is available at: #{output_dir}/#{filename}"
 

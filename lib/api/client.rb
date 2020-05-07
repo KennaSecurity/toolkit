@@ -132,7 +132,7 @@ module Api
           headers: headers,
           payload: {
             multipart: true,
-            file: File.new(filepath)
+            file: File.new(filepath, "rb")
           }
         )
 
