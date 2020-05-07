@@ -5,7 +5,7 @@ module Kenna
     def self.metadata
       {
         id: "kenna_demo_data_generator",
-        name: "Kenna Demo Data Generator (of demo data)",
+        name: "Kenna Demo Data Generator",
         description: "This task generates some demo data in KDI format!",
         disabled: false,
         options: [
@@ -107,7 +107,7 @@ module Kenna
         vuln_attributes = { 
           "ip_address" => generated_ip, 
           "scanner_type" => "generator",
-          "created_at" => Time.now.utc.to_,
+          "created_at" => Time.now.utc.to_s,
           "last_seen_at" => current_time,
           "scanner_identifier" => "#{cve_name}", 
           "status" => "open"
@@ -125,7 +125,7 @@ module Kenna
       ### Write KDI format
       kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
       output_dir = "#{$basedir}/#{@options[:output_directory]}"
-      filename = "bitsight.kdi.json"
+      filename = "generated.kdi.json"
       write_file output_dir, filename, JSON.pretty_generate(kdi_output)
       print_good "Output is available at: #{output_dir}/#{filename}"
 
