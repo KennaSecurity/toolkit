@@ -132,7 +132,7 @@ module Api
           headers: headers,
           payload: {
             multipart: true,
-            file: File.open(filepath,"r")
+            file: File.new(filepath)
           }
         )
 
@@ -143,8 +143,8 @@ module Api
 
         connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
         while running do
-          print_good "Waiting for 30 seconds... "
-          sleep(30)
+          print_good "Waiting for 20 seconds... "
+          sleep(20)
 
           #print_good "Checking on connector status..."
           connector_check_response = RestClient::Request.execute(
