@@ -81,10 +81,10 @@ Each tasks has its own arguments, and the toolkit attempts to make it simple to 
 'arg1=val1:arg2=val2:arg3=val3'
 ```
 
-Here's an example ('inspector_to_kdi' task) with arguments being passed to it:
+Here's an example ('aws_inspeector' task) with arguments being passed to it:
 
 ```
-docker run task=inspector_to_kdi:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
+docker run task=aws_inspector:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
 ```
 
 Getting Data Into the System (and Getting the Output OUT)! 
