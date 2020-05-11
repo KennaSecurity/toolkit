@@ -21,6 +21,13 @@ module Kenna
     def run(options)
       super
   
+<<<<<<< Updated upstream
+=======
+      kenna_api_host = @options[:kenna_api_host]
+      kenna_api_token = @options[:kenna_api_token]
+      kenna_connector_id = @options[:kenna_connector_id]
+
+>>>>>>> Stashed changes
       cves = 'CVE-2019-17624
         CVE-2019-8452
         CVE-2019-4013
