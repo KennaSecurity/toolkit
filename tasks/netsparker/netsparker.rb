@@ -11,7 +11,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
         "https://www.netsparkercloud.com/docs/index#!/Websites/Websites_List"
       ],
       description: "This task pulls data from the netsparker and uploads it to a netsparker connector",
-      disabled: false,
+      disabled: true,
       options: [
         { :name => "netsparker_api_token", 
           :type => "api_key", 
