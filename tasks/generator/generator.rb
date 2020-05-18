@@ -1,14 +1,29 @@
 module Kenna 
   module Toolkit
-  class Generator < Kenna::Toolkit::BaseTask
+  class KennaDemoDataGenerator < Kenna::Toolkit::BaseTask
   
     def self.metadata
       {
-        id: "generator",
-        name: "Generator (of demo data)",
-        description: "This task generates some simple demo data!",
+        id: "kenna_demo_data_generator",
+        name: "Kenna Demo Data Generator",
+        description: "This task generates some demo data in KDI format!",
         disabled: true,
         options: [
+          { :name => "kenna_api_token", 
+            :type => "api_key", 
+            :required => false, 
+            :default => nil, 
+            :description => "Kenna API Key" },
+          { :name => "kenna_api_host", 
+            :type => "hostname", 
+            :required => false, 
+            :default => "api.kennasecurity.com", 
+            :description => "Kenna API Hostname" },
+          { :name => "kenna_connector_id", 
+            :type => "integer", 
+            :required => false, 
+            :default => nil, 
+            :description => "If set, we'll try to upload to this connector"  },
           { :name => "output_directory", 
             :type => "filename", 
             :required => false, 
@@ -21,13 +36,10 @@ module Kenna
     def run(options)
       super
   
-<<<<<<< Updated upstream
-=======
       kenna_api_host = @options[:kenna_api_host]
-      kenna_api_token = @options[:kenna_api_token]
+      kenna_api_token = @options[:kenna_api_key]
       kenna_connector_id = @options[:kenna_connector_id]
 
->>>>>>> Stashed changes
       cves = 'CVE-2019-17624
         CVE-2019-8452
         CVE-2019-4013
@@ -54,51 +66,10 @@ module Kenna
         CVE-2019-15029
         CVE-2019-14339
         CVE-2019-16759
-        CVE-2019-16679
-        CVE-2019-16531
-        CVE-2019-1262
-        CVE-2019-5485
-        CVE-2019-5392
-        CVE-2019-16724
-        CVE-2015-5287
-        CVE-2019-0604
-        CVE-2019-13688
-        CVE-2019-13687
-        CVE-2019-13686
-        CVE-2019-13685
-        CVE-2019-10393
         CVE-2019-10399
         CVE-2019-10394
         CVE-2019-10400
         CVE-2019-2618
-        CVE-2019-2827
-        CVE-2018-8004
-        CVE-2019-13140
-        CVE-2019-14744
-        CVE-2019-1257
-        CVE-2019-1253
-        CVE-2019-1255
-        CVE-2018-8581
-        CVE-2014-1761
-        CVE-2016-5195
-        CVE-2012-0158
-        CVE-2019-6519
-        CVE-2018-17182
-        CVE-2019-0808
-        CVE-2018-10822
-        CVE-2018-16864
-        CVE-2018-20251
-        CVE-2019-6110
-        CVE-2018-16866
-        CVE-2013-3906 
-        CVE-2019-6111
-        CVE-2018-20253
-        CVE-2019-3912
-        CVE-2019-3462
-        CVE-2019-6453
-        CVE-2019-1663
-        CVE-2019-3911
-        CVE-2019-1653
         CVE-2018-16865
         CVE-2010-3333
         CVE-2019-5736
@@ -114,57 +85,56 @@ module Kenna
         CVE-2019-0539
         CVE-2019-6447'.split("\n")
 
-    current_time = Time.now.utc
+      current_time = Time.now.utc
 
-    # prep kdi 
-    @assets = []
-    @vuln_defs = []
+      # prep kdi 
+      @assets = []
+      @vuln_defs = []
 
-    cves.each do |c|
+      cves.each do |c|
 
-      generated_ip = "#{rand(255)}.#{rand(255)}.#{rand(255)}.#{rand(255)}"
-      cve_name = c.strip
+        generated_ip = "#{rand(255)}.#{rand(255)}.#{rand(255)}.#{rand(255)}"
+        cve_name = c.strip
 
-      ## Create an asset
-      asset_attributes = { 
-        "ip_address" => generated_ip,
-        "tags" => ["Randomly Generated", "Another Tag"]
-      }
-      create_kdi_asset(asset_attributes) 
+        ## Create an asset
+        asset_attributes = { 
+          "ip_address" => generated_ip,
+          "tags" => ["Randomly Generated", "Another Tag"]
+        }
+        create_kdi_asset(asset_attributes) 
 
-      ## Create a vuln
-      vuln_attributes = { 
-        "ip_address" => generated_ip, 
-        "scanner_type" => "generator",
-        "created_at" => Time.now.utc,
-        "last_seen_at" => current_time,
-        "scanner_identifier" => "#{cve_name}", 
-        "status" => "open"
-      }
-      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+        ## Create a vuln
+        vuln_attributes = { 
+          "ip_address" => generated_ip, 
+          "scanner_type" => "generator",
+          "created_at" => Time.now.utc.to_s,
+          "last_seen_at" => current_time,
+          "scanner_identifier" => "#{cve_name}", 
+          "status" => "open"
+        }
+        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
-      ## Create a vuln def
-      vuln_def_attributes = {
-        "scanner_type" => "generator",
-        "scanner_identifier" => "#{cve_name}"
-      }
-      create_kdi_vuln_def(vuln_def_attributes) 
-    end
-
-      kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-
-      # create output dir
-      if @options[:output_directory]
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        FileUtils.mkdir_p output_dir
-        
-        # create full output path
-        output_path = "#{output_dir}/generator.kdi.json"
-
-        print_good "Output being written to: #{output_path}"
-        File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+        ## Create a vuln def
+        vuln_def_attributes = {
+          "scanner_type" => "generator",
+          "scanner_identifier" => "#{cve_name}"
+        }
+        create_kdi_vuln_def(vuln_def_attributes) 
       end
-    
+     
+      ### Write KDI format
+      kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+      output_dir = "#{$basedir}/#{@options[:output_directory]}"
+      filename = "generated.kdi.json"
+      write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+      print_good "Output is available at: #{output_dir}/#{filename}"
+
+      ### Finish by uploading if we're all configured
+      if kenna_connector_id && kenna_api_host && kenna_api_token
+        print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+        upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
+      end
+
     end
     
   end

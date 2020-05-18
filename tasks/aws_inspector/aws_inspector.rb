@@ -8,7 +8,7 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
     {
       id: "aws_inspector",
       name: "AWS Inspector",
-      description: "This task pulls results from AWS inspector API and translates them into KDI JSON",
+      description: "This task pulls results from AWS inspector API and translates them into KDI",
       options: [
         { 
           :name => "aws_region", 
@@ -16,26 +16,42 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
           :required => false, 
           :default => "us-east-1", 
           :description => "This is the AWS region." 
-        },
-        { 
+        },{ 
           :name => "aws_access_key", 
           :type => "string", 
-          :required => false, 
+          :required => true, 
           :default => "us-east-1", 
           :description => "This is the AWS access key used to query the API." 
-        },
-        { 
+        },{ 
           :name => "aws_secret_key", 
           :type => "string", 
-          :required => false, 
-          :default => "us-east-1", 
+          :required => true, 
+          :default => "", 
           :description => "This is the AWS secret key used to query the API." 
-        }, 
-        { :name => "output_directory", 
+        },{ 
+          :name => "kenna_api_token", 
+          :type => "api_key", 
+          :required => false, 
+          :default => nil, 
+          :description => "Kenna API Key" 
+        },{ 
+          :name => "kenna_api_host", 
+          :type => "hostname", 
+          :required => false, 
+          :default => "api.kennasecurity.com", 
+          :description => "Kenna API Hostname" 
+        },{ 
+          :name => "kenna_connector_id", 
+          :type => "integer", 
+          :required => false, 
+          :default => nil, 
+          :description => "If set, we'll try to upload to this connector"  
+        },{ 
+          :name => "output_directory", 
           :type => "filename", 
           :required => false, 
           :default => "output/inspector", 
-          :description => "Path to parsing output, relative to #{$basedir}"  }
+          :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
       ]
     }
   end
@@ -44,21 +60,16 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
     super # opts -> @options
 
     # Get options
+    kenna_api_host = @options[:kenna_api_host]
+    kenna_api_token = @options[:kenna_api_key]
+    kenna_connector_id = @options[:kenna_connector_id]
     aws_region = @options[:aws_region]
     aws_access_key = @options[:aws_access_key]
     aws_secret_key = @options[:aws_secret_key]
 
-    #unless aws_region && aws_access_key && aws_secret_key
-    #  print_error "Unable to proceed, missing required option!"
-    #  exit 
-    #end
-
-    @assets = []
-    @vuln_defs = []
-
-
     # iterate through the findings, looking for CVEs
     print_good "Getting inspector findings"
+    @assets = []; @vuln_defs = []
     get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
 
       # create an asset with our locators (regardless of whether we have vulns)
@@ -83,17 +94,25 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
       end
     end
 
-    # create output dir
-    output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    FileUtils.mkdir_p output_dir
-    
-    # create full output path
-    output_path = "#{output_dir}/inspector.kdi.json"
 
-    # write a file with the output
+    ####
+    # Write KDI format
+    ####
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-    print_good "Output being written to: #{output_path}"
-    File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+    output_dir = "#{$basedir}/#{@options[:output_directory]}"
+    filename = "inspector.kdi.json"
+    # actually write it 
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
+
+    ####
+    ### Finish by uploading if we're all configured
+    ####
+    if kenna_connector_id && kenna_api_host && kenna_api_token
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, kdi_output
+    end
+
   end
 
   def create_asset(fqdn, instance_id)
@@ -145,11 +164,17 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
 
       # go get the inspector findings
       finding_arns = inspector.list_findings.finding_arns
-      findings = inspector.describe_findings(finding_arns: finding_arns).findings.map(&:to_hash)
+      if finding_arns.count > 0
+        findings = inspector.describe_findings(finding_arns: finding_arns).findings.map(&:to_hash)
+      else
+        print_error "No findings? Returning emptyhanded :["
+        findings = []
+      end
 
-    rescue Aws::Inspector::Errors::ServiceError
+    rescue Aws::Inspector::Errors::ServiceError => e 
       # rescues all errors returned by Amazon Inspector
-      print_error "Irrecoverable error connecting to AWS, exiting"
+      print_error "Irrecoverable error connecting to AWS!"
+      print_error e.inspect
       exit
     end
 

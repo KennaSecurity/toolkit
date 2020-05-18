@@ -1,67 +1,8 @@
+
 module Kenna
 module Toolkit
 module Expanse
 module CloudExposureMapping
-
-  def default_cloud_exposure_field_mapping
-    {
-      'asset' => [  
-        { action: "copy", source: "parentDomain", target: "domain" },
-        { action: "copy", source: "domain", target: "hostname" },
-        { action: "copy", source: "ip", target: "ip_address" },
-        { action: "proc", target: "tags", proc: lambda{|x| 
-          ["Cloud"].concat(x["businessUnits"].map{|x| x["name"] }) } }  
-      ],
-      'vuln' => [
-        { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
-        { action: "copy", source: "port", target: "port" },
-        { action: "proc", target: "scanner_score", proc: lambda{|x| map_scanner_severity(x["severity"]) } },
-        { action: "data", target: "scanner_type", data: "Expanse" }
-      ],
-      'vuln_def' => [
-        { action: "proc", target: "scanner_identifier", proc: lambda{|x| "open_port_#{x["port"]}" }},
-        { action: "proc", target: "description", proc: lambda{|x| "Port #{x["port"]}" } },
-        { action: "data", target: "remediation", data: "Investigate this Exposure!" }
-      ]
-    }
-  end
-
-
-  # this method does the actual mapping, as specified
-  # in the field_mapping_by_type method
-  def map_cloud_exposure_fields(exposure_type, exposure)
-    
-    # grab the relevant mapping
-    mapping_areas = default_cloud_exposure_field_mapping.deep_merge(
-      field_mapping_for_cloud_exposures[exposure_type]) # asset, vuln, vuln_def
-
-    # then execute the mapping 
-    out = {}
-
-    ## For each area (asset,vuln,vuln_def) in the mapping
-    mapping_areas.each do |area,mapping|
-      out[area] = {}
-
-      ## For each item in the mapping
-      mapping.each do |map_item|
-        target = map_item[:target]
-        map_action = map_item[:action]
-        
-        ## Perform the requested mapping action
-
-        if map_action == "proc" # call a lambda, passing in the whole exposure
-          out[area][target] = map_item[:proc].call(exposure)
-        elsif map_action == "copy" # copy from source data
-          out[area][target] = exposure[map_item[:source]]
-        elsif map_action == "data" # static data 
-          out[area][target] = map_item[:data]
-        end
-
-      end
-    end
-
-  out 
-  end
 
   ###
   ### Each entry (type) should have a set of mappings for each KDI section:
@@ -92,7 +33,7 @@ module CloudExposureMapping
         ]
       },
       'bacnet-servers' => {}, 
-      'certificate-advertisements' => {}, 
+      '-certificate-advertisements' => {}, 
       'development-environments' => {},
       'dns-servers' => {}, 
       '-domain-control-validated-certificate-advertisements' => {
@@ -225,7 +166,7 @@ module CloudExposureMapping
           }
         ]
       },
-      '-server-software' => {
+      'server-software' => {
         'asset' => [],
         'vuln' => [
           { action: "proc", target: "scanner_identifier", proc: lambda{|x| 
@@ -264,7 +205,7 @@ module CloudExposureMapping
       'upnp-servers' => {},
       'unencrypted-logins' => {},
       'unencrypted-ftp-servers' => {},
-      '-web-servers' => {},
+      'web-servers' => {},
       'wildcard-certificate-advertisements' => {
         'asset' => [],
         'vuln' => [

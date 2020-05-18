@@ -1,4 +1,5 @@
 class Hash
+  
   # https://stackoverflow.com/questions/9381553/ruby-merge-nested-hash
   def deep_merge(other)
     merger = proc { |key, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
@@ -33,5 +34,13 @@ class Hash
     Hash[h]
   end
 
-
+  # recursively remove nil keys
+  def compact(opts={})
+    inject({}) do |new_hash, (k,v)|
+      if !v.nil?
+        new_hash[k] = opts[:recurse] && v.class == Hash ? v.compact(opts) : v
+      end
+      new_hash
+    end
+  end
 end

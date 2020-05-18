@@ -2,6 +2,23 @@ module Kenna
 module Toolkit
 
 	module KdiHelpers
+
+		def uniq(a)
+			{
+			 	"file": a["file"],
+			 	"ip_address": a["ip_address"],
+				"mac_address": a["mac_address"],
+				"hostname": a["hostname"],
+				"ec2": a["ec2"],
+				"netbios": a["netbios"],
+				"url": a["url"],
+				"fqdn": a["fqdn"],
+			 	"external_id": a["external_id"],
+				"database": a["database"],
+				"application": a["application"]
+			}.compact
+		end
+
 	  # Create an asset if it doesnt already exit
 	  # A "*" indicates required  
 	  #  {
@@ -32,7 +49,7 @@ module Toolkit
 
 	    # if we already have it, skip ... do this by selecting based on our dedupe field
 	    # and making sure we don't already have it
-	    return nil unless @assets.select{|a| a == asset_hash }.empty?
+	    return nil unless @assets.select{|a| uniq(a) == uniq(asset_hash) }.empty?
 		 
 			# create default values
 			asset_hash["priority"] = 10 unless asset_hash["priority"] 
@@ -40,10 +57,10 @@ module Toolkit
 			asset_hash["vulns"] = []
 
 			# store it in our temp store
-	    @assets << asset_hash
+	    @assets << asset_hash.compact
 
 		# return it
-	  asset_hash
+	  asset_hash.compact
 	  end
 
 	  # create an instance of a vulnerability in our 
@@ -67,17 +84,22 @@ module Toolkit
 	    raise "Unable to detect assets array! Did you create one called '@assets'? " unless @assets
 
 	    # check to make sure it doesnt exist
-	    a = @assets.select{|a| a == asset_hash }.first
-
+			a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
+			
 	    # SAnity check to make sure we are pushing data into the correct asset 
 	    unless asset_hash #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 				puts "Unable to find asset #{asset_hash}, creating a new one... "
 				create_kdi_asset asset_hash
-				a = @assets.select{|a| a == asset_hash }.first
+				a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
 	    end 
 
-			#puts "Creating KDI asset/vuln on #{asset_id} with args: #{args}"
+			# Default values & type conversions... just make it work
 			vuln_hash["status"] = "open" unless vuln_hash["status"]
+			vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
+			vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
+			
+			# add it in 
+			a["vulns"] = [] unless a["vulns"]
 			a["vulns"] << vuln_hash
 		
 		vuln_hash
