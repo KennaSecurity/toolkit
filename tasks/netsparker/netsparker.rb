@@ -9,7 +9,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
       authors: ["dbro", "jcran"],
       references: [
         "https://www.netsparkercloud.com/docs/index#!/Websites/Websites_List"
-      ]
+      ],
       description: "This task pulls data from the netsparker and uploads it to a netsparker connector",
       disabled: false,
       options: [
@@ -53,9 +53,8 @@ class Netsparker < Kenna::Toolkit::BaseTask
     # netsparker specifics 
     @netsparker_token = @options[:netsparker_api_token]
     @netsparker_api_host = @options[:netsparker_api_host]
-    @headers = {'Accept' => 'application/xml', 'Authorization' => "Basic #{@netsparker_token}"}
     output_directory = "#{@options[:output_directory]}/netsparker-#{Time.now.iso8601}/"
-    
+
     # kenna connector specifics 
     #kenna_api_host = @options[:kenna_api_host]
     #kenna_api_token = @options[:kenna_api_key]
@@ -92,7 +91,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
       response = RestClient::Request.execute(
         method: :get,
         url: "#{scan_post_url} + #{scanId}",
-        headers: @headers
+        headers: {'Accept' => 'application/xml', 'Authorization' => "Basic #{@netsparker_token}"}
       )
 
     rescue StandardError => e
@@ -117,7 +116,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
         response = RestClient::Request.execute(
           method: :get,
           url: "#{website_list_url}",
-          headers: @headers
+          headers: {'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}"}
         )
 
         # convert to JSON 
@@ -157,7 +156,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
         response = RestClient::Request.execute(
           method: :get,
           url: "#{scan_list_url}",
-          headers: @headers
+          headers: {'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}"}
         )
 
         # convert to JSON 
