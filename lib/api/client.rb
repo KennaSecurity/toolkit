@@ -132,7 +132,7 @@ module Api
           headers: headers,
           payload: {
             multipart: true,
-            file: File.new(filepath)
+            file: File.new(filepath, "rb")
           }
         )
 
@@ -143,8 +143,8 @@ module Api
 
         connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
         while running do
-          print_good "Waiting for 30 seconds... "
-          sleep(30)
+          print_good "Waiting for 20 seconds... "
+          sleep(20)
 
           #print_good "Checking on connector status..."
           connector_check_response = RestClient::Request.execute(
@@ -154,7 +154,7 @@ module Api
           )
 
           connector_check_json = JSON.parse(connector_check_response)['connector']
-          print_good "#{connector_check_json["name"]} running" if connector_check_json["running"]
+          print_good "#{connector_check_json["name"]} connector running!" if connector_check_json["running"]
 
           # check our value to see if we need to keep going
           running = connector_check_json["running"]
