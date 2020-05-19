@@ -6,7 +6,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     {
       id: "security_scorecard",
       name: "Security Scorecard",
-      disabled: false, 
+      disabled: true, 
       description: "This task connects to the Security Scorecard API and pulls results into the Kenna Platform.",
       options: [
         { :name => "ssc_api_key", 
@@ -68,7 +68,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     ### Finish by uploading if we're all configured
     #if kenna_connector_id && kenna_api_host && kenna_api_token
     #  print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-    #  upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+    #  upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
     #end
 
   end    

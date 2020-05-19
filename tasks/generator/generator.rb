@@ -132,7 +132,7 @@ module Kenna
       ### Finish by uploading if we're all configured
       if kenna_connector_id && kenna_api_host && kenna_api_token
         print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-        upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+        upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
       end
 
     end

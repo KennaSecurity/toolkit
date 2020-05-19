@@ -13,27 +13,36 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
       name: "AWS GuardDuty",
       description: "This task pulls results from AWS GuardDuty API and translates them into KDI JSON",
       options: [
-        { 
-          :name => "aws_region", 
+        { :name => "aws_region", 
           :type => "string", 
           :required => false, 
           :default => "us-east-1", 
-          :description => "This is the AWS region." 
-        },
-        { 
-          :name => "aws_access_key", 
+          :description => "This is the AWS region." },
+        { :name => "aws_access_key", 
           :type => "string", 
           :required => true, 
           :default => "", 
-          :description => "This is the AWS access key used to query the API." 
-        },
-        { 
-          :name => "aws_secret_key", 
+          :description => "This is the AWS access key used to query the API." },
+        { :name => "aws_secret_key", 
           :type => "string", 
           :required => true, 
           :default => "", 
-          :description => "This is the AWS secret key used to query the API." 
-        }, 
+          :description => "This is the AWS secret key used to query the API." }, 
+        { :name => "kenna_api_token", 
+          :type => "api_key", 
+          :required => false, 
+          :default => nil, 
+          :description => "Kenna API Key" },
+        { :name => "kenna_api_host", 
+          :type => "hostname", 
+          :required => false, 
+          :default => "api.kennasecurity.com", 
+          :description => "Kenna API Hostname" },
+        { :name => "kenna_connector_id", 
+          :type => "integer", 
+          :required => false, 
+          :default => nil, 
+          :description => "If set, we'll try to upload to this connector"  },
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
@@ -148,12 +157,25 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
     FileUtils.mkdir_p output_dir
     
     # create full output path
-    output_path = "#{output_dir}/guardduty.kdi.json"
+    filename = "guardduty.kdi.json"
 
     # write a file with the output
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     print_good "Output being written to: #{output_path}"
     File.open(output_path,"w") {|f| f.puts JSON.pretty_generate(kdi_output) } 
+    
+    # actually write it 
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
+
+    ####
+    ### Finish by uploading if we're all configured
+    ####
+    if kenna_connector_id && kenna_api_host && kenna_api_token
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+    end
+
 
   end
 

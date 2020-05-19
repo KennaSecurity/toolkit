@@ -10,7 +10,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
       references: [
         "https://www.netsparkercloud.com/docs/index#!/Websites/Websites_List"
       ],
-      description: "This task pulls data from the netsparker and uploads it to a netsparker connector",
+      description: "This task pulls data from the netsparker and uploads it to a NETSPARKER (not KDI!!) connector",
       disabled: true,
       options: [
         { :name => "netsparker_api_token", 
@@ -63,17 +63,41 @@ class Netsparker < Kenna::Toolkit::BaseTask
     #create new timestamped folder for this script run
     Dir.mkdir("#{@save_destination}") unless File.exists?("#{@save_destination}")
 
+    # grab the list of websites. Note that this is net new to dbro's script and 
+    # untested. Update when it's been tested!
     website_list = pull_website_list
 
-    # Iterate through CSV list of websites
+    # Iterate through  list of websites
     website_list.each do |website| 
       puts "Pulling latest scan for - #{website}"
+      
+      # get the list of scans 
+      # this is dark magic from @dbro's script, needs testing
       scan_list_results = JSON.parse(pull_scan_list(website))
       scan_list_array = field_values(scan_list_results["List"], "Id", "TargetUrl", "InitiatedAt")
-      scanId = scan_list_array.sort_by {|a,b,c| c}.reverse![0][0]
+      scanId = scan_list_array.sort_by {|a,b,c| c}.reverse![0][0] 
+      
+      # get the file 
       puts "Retrieving Scan ID: #{scan_list_array.sort_by {|a,b,c| c}.reverse![0][0]} for #{website}"
-      File.write("#{output_directory}/#{scanId}.xml", pull_scan_file(scanId))
+      scan_file_data = pull_scan_file(scanId)
+
+      # write the file 
+      filename = "#{scanId}.xml"
+      write_file output_directory, filename, scan_file_data
+      print_good "Output is available at: #{output_dir}/#{filename}"
     end
+
+    # actually write it 
+    write_file output_dir, filename, scan_file_data
+
+    ####
+    ### Finish by uploading if we're all configured
+    ####
+    if kenna_connector_id && kenna_api_host && kenna_api_token
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+    end
+
 
   end
 
