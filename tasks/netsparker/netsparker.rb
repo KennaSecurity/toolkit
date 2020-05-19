@@ -53,7 +53,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
     # netsparker specifics 
     @netsparker_token = @options[:netsparker_api_token]
     @netsparker_api_host = @options[:netsparker_api_host]
-    output_directory = "#{@options[:output_directory]}/netsparker-#{Time.now.iso8601}/"
+    output_directory = "#{$basedir}/#{@options[:output_directory]}/netsparker-#{Time.now.strftime("%Y-%m-%d")}/"
 
     # kenna connector specifics 
     #kenna_api_host = @options[:kenna_api_host]
@@ -61,7 +61,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
     #kenna_connector_id = @options[:kenna_connector_id]
 
     #create new timestamped folder for this script run
-    Dir.mkdir("#{@save_destination}") unless File.exists?("#{@save_destination}")
+    FileUtils.mkdir_p("#{output_directory}") unless File.exists?("#{output_directory}")
 
     # grab the list of websites. Note that this is net new to dbro's script and 
     # untested. Update when it's been tested!
@@ -86,17 +86,14 @@ class Netsparker < Kenna::Toolkit::BaseTask
       write_file output_directory, filename, scan_file_data
       print_good "Output is available at: #{output_dir}/#{filename}"
     end
-
-    # actually write it 
-    write_file output_dir, filename, scan_file_data
-
+    
     ####
     ### Finish by uploading if we're all configured
     ####
-    if kenna_connector_id && kenna_api_host && kenna_api_token
-      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
-    end
+    #if kenna_connector_id && kenna_api_host && kenna_api_token
+    #  print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+    #  upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_directory}/#{filename}"
+    #end
 
 
   end
