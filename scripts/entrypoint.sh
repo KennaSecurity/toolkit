@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-exec "$@"
+exec bundle exec ruby toolkit.rb
