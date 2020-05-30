@@ -17,11 +17,11 @@ module Kenna
         puts "[ ]                                                                    "
         puts "[ ] To see the usage for a given tasks, simply pass the task name      "
         puts "[ ] via the task=[name] argument and the options, separated by colons. "
-        puts "[ ]                                                                    " 
-        puts "[ ] For DEBUG output and functionality, set the debug=true option.     " 
-        puts "[ ]                                                                    " 
+        puts "[ ]                                                                    "
+        puts "[ ] For DEBUG output and functionality, set the debug=true option.     "
+        puts "[ ]                                                                    "
         puts "[ ] Example:                                                           "
-        puts "[ ] ruby toolkit.rb task=example:option1=true:option2=abc              "
+        puts "[ ] task=example:option1=true:option2=abc                              "
         puts "[ ]                                                                    "
         puts "[ ] At this time, toolkit usage is strictly UNSUPPORTED.               "
         puts "[ ]                                                                    "
@@ -67,47 +67,47 @@ module Kenna
 
       ###
       ### Helper to read a file consistently
-      ### 
+      ###
       def read_input_file(filename)
-        output = File.open(filename,"r").read.gsub!("\r", '') 
+        output = File.open(filename,"r").read.gsub!("\r", '')
       output.sanitize_unicode
       end
 
       ###
       ### Helper to write a file consistently
-      ### 
+      ###
       def write_file(directory,filename,output)
 
         FileUtils.mkdir_p directory
-        
+
         # create full output path
         output_path = "#{directory}/#{filename}"
 
         # write it
-        File.open(output_path,"w") {|f| f.puts output } 
+        File.open(output_path,"w") {|f| f.puts output }
       end
 
       ###
       ### Helper to upload to kenna api
       ###
       def upload_kdi_to_kenna(connector_id, api_host, api_token, kdi_file)
-        # optionally upload the file if a connector ID has been specified 
+        # optionally upload the file if a connector ID has been specified
         if connector_id && api_host && api_token
-      
+
           print_good "Attempting to upload to Kenna API"
           print_good "Kenna API host: #{api_host}"
 
-          # upload it 
-          if connector_id && connector_id != -1 
+          # upload it
+          if connector_id && connector_id != -1
             kenna = Kenna::Api::Client.new(api_token, api_host)
             kenna.upload_to_connector(connector_id, kdi_file)
-          else 
+          else
             print_error "Invalid Connector ID (#{connector_id}), unable to upload."
           end
         end
       end
 
-      
+
     end
   end
 end
