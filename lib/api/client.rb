@@ -221,8 +221,8 @@ module Api
       begin 
         parsed_results = JSON.parse(results.body)
         out.merge!({status: "success", results: parsed_results })
-      rescue
-        out.merge!({status: "fail", message: "error parsing", results: {} })
+      rescue => e 
+        out.merge!({status: "fail", message: "error parsing: #{e}", results: {} })
       end
 
     out 

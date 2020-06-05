@@ -106,7 +106,6 @@ module Kenna
           end
         end
       end
-
       
     end
   end

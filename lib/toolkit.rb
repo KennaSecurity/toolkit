@@ -9,7 +9,9 @@ require_relative '../initialize/string'
 
 # local deps
 require_relative 'helpers'
+require_relative 'http'
 include Kenna::Toolkit::Helpers
+include Kenna::Toolkit::Helpers::Http
 
 # Shared libraries / mapping / data etc
 require_relative 'data/mapping/digi_footprint_finding_mapper'
