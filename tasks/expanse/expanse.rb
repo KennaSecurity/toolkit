@@ -108,6 +108,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
     filename = "expanse.kdi.json"
+    
     # actually write it 
     write_file output_dir, filename, JSON.pretty_generate(kdi_output)
     print_good "Output is available at: #{output_dir}/#{filename}"
@@ -117,7 +118,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ####
     if kenna_connector_id && kenna_api_host && kenna_api_token
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_kdi_to_kenna kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
     end
 
   end    

@@ -90,8 +90,8 @@ module Kenna
       ###
       ### Helper to upload to kenna api
       ###
-      def upload_kdi_to_kenna(connector_id, api_host, api_token, kdi_file)
-        # optionally upload the file if a connector ID has been specified
+      def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename)
+        # optionally upload the file if a connector ID has been specified 
         if connector_id && api_host && api_token
 
           print_good "Attempting to upload to Kenna API"
@@ -100,14 +100,12 @@ module Kenna
           # upload it
           if connector_id && connector_id != -1
             kenna = Kenna::Api::Client.new(api_token, api_host)
-            kenna.upload_to_connector(connector_id, kdi_file)
-          else
+            kenna.upload_to_connector(connector_id, filename)
+          else 
             print_error "Invalid Connector ID (#{connector_id}), unable to upload."
           end
         end
       end
-
-
     end
   end
 end
