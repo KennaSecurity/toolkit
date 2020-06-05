@@ -3,6 +3,11 @@ module Toolkit
 
 	module KdiHelpers
 
+		def kdi_initialize
+			@assets = []
+			@vuln_defs = []
+		end
+
 		def uniq(a)
 			{
 			 	"file": a["file"],
@@ -45,7 +50,7 @@ module Toolkit
 	  #  }
 	  #
 	  def create_kdi_asset(asset_hash)
-	    raise "Unable to detect assets array! Did you create one called '@assets'? " unless @assets
+	    kdi_initialize unless @assets
 
 	    # if we already have it, skip ... do this by selecting based on our dedupe field
 	    # and making sure we don't already have it
@@ -81,7 +86,7 @@ module Toolkit
 	  #  port: integer
 	  # }
 	  def create_kdi_asset_vuln(asset_hash, vuln_hash)
-	    raise "Unable to detect assets array! Did you create one called '@assets'? " unless @assets
+	    kdi_initialize unless @assets
 
 	    # check to make sure it doesnt exist
 			a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
@@ -119,8 +124,8 @@ module Toolkit
 	  #   solution: string, (steps or links for remediation teams)
 	  # }
 		def create_kdi_vuln_def(vuln_def)
+			kdi_initialize unless @vuln_defs
 			
-	    raise "Unable to detect vuln defs array! Did you create one called '@vuln_defs'? " unless @vuln_defs
 			return unless @vuln_defs.select{|vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
 
 	    @vuln_defs << vuln_def
