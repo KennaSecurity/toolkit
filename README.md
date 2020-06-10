@@ -180,15 +180,17 @@ These are the current tasks available:
 [ ]
 [ ]
 [ ] Tasks:
+[ ] Tasks:
 [+]  - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
 [+]  - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI
 [+]  - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
 [+]  - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 [+]  - footprinting_csv_to_kdi: This task parses digital footprinting data from CSV files into KDI and optionally uploads them.
+[+]  - generator: This task generates some demo data in KDI format!
 [+]  - kenna_api_token_check: This task simply verifies a Kenna AOU token vs a given host
+[+]  - microsoft_atp: Pulls assets and vulnerabilitiies from Microsoft ATP
 [+]  - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
 [+]  - upload_file: This task uploads a file to a specified connector
-[+]  - user_role_sync: This task creates users and assigns them to roles via the API
 [ ]
 ```
 
