@@ -67,11 +67,22 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     unless bitsight_company_guid
       print_good "Getting my company's ID"
       bitsight_company_guid = get_my_company(bitsight_api_key)
+      print_good "Got #{bitsight_company_guid}"
     end
 
     ### This does the work. Connects to API and shoves everything into memory as KDI
     @assets = []; @vuln_defs = [] # currently a necessary side-effect
-    get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid)
+    print_good "Getting findings!"
+
+    if @options[:debug]
+      max_findings = 100
+      print_debug "Debug mode, only getting #{max_findings} findings"
+    else 
+      max_findings = 1000000 
+    end
+
+    get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid, max_findings)
+    
 
     ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }

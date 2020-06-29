@@ -2,15 +2,20 @@ module Kenna
 module Toolkit
 module BitsightHelpers
 
-  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid)
+  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid, max_findings=1000000)
     findings = []
     # then get the assets for it 
     #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
     more_findings = true
-    endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=100&offset=0"
-
-    while more_findings
+    offset = 0 
+    limit = 100
     
+    while more_findings && (offset < max_findings)
+    
+      endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=#{limit}&offset=#{offset}"
+    
+      print_good "Requesting: #{endpoint}"
+
       response = RestClient::Request.new(
         :method => :get,
         :url => endpoint,
@@ -23,7 +28,6 @@ module BitsightHelpers
 
       # do the right thing with the findings here 
       result["results"].each do |finding|
-
         #puts "DEBUG finding: #{finding}\n"
         _add_finding_to_working_kdi(finding)
       end
@@ -35,7 +39,11 @@ module BitsightHelpers
       if more_findings && endpoint =~ /0.0.0.0/
         print_error "WARNING: endpoint is not well formed, doing a gsub on: #{endpoint}"
         endpoint.gsub!("https://0.0.0.0:8000/customer-api/", "https://api.bitsighttech.com/")
+      
       end
+
+      # bump the offset
+      offset = offset + limit
 
     end
   end
@@ -103,7 +111,7 @@ module BitsightHelpers
       vuln_attributes = {
         "scanner_identifier" => "#{finding["temporary_id"]}",
         "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
-        "scanner_score" => finding["severity"].to_i * 10 ,  # TODO # severity, severity_category
+        "scanner_score" => finding["severity"].to_i,  # TODO # severity, severity_category
         "created_at" => finding["first_seen"],
         "last_seen_at" => finding["last_seen"]
       }
@@ -115,8 +123,8 @@ module BitsightHelpers
     vuln_def_attributes = {
       "scanner_identifier" => finding["temporary_id"],
       "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
-      "name" => finding["risk_vector"],
-      "description" => finding["details"]      
+      "name" => "#{finding["risk_vector"]}",
+      "description" => "#{finding["details"]}"
     }
     
     ###

@@ -68,7 +68,7 @@ class Client
 
   end
 
-  def get_global_footprint(max_pages=-1)
+  def get_global_footprint(max_pages=100000)
     # start with sensible defaults
     current_page = 1
     out = []
@@ -103,7 +103,7 @@ class Client
       out.concat(result["content"])
 
       # prepare the next request
-      if max_pages == -1
+      if max_pages == 100000
         max_pages = result["totalPages"].to_i
       end
 

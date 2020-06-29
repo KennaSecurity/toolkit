@@ -25,7 +25,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
           :required => false, 
           :default => "https://api.riskiq.net/v1/", 
           :description => "This is the RiskIQ host providing the api endpoint." },
-        { :name => "kenna_api_token", 
+        { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -53,7 +53,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     super
   
     kenna_api_host = @options[:kenna_api_host]
-    kenna_api_token = @options[:kenna_api_token]
+    kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
     
     riq_api_key = @options[:riskiq_api_key]
@@ -78,7 +78,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     else
       max_pages = -1 # all 
     end
-
+    
     result = client.get_global_footprint(max_pages)
     output = convert_riq_output_to_kdi result
 
@@ -88,6 +88,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
     filename = "riskiq.kdi.json"
+
     # actually write it 
     write_file output_dir, filename, JSON.pretty_generate(kdi_output)
     print_good "Output is available at: #{output_dir}/#{filename}"
@@ -95,9 +96,9 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     ####
     ### Finish by uploading if we're all configured
     ####
-    if kenna_connector_id && kenna_api_host && kenna_api_token
+    if kenna_connector_id && kenna_api_host && kenna_api_key
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
     end
 
   end    

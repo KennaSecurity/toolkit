@@ -115,6 +115,7 @@ module Api
       max_retries = 3
 
       kenna_api_endpoint = "#{@base_url}/connectors"
+      puts "Uploading to: #{kenna_api_endpoint}"
 
       headers = {
         'content-type' => 'application/json', 
@@ -143,7 +144,7 @@ module Api
 
         connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
         while running do
-          print_good "Waiting for 20 seconds... "
+          #print_good "Waiting for 20 seconds... "
           sleep(20)
 
           #print_good "Checking on connector status..."
@@ -170,6 +171,7 @@ module Api
         print_error "Unauthorized: #{e.message}... #{e}"
       rescue RestClient::Exception  => e
         print_error "Unknown Exception: #{e}"
+        print_error "Are you sure you provided a valid connector id?"
 
         retries ||= 0
         if retries < max_retries
