@@ -8,7 +8,7 @@ class UploadFile < Kenna::Toolkit::BaseTask
       name: "Upload File",
       description: "This task uploads a file to a specified connector",
       options: [
-        {:name => "kenna_api_token", 
+        {:name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -36,7 +36,7 @@ class UploadFile < Kenna::Toolkit::BaseTask
     super
    
     api_host = @options[:kenna_api_host]
-    api_token = @options[:kenna_api_token]
+    api_token = @options[:kenna_api_key]
     connector_id = @options[:connector_id]
     filepath = "#{$basedir}/#{@options[:file]}"
 

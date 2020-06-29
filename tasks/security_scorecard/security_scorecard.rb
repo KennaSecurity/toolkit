@@ -14,7 +14,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
           :required => true, 
           :default => "", 
           :description => "This is the Security Scorecard key used to query the API." },
-        { :name => "kenna_api_token", 
+        { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -42,7 +42,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     super
   
     kenna_api_host = @options[:kenna_api_host]
-    kenna_api_token = @options[:kenna_api_key]
+    kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
     ssc_api_key = @options[:ssc_api_key]
 
@@ -66,9 +66,9 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     #print_good "Output is available at: #{output_dir}/#{filename}"
 
     ### Finish by uploading if we're all configured
-    #if kenna_connector_id && kenna_api_host && kenna_api_token
+    #if kenna_connector_id && kenna_api_host && kenna_api_key
     #  print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-    #  upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+    #  upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
     #end
 
   end    

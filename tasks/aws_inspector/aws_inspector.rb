@@ -29,7 +29,7 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
           :default => "", 
           :description => "This is the AWS secret key used to query the API." 
         },{ 
-          :name => "kenna_api_token", 
+          :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -61,7 +61,7 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
 
     # Get options
     kenna_api_host = @options[:kenna_api_host]
-    kenna_api_token = @options[:kenna_api_key]
+    kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
     aws_region = @options[:aws_region]
     aws_access_key = @options[:aws_access_key]
@@ -108,9 +108,9 @@ class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
     ####
     ### Finish by uploading if we're all configured
     ####
-    if kenna_connector_id && kenna_api_host && kenna_api_token
+    if kenna_connector_id && kenna_api_host && kenna_api_key
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
     end
 
   end

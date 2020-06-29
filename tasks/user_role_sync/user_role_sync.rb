@@ -8,7 +8,7 @@ def self.metadata
 		name: "User Role Sync",
 		description: "This task creates users and assigns them to roles via the API",
 		options: [
-			{:name => "kenna_api_token", 
+			{:name => "kenna_api_key", 
 				:type => "api_key", 
 				:required => true, 
 				:default => nil, 
@@ -62,7 +62,7 @@ def run(options)
 
 	#assign our arguments to specific vars
 	@api_host = @options[:kenna_api_host]
-	@api_token = @options[:kenna_api_token]
+	@api_token = @options[:kenna_api_key]
 	@csv_file = @options[:csv_file]
 	@email_col = @options[:email_column]
 	@firstname_col = @options[:firstname_column]

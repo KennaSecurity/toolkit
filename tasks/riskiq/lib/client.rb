@@ -65,7 +65,6 @@ class Client
         }]
       }
     }'
-
   end
 
   def get_global_footprint(max_pages=100000)

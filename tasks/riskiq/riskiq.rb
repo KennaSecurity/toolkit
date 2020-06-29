@@ -62,9 +62,6 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
 
     # create an api client
     client = Kenna::Toolkit::RiskIq::Client.new(riq_api_host, riq_api_key, riq_api_secret)
-  
-    @assets = []
-    @vuln_defs = []
 
     unless client.successfully_authenticated?
       print_error "Unable to proceed, invalid key for RiskIQ?"
@@ -78,7 +75,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     else
       max_pages = -1 # all 
     end
-    
+
     result = client.get_global_footprint(max_pages)
     output = convert_riq_output_to_kdi result
 
@@ -138,8 +135,8 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
 
         organizations = []
         organizations = item["organizations"].map{|x| x["name"]} if item["organizations"]
-        
-        if item["asset"] && item["asset"]["ipAddresses"]
+      
+        if item["asset"] && item["asset"]["ipAddresses"] && item["asset"]["ipAddresses"].first
           # TODO - we should pull all ip addresses when we can support it in KDI 
           ip_address = item["asset"]["ipAddresses"].first["value"] 
         end
@@ -165,37 +162,40 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
       ###
       ### Get the CVES out of web components
       ###
-      (item["webComponents"] || []).each do |wc|
+      if item["asset"]["webComponents"]
+        (item["asset"]["webComponents"] || []).each do |wc|
 
-        # if you want to create open ports
-        #wc["ports"].each do |port|
-        #  puts port["port"]
-        #end
+          # if you want to create open ports
+          #wc["ports"].each do |port|
+          #  puts port["port"]
+          #end
 
-        # if you want to create open ports
-        (wc["cves"] || []).each do |cve| 
-          
-          vuln = {
-            "scanner_identifier" => cve["name"],
-            "scanner_type" => "RiskIQ",
-            "first_seen" => first_seen,
-            "last_seen" => last_seen
-          }
+          # if you want to create open ports
+          (wc["cves"] || []).each do |cve| 
+            
+            vuln = {
+              "scanner_identifier" => cve["name"],
+              "scanner_type" => "RiskIQ",
+              "first_seen" => first_seen,
+              "last_seen" => last_seen
+            }
 
-          vuln_def= {
-            "scanner_identifier" => cve["name"],
-            "scanner_type" => "RiskIQ",
-            "description" => "See CVE Desccription",
-            "remediation" => "See CVE Remediation"
-          }
+            vuln_def= {
+              "scanner_identifier" => cve["name"],
+              "scanner_type" => "RiskIQ",
+              "description" => "See CVE Desccription",
+              "remediation" => "See CVE Remediation"
+            }
+            
+            create_kdi_asset_vuln(asset, vuln)
+            
+            #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
+            create_kdi_vuln_def(vuln_def)
+          end
 
-          create_kdi_asset_vuln(asset, vuln)
-          
-          #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
-          create_kdi_vuln_def(vuln_def)
         end
-
       end
+
     end
 
 

@@ -28,7 +28,7 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
           :required => true, 
           :default => "", 
           :description => "This is the AWS secret key used to query the API." }, 
-        { :name => "kenna_api_token", 
+        { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -171,9 +171,9 @@ class AwsGuarddutyToKdi < Kenna::Toolkit::BaseTask
     ####
     ### Finish by uploading if we're all configured
     ####
-    if kenna_connector_id && kenna_api_host && kenna_api_token
+    if kenna_connector_id && kenna_api_host && kenna_api_key
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_token, "#{output_dir}/#{filename}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
     end
 
 

@@ -16,7 +16,7 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
       name: "Footprinting Data CSV -> KDI Converter",
       description: "This task parses digital footprinting data from CSV files into KDI and optionally uploads them.",
       options: [
-        {:name => "kenna_api_token", 
+        {:name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
@@ -141,24 +141,24 @@ class FootprintingCsvToKdi < Kenna::Toolkit::BaseTask
     @LOCATOR_DELIMITER = ":"
 
     kenna_api_host = @options[:kenna_api_host]
-    kenna_api_token = @options[:kenna_api_token]
+    kenna_api_key = @options[:kenna_api_key]
 
-    unless kenna_api_host && kenna_api_token
+    unless kenna_api_host && kenna_api_key
       print_error "Unable to upload, missing host or token!"
       print_error "kenna_api_host: #{kenna_api_host}"
-      print_error "kenna_api_token: #{kenna_api_token}"
+      print_error "kenna_api_key: #{kenna_api_key}"
     end
 
     kenna_api_endpoint = "https://#{kenna_api_host}/connectors"
     @headers = {
       'content-type' => 'application/json', 
-      'X-Risk-Token' => kenna_api_token,
+      'X-Risk-Token' => kenna_api_key,
       'accept' => 'application/json'
     }
 
     ## Sanity check 
     ## 
-    unless kenna_api_token
+    unless kenna_api_key
       print_good "Unable to find API Token, cowardly refusing to continue!"
       print_good
       exit -1 

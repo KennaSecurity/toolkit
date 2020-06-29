@@ -9,7 +9,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
       description: "This task does blah blah blah (TODO)",
       disabled: true, 
       options: [
-        {:name => "kenna_api_token", 
+        {:name => "kenna_api_key", 
           :type => "api_key", 
           :required => true, 
           :default => nil, 
@@ -50,7 +50,7 @@ class AssetUploadTag < Kenna::Toolkit::BaseTask
 
     #These are the arguments we are expecting to get - header file can be send as third parameter if not included as row 1 in csv
     #@token = ARGV[0]
-    @token = @options[:kenna_api_token]
+    @token = @options[:kenna_api_key]
 
     #@primary_locator = ARGV[1]
     @primary_locator = @options[:primary_locator]

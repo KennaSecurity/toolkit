@@ -4,11 +4,11 @@ class KennaApiTokenCheck < Kenna::Toolkit::BaseTask
 
   def self.metadata 
     {
-      id: "kenna_api_token_check",
+      id: "kenna_api_key_check",
       name: "Kenna API Token Check",
       description: "This task simply verifies a Kenna AOU token vs a given host",
       options: [
-        {:name => "kenna_api_token", 
+        {:name => "kenna_api_key", 
           :type => "api_key", 
           :required => true, 
           :default => nil, 
@@ -26,7 +26,7 @@ class KennaApiTokenCheck < Kenna::Toolkit::BaseTask
     super # opts -> @options
     
     api_host = @options[:kenna_api_host]
-    api_token = @options[:kenna_api_token]
+    api_token = @options[:kenna_api_key]
 
     api_client = Kenna::Api::Client.new(api_token, api_host)
 
