@@ -105,7 +105,7 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
         vuln_id = vuln.fetch("id")
         vuln_name = vuln.fetch("name")
         vuln_description = vuln.fetch("description")
-        vuln_score = vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")]
+        vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
 
         # craft the vuln hash
         vuln = {
