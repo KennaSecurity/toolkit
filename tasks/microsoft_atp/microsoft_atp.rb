@@ -122,6 +122,7 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
           "scanner_identifier" => vuln_id,
           "name" => vuln_name,
           "scanner_type" => "MSATP",
+          "cve_identifiers" => "#{vuln_name}",
           "description" => vuln_description
         }
 
