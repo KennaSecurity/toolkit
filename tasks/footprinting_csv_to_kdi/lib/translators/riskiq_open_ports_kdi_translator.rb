@@ -54,7 +54,7 @@ def create_asset_vuln(ip_address, port, vuln_id, first_seen, last_seen)
     scanner_type: SCAN_SOURCE,
     created_at: first_seen || DateTime.now,
     port: port.to_i,
-    last_seen_at: last_seen,
+    last_seen_at: last_seen || DateTime.now,
     status: "open"
   }
 end
