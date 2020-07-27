@@ -109,7 +109,7 @@ module BitsightHelpers
     
       # then create each vuln for this asset
       vuln_attributes = {
-        "scanner_identifier" => "#{finding["temporary_id"]}",
+        "scanner_identifier" => "#{finding["risk_vector_label"]}",
         "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
         "scanner_score" => finding["severity"].to_i,  # TODO # severity, severity_category
         "created_at" => finding["first_seen"],
@@ -121,7 +121,7 @@ module BitsightHelpers
     end
 
     vuln_def_attributes = {
-      "scanner_identifier" => finding["temporary_id"],
+      "scanner_identifier" => finding["risk_vector_label"],
       "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
       "name" => "#{finding["risk_vector"]}",
       "description" => "#{finding["details"]}"

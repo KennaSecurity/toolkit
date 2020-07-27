@@ -124,16 +124,29 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
   end    
 
   def create_kdi_from_exposures
-    exposures = @expanse.exposures #(1, 1)
+    print "Getting exposures from Expanse"
+    
+    if @options[:debug]
+      max_pages = 1 
+      max_per_page = 1
+      print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
+    else 
+      max_pages = 100
+      max_per_page = 10000
+    end
+
+    exposures = @expanse.exposures(max_pages,max_per_page)
 
     # skip if we don't have any 
     unless exposures.count > 0 #skip empty
-      print_debug "No exposures found!"
+      print  "No exposures found!"
       return 
     end
 
     # parse and create kdi 
+    print "Mapping #{exposures.count} exposures"
     result = exposures.map do |e|
+      print "Mapping #{e}"
       # map fields for those expsures
       map_exposure_fields(false, e["exposureType"], e) 
     end
@@ -182,7 +195,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       end
     
       # get all exposures of this type
-      max_pages = 1000
+      max_pages = 100
       max_per_page = 10000
 
       if @options[:debug]
@@ -202,7 +215,9 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       end
 
       # map fields for those expsures
+      print "Mapping #{cloud_exposures.count} cloud exposures"
       result = cloud_exposures.map do |e| 
+        print "Mapping #{e}"
         #print_debug "Got UNMAPPED Exposure #{et}:\n#{JSON.pretty_generate(e)}" if unmapped 
         map_exposure_fields(true, et, e) 
       end
@@ -210,6 +225,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
       # convert to KDI 
       result.each do |r|
+        print_good "Getting #{r["asset"]}"
 
         create_kdi_asset(r["asset"])
         create_kdi_asset_vuln(r["asset"], r["vuln"])      

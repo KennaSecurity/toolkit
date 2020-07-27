@@ -12,8 +12,8 @@ def map_exposure_severity(sev_word)
     out = 6
   when "ROUTINE"
     out = 1
-  when "UNCATEGORIZED" # default a little higher so it's looked at.
-    out = 3
+  when "UNCATEGORIZED" # unknown
+    out = 0
   end
 out 
 end
@@ -27,21 +27,21 @@ def default_exposure_field_mapping(exposure_type)
       #{ action: "proc", target: "tags", proc: lambda{|x| x["tags"] } } # TODO... needs more thought 
     ],
     'vuln' => [
-      { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}_#{x["id"]}" }},
+      { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
       { action: "copy", source: "port", target: "port" },
+      { action: "proc", target: "details", proc: lambda{|x| 
+        "#{exposure_type.downcase} on port: #{x["port"]}\n\nFull Details:\n#{JSON.pretty_generate(x)}"  } },
       { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
       { action: "data", target: "scanner_type", data: "Expanse" }
     ],
     'vuln_def' => [
-      { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}_#{x["id"]}" }},
-      { action: "proc", target: "description", proc: lambda{|x| 
-        "#{exposure_type.downcase} on port: #{x["port"]}\nFull Details:\n#{JSON.pretty_generate(x)}" } },
+      { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
       { action: "data", target: "remediation", data: "Investigate this Exposure!" }
     ]
   }
 end
 
-
+#
 # this method does the actual mapping, as specified
 # in the field_mapping_by_type method
 def map_exposure_fields(cloud, exposure_type, exposure)
@@ -79,6 +79,11 @@ def map_exposure_fields(cloud, exposure_type, exposure)
 
     end
   end
+
+  # always set our exposure type... this should save some typing in the mapping file... 
+  out["vuln"]["scanner_identifier"] = exposure_type
+  out["vuln_def"]["scanner_identifier"] = exposure_type
+
 
 out 
 end

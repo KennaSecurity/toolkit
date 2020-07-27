@@ -115,7 +115,7 @@ module Api
       max_retries = 3
 
       kenna_api_endpoint = "#{@base_url}/connectors"
-      puts "Uploading to: #{kenna_api_endpoint}"
+      #puts "Uploading to: #{kenna_api_endpoint}"
 
       headers = {
         'content-type' => 'application/json', 

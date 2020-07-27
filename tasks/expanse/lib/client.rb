@@ -38,15 +38,18 @@ class Client
     out = []
 
     # hack!
-    pages = 0 
+    page = 0
 
-    while more_results && pages < max_pages
-      pages += 1 
+    while more_results && page < max_pages
+      puts "DEBUG Getting page: #{page}"
+      
+      more_results = nil
+      page += 1 
       url = "https://expander.qadium.com/api/v2/exposures/ip-ports?limit=#{limit_per_page}&offset=#{offset}"
       response_body = RestClient.get(url, @headers)
       result = JSON.parse response_body
 
-      #print_debug "Got #{result["data"].count} exposures."
+      puts "DEBUG Got #{result["data"].count} exposures."
 
       # do stuff with the data 
       out.concat(result["data"])
@@ -54,9 +57,10 @@ class Client
       # prepare the next request
       offset += limit_per_page
       if result["pagination"]
-        more_results = result["pagination"]["next"]
+        puts "#{result["pagination"]}"
+        more_results = !result["pagination"]["next"].nil?
       else 
-        more_results = false
+        break
       end
     end
 
@@ -81,33 +85,35 @@ class Client
     out = []
     exposure_types.each do |exposure_type|
 
-      #print_debug "Working on exposure type: #{exposure_type}"
-
       # start with sensible defaults
       offset = 0
-      more_results = true 
-      page = 0 
+      more_results = true
+      page = 0
 
       while more_results && (page < max_pages)
         
+        more_results = nil
+        puts "DEBUG Getting page: #{page}"
+      
         # bump our page up
-        page +=1 
+        page +=1
 
         # get the listing 
         url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}?page[limit]=#{limit_per_page}&page[offset]=#{offset}"
         response = RestClient.get(url, @headers)
         result = JSON.parse(response.body)
+        
+        puts "DEBUG Got #{result["data"].count} cloud exposures"
 
-        #print_debug "Got #{result["data"].count} cloud exposures of type: #{exposure_type}"
-
-        out.concat result["data"]
+        out.concat(result["data"])
 
         # prepare the next request
         offset += limit_per_page
-        if result["pagination"]
-          more_results = result["pagination"]["next"]
+        if result["pagination"] 
+          puts "#{result["pagination"]}"
+          more_results = !result["pagination"]["next"].nil?
         else 
-          more_results = false
+          break
         end
 
       end # end while more results 

@@ -76,8 +76,12 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
       max_pages = -1 # all 
     end
 
+    print_good "Getting footprint"
     result = client.get_global_footprint(max_pages)
+    print_good "Conveting to KDI"
     output = convert_riq_output_to_kdi result
+
+    print_good "KDI Conversion complete!"
 
     ####
     # Write KDI format
@@ -108,7 +112,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
 
     print_debug "Working on on #{data_items.count} items"
     data_items.each do |item| 
-      #puts JSON.pretty_generate(item)
+      puts "Working on #{JSON.pretty_generate(item)}"
 
       ###
       ### Handle Asset
