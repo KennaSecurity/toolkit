@@ -83,7 +83,6 @@ class BitsightTask < Kenna::Toolkit::BaseTask
 
     get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid, max_findings)
     
-
     ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"

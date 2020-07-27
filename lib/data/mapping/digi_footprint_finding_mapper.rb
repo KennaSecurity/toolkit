@@ -81,7 +81,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^open_port_.*$/
+          vuln_id: /^open_port$/
         },
         {
           source: "Expanse",
@@ -89,11 +89,11 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Intrigue",
-          vuln_id: /^open_port_.*$/
+          vuln_id: /^open_port$/
         },
         {
           source: "RiskIQ",
-          vuln_id: /^open_port_.*$/
+          vuln_id: /^open_port$/
         },
         {
           source: "SecurityScorecard",
@@ -110,19 +110,19 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^server_software_.*$/
+          vuln_id: /^server_software$/
         },
         {
           source: "Expanse",
-          vuln_id: /^application_server_software_.*$/
+          vuln_id: /^application_server_software$/
         }, 
         {
           source: "Expanse",
-          vuln_id: /^server_software_.*$/
+          vuln_id: /^server_software$/
         }, 
         {
           source: "Expanse",
-          vuln_id: /^detected_webserver_.*$/
+          vuln_id: /^detected_webserver$/
         }
       ]
     },
@@ -135,43 +135,43 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^detected_server_dns.*$/
+          vuln_id: /^detected_server_dns$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_ftps.*$/
+          vuln_id: /^detected_server_ftps$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_pop3.*$/
+          vuln_id: /^detected_server_pop3$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_sip.*$/
+          vuln_id: /^detected_server_sip$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_smtp.*$/
+          vuln_id: /^detected_server_smtp$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_snmp.*$/
+          vuln_id: /^detected_server_snmp$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_ssh.*$/
+          vuln_id: /^detected_server_ssh$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_telnet.*$/
+          vuln_id: /^detected_server_telnet$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_unencrypted_ftp.*$/
+          vuln_id: /^detected_server_unencrypted_ftp$/
         },
         {
           source: "Expanse",
-          vuln_id: /^detected_server_unencrypted_logins.*$/
+          vuln_id: /^detected_server_unencrypted_logins$/
         }
       ]
     },
@@ -184,11 +184,11 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^detected_server_mysql.*$/
+          vuln_id: /^detected_server_mysql$/
         },
         {
           source: "RiskIQ",
-          vuln_id: /^open_db_port_tcp.*$/
+          vuln_id: /^open_db_port_tcp$/
         }
       ]
     },
@@ -201,7 +201,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^detected_load_balancer.*$/
+          vuln_id: /^detected_load_balancer$/
         }
       ]
     },
@@ -317,7 +317,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^dkim_public_key_size_is_less_than_.*$/
+          vuln_id: /^dkim_public_key_size_is_less_than$/
         },
         {
           source: "Bitsight",
@@ -404,7 +404,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^internal_ip_address_advertisement.*$/
+          vuln_id: /^internal_ip_address_advertisement$/
         }
       ]
     },
@@ -418,7 +418,7 @@ class DigiFootprintFindingMapper
         #
         {
           source: "Bitsight",
-          vuln_id: /^web_application_headers_.*$/
+          vuln_id: /^web_application_headers$/
         },
         {
           source: "SecurityScorecard",
@@ -477,7 +477,7 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Bitsight",
-          vuln_id: /^no_spf_record_for_include_or_redirect_domain.*$/
+          vuln_id: /^no_spf_record_for_include_or_redirect_domain$/
         }
       ]
     },
@@ -488,10 +488,9 @@ class DigiFootprintFindingMapper
       description: "This domain is missing SSL. #{description}",
       recommendation: "Add SSL. #{recommendation}",
       matches: [
-      
         {
           source: "SecurityScorecard",
-          vuln_id: /^domain_missing_https.*$/
+          vuln_id: /^domain_missing_https$/
         }
       ]
     },
@@ -504,11 +503,11 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^ssl_certificates_rsa_public_key_is_less_than_.*$/
+          vuln_id: /^ssl_certificates_rsa_public_key_is_less_than$/
         },
         {
           source: "Expanse",
-          vuln_id: /^certificate_short_key_.*$/
+          vuln_id: /^certificate_short_key$/
         }
       ]
     },
@@ -521,7 +520,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^certificate_long_expiration_.*$/
+          vuln_id: /^certificate_long_expiration$/
         }
       ]
     },
@@ -573,7 +572,7 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Expanse",
-          vuln_id: /^certificate_expired_when_scanned.*$/
+          vuln_id: /^certificate_expired_when_scanned$/
         },
         {
           source: "SecurityScorecard",
@@ -590,7 +589,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "SecurityScorecard",
-          vuln_id: /^hsts_incorrect.*$/
+          vuln_id: /^hsts_incorrect$/
         }
       ]
     },
@@ -604,7 +603,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^ssl_configurations_missing_intermediate_certificates.*$/
+          vuln_id: /^ssl_configurations_missing_intermediate_certificates$/
         }
       ]
     },
@@ -635,19 +634,19 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^insecure_signature_certificate_advertisement_.*$/
+          vuln_id: /^insecure_signature_certificate_advertisement$/
         },
         {
           source: "Bitsight",
-          vuln_id: /^ssl_certificates_large_number_of_dns_names_.*$/
+          vuln_id: /^ssl_certificates_large_number_of_dns_names$/
         },
         {
           source: "Bitsight",
-          vuln_id: /^ssl_certificates_symantec_certificate_distrusted.*$/
+          vuln_id: /^ssl_certificates_symantec_certificate_distrusted$/
         },
         {
           source: "Bitsight",
-          vuln_id: /^ssl_configurations_diffie-hellman_prime_is_less_than_.*$/
+          vuln_id: /^ssl_configurations_diffie-hellman_prime_is_less_than$/
         },
         {
           source: "Bitsight",
@@ -689,7 +688,7 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Expanse",
-          vuln_id: /^certificate_self_signed.*$/
+          vuln_id: /^certificate_self_signed$/
         },
         {
           source: "SecurityScorecard",
@@ -719,7 +718,7 @@ class DigiFootprintFindingMapper
         },
         {
           source: "Expanse",
-          vuln_id: /^certificate_insecure_signature.*$/
+          vuln_id: /^certificate_insecure_signature$/
         }
       ]
     },
@@ -732,7 +731,7 @@ class DigiFootprintFindingMapper
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^wildcard_certificate_.*$/
+          vuln_id: /^wildcard_certificate$/
         }
       ]
     },

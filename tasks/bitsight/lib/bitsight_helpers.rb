@@ -107,11 +107,14 @@ module BitsightHelpers
 
       create_kdi_asset(asset_attributes) 
     
+      vuln_def_id = "#{finding["risk_vector_label"]}"
+
       # then create each vuln for this asset
       vuln_attributes = {
-        "scanner_identifier" => "#{finding["risk_vector_label"]}",
-        "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
+        "scanner_identifier" => "#{vuln_def_id}",
+        "scanner_type" => "Bitsight",
         "scanner_score" => finding["severity"].to_i,  # TODO # severity, severity_category
+        "details" => "#{finding["risk_vector_label"]}\n\nFull Details:\n#{JSON.pretty_generate(finding)}",
         "created_at" => finding["first_seen"],
         "last_seen_at" => finding["last_seen"]
       }
@@ -121,10 +124,9 @@ module BitsightHelpers
     end
 
     vuln_def_attributes = {
-      "scanner_identifier" => finding["risk_vector_label"],
-      "scanner_type" => "Bitsight #{finding["risk_vector_label"]}",
-      "name" => "#{finding["risk_vector"]}",
-      "description" => "#{finding["details"]}"
+      "scanner_identifier" => "#{vuln_def_id}",
+      "scanner_type" => "Bitsight",
+      "name" => "#{vuln_def_id}"
     }
     
     ###
@@ -132,15 +134,9 @@ module BitsightHelpers
     ###
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
     vd = fm.get_canonical_vuln_details("Bitsight", vuln_def_attributes)
-    create_kdi_vuln_def(vd)
+    puts "Canonical Vuln: \n: #{create_kdi_vuln_def(vd)}"
 
-    out = { 
-      "assets" => finding["assets"], 
-      "type" => finding["risk_vector"], 
-      "first_seen" => finding["first_seen"], 
-      "last_seen" => finding["last_seen"], 
-      "details" => finding["details"] 
-    }
+  true 
   end
 
   

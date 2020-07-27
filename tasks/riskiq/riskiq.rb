@@ -150,11 +150,11 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
       end
       
       asset = { 
-        "hostname" =>  hostname,
-        "ip_address" => ip_address,
-        "external_id" => id,
-        "first_seen" => first_seen,
-        "last_seen" => last_seen,
+        "hostname" => "#{hostname}",
+        "ip_address" => "#{ip_address}",
+        "external_id" => "#{id}",
+        "first_seen" => "#{first_seen}",
+        "last_seen" => "#{last_seen}",
         "tags" => tags.concat(organizations)
       }
       create_kdi_asset(asset)
@@ -178,14 +178,14 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
           (wc["cves"] || []).each do |cve| 
             
             vuln = {
-              "scanner_identifier" => cve["name"],
+              "scanner_identifier" => "#{cve["name"]}",
               "scanner_type" => "RiskIQ",
               "first_seen" => first_seen,
               "last_seen" => last_seen
             }
 
             vuln_def= {
-              "scanner_identifier" => cve["name"],
+              "scanner_identifier" => "#{cve["name"]}",
               "scanner_type" => "RiskIQ",
               "description" => "See CVE Desccription",
               "remediation" => "See CVE Remediation"
