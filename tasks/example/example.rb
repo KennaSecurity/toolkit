@@ -31,8 +31,8 @@ class Example < Kenna::Toolkit::BaseTask
 
     print_error "Just an example error! Not to worry!"
 
-    print_good "Input:\n#{`ls -latr /opt/toolkit/input`}"
-    print_good "Output:\n#{`ls -latr /opt/toolkit/output`}"
+    print_good "Input:\n#{`ls -latr /opt/app/toolkit/input`}"
+    print_good "Output:\n#{`ls -latr /opt/app/toolkit/output`}"
   end
   
 end
