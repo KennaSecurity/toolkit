@@ -85,14 +85,43 @@ module Toolkit
 	  #  status: string, * (required - valid values open, closed, false_positive, risk_accepted)
 	  #  port: integer
 	  # }
-	  def create_kdi_asset_vuln(asset_hash, vuln_hash)
+	  # optional param of match_key will look for a matching asset by locator value
+	  #    without this optional param it will match on the entire asset array. 
+	  def create_kdi_asset_vuln(asset_hash, vuln_hash, match_key=nil)
 	    kdi_initialize unless @assets
 
 	    # check to make sure it doesnt exist
+	    if match_key.nil? then
 			a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			
+		else
+			case match_key
+	      		when "ip_address"
+	        		a = @assets.select{|a| a["ip_address"] == asset_hash.fetch('ip_address')}.first
+	      		when "hostname"
+	        		a = @assets.select{|a| a["hostname"] == asset_hash.fetch('hostname')}.first
+		     	when "file"
+		        	a = @assets.select{|a| a["file"] == asset_hash.fetch('file')}.first
+		     	when "mac_address"
+		        	a = @assets.select{|a| a["mac_address"] == asset_hash.fetch('mac_address')}.first
+		      	when "netbios"
+		        	a = @assets.select{|a| a["netbios"] == asset_hash.fetch('netbios')}.first
+		      	when "external_ip_address"
+		        	a = @assets.select{|a| a["external_ip_address"] == asset_hash.fetch('external_ip_address')}.first
+		      	when "ec2"
+		        	a = @assets.select{|a| a["ec2"] == asset_hash.fetch('ec2')}.first
+		      	when "fqdn"
+		        	a = @assets.select{|a| a["fqdn"] == asset_hash.fetch('fqdn')}.first
+		      	when "external_id"
+		        	a = @assets.select{|a| a["external_id"] == asset_hash.fetch('external_id')}.first
+		      	when "database"
+		        	a = @assets.select{|a| a["database"] == asset_hash.fetch('database')}.first
+		      	when "url"
+		        	a = @assets.select{|a| a["url"] == asset_hash.fetch('url')}.first
+			end
+		end
+
 	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless asset_hash #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+	    unless a #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 				puts "Unable to find asset #{asset_hash}, creating a new one... "
 				create_kdi_asset asset_hash
 				a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first

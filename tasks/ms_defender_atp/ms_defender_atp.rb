@@ -1,40 +1,50 @@
-require_relative "lib/microsoft_atp_helper"
+require_relative "lib/ms_defender_atp_helper"
 
 module Kenna 
 module Toolkit
-class MicrosoftAtp < Kenna::Toolkit::BaseTask
+class MSDefenderAtp < Kenna::Toolkit::BaseTask
 
-  include Kenna::Toolkit::MicrosoftAtpHelper
+  include Kenna::Toolkit::MSDefenderAtpHelper
 
   def self.metadata 
     {
-      id: "microsoft_atp",
-      name: "Microsoft ATP",
-      description: "Pulls assets and vulnerabilitiies from Microsoft ATP",
+      id: "ms_defender_atp",
+      name: "MS Defender ATP",
+      description: "Pulls assets and vulnerabilitiies from Microsoft Defenders ATP",
       options: [
-        {:name => "atp_tenant_id", 
-          :type => "strign", 
+        { :name => "atp_tenant_id", 
+          :type => "string", 
           :required => true, 
           :default => nil, 
-          :description => "Microsoft ATP Tenant ID" },
-        {:name => "atp_client_id", 
+          :description => "MS Defender ATP Tenant ID" },
+        { :name => "atp_client_id", 
           :type => "api_key", 
           :required => true, 
           :default => nil, 
-          :description => "Microsoft ATP Client ID" },
-        {:name => "atp_client_secret", 
+          :description => "MS Defender ATP Client ID" },
+        { :name => "atp_client_secret", 
           :type => "api_key", 
           :required => true, 
           :default => nil, 
-          :description => "Microsoft ATP Client Secret" },
-        {:name => "kenna_api_key", 
+          :description => "MS Defender ATP Client Secret" },
+        { :name => "atp_api_host", 
+          :type => "hostname", 
+          :required => false, 
+          :default => "https://api.securitycenter.microsoft.com", 
+          :description => "url to retrieve hosts and vulns"},
+        { :name => "atp_oath_host", 
+          :type => "hostname", 
+          :required => false, 
+          :default => "https://login.windows.net", 
+          :description => "url for authentication"},        
+        { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
           :default => nil, 
-          :description => "Kenna API Key" },
-        {:name => "kenna_api_host", 
+          :description => "Kenna API Key"},
+        { :name => "kenna_api_host", 
           :type => "hostname", 
-          :required => false  , 
+          :required => false, 
           :default => "api.kennasecurity.com", 
           :description => "Kenna API Hostname" }, 
         { :name => "kenna_connector_id", 
@@ -57,13 +67,15 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
     atp_tenant_id = @options[:atp_tenant_id]
     atp_client_id = @options[:atp_client_id]
     atp_client_secret = @options[:atp_client_secret]
-    
+    atp_api_host = @options[:atp_api_host]
+    atp_oath_host = @options[:atp_oath_host]
+
     kenna_api_host = @options[:kenna_api_host]
     kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
     
-    token = atp_get_auth_token(atp_tenant_id, atp_client_id, atp_client_secret)
-    machine_json = atp_get_machines(token)
+    token = atp_get_auth_token(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
+    machine_json = atp_get_machines(token,atp_api_host)
 
     machine_json.each do |machine| 
       
@@ -75,9 +87,9 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
 
       # Get the asset details & craft them into a hash
       asset = { 
+        "external_id" => machine_id,
         "hostname" =>  machine.fetch("computerDnsName"),
         "ip_address" => machine.fetch("lastIpAddress"),
-        "external_id" => machine_id,
         "os" => machine.fetch("osPlatform"),
         "os_version" => machine.fetch("osVersion"),
         "first_seen" => machine.fetch("firstSeen"), # TODO ... this doesnt exist on the asset today, but won't hurt here.
@@ -88,50 +100,60 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
       tags = []
       tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
       tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
-      tags << "MSATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
+      tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
+      tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
       tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
       
       # Add them to our asset hash
       asset.merge({"tags" => tags})
       create_kdi_asset(asset)
-
-      # now get the vulns 
-      vuln_json = atp_get_vulns(token, machine.fetch("id"))
-      vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
-      vuln_json.each do |vuln|
-
-        #print JSON.pretty_generate vuln
-        
-        vuln_id = vuln.fetch("id")
-        vuln_name = vuln.fetch("name")
-        vuln_description = vuln.fetch("description")
-        vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
-
-        # craft the vuln hash
-        vuln = {
-          "scanner_identifier" => vuln_id,
-          "scanner_type" => "MSATP",
-          "name" => vuln_name,
-          # scanner score should fallback using criticality (in case of missing cvss)
-          "scanner_score" => vuln_score, 
-          "last_seen_at" => last_seen
-        }
-
-        # craft the vuln def hash
-        vuln_def= {
-          "scanner_identifier" => vuln_id,
-          "name" => vuln_name,
-          "scanner_type" => "MSATP",
-          "cve_identifiers" => "#{vuln_name}",
-          "description" => vuln_description
-        }
-
-        # Create the KDI entries 
-        create_kdi_asset_vuln(asset, vuln)
-        create_kdi_vuln_def(vuln_def)
-      end
-
     end
+
+    # now get the vulns 
+    vuln_json = atp_get_vulns(token,atp_api_host)
+    vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
+    vuln_json.each do |vuln|
+
+      #print JSON.pretty_generate vuln
+      
+      vuln_cve = vuln.fetch("cveId")
+      machine_id = vuln.fetch("machineId")
+      details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
+        
+      #end
+      vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
+
+      # craft the vuln hash
+
+      vuln_asset = {
+        "external_id" => machine_id
+      }
+
+      vuln = {
+        "scanner_identifier" => vuln_cve,
+        "scanner_type" => "MS Defender ATP",
+        # scanner score should fallback using criticality (in case of missing cvss)
+        "scanner_score" => vuln_score, 
+        "details" => details
+      }
+
+      # craft the vuln def hash
+      vuln_def= {
+        "scanner_identifier" => vuln_cve,
+        "scanner_type" => "MS Defender ATP",
+        "cve_identifiers" => "#{vuln_cve}"
+      }
+
+      vuln_asset = vuln_asset.compact
+      vuln = vuln.compact
+      vuln_def = vuln_def.compact
+
+      # Create the KDI entries 
+      create_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+      create_kdi_vuln_def(vuln_def)
+    end
+
+    #end
 
     ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
@@ -147,7 +169,6 @@ class MicrosoftAtp < Kenna::Toolkit::BaseTask
     end
 
   end
-
 
 end
 end
