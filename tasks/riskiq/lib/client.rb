@@ -65,7 +65,6 @@ class Client
           headers: @headers
         })
 
-
         ###
         ### uncomment to save pages of output
         ###
@@ -74,7 +73,6 @@ class Client
         #File.open(debug_out, "w") do |f|
         #  f.puts "#{response.body}"
         #end
-
         result = JSON.parse(response.body)
 
       rescue RestClient::InternalServerError => e 

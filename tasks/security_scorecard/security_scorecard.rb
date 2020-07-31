@@ -61,6 +61,9 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     ### This does the work. Connects to API and shoves everything into memory as KDI
     @assets = []; @vuln_defs = [] # currently a necessary side-effect
 
+    
+
+
     ### Write KDI format
     #kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     #output_dir = "#{$basedir}/#{@options[:output_directory]}"

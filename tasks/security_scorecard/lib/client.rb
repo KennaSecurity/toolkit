@@ -14,6 +14,62 @@ class Client
     }
   end
 
+  def succesfully_authenticated?
+    json = get_portfolio
+
+    return true if json["entries"]
+  
+  false
+  end   
+
+  def get_all_issues_for_all_companies_in_portfolio(portfolio_id)
+    out_issues = []
+    companies = get_companies_by_portfolio(portfolio_id)["entries"]
+    puts "DEBUG Got #{companies.count} companies"
+    companies.each do |c|
+      puts "Working on company #{c}"
+      get_issue_types.each do |it|
+        issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
+        puts "#{issues.count} issues of type #{it}"
+        out_issues.concat issues
+      end
+    end
+  out_issues
+  end
+
+
+  def get_portfolio
+    endpoint = "#{@baseapi}/portfolios"
+
+    response = RestClient::Request.execute({
+      method: :get,
+      url: endpoint,
+      headers: @headers
+    })
+      
+    begin 
+      json = JSON.parse("#{response.body}")
+    rescue JSON::ParserError => e
+    end
+  end   
+
+  def get_companies_by_portfolio(portfolio_id)
+    endpoint = "#{@baseapi}/portfolios/#{portfolio_id}/companies"
+
+    response = RestClient::Request.execute({
+      method: :get,
+      url: endpoint,
+      headers: @headers
+    })
+      
+    begin 
+      json = JSON.parse("#{response.body}")
+    rescue JSON::ParserError => e
+    end
+  end   
+
+
+=begin
   def get_user_details(ssc_api_key)
 
     begin 
@@ -33,10 +89,11 @@ class Client
     
   nil  # default 
   end
+=end
 
-
-  def succesfully_authenticated?
-    endpoint = "#{@baseapi}/portfolios"
+  def get_issues_by_type_for_company(company_id, itype="patching_cadence_low")
+    
+    endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
 
     response = RestClient::Request.execute({
       method: :get,
@@ -48,13 +105,26 @@ class Client
       json = JSON.parse("#{response.body}")
     rescue JSON::ParserError => e
     end
-
-    return true if json["entries"]
   
-  false
-  end   
+  end
 
+  def get_issue_types
+    
+    endpoint = "#{@baseapi}/metadata/issue-types"
 
+    response = RestClient::Request.execute({
+      method: :get,
+      url: endpoint,
+      headers: @headers
+    })
+      
+    begin 
+      json = JSON.parse("#{response.body}")["entries"].map{|x| x["key"]}
+    rescue JSON::ParserError => e
+    end
+
+  end
+ 
 
 end
 end
