@@ -18,28 +18,30 @@ class Client
   def successfully_authenticated?
     true # TODO ... let's sort 
   end
-
-  ##
-  ##{
-  ##  "name": "cvssScore",
-  ##  "operator": "NOT_NULL",
-  ##  "value": true
-  ##}
+ 
   ##
   def footprint_query 
     json_search_query = '{
       "filters": {
         "condition": "AND",
-        "value": [{
-          "name": "type",
-          "operator": "EQ",
-          "value": "HOST"
-        }, {
-          "name": "state",
-          "operator": "EQ",
-          "value": "CONFIRMED"
-        }]
-      }
+          "value": [
+            {
+                "name": "type",
+                "operator": "EQ",
+                "value": "PAGE"
+            },
+            {
+                "name": "state",
+                "operator": "EQ",
+                "value": "CONFIRMED"
+            },
+            {
+                "name": "cvssScore",
+                "operator": "NOT_NULL",
+                "value": true
+            }
+          ]
+        }
     }'
   end
 
@@ -51,8 +53,10 @@ class Client
     while current_page <= max_pages || max_pages == -1
       puts "DEBUG Getting page: #{current_page} / #{max_pages}"
 
-      endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=1000"
+      endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=100"
   
+      puts "DEBUG: Making query: #{footprint_query}"
+
       begin 
         response = RestClient::Request.execute({
           method: :post,
@@ -61,8 +65,17 @@ class Client
           headers: @headers
         })
 
+        debug_out = "/tmp/riq_response_page_#{current_page}.json"
+        puts "DEBUG: Writing #{debug_out}"
+        File.open(debug_out, "w") do |f|
+          f.puts "#{response.body}"
+        end
+
         result = JSON.parse(response.body)
 
+      rescue RestClient::InternalServerError => e 
+        puts "Error making request - server 500?!"
+        return nil 
       rescue RestClient::ServerBrokeConnection => e 
         puts "Error making request - server dropped us?!"
         return nil 

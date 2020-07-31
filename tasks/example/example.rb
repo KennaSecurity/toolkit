@@ -23,16 +23,12 @@ class Example < Kenna::Toolkit::BaseTask
   def run(options)
     super
 
-    print_good "This is an example task!"
-    print_good ""
-    print_good "Running the example task with the following options:\n#{@options}"
-
     # do things here 
+    print_good "Morpheus believes he is the one."
+    print_debug "Everybody falls the first time" if @options[:debug]
+    print_error "I'm just the messenger..."
+    print "I know kung fu."
 
-    print_error "Just an example error! Not to worry!"
-
-    print_good "Input:\n#{`ls -latr /opt/app/toolkit/input`}"
-    print_good "Output:\n#{`ls -latr /opt/app/toolkit/output`}"
   end
   
 end

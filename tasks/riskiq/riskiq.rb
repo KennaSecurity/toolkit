@@ -70,7 +70,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     print_good "Valid key, proceeding!"
 
     if @options[:debug]
-      max_pages = 1 
+      max_pages = 2
       print_debug "Limiting pages to #{max_pages}"
     else
       max_pages = -1 # all 
@@ -107,20 +107,22 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
 
   def convert_riq_output_to_kdi(data_items)
     output = []
+    
+    # just return empty array if we weren't handed anything
+    return output unless data_items
 
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
 
     print_debug "Working on on #{data_items.count} items"
     data_items.each do |item| 
-      puts "Working on #{JSON.pretty_generate(item)}"
-
       ###
-      ### Handle Asset
+      ### Handle Asset, note, host was used in the past, but now 
+      ### page is the way to go 
       ###
-      if item["type"] == "HOST"
+      if item["type"] == "HOST" || item["type"] == "PAGE"
 
         id = item["id"]
-        hostname = item["name"]
+        hostname = URI.parse(item["name"]).hostname
 
         if item["lastSeen"]
           last_seen = item["lastSeen"]
@@ -153,8 +155,8 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
         "hostname" => "#{hostname}",
         "ip_address" => "#{ip_address}",
         "external_id" => "#{id}",
-        "first_seen" => "#{first_seen}",
-        "last_seen" => "#{last_seen}",
+        #"first_seen" => "#{first_seen}",
+        #"last_seen" => "#{last_seen}",
         "tags" => tags.concat(organizations)
       }
       create_kdi_asset(asset)
@@ -187,8 +189,9 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
             vuln_def= {
               "scanner_identifier" => "#{cve["name"]}",
               "scanner_type" => "RiskIQ",
-              "description" => "See CVE Desccription",
-              "remediation" => "See CVE Remediation"
+              "cves" => "#{cve["name"]}"
+              #"description" => "See CVE Description",
+              #"remediation" => "See CVE Remediation"
             }
             
             create_kdi_asset_vuln(asset, vuln)
