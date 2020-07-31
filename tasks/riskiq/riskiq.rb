@@ -189,9 +189,9 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
             vuln_def= {
               "scanner_identifier" => "#{cve["name"]}",
               "scanner_type" => "RiskIQ",
-              "cves" => "#{cve["name"]}"
+              "cve_identifiers" => "#{cve["name"]}"
               #"description" => "See CVE Description",
-              #"remediation" => "See CVE Remediation"
+              #"solution" => "See CVE Remediation"
             }
             
             create_kdi_asset_vuln(asset, vuln)

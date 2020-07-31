@@ -1,3 +1,5 @@
+
+require_relative 'lib/client'
 module Kenna 
 module Toolkit
 class SecurityScorecard < Kenna::Toolkit::BaseTask
@@ -46,13 +48,14 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     kenna_connector_id = @options[:kenna_connector_id]
     ssc_api_key = @options[:ssc_api_key]
 
+    client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
+
     ### Basic Sanity checking
-    if user_details = get_user_details(ssc_api_key)
-      print_good "Valid key, proceeding!"
-      print_good "User Details: #{user_details}"
-    else
+    unless client.succesfully_authenticated?
       print_error "Unable to proceed, invalid key for Security Scorecard?"
-      return 
+      return
+    else 
+      print_good "Successfully authenticated!"
     end
   
     ### This does the work. Connects to API and shoves everything into memory as KDI
@@ -72,34 +75,6 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     #end
 
   end    
-
-  def get_user_details(ssc_api_key)
-
-    headers = {
-      "Accept" => "application/json",
-      "Content-Type" => "application/json",
-      "Cache-Control" => "none",
-      "Authorization" => "Token #{ssc_api_key}",
-    }
-
-    begin 
-      response = RestClient.get "https://api.securityscorecard.io/portfolios", headers
-      user_details = JSON.parse(response.body)
-    rescue RestClient::Unauthorized => e
-      return nil
-    rescue JSON::ParserError => e 
-      return nil 
-    end
-
-    if user_details["entries"].first.kind_of? Hash
-      return user_details
-    else 
-      puts "Error! Got user details: #{user_details}"
-    end
-    
-  nil  # default 
-  end
-
 end
 end
 end
