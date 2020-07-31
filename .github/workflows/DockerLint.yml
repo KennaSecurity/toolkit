@@ -1,4 +1,4 @@
-name: DockerLint
+name: Docker Lint
 
 on:
   push:
