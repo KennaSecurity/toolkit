@@ -51,11 +51,11 @@ class Client
     out = []
 
     while current_page <= max_pages || max_pages == -1
-      puts "DEBUG Getting page: #{current_page} / #{max_pages}"
+      #puts "DEBUG Getting page: #{current_page} / #{max_pages}"
 
       endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=100"
   
-      puts "DEBUG: Making query: #{footprint_query}"
+      #puts "DEBUG: Making query: #{footprint_query}"
 
       begin 
         response = RestClient::Request.execute({
@@ -65,11 +65,15 @@ class Client
           headers: @headers
         })
 
-        debug_out = "/tmp/riq_response_page_#{current_page}.json"
-        puts "DEBUG: Writing #{debug_out}"
-        File.open(debug_out, "w") do |f|
-          f.puts "#{response.body}"
-        end
+
+        ###
+        ### uncomment to save pages of output
+        ###
+        #debug_out = "/tmp/riq_response_page_#{current_page}.json"
+        #puts "DEBUG: Writing #{debug_out}"
+        #File.open(debug_out, "w") do |f|
+        #  f.puts "#{response.body}"
+        #end
 
         result = JSON.parse(response.body)
 
