@@ -94,6 +94,8 @@ module BitsightHelpers
 
   def _add_finding_to_working_kdi(finding)
 
+    vuln_def_id = "#{finding["risk_vector_label"]}"
+    
     finding["assets"].each do |a|
 
       asset_name = a["asset"]
@@ -106,8 +108,6 @@ module BitsightHelpers
       end
 
       create_kdi_asset(asset_attributes) 
-    
-      vuln_def_id = "#{finding["risk_vector_label"]}"
 
       # then create each vuln for this asset
       vuln_attributes = {
