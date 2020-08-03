@@ -24,7 +24,7 @@ Requirements:
 Running the latest image (from DockerHub):
 ==========================================
 
-The easiest way to get started is to use the pre-built image on Dockerhub. This is currently hosted in the 'jcran' account, but will move to a more official account soon.
+The easiest way to get started is to use the pre-built image on Dockerhub. 
 
 ```
 ### A first example that will pull the latest image, and print the list of tasks
