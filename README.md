@@ -28,12 +28,12 @@ The easiest way to get started is to use the pre-built image on Dockerhub. This 
 
 ```
 ### A first example that will pull the latest image, and print the list of tasks
-IMAGE="jcran/toolkit:latest" && docker pull $IMAGE && docker run -it $IMAGE
+IMAGE="quay.io/kennasecurity/toolkit" && docker pull $IMAGE && docker run -it $IMAGE
 ```
 
 ```
 ### A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task... in this case, the expanse task.
-IMAGE="jcran/toolkit:latest" && \
+IMAGE="docker pull quay.io/kennasecurity/toolkit" && \
 docker pull $IMAGE && docker run -it $IMAGE task=expanse:kenna_api_key=$KENNA_API_KEY:expanse_api_key=$EXPANSE_API_KEY
 ```
 
