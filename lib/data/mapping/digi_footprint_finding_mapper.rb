@@ -5,95 +5,16 @@ module Mapping
 class DigiFootprintFindingMapper
   
 =begin
-
-DONE - 0 issues of type admin_subdomain
-DONE - 0 issues of type leaked_credentials
-DONE - 1 issues of type spf_record_malformed
-DONE - 0 issues of type spf_record_softfail
-DONE - 0 issues of type spf_record_wildcard
-DONE - 0 issues of type spf_record_missing
-DONE - 5 issues of type csp_no_policy
-DONE - 0 issues of type open_resolver
-DONE - 1 issues of type x_frame_options_incorrect
-DONE - 1 issues of type x_xss_protection_incorrect
-DONE - 0 issues of type object_storage_bucket_with_risky_acl
-DONE - 0 issues of type hosted_on_object_storage
-DONE - 0 issues of type references_object_storage
-DONE - 1 issues of type waf_detected
-DONE - 0 issues of type dnssec_detected
-DONE - ddos_protection
-DONE - 0 issues of type csp_unsafe_policy
-DONE - 0 issues of type csp_too_broad
-DONE - 0 issues of type service_cassandra
-DONE - 0 issues of type service_couchdb
-DONE - 0 issues of type service_elasticsearch
-DONE - 0 issues of type service_ftp
-DONE - 0 issues of type service_imap
-DONE - 0 issues of type service_microsoft_sql
-DONE - 0 issues of type service_mysql
-DONE - 0 issues of type service_pop3
-DONE - 0 issues of type service_postgresql
-DONE - 0 issues of type service_rdp
-DONE - 0 issues of type service_redis
-DONE - 0 issues of type service_rsync
-DONE - 0 issues of type service_smb
-DONE - 0 issues of type service_telnet
-DONE - 0 issues of type service_mongodb
-DONE - 0 issues of type service_vnc
-DONE - 0 issues of type ssh_weak_mac
-DONE - 0 issues of type ssh_weak_cipher
-DONE - 0 issues of type tlscert_revoked
-DONE - 0 issues of type tlscert_self_signed
-DONE - 0 issues of type tls_weak_cipher
-DONE - 0 issues of type tlscert_expired
-DONE - 0 issues of type tlscert_weak_signature
-DONE - 0 issues of type tlscert_no_revocation
-DONE - 0 issues of type chatter
-DONE - 3 issues of type hsts_incorrect
-DONE - 3 issues of type typosquat
-
-5 issues of type unsafe_sri 
-0 issues of type new_booter_shell
-0 issues of type new_defacement
-0 issues of type non_malware_events_last_month
-0 issues of type attack_feed
-0 issues of type employee_satisfaction
-0 issues of type github_information_leak_disclosure
-0 issues of type google_information_leak_disclosure
-0 issues of type marketing_site
-0 issues of type short_term_lending_site
-0 issues of type social_network_issues
-0 issues of type tor_node_events_last_month
-0 issues of type domain_uses_hsts_preloading
-0 issues of type uce
-0 issues of type outdated_os
-0 issues of type domain_missing_https
-2 issues of type insecure_https_redirect_pattern
-0 issues of type redirect_chain_contains_http
-1 issues of type x_content_type_options_incorrect
-0 issues of type exposed_ports
-1 issues of type outdated_browser
-0 issues of type cookie_missing_http_only
-0 issues of type cookie_missing_secure_attribute
+SSC TDDO:
 0 issues of type patching_cadence_high
 0 issues of type patching_cadence_medium
 0 issues of type patching_cadence_low
-0 issues of type service_vuln_host_high
-0 issues of type service_vuln_host_medium
-0 issues of type service_vuln_host_low
-0 issues of type web_vuln_host_high
-0 issues of type web_vuln_host_medium
-0 issues of type web_vuln_host_low
-0 issues of type service_end_of_life
-0 issues of type service_end_of_service
-0 issues of type tlscert_excessive_expiration
+0 issues of type new_booter_shell
+0 issues of type new_defacement
+0 issues of type employee_satisfaction
+0 issues of type marketing_site
+0 issues of type short_term_lending_site
 0 issues of type no_standard_browser_policy
-0 issues of type tlscert_extended_validation
-0 issues of type malware_1_day
-0 issues of type malware_30_day
-0 issues of type malware_365_day
-0 issues of type tls_ocsp_stapling
-0 issues of type ssh_weak_protocol
 =end
 
   def self.get_canonical_vuln_details(orig_source, specific_details)
@@ -250,6 +171,31 @@ DONE - 3 issues of type typosquat
         {
           source: "Expanse",
           vuln_id: /^detected_webserver$/
+        }
+      ]
+    },
+    {
+      name: "Compromised System",
+      score: 90,
+      cwe: "506",
+      description: "System was discovered by an attack feed.",
+      recommendation: "Check this system for signs of compromise",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^attack_feed$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^malware_1_day$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^malware_30_day$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^malware_365_day$/
         }
       ]
     },
@@ -413,6 +359,40 @@ DONE - 3 issues of type typosquat
       ]
     },
     {
+      name: "End-of-Life (EOL) System or Software",
+      cwe: nil,
+      score: 0,
+      description: "This system was determined to be running software or services that are EOL.",
+      recommendation: "Investigate this software to determine if this is intended and if supported options exist.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^outdated_os$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^service_end_of_life$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^service_end_of_service$/
+        }        
+      ]
+    },
+    {
+      name: "Social Network Accounts Leaking Email Addresses",
+      cwe: "CWE-200",
+      score: 20,
+      description: "Leaked Company Emails Open to Spear-Phishing or other email-based interaction",
+      recommendation: "Best practice indicates you should disabld this access.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^social_network_issues$/ # Unsolicited Commercial Email
+        }
+      ]
+    },
+    {
       name: "Exposed Cloud Object Storage (S3 Bucket)",
       cwe: "CWE-284",
       score: 80,
@@ -422,6 +402,32 @@ DONE - 3 issues of type typosquat
         {
           source: "SecurityScorecard",
           vuln_id: /^object_storage_bucket_with_risky_acl$/
+        }
+      ]
+    },
+    {
+      name: "Github - Sensitive Data Leakage",
+      cwe: "CWE-284",
+      score: 80,
+      description: "Sensitive information was found leaked via Github",
+      recommendation: "Investigate and remove the sensitive data if not intended.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^github_information_leak_disclosure$/
+        }
+      ]
+    },
+    {
+      name: "Google - Sensitive Data Leakage",
+      cwe: "CWE-284",
+      score: 80,
+      description: "Sensitive information was found leaked via Google",
+      recommendation: "Investigate and remove the sensitive data if not intended.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^google_information_leak_disclosure$/
         }
       ]
     },
@@ -448,6 +454,10 @@ DONE - 3 issues of type typosquat
         {
           source: "SecurityScorecard",
           vuln_id: /^cookie_missing_http_only$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^cookie_missing_secure_attribute$/
         },
         {
           source: "Intrigue",
@@ -515,7 +525,19 @@ DONE - 3 issues of type typosquat
         }
       ]
     },
-    
+    {
+      name: "P2P Activity Detected",
+      score: 10,
+      cwe: "CWE-506",
+      description: "This system was detected with P2P Activity ",
+      recommendation: "Check the system for signs of compromise ",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^non_malware_events_last_month$/
+        },
+      ]
+    },
     {
       name: "Sensitive Service Detected",
       score: 10,
@@ -523,58 +545,62 @@ DONE - 3 issues of type typosquat
       description: "A System was detected running a potentially sensitive service.",
       recommendation: "Verify this is expected.",
       matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_dns$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_ftps$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_pop3$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_sip$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_smtp$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_snmp$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_ssh$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_telnet$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_unencrypted_ftp$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^detected_server_unencrypted_logins$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^service_\w+$/
-        }
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_dns$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_ftps$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_pop3$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_sip$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_smtp$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_snmp$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_ssh$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_telnet$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_unencrypted_ftp$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^detected_server_unencrypted_logins$/
+          },
+          { # NOTE ... many matches here, may need to be split up 
+            source: "SecurityScorecard",
+            vuln_id: /^service_\w+$/
+          }, 
+          { # correct place for this? # Open TCP Ports Observed
+            source: "SecurityScorecard",
+            vuln_id: /^exposed_ports$/
+          }
         ]
       },
       {
         name: "SSH Misconfiguration",
         cwe: "CWE-358",
         score: 20,
-        description: "A problem with this ssh server was detected.",
-        recommendation: "Updated the configuration on the SSH server..",
+        description: "A problem with this SSH server's configuration was detected.",
+        recommendation: "Updated the configuration on the SSH server.",
         matches: [
           {
             source: "SecurityScorecard",
@@ -584,6 +610,10 @@ DONE - 3 issues of type typosquat
             source: "SecurityScorecard",
             vuln_id: /^ssh_weak_mac$/
           }, 
+          {
+            source: "SecurityScorecard",
+            vuln_id: /^ssh_weak_protocl$/
+          }, 
         ]
       },
       {
@@ -591,7 +621,7 @@ DONE - 3 issues of type typosquat
       cwe: "CWE-183",
       score: 20,
       description: "This domain has a weak SPF configuration.",
-      recommendation: "Correct the SPF configuration on the server..",
+      recommendation: "Correct the SPF configuration on the server.",
       matches: [
         {
           source: "Bitsight",
@@ -650,6 +680,32 @@ DONE - 3 issues of type typosquat
       ]
     },
     {
+      name: "SSL/TLS - Extended Validation Certificate",
+      cwe: nil,
+      score: 0,
+      description: "An extended valiation certificate was found.",
+      recommendation: "No action needed, this is an informational finding.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^tlscert_extended_validation$/
+        }
+      ]
+    },
+    {
+      name: "SSL/TLS - HSTS Configured",
+      cwe: nil,
+      score: 0,
+      description: "",
+      recommendation: "No action needed, this is a positive finding",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^domain_uses_hsts_preloading$/
+        }
+      ]
+    },
+    {
       name: "SSL/TLS Misconfiguration (Not Configured)",
       cwe: "CWE-298",
       score: 20,
@@ -689,6 +745,10 @@ DONE - 3 issues of type typosquat
         {
           source: "Expanse",
           vuln_id: /^certificate_long_expiration$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^tlscert_excessive_expiration$/
         }
       ]
     },
@@ -929,6 +989,38 @@ DONE - 3 issues of type typosquat
       ]
     },
     {
+      name: "SSL/TLS Revocation Check (OCSP Stapling Detected)",
+      cwe: nil,
+      score: 0,
+      description: "OCSP Stapling is known as TLS certificate status Request extension used to check the status of certificate revocation of x.509 digital certificate. OCSP is useful for clients who possess limited processing power and memory and even for CAs who have large CRLs (Certificate Revocation Lists). OCSP can provide more appropriate information about the revocation of a certificate than CRL. OCSP can check the certificate issued by CA while CRL only provides the revocation list of serial numbers and therefore, it is possible to detect the usage of fraudulent certificate.",
+      references: [
+        "https://www.clickssl.net/blog/ocsp-stapling-check-your-certificate-revocation"
+      ],
+      recommendation: "No action required, this is an informational finding.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^tls_ocsp_stapling$/
+        }
+      ]
+    },
+    {
+      name: "Subresource Integrity Issues",
+      cwe: "CWE-353",
+      score: 30,
+      description: "Subresource Integrity (SRI) is a security feature that enables browsers to verify that resources they fetch (for example, from a CDN) are delivered without unexpected manipulation. It works by allowing you to provide a cryptographic hash that a fetched resource must match.",
+      references: [
+        "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity"
+      ],
+      recommendation: "Ensure the system has not been compromised..",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^unsafe_sri$/
+        }
+      ]
+    },
+    {
       name: "System Flagged as Spam",
       cwe: "CWE-358",
       score: 30,
@@ -937,7 +1029,7 @@ DONE - 3 issues of type typosquat
       matches: [
         {
           source: "SecurityScorecard",
-          vuln_id: /^uce$/
+          vuln_id: /^uce$/ # Unsolicited Commercial Email
         }
       ]
     },
@@ -968,6 +1060,61 @@ DONE - 3 issues of type typosquat
       ]
     },
     {
+      name: "Tor Exit Node Discoverd",
+      score: 10,
+      cwe: "CWE-506",
+      description: "A Tor exit node was discovered",
+      recommendation: "Check the system for signs of compromise ",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^tor_node_events_last_month$/
+        },
+      ]
+    },
+    {
+      name: "Vulnerability Detected - Application Layer",
+      cwe: "CWE-200",
+      score: 0,
+      description: "A vulnerability was detected at the application layer",
+      recommendation: "Investigate the vulnerability.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^web_vuln_host_high$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^web_vuln_host_medium$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^web_vuln_host_low$/
+        }
+      ]
+    },
+    {
+      name: "Vulnerability Detected - OS/System Layer",
+      cwe: "CWE-200",
+      score: 0,
+      description: "A vulnerability was detected at the service or OS layer",
+      recommendation: "Investigate the vulnerability.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^service_vuln_host_high$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^service_vuln_host_medium$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^service_vuln_host_low$/
+        }
+      ]
+    },
+    {
       name: "WAF Protection Detected",
       cwe: nil,
       score: 0,
@@ -979,7 +1126,7 @@ DONE - 3 issues of type typosquat
           vuln_id: /^waf_detected$/
         }
       ]
-    },
+    }
   ]
   end
 
