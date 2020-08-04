@@ -1,4 +1,4 @@
-FROM quay.io/kennasecurity/ruby:latest
+FROM quay.io/kennasecurity/ruby:2.6.3
 LABEL maintainer="Kenna Security"
 
 USER root
