@@ -92,12 +92,9 @@ class Snyk < Kenna::Toolkit::BaseTask
               }
             }"
     
-<<<<<<< HEAD
-=======
     
->>>>>>> master
     morepages = true
-    while morepages = true do 
+    while morepages do 
 
       pagenum = pagenum + 1
 
@@ -108,10 +105,7 @@ class Snyk < Kenna::Toolkit::BaseTask
         break
       end
 
-<<<<<<< HEAD
-=======
       
->>>>>>> master
       vuln_severity = { "high" => 6, "medium" => 4, "low" => 1} # converter
       vuln_json.each do |issue_obj|
         issue = issue_obj["issue"]
@@ -119,17 +113,11 @@ class Snyk < Kenna::Toolkit::BaseTask
         identifiers = issue["identifiers"]
         
         asset = {
-<<<<<<< HEAD
-          "file" => "#{project.fetch("targetFile")}/#{issue.fetch("package")}",
-          "application" => project.fetch("name"),
-          "tags" => [project.fetch("source"),project.fetch("packageManager")]
-=======
 
           "file" => "#{project.fetch("targetFile")}/#{issue.fetch("package")}",
           "application" => project.fetch("name"),
           "tags" => [project.fetch("source"),project.fetch("packageManager")]
 
->>>>>>> master
         }
 
         scanner_score = ""
