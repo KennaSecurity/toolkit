@@ -85,14 +85,20 @@ module Toolkit
 	  #  status: string, * (required - valid values open, closed, false_positive, risk_accepted)
 	  #  port: integer
 	  # }
-	  def create_kdi_asset_vuln(asset_hash, vuln_hash)
+	  # optional param of match_key will look for a matching asset by locator value
+	  #    without this optional param it will match on the entire asset array. 
+	  def create_kdi_asset_vuln(asset_hash, vuln_hash, match_key=nil)
 	    kdi_initialize unless @assets
 
 	    # check to make sure it doesnt exist
+	    if match_key.nil? then
 			a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			
+		else
+			a = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
+		end
+
 	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless asset_hash #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+	    unless a #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 				puts "Unable to find asset #{asset_hash}, creating a new one... "
 				create_kdi_asset asset_hash
 				a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first

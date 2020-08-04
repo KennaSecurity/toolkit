@@ -4,6 +4,8 @@ ABOUT:
 
 The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
 
+All the code samples in this GitHub repository are offered “as is” and include no warranty of any kind. Use them at your own risk. In no event will Kenna be liable to end user or any other party for damages of any kind arising from the use of these samples.
+
 
 USAGE:
 ======
@@ -22,16 +24,16 @@ Requirements:
 Running the latest image (from DockerHub):
 ==========================================
 
-The easiest way to get started is to use the pre-built image on Dockerhub. This is currently hosted in the 'jcran' account, but will move to a more official account soon.
+The easiest way to get started is to use the pre-built image on Dockerhub. 
 
 ```
 ### A first example that will pull the latest image, and print the list of tasks
-IMAGE="jcran/toolkit:latest" && docker pull $IMAGE && docker run -it $IMAGE
+IMAGE="quay.io/kennasecurity/toolkit" && docker pull $IMAGE && docker run -it $IMAGE
 ```
 
 ```
 ### A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task... in this case, the expanse task.
-IMAGE="jcran/toolkit:latest" && \
+IMAGE="docker pull quay.io/kennasecurity/toolkit" && \
 docker pull $IMAGE && docker run -it $IMAGE task=expanse:kenna_api_key=$KENNA_API_KEY:expanse_api_key=$EXPANSE_API_KEY
 ```
 
@@ -202,4 +204,9 @@ CONTRIBUTORS:
  - @dbro (initial implementation and testing, various tasks)
  - @jcran (initial implementation, various tasks)
  - @jdoss (container work)
-
+ 
+ 
+ Github Security Actions:
+=============================
+![Docker Lint](https://github.com/KennaPublicSamples/toolkit/workflows/Docker%20Lint/badge.svg) 
+![Bunlder Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bunlder%20Audit/badge.svg)

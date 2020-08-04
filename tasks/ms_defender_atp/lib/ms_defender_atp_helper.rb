@@ -1,12 +1,12 @@
 
 module Kenna
 module Toolkit
-module MicrosoftAtpHelper
+module MSDefenderAtpHelper
 
-  def atp_get_machines(token)
+  def atp_get_machines(token,atp_query_api)
     print "Getting machines"
     headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{token}", 'accept-encoding' => 'identity'}
-    url = "https://api.securitycenter.microsoft.com/api/machines"
+    url = "#{atp_query_api}/api/machines?skip=10000"
     
     response = http_get(url, headers)
     return nil unless response 
@@ -17,14 +17,13 @@ module MicrosoftAtpHelper
       print_error "Unable to process response!"
     end
 
-  json["value"]
+    json["value"]
   end
   
-  def atp_get_vulns(token,machine_id)
-    print "Getting vulns for machine #{machine_id}"
-    atp_query_api = "https://api.securitycenter.microsoft.com/"
+  def atp_get_vulns(token,atp_query_api)
+    print "Getting vulns"
     headers = {'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{token}", 'accept-encoding' => 'identity'}
-    url =  "#{atp_query_api}/api/machines/#{machine_id}/vulnerabilities"
+    url =  "#{atp_query_api}/api/vulnerabilities/machinesVulnerabilities?skip=10000"
     
     response = http_get(url, headers)
     return nil unless response 
@@ -35,13 +34,12 @@ module MicrosoftAtpHelper
       print_error "Unable to process response!"
     end
 
-  json["value"]
+    json["value"]
   end
  
-  def atp_get_auth_token(tenant_id, client_id,secret)
+  def atp_get_auth_token(tenant_id, client_id,secret,atp_query_api,atp_oath_url)
     print "Getting token"
-    atp_query_api = "https://api.securitycenter.microsoft.com/"
-    oauth_url = "https://login.windows.net/#{tenant_id}/oauth2/token"
+    oauth_url = "#{atp_oath_url}/#{tenant_id}/oauth2/token"
     headers = {'content-type' =>  'application/x-www-form-urlencoded'}
     mypayload = {
       "resource" => atp_query_api, 
@@ -59,7 +57,7 @@ module MicrosoftAtpHelper
       print_error "Unable to process response!"
     end
 
-  json.fetch("access_token")
+    json.fetch("access_token")
   end
 
 end
