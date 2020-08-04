@@ -30,8 +30,12 @@ class Client
       puts "Working on company #{c}"
       get_issue_types.each do |it|
         issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
-        puts "#{issues.count} issues of type #{it}"
-        out_issues.concat issues
+        if issues 
+          puts "#{issues.count} issues of type #{it}"
+          out_issues.concat issues
+        else 
+          puts "Missing (or error) on #{it} issues"
+        end
       end
     end
   out_issues
@@ -95,15 +99,21 @@ class Client
     
     endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
 
-    response = RestClient::Request.execute({
-      method: :get,
-      url: endpoint,
-      headers: @headers
-    })
-      
     begin 
+      response = RestClient::Request.execute({
+        method: :get,
+        url: endpoint,
+        headers: @headers
+      })
+      
       json = JSON.parse("#{response.body}")
+      
+    rescue RestClient::InternalServerError => e
+      puts "Error! 500 getting #{itype}: #{e}"    
+      return {}
     rescue JSON::ParserError => e
+      puts "Error! Parsing #{itype}: #{e}"
+      return {}
     end
   
   end
