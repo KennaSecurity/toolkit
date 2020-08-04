@@ -6,7 +6,12 @@ class DigiFootprintFindingMapper
   
   def self.get_canonical_vuln_details(orig_source, specific_details)
 
-    orig_vuln_id = specific_details["scanner_identifier"]
+
+    ###
+    ### Transform the identifier from the upstream source downcasing and
+    ### then removing spaces and dashes in favor of an underscore 
+    ###
+    orig_vuln_id = "#{specific_details["scanner_identifier"]}".downcase.gsub(" ","_").gsub("-","_")
 
     orig_description = specific_details["description"]
     orig_recommendation = specific_details["recommendation"]
