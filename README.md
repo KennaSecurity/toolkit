@@ -206,7 +206,8 @@ CONTRIBUTORS:
  - @jdoss (container work)
  
  
- Github Security Actions:
+Security Badges:
 =============================
 ![Docker Lint](https://github.com/KennaPublicSamples/toolkit/workflows/Docker%20Lint/badge.svg) 
 ![Bunlder Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bunlder%20Audit/badge.svg)
+[![Docker Repository on Quay](https://quay.io/repository/kennasecurity/toolkit/status "Docker Repository on Quay")](https://quay.io/repository/kennasecurity/toolkit)
