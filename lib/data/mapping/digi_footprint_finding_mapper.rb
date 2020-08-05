@@ -6,9 +6,6 @@ class DigiFootprintFindingMapper
   
 =begin
 SSC TDDO:
-0 issues of type patching_cadence_high
-0 issues of type patching_cadence_medium
-0 issues of type patching_cadence_low
 0 issues of type new_booter_shell
 0 issues of type new_defacement
 0 issues of type employee_satisfaction
@@ -536,6 +533,27 @@ SSC TDDO:
           source: "SecurityScorecard",
           vuln_id: /^non_malware_events_last_month$/
         },
+      ]
+    },
+    { # TODO... this should have the CVEs pulled out of it, and should never really match?
+      name: "Vulnerability Detected: Vulnerability Patching Cadence",
+      cwe: nil,
+      score: 0,
+      description: "Vulnerability seen on network more than 60 days after CVE was published.",
+      recommendation: "Monitor CVE lists and vulnerability repositories for exploit code that may affect your infrastructure.",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^patching_cadence_high$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^patching_cadence_medium$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^patching_cadence_low$/
+        }
       ]
     },
     {
