@@ -21,10 +21,10 @@ Requirements:
   - [Podman](https://podman.io/)
 
 
-Running the latest image (from DockerHub):
+Running the latest image (from Quay):
 ==========================================
 
-The easiest way to get started is to use the pre-built image on Dockerhub. 
+The easiest way to get started is to use the pre-built image on Quay. 
 
 ```
 ### A first example that will pull the latest image, and print the list of tasks
