@@ -90,7 +90,6 @@ module MSDefenderAtpHelper
   end
 
   def set_client_data(tenant_id, client_id,secret,atp_query_api,atp_oath_url)
-    print "Setting client data"
     @atp_oath_url = atp_oath_url
     @tenant_id = tenant_id
     @client_id = client_id
