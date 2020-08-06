@@ -74,83 +74,104 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
     
-    token = atp_get_auth_token(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
-    machine_json = atp_get_machines(token,atp_api_host)
+    set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
+    page = 0
+    moremachines = true
+    while moremachines do 
+      if page == 0 then
+        machine_json = atp_get_machines()
+      else
+        machine_json = atp_get_machines("$skip=#{page}0000")
+      end
 
-    machine_json.each do |machine| 
-      
-      machine_id = machine.fetch("id")
+      break if machine_json.empty?
 
-      # Save these to persist on the vuln
-      first_seen = machine.fetch("firstSeen")
-      last_seen = machine.fetch("lastSeen")
-
-      # Get the asset details & craft them into a hash
-      asset = { 
-        "external_id" => machine_id,
-        "hostname" =>  machine.fetch("computerDnsName"),
-        "ip_address" => machine.fetch("lastIpAddress"),
-        "os" => machine.fetch("osPlatform"),
-        "os_version" => machine.fetch("osVersion"),
-        "first_seen" => machine.fetch("firstSeen"), # TODO ... this doesnt exist on the asset today, but won't hurt here.
-        "last_seen" => machine.fetch("lastSeen") # TODO ... this doesnt exist on the asset today
-      }
-
-      # Construct tags
-      tags = []
-      tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
-      tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
-      tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
-      tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
-      tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
-      
-      # Add them to our asset hash
-      asset.merge({"tags" => tags})
-      create_kdi_asset(asset)
-    end
-
-    # now get the vulns 
-    vuln_json = atp_get_vulns(token,atp_api_host)
-    vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
-    vuln_json.each do |vuln|
-
-      #print JSON.pretty_generate vuln
-      
-      vuln_cve = vuln.fetch("cveId")
-      machine_id = vuln.fetch("machineId")
-      details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
+      machine_json.each do |machine| 
         
-      #end
-      vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
+        machine_id = machine.fetch("id")
 
-      # craft the vuln hash
+        # Save these to persist on the vuln
+        first_seen = machine.fetch("firstSeen")
+        last_seen = machine.fetch("lastSeen")
 
-      vuln_asset = {
-        "external_id" => machine_id
-      }
+        # Get the asset details & craft them into a hash
+        asset = { 
+          "external_id" => machine_id,
+          "hostname" =>  machine.fetch("computerDnsName"),
+          "ip_address" => machine.fetch("lastIpAddress"),
+          "os" => machine.fetch("osPlatform"),
+          "os_version" => machine.fetch("osVersion"),
+          "first_seen" => machine.fetch("firstSeen"), # TODO ... this doesnt exist on the asset today, but won't hurt here.
+          "last_seen" => machine.fetch("lastSeen") # TODO ... this doesnt exist on the asset today
+        }
 
-      vuln = {
-        "scanner_identifier" => vuln_cve,
-        "scanner_type" => "MS Defender ATP",
-        # scanner score should fallback using criticality (in case of missing cvss)
-        "scanner_score" => vuln_score, 
-        "details" => details
-      }
+        # Construct tags
+        tags = []
+        tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
+        tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
+        tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
+        tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
+        tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
+        
+        # Add them to our asset hash
+        asset.merge({"tags" => tags})
+        create_kdi_asset(asset)
+      end
+      page = page + 1
+    end
+    morevuln = true
+    page = 0
+    # now get the vulns 
+    while morevuln do 
 
-      # craft the vuln def hash
-      vuln_def= {
-        "scanner_identifier" => vuln_cve,
-        "scanner_type" => "MS Defender ATP",
-        "cve_identifiers" => "#{vuln_cve}"
-      }
+      if page == 0 then
+        vuln_json = atp_get_vulns()
+      else
+        vuln_json = atp_get_vulns("$skip=#{page}0000")
+      end
+      break if vuln_json.empty?
+      vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
+      vuln_json.each do |vuln|
 
-      vuln_asset = vuln_asset.compact
-      vuln = vuln.compact
-      vuln_def = vuln_def.compact
+        #print JSON.pretty_generate vuln
+        
+        vuln_cve = vuln.fetch("cveId")
+        machine_id = vuln.fetch("machineId")
+        details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
+          
+        #end
+        vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
 
-      # Create the KDI entries 
-      create_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-      create_kdi_vuln_def(vuln_def)
+        # craft the vuln hash
+
+        vuln_asset = {
+          "external_id" => machine_id
+        }
+
+        vuln = {
+          "scanner_identifier" => vuln_cve,
+          "scanner_type" => "MS Defender ATP",
+          # scanner score should fallback using criticality (in case of missing cvss)
+          "scanner_score" => vuln_score, 
+          "details" => details
+        }
+
+        # craft the vuln def hash
+        vuln_def= {
+          "scanner_identifier" => vuln_cve,
+          "scanner_type" => "MS Defender ATP",
+          "cve_identifiers" => "#{vuln_cve}"
+        }
+
+        vuln_asset = vuln_asset.compact
+        vuln = vuln.compact
+        vuln_def = vuln_def.compact
+
+        # Create the KDI entries 
+        create_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+        create_kdi_vuln_def(vuln_def)
+      end
+      page = page+1
     end
 
     #end
