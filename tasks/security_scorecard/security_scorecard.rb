@@ -129,7 +129,6 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         ###
         ### Put them through our mapper 
         ###
-        print "Getting Canonical Definition for #{issue_type}"
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
         vd = fm.get_canonical_vuln_details("SecurityScorecard", vuln_def_attributes)
         cvd = create_kdi_vuln_def(vd)
