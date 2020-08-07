@@ -651,6 +651,10 @@ Expanse UNMAPPED:
           },
           {
             source: "Expanse",
+            vuln_id: /^ajp_servers?$/
+          },
+          {
+            source: "Expanse",
             vuln_id: /^pop3_servers?$/
           },
           {
@@ -791,6 +795,9 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^domain_control_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^healthy_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisments?$/},
