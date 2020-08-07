@@ -94,7 +94,7 @@ module BitsightHelpers
 
   def _add_finding_to_working_kdi(finding)
 
-    vuln_def_id = "#{finding["risk_vector_label"]}"
+    vuln_def_id = "#{finding["risk_vector_label"]}".gsub(" ", "_").gsub("-", "_").downcase
     
     finding["assets"].each do |a|
 
@@ -123,6 +123,8 @@ module BitsightHelpers
       create_kdi_asset_vuln(asset_attributes, vuln_attributes)
     end
 
+    ## TODO.. parse out cve here
+    
     vuln_def_attributes = {
       "scanner_identifier" => "#{vuln_def_id}",
       "scanner_type" => "Bitsight",
@@ -134,9 +136,7 @@ module BitsightHelpers
     ###
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
     vd = fm.get_canonical_vuln_details("Bitsight", vuln_def_attributes)
-    puts "Canonical Vuln: \n: #{create_kdi_vuln_def(vd)}"
-
-  true 
+    cvd = create_kdi_vuln_def(vd)
   end
 
   

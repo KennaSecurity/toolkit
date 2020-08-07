@@ -1,10 +1,8 @@
 # expanse client 
 require_relative 'lib/client'
 
-# cloud exposure field mapping
+# cloud exposure field mappings
 require_relative 'lib/mapper'
-require_relative 'lib/cloud_exposure_mapping'
-require_relative 'lib/standard_exposure_mapping'
 
 module Kenna 
 module Toolkit
@@ -74,7 +72,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     expanse_api_key = @options[:expanse_api_key]
 
     # create an api client
-    @expanse = Kenna::Toolkit::Expanse::Client.new(expanse_api_key)
+    @client = Kenna::Toolkit::Expanse::Client.new(expanse_api_key)
       
     @assets = []
     @vuln_defs = []
@@ -86,12 +84,22 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
     print_good "Valid key, proceeding!"
 
+    
+    if @options[:debug]
+      max_pages = 1 
+      max_per_page = 1
+      print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
+    else 
+      max_pages = 100
+      max_per_page = 10000
+    end
+
     ######
     # Handle normal exposures
     ######
     if @options[:include_exposures]
       print_good "Working on normal exposures"
-      create_kdi_from_exposures
+      create_kdi_from_exposures(max_pages, max_per_page)
     end
 
     ####
@@ -99,7 +107,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     ####
     if @options[:include_cloud_exposures]
       print_good "Working on cloud exposures"
-      create_kdi_from_cloud_exposures
+      create_kdi_from_cloud_exposures(max_pages, max_per_page)
     end
    
     ####
@@ -122,127 +130,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
 
   end    
-
-  def create_kdi_from_exposures
-    print "Getting exposures from Expanse"
-    
-    if @options[:debug]
-      max_pages = 1 
-      max_per_page = 1
-      print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
-    else 
-      max_pages = 100
-      max_per_page = 10000
-    end
-
-    exposures = @expanse.exposures(max_pages,max_per_page)
-
-    # skip if we don't have any 
-    unless exposures.count > 0 #skip empty
-      print  "No exposures found!"
-      return 
-    end
-
-    # parse and create kdi 
-    print "Mapping #{exposures.count} exposures"
-    result = exposures.map do |e|
-      print "Mapping #{e}"
-      # map fields for those expsures
-      map_exposure_fields(false, e["exposureType"], e) 
-    end
-
-    # convert to KDI 
-    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-    result.each do |r|
-
-      create_kdi_asset(r["asset"])
-      create_kdi_asset_vuln(r["asset"], r["vuln"])      
-
-      # Normalize
-      vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
-      
-      # set scanner type
-      vd["scanner_type"] = "Expanse"
-      
-      # Create the vuln def 
-      create_kdi_vuln_def(vd)
-    end
-    
-  end
-
-  def create_kdi_from_cloud_exposures
-   
-    ### 
-    ### Get the list of exposure types
-    ###
-    if @options[:cloud_exposure_types]
-      cloud_exposure_types = @options[:cloud_exposure_types]
-    else
-      cloud_exposure_counts = @expanse.cloud_exposure_counts
-      cloud_exposure_types = cloud_exposure_counts.map{|x| x["type"] }
-    end
-  
-    ###
-    ### For each exposure type
-    ###
-    cloud_exposure_types.sort.each do |et|
-
-      unmapped = false
-      unless field_mapping_for_cloud_exposures[et]
-        print_error "Skipping unmapped exposure type: #{et}!"
-        unmapped = true 
-        next
-      end
-    
-      # get all exposures of this type
-      max_pages = 100
-      max_per_page = 10000
-
-      if @options[:debug]
-        max_pages = 1 
-        max_per_page = 1
-        print_debug "Debug mode, override max to: #{max_pages * max_per_page} for #{et}"
-      end
-
-      print_good "Working on cloud exposure: #{et}!"
-      cloud_exposures = @expanse.cloud_exposures(max_pages,max_per_page,[et])
-      print_good "Got #{cloud_exposures.count} cloud exposures of type #{et}"
-
-      # skip if we don't have any 
-      unless cloud_exposures.count > 0 #skip empty
-        print_debug "No cloud exposures of type #{et} found!"
-        next
-      end
-
-      # map fields for those expsures
-      print "Mapping #{cloud_exposures.count} cloud exposures"
-      result = cloud_exposures.map do |e| 
-        print "Mapping #{e}"
-        #print_debug "Got UNMAPPED Exposure #{et}:\n#{JSON.pretty_generate(e)}" if unmapped 
-        map_exposure_fields(true, et, e) 
-      end
-      print_good "Mapped #{result.count} cloud exposures"
-
-      # convert to KDI 
-      result.each do |r|
-        print_good "Getting #{r["asset"]}"
-
-        create_kdi_asset(r["asset"])
-        create_kdi_asset_vuln(r["asset"], r["vuln"])      
-
-        # Normalize
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-        vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
-        
-        # set scanner type
-        vd["scanner_type"] = "Expanse"
-        
-        # Create the vuln def 
-        create_kdi_vuln_def(vd)
-      end
-
-    end 
-  end
 
 end
 end

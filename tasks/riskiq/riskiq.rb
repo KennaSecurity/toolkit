@@ -4,6 +4,8 @@ module Kenna
 module Toolkit
 class RiskIqTask < Kenna::Toolkit::BaseTask
 
+  include Kenna::Toolkit::RiskIq::Helpers
+
   def self.metadata 
     {
       id: "riskiq",
@@ -20,11 +22,6 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
           :required => true, 
           :default => "", 
           :description => "This is the RiskIQ secret used to query the API." },
-        { :name => "riskiq_api_host", 
-          :type => "string", 
-          :required => false, 
-          :default => "https://api.riskiq.net/v1/", 
-          :description => "This is the RiskIQ host providing the api endpoint." },
         { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
@@ -58,10 +55,9 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     
     riq_api_key = @options[:riskiq_api_key]
     riq_api_secret = @options[:riskiq_api_secret]
-    riq_api_host = @options[:riskiq_api_host]
 
     # create an api client
-    client = Kenna::Toolkit::RiskIq::Client.new(riq_api_host, riq_api_key, riq_api_secret)
+    client = Kenna::Toolkit::RiskIq::Client.new(riq_api_key, riq_api_secret)
 
     unless client.successfully_authenticated?
       print_error "Unable to proceed, invalid key for RiskIQ?"
@@ -103,110 +99,6 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     end
 
   end    
-
-
-  def convert_riq_output_to_kdi(data_items)
-    output = []
-    
-    # just return empty array if we weren't handed anything
-    return output unless data_items
-
-    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-
-    print_debug "Working on on #{data_items.count} items"
-    data_items.each do |item| 
-      ###
-      ### Handle Asset, note, host was used in the past, but now 
-      ### page is the way to go 
-      ###
-      if item["type"] == "HOST" || item["type"] == "PAGE"
-
-        id = item["id"]
-        hostname = URI.parse(item["name"]).hostname
-
-        if item["lastSeen"]
-          last_seen = item["lastSeen"]
-        else 
-          last_seen = item["createdAt"]
-        end
-
-        if item["firstSeen"]
-          first_seen = item["lastSeen"]
-        else 
-          first_seen = item["createdAt"]
-        end
-
-        tags = []
-        tags = item["tags"].map{|x| x["name"]} if item["tags"]
-
-        organizations = []
-        organizations = item["organizations"].map{|x| x["name"]} if item["organizations"]
-      
-        if item["asset"] && item["asset"]["ipAddresses"] && item["asset"]["ipAddresses"].first
-          # TODO - we should pull all ip addresses when we can support it in KDI 
-          ip_address = item["asset"]["ipAddresses"].first["value"] 
-        end
-        
-      else
-        raise "Unknown / unmapped type: #{item["type"]} #{item}"
-      end
-      
-      asset = { 
-        "hostname" => "#{hostname}",
-        "ip_address" => "#{ip_address}",
-        "external_id" => "#{id}",
-        #"first_seen" => "#{first_seen}",
-        #"last_seen" => "#{last_seen}",
-        "tags" => tags.concat(organizations)
-      }
-      create_kdi_asset(asset)
-      
-      ###
-      ### Handle Vuln / Vuln DEF
-      ###
-
-      ###
-      ### Get the CVES out of web components
-      ###
-      if item["asset"]["webComponents"]
-        (item["asset"]["webComponents"] || []).each do |wc|
-
-          # if you want to create open ports
-          #wc["ports"].each do |port|
-          #  puts port["port"]
-          #end
-
-          # if you want to create open ports
-          (wc["cves"] || []).each do |cve| 
-            
-            vuln = {
-              "scanner_identifier" => "#{cve["name"]}",
-              "scanner_type" => "RiskIQ",
-              "first_seen" => first_seen,
-              "last_seen" => last_seen
-            }
-
-            vuln_def= {
-              "scanner_identifier" => "#{cve["name"]}",
-              "scanner_type" => "RiskIQ",
-              "cve_identifiers" => "#{cve["name"]}"
-              #"description" => "See CVE Description",
-              #"solution" => "See CVE Remediation"
-            }
-            
-            create_kdi_asset_vuln(asset, vuln)
-            
-            #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
-            create_kdi_vuln_def(vuln_def)
-          end
-
-        end
-      end
-
-    end
-
-
-  end
 
 end
 end

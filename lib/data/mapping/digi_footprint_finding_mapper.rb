@@ -5,14 +5,39 @@ module Mapping
 class DigiFootprintFindingMapper
   
 =begin
-SSC TDDO:
-0 issues of type new_booter_shell
-0 issues of type new_defacement
+SSC UNMAPPED: 
+https://securityscorecard.com/hub/securityscorecard-api/10-metadata/10-2-get-a-list-of-issue-types
 0 issues of type employee_satisfaction
 0 issues of type marketing_site
-0 issues of type short_term_lending_site
-0 issues of type no_standard_browser_policy
 =end
+
+=begin
+https://help.bitsighttech.com/hc/en-us/articles/360025011954-Diligence-Finding-Details#patching_cadence
+Bitsight UNMAPPED: 
+ - spf 
+ - dkim
+ - ssl_certificates
+ - ssl_configurations
+ - open_ports
+ - application_security
+ - patching_cadence
+ - insecure_systems
+ - server_software
+ - desktop_software
+ - mobile_software
+ - dnssec
+ - mobile_application_security
+ - Domain Squatting - Findings for this risk vector cannot be queried via the API
+=end
+
+=begin
+RIQ UNMAPPED: 
+=end
+
+=begin
+Expanse UNMAPPED: 
+=end
+
 
   def self.get_canonical_vuln_details(orig_source, specific_details)
 
@@ -91,7 +116,7 @@ SSC TDDO:
         cwe: "CWE-358",
         score: 20,
         description: "A problem with this application's content security policy was identified.",
-        recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname..",
+        recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
         matches: [
           {
             source: "SecurityScorecard",
@@ -112,7 +137,7 @@ SSC TDDO:
         cwe: "CWE-693",
         score: 20,
         description: "One or more application security headers was detected missing or misconfigured.",
-        recommendation: "Correct the header configuration on the server..",
+        recommendation: "Correct the header configuration on the server.",
         matches: [
           #
           {
@@ -138,7 +163,7 @@ SSC TDDO:
         cwe: "CWE-358",
         score: 20,
         description: "An unsafe subresource was detected.",
-        recommendation: "Update the application's content..",
+        recommendation: "Update the application's content.",
         matches: [
           {
             source: "SecurityScorecard",
@@ -172,12 +197,75 @@ SSC TDDO:
       ]
     },
     {
+      name: "Browser Software Inconsistent",
+      score: 10,
+      cwe: "CWE-671",
+      description: "Multiple browser software packages detected.",
+      recommendation: "Verify this is expected",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^no_standard_browser_policy$/
+        },
+      ]
+    },
+    {
+      name: "Client Software Outdated or Vulnerable",
+      score: 10,
+      cwe: "CWE-693",
+      description: "A system was identified running an outdated browser or other client software.",
+      recommendation: "Update the system.",
+      matches: [
+        {
+          source: "Bitsight",
+          vuln_id: /^mobile_software$/
+        },
+        {
+          source: "Bitsight",
+          vuln_id: /^desktop_software$/
+        },
+        {
+          source: "Bitsight",
+          vuln_id: /^insecure_systems$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^outdated_browser$/
+        },
+      ]
+    },
+    {
+      name: "Compromised Application",
+      score: 90,
+      cwe: "CWE-506",
+      description: "System was discovered by an attack feed.",
+      recommendation: "Check this application for signs of compromise",
+      matches: [
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^new_booter_shell$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^new_defacement$/
+        }
+      ]
+    },
+    {
       name: "Compromised System",
       score: 90,
-      cwe: "506",
-      description: "System was discovered by an attack feed.",
+      cwe: "CWE-506",
+      description: "System was discovered by an attack feed. It may be compromised by malware or a bot.",
       recommendation: "Check this system for signs of compromise",
       matches: [
+        {
+          source: "Bitsight",
+          vuln_id: /^potentially_exploited$/
+        },
+        {
+          source: "Bitsight",
+          vuln_id: /^botnet_infections$/
+        },
         {
           source: "SecurityScorecard",
           vuln_id: /^attack_feed$/
@@ -317,41 +405,15 @@ SSC TDDO:
       ]
     },
     {
-      name: "DNSSEC DS Record Missing",
+      name: "DNSSEC Misconfiguration",
       cwe: "CWE-298",
       score: 20,
-      description: "DNSSEC Misconfiguration.",
-      recommendation: "DNSSEC Misconfiguration:.",
+      description: ".",
+      recommendation: "See specifics for more detail about the DNSSEC misconfiguration.",
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^dnskey_record_found_but_no_ds_record_found$/
-        }
-      ]
-    },
-    {
-      name: "DNSSEC Not Configured",
-      cwe: "CWE-298",
-      score: 20,
-      description: "No DNSSEC Configured.",
-      recommendation: "Configure DNSSEC:.",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^dnssec_is_not_configured_on_this_domain$/
-        }
-      ]
-    },
-    {
-      name: "DNSSEC Parent Zone Not Signed",
-      cwe: "CWE-298",
-      score: 20,
-      description: "DNSSEC Misconfiguration.",
-      recommendation: "DNSSEC Misconfiguration:.",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^parent_zone_is_not_signed$/
+          vuln_id: /^dnssec$/
         }
       ]
     },
@@ -433,7 +495,7 @@ SSC TDDO:
       cwe: "CWE-326",
       score: 10,
       description: "Hacker chatter was detected.",
-      recommendation: "Determine if this poses a risk..",
+      recommendation: "Determine if this poses a risk.",
       matches: [
         {
           source: "SecurityScorecard",
@@ -446,7 +508,7 @@ SSC TDDO:
       cwe: "CWE-298",
       score: 20,
       description: "The cookie is missing HTTPOnly flag.",
-      recommendation: "Update cookie to include this flag..",
+      recommendation: "Update cookie to include this flag.",
       matches: [
         {
           source: "SecurityScorecard",
@@ -467,8 +529,8 @@ SSC TDDO:
       name: "Internal IP Address Exposure",
       score: 10,
       cwe: "CWE-202",
-      description: "A subdomain was found pointing to an internal system.",
-      recommendation: "Remove the entry from public DNS..",
+      description: "A dns record was found pointing to an internal system.",
+      recommendation: "Remove the entry from public DNS.",
       matches: [
         {
           source: "Expanse",
@@ -511,7 +573,7 @@ SSC TDDO:
       score: 80,
       cwe: "CWE-693",
       description: "Some DNS servers perform their hierarchical lookups by means of recursion, and rather than limit the ability to make recursive requests to local or authorized clients, DNS servers referred to as Open Resolvers allow recursive DNS requests from any client. Open Resolvers (especially with the newer RFC specifications supporting extensions to the DNS system such as IPv6 and DNSSEC) require the ability to send DNS replies much larger than their respective requests, and an attacker can abuse this fact to amplify his or her available outgoing bandwidth and subsequently direct it at a target in a DNS Amplification Attack.",
-      recommendation: "Disable recursive queries on this DNS REsolver..",
+      recommendation: "Disable recursive queries on this DNS REsolver.",
       references: [
         "https://blogs.infoblox.com/ipv6-coe/finding-and-fixing-open-dns-resolvers/"
       ],
@@ -535,8 +597,8 @@ SSC TDDO:
         },
       ]
     },
-    { # TODO... this should have the CVEs pulled out of it, and should never really match?
-      name: "Vulnerability Detected: Vulnerability Patching Cadence",
+    { # TODO.. this should have the CVEs pulled out of it, and should never really match?
+      name: "Vulnerability Detected (Patching Cadence)",
       cwe: nil,
       score: 0,
       description: "Vulnerability seen on network more than 60 days after CVE was published.",
@@ -563,6 +625,10 @@ SSC TDDO:
       description: "A System was detected running a potentially sensitive service.",
       recommendation: "Verify this is expected.",
       matches: [
+          { # correct place for this? # Open TCP Ports Observed
+            source: "Bitsight",
+            vuln_id: /^open_ports$/
+          },
           {
             source: "Expanse",
             vuln_id: /^detected_server_dns$/
@@ -603,7 +669,7 @@ SSC TDDO:
             source: "Expanse",
             vuln_id: /^detected_server_unencrypted_logins$/
           },
-          { # NOTE ... many matches here, may need to be split up 
+          { # NOTE .. many matches here, may need to be split up 
             source: "SecurityScorecard",
             vuln_id: /^service_\w+$/
           }, 
@@ -638,20 +704,12 @@ SSC TDDO:
       name: "SPF Misconfiguration",
       cwe: "CWE-183",
       score: 20,
-      description: "This domain has a weak SPF configuration.",
+      description: "This system was found to have a SPF misconfiguration.",
       recommendation: "Correct the SPF configuration on the server.",
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^multiple_records_returned_for_both_spf_and_txt_queries\.?$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^spf_record_is_ineffective$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^spf_record_is_improperly_formatted$/
+          vuln_id: /^spf$/
         },
         {
           source: "Bitsight",
@@ -673,28 +731,10 @@ SSC TDDO:
           source: "SecurityScorecard",
           vuln_id: /^spf_record_missing$/
         },
-
-      ]
-    },
-    {
-      name: "SPF Record Missing",
-      cwe: "CWE-183",
-      score: 20,
-      description: "This domain has a weak SPF configuration.",
-      recommendation: "Correct the SPF configuration on the server..",
-      matches: [
         {
           source: "SecurityScorecard",
           vuln_id: /^spf_record_missing$/
         },
-        {
-          source: "Bitsight",
-          vuln_id: /^no_spf_record_for_subdomain$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^no_spf_record_for_include_or_redirect_domain$/
-        }
       ]
     },
     {
@@ -724,302 +764,37 @@ SSC TDDO:
       ]
     },
     {
-      name: "SSL/TLS Misconfiguration (Not Configured)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This domain is missing SSL.",
-      recommendation: "Add SSL..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^domain_missing_https$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Short Certificate Key)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This certificate's key is short.",
-      recommendation: "Replace the certificate..",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_rsa_public_key_is_less_than$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^certificate_short_key$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Long Certificate Expiration)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This certificate's expiration date is far in the future.",
-      recommendation: "Verify the certificate's expiration date..",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^certificate_long_expiration$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_excessive_expiration$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Certificate Name Mismatch)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This server has a certificate that does not match the hostname provided.",
-      recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname..",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_certificate_name_mismatch$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Cipher)",
-      cwe: "CWE-326",
-      score: 20,
-      description: "This server has a weak SSL configuration.",
-      recommendation: "Correct the SSL configuration on the server..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tls_weak_cipher$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^ssl_weak_cipher$/
-        },
-        {
-          source: "Intrigue",
-          vuln_id: /^weak_cipher_suite_detected$/
-        },
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Expired or Expiring Certificate)",
-      cwe: "CWE-298",
-      score: 60,
-      description: "This server has an expired or expiring certificate.",
-      references: ["https://www.acunetix.com/vulnerabilities/web/your-ssl-certificate-is-about-to-expire/"],
-      recommendation: "Renew or replace the certificate.",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_expired_certificate$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^certificate_expired_when_scanned$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_expired$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (HSTS)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This server incorrectly implements HSTS best practices.",
-      recommendation: "Update the configuration..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^hsts_incorrect$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Intermediate Certificate Missing)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This server has a certificate whose validation chain cannot be verified.",
-      references: ["https://knowledge.digicert.com/solution/SO16297.html"],
-      recommendation: "Ensure that the certificate is valid..",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_missing_intermediate_certificates$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Insecure Redirect Chain)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "A non-ssl endpoint was detected in the redirect chain.",
-      recommendation: "Ensure that all endpoints in the chain are encrypted..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^redirect_chain_contains_http$/
-        }, 
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^insecure_https_redirect_pattern$/
-        }, 
-        
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Other)",
+      name: "SSL/TLS Misconfiguration",
       cwe: "CWE-326",
       score: 40,
-      description: "This server has a weak SSL configuration.",
-      recommendation: "Correct the SSL configuration on the server..",
+      description: "This server has a configuration weakness with its SSL/TLS settings or certificate.",
+      recommendation: "Correct the SSL configuration on the server. See specifics for more detail about the SSL/TLS misconfiguration",
       matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^insecure_signature_certificate_advertisement$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_large_number_of_dns_names$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_symantec_certificate_distrusted$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_diffie-hellman_prime_is_less_than$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_short_diffie-hellman_prime_is_very_common$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_no_revocation/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Revoked Certificate)",
-      cwe: "CWE-299",
-      score: 50,
-      description: "This server has a revoked certificate.",
-      recommendation: "Replace the certificate..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_revoked$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Self-Signed or Self-Issued Certificate)",
-      cwe: "CWE-298",
-      score: 20,
-      description: "This server has a self-signed certificate.",
-      recommendation: "Replace the certificate with one that can be validated..",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_self-signed_certificate$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_certificate_with_non-standard_root$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^certificate_self_signed$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_self_signed$/
-        },
-        {
-          source: "Intrigue",
-          vuln_id: /^self_signed_certificate$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Weak Signature)",
-      cwe: "CWE-326",
-      score: 40,
-      description: "This server has a weak SSL configuration.",
-      recommendation: "Correct the SSL configuration on the server..",
-      matches: [
-        
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_certificates_insecure_signature_algorithm_sha1$/
-        },  
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_weak_signature$/
-        },
-        {
-          source: "Expanse",
-          vuln_id: /^certificate_insecure_signature$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Configuration (Wildcard Certificate)",
-      cwe: "CWE-298",
-      score: 0,
-      description: "Wildcard certificate detected.",
-      recommendation: "No action required..",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^wildcard_certificate$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Misconfiguration (Protocol)",
-      cwe: "CWE-326",
-      score: 50,
-      description: "This server has a weak SSL protocol.",
-      recommendation: "Correct the allowed protocols on the server..",
-      matches: [
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_allows_insecure_protocol_sslv3$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_allows_insecure_protocol_tlsv1.0$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^ssl_configurations_allows_insecure_protocol_sslv2$/
-        },
-        {
-          source: "Intrigue",
-          vuln_id: /^deprecated_protocol_detected$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS Revocation Check (OCSP Stapling Detected)",
-      cwe: nil,
-      score: 0,
-      description: "OCSP Stapling is known as TLS certificate status Request extension used to check the status of certificate revocation of x.509 digital certificate. OCSP is useful for clients who possess limited processing power and memory and even for CAs who have large CRLs (Certificate Revocation Lists). OCSP can provide more appropriate information about the revocation of a certificate than CRL. OCSP can check the certificate issued by CA while CRL only provides the revocation list of serial numbers and therefore, it is possible to detect the usage of fraudulent certificate.",
-      references: [
-        "https://www.clickssl.net/blog/ocsp-stapling-check-your-certificate-revocation"
-      ],
-      recommendation: "No action required, this is an informational finding.",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tls_ocsp_stapling$/
-        }
+        {:source=>"Bitsight", :vuln_id=>/^ssl_certificates$/},
+        {:source=>"Bitsight", :vuln_id=>/^ssl_configurations$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
+        {:source=>"Expanse", :vuln_id=>/^wildcard_certificate$/},
+        {:source=>"Expanse", :vuln_id=>/^insecure_signature_certificate_advertisement$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_self_signed$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_short_key$/},
+        {:source=>"Intrigue", :vuln_id=>/^deprecated_protocol_detected$/},
+        {:source=>"Intrigue", :vuln_id=>/^weak_cipher_suite_detected$/},
+        {:source=>"Intrigue", :vuln_id=>/^self_signed_certificate$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^domain_missing_https$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_self_signed$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_no_revocation/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_revoked$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^redirect_chain_contains_http$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_weak_signature$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^hsts_incorrect$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_expired$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^ssl_weak_cipher$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tls_weak_cipher$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tls_ocsp_stapling$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_excessive_expiration$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^insecure_https_redirect_pattern$/}
       ]
     },
     {
@@ -1030,7 +805,7 @@ SSC TDDO:
       references: [
         "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity"
       ],
-      recommendation: "Ensure the system has not been compromised..",
+      recommendation: "Ensure the system has not been compromised.",
       matches: [
         {
           source: "SecurityScorecard",
@@ -1039,15 +814,19 @@ SSC TDDO:
       ]
     },
     {
-      name: "System Flagged as Spam",
+      name: "Unsolicited Email Sent from System",
       cwe: "CWE-358",
       score: 30,
       description: "A system was identified on a spam blacklist.",
-      recommendation: "Ensure the system has not been compromised..",
+      recommendation: "Ensure the system has not been compromised.",
       matches: [
         {
           source: "SecurityScorecard",
           vuln_id: /^uce$/ # Unsolicited Commercial Email
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^short_term_lending_site$/ # Unsolicited Commercial Email
         }
       ]
     },
@@ -1056,25 +835,12 @@ SSC TDDO:
       cwe: "CWE-358",
       score: 30,
       description: "A system was identified on a file-sharing network.",
-      recommendation: "Ensure the system has not been compromised..",
+      recommendation: "Ensure the system has not been compromised.",
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^insecure_systems_file_sharing_tracker$/
+          vuln_id: /^file_sharing$/
         }
-      ]
-    },
-    {
-      name: "System Running Outdated Browser Software",
-      score: 10,
-      cwe: "CWE-693",
-      description: "A system was identified running an outdated browser.",
-      recommendation: "Update the system..",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^outdated_browser$/
-        },
       ]
     },
     {

@@ -1,3 +1,6 @@
+
+# included by mapper
+
 module Kenna
 module Toolkit
 module Expanse
