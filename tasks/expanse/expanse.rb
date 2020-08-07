@@ -79,7 +79,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     @vuln_defs = []
 
     # verify we have a good key before proceeding
-    unless @expanse.successfully_authenticated?
+    unless @client.successfully_authenticated?
       print_error "Unable to proceed, invalid key for Expanse?"
       return 
     end
