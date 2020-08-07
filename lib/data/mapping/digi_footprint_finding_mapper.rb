@@ -25,7 +25,6 @@ RIQ UNMAPPED:
 Expanse UNMAPPED: 
 =end
 
-
   def self.get_canonical_vuln_details(orig_source, specific_details)
 
     ###
@@ -45,6 +44,7 @@ Expanse UNMAPPED:
         next unless match[:source] == orig_source 
         if match[:vuln_id] =~ orig_vuln_id
           out = {
+            scanner_type: orig_source,
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
@@ -61,6 +61,7 @@ Expanse UNMAPPED:
       #puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}" 
       out = {
         scanner_identifier: orig_vuln_id,
+        scanner_type: orig_source,
         source: orig_source,
       }.stringify_keys.merge(specific_details)
     end
@@ -667,6 +668,10 @@ Expanse UNMAPPED:
           },
           {
             source: "Expanse",
+            vuln_id: /^ajp_servers?$/
+          },
+          {
+            source: "Expanse",
             vuln_id: /^pop3_servers?$/
           },
           {
@@ -807,7 +812,7 @@ Expanse UNMAPPED:
           },
           { # NOTE .. many matches here, may need to be split up 
             source: "SecurityScorecard",
-            vuln_id: /^service_\w+$/
+            vuln_id: /^service_.*+$/
           }, 
           { # correct place for this? # Open TCP Ports Observed
             source: "SecurityScorecard",
@@ -911,6 +916,9 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^domain_control_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^healthy_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisments?$/},
@@ -990,6 +998,19 @@ Expanse UNMAPPED:
         {
           source: "SecurityScorecard",
           vuln_id: /^short_term_lending_site$/ # Unsolicited Commercial Email
+        }
+      ]
+    },
+    {
+      name: "Shared Infrastructure",
+      cwe: nil,
+      score: 0,
+      description: "A service was identified on shared infrastructure.",
+      recommendation: "Ensure this is intended.",
+      matches: [
+        {
+          source: "Expanse",
+          vuln_id: /^colocated_.*$/
         }
       ]
     },

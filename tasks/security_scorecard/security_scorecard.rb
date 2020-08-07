@@ -18,13 +18,13 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
           :description => "This is the Security Scorecard key used to query the API." },
         { :name => "ssc_portfolio_id", 
           :type => "string", 
-          :required => true, 
-          :default => "", 
+          :required => false, 
+          :default => nil,
           :description => "This is the Security Scorecard portfolio used to pull the data." },
         { :name => "kenna_api_key", 
-          :type => "api_key", 
+          :type => "api_key",
           :required => false, 
-          :default => nil, 
+          :default => "", 
           :description => "Kenna API Key" },
         { :name => "kenna_api_host", 
           :type => "hostname", 
@@ -54,10 +54,19 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     ssc_api_key = @options[:ssc_api_key]
     ssc_portfolio_id = @options[:ssc_portfolio_id]
     scanner_type = "SecurityScorecard"
-    
-    #issue_types = ["patching_cadence_high", "patching_cadence_low", "service_imap", "csp_no_policy"]# nil 
     issue_types = nil # all 
 
+  
+    if @options[:debug]
+      issue_types = [
+        "patching_cadence_high", 
+        "patching_cadence_low", 
+        "service_imap", 
+        "csp_no_policy"
+      ]# nil 
+      print_debug "Only getting #{issue_types}... "
+    end
+    
     client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
 
     ### Basic Sanity checking
@@ -66,6 +75,12 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       return
     else 
       print_good "Successfully authenticated!"
+    end
+
+    # use the first one !!!
+    unless ssc_portfolio_id
+      ssc_portfolio_id = client.get_portfolio["entries"].first["id"]
+      print_good "Using first portfolio since none was specified: #{ssc_portfolio_id}"
     end
 
     issues = client.get_issues_for_portfolio(ssc_portfolio_id, issue_types)
@@ -90,24 +105,20 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
 
       create_kdi_asset(asset_attributes) 
 
-      ###
-      ### Vuln
-      ###
-      issue_type = i["type"]
-      vuln_attributes = {
-        "scanner_identifier" => issue_type,
-        "scanner_type" => scanner_type,
-        "details" => i, 
-        "created_at" => first_seen,
-        "last_seen_at" => last_seen,
-        "status" => "open"
-      }
-      vuln_attributes["port"] = port if port 
-
-      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-      
       # handle patching cadence differently, these will have CVEs
       if i["vulnerability_id"] 
+
+        vuln_attributes = {
+          "scanner_identifier" => i["vulnerability_id"] ,
+          "scanner_type" => scanner_type,
+          "details" => i, 
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen,
+          "status" => "open"
+        }
+        vuln_attributes["port"] = port if port 
+
+        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
         vuln_def_attributes = {
           "scanner_identifier" => "#{i["vulnerability_id"]}",
@@ -115,14 +126,31 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
           "scanner_type" => scanner_type
         }
 
+        # create the vuln def entry 
         cvd = create_kdi_vuln_def(vuln_def_attributes)
 
       # OTHERWISE!!!
       else # run through mapper 
 
-        vuln_def_attributes = {
+        ###
+        ### Vuln
+        ###
+        issue_type = i["type"]
+        vuln_attributes = {
           "scanner_identifier" => issue_type,
-          "scanner_type" => scanner_type
+          "scanner_type" => scanner_type,
+          "details" => i, 
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen,
+          "status" => "open"
+        }
+        vuln_attributes["port"] = port if port 
+
+        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+
+
+        vuln_def_attributes = {
+          "scanner_identifier" => issue_type
         }
       
         ###
@@ -130,6 +158,8 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         ###
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
         vd = fm.get_canonical_vuln_details("SecurityScorecard", vuln_def_attributes)
+
+        # create the vuln def entry 
         cvd = create_kdi_vuln_def(vd)
   
       end

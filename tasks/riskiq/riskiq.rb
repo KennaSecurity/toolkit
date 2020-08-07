@@ -1,4 +1,5 @@
 require_relative 'lib/client'
+require_relative 'lib/riskiq_helpers'
 
 module Kenna 
 module Toolkit
@@ -67,7 +68,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     print_good "Valid key, proceeding!"
 
     if @options[:debug]
-      max_pages = 2
+      max_pages = 3
       print_debug "Limiting pages to #{max_pages}"
     else
       max_pages = -1 # all 
