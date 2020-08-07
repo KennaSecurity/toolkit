@@ -25,7 +25,6 @@ RIQ UNMAPPED:
 Expanse UNMAPPED: 
 =end
 
-
   def self.get_canonical_vuln_details(orig_source, specific_details)
 
     ###
@@ -291,6 +290,18 @@ Expanse UNMAPPED:
         {
           source: "Expanse",
           vuln_id: /^detected_server_mysql$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^ms_sql_servers?$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^my_sql_servers?$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^sharepoint_servers?$/
         },
         {
           source: "RiskIQ",
@@ -653,11 +664,119 @@ Expanse UNMAPPED:
           },
           {
             source: "Expanse",
+            vuln_id: /^ftp_servers?$/
+          },
+          {
+            source: "Expanse",
             vuln_id: /^ajp_servers?$/
           },
           {
             source: "Expanse",
             vuln_id: /^pop3_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^bacnet_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^cassandra_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^couch_db_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^dns_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^elasticsearch_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^ethernet_ip_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^ike2_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^imap_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^memcached_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^modbus_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^mongo_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^nat_pmp_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^net_bios_name_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^ntp_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^pc_anywhere_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^postgres_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^rdp_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^redis_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^rpc_bind_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^rsync_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^telnet_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^upnp_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^vnc_over_http_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^vnc_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^vx_works_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^xmmp_servers?$/
           },
           {
             source: "Expanse",
