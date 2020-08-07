@@ -18,13 +18,13 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
           :description => "This is the Security Scorecard key used to query the API." },
         { :name => "ssc_portfolio_id", 
           :type => "string", 
-          :required => true, 
-          :default => "", 
+          :required => false, 
+          :default => nil,
           :description => "This is the Security Scorecard portfolio used to pull the data." },
         { :name => "kenna_api_key", 
-          :type => "api_key", 
+          :type => "api_key",
           :required => false, 
-          :default => nil, 
+          :default => "", 
           :description => "Kenna API Key" },
         { :name => "kenna_api_host", 
           :type => "hostname", 
@@ -54,10 +54,19 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     ssc_api_key = @options[:ssc_api_key]
     ssc_portfolio_id = @options[:ssc_portfolio_id]
     scanner_type = "SecurityScorecard"
-    
-    #issue_types = ["patching_cadence_high", "patching_cadence_low", "service_imap", "csp_no_policy"]# nil 
     issue_types = nil # all 
 
+  
+    if @options[:debug]
+      issue_types = [
+        "patching_cadence_high", 
+        "patching_cadence_low", 
+        "service_imap", 
+        "csp_no_policy"
+      ]# nil 
+      print_debug "Only getting #{issue_types}... "
+    end
+    
     client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
 
     ### Basic Sanity checking
@@ -66,6 +75,12 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       return
     else 
       print_good "Successfully authenticated!"
+    end
+
+    # use the first one !!!
+    unless ssc_portfolio_id
+      ssc_portfolio_id = client.get_portfolio["entries"].first["id"]
+      print_good "Using first portfolio since none was specified: #{ssc_portfolio_id}"
     end
 
     issues = client.get_issues_for_portfolio(ssc_portfolio_id, issue_types)

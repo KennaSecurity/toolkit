@@ -16,55 +16,69 @@ class Client
 
   def successfully_authenticated?
     json = get_portfolio
-    return true if json["entries"]
+    return true if json && json["entries"]
   false
   end   
 
   def get_issues_for_portfolio(portfolio_id, issue_types=nil)
     out_issues = []
-    companies = get_companies_by_portfolio(portfolio_id)["entries"]
+    companies = get_companies_by_portfolio(portfolio_id)
     puts "DEBUG Got #{companies.count} companies"
-    companies.each do |c|
-      puts "Working on company #{c}"
-     
-      # default to all issues 
-      unless issue_types
-        issue_types = get_issue_types
-      end
+    
+    if companies.count > 0 
 
-      issue_types.each do |it|
-        issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
-        if issues 
-          puts "#{issues.count} issues of type #{it}"
-          out_issues.concat(issues.map{|i| i.merge({ "type" => it })})
-        else 
-          puts "Missing (or error) on #{it} issues"
+      companies["entries"].each do |c|
+        puts "Working on company #{c}"
+      
+        # default to all issues 
+        unless issue_types
+          issue_types = get_issue_types
         end
-      end
 
+        issue_types.each do |it|
+          issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
+          if issues 
+            puts "#{issues.count} issues of type #{it}"
+            out_issues.concat(issues.map{|i| i.merge({ "type" => it })})
+          else 
+            puts "Missing (or error) on #{it} issues"
+          end
+        end
+
+      end
+    else 
+      out_issues = []
     end
+
   out_issues.flatten
   end
 
 
   def get_portfolio
     endpoint = "#{@baseapi}/portfolios"
+    
+    begin
 
-    response = RestClient::Request.execute({
-      method: :get,
-      url: endpoint,
-      headers: @headers
-    })
-      
-    begin 
+      response = RestClient::Request.execute({
+        method: :get,
+        url: endpoint,
+        headers: @headers
+      }) 
+
       json = JSON.parse("#{response.body}")
+
     rescue JSON::ParserError => e
+      return nil 
+    rescue RestClient::Unauthorized => e
+      return nil 
     end
-  end   
+  end
 
   def get_companies_by_portfolio(portfolio_id)
     endpoint = "#{@baseapi}/portfolios/#{portfolio_id}/companies"
 
+    puts "Requesting #{endpoint}"
+
     response = RestClient::Request.execute({
       method: :get,
       url: endpoint,
@@ -72,8 +86,10 @@ class Client
     })
       
     begin 
-      json = JSON.parse("#{response.body}")
+      json = JSON.parse(response.body)
     rescue JSON::ParserError => e
+    rescue RestClient::NotFound => e 
+      puts "Error, unable to find resource"
     end
   end   
 
