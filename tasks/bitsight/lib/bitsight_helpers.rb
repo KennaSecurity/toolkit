@@ -39,7 +39,6 @@ module BitsightHelpers
       if more_findings && endpoint =~ /0.0.0.0/
         print_error "WARNING: endpoint is not well formed, doing a gsub on: #{endpoint}"
         endpoint.gsub!("https://0.0.0.0:8000/customer-api/", "https://api.bitsighttech.com/")
-      
       end
 
       # bump the offset
@@ -124,7 +123,7 @@ module BitsightHelpers
     end
 
     ## TODO.. parse out cve here
-    
+
     vuln_def_attributes = {
       "scanner_identifier" => "#{vuln_def_id}",
       "scanner_type" => "Bitsight",

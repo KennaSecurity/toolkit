@@ -16,6 +16,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     {
       id: "expanse",
       name: "Expanse",
+      maintainers: ["jcran"],
       description: "This task connects to the Expanse API and pulls results into the Kenna Platform.",
       options: [
         { :name => "expanse_api_key", 

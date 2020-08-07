@@ -4,6 +4,10 @@ module Kenna
 module Toolkit
 class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
 
+  ###
+  ### TODO ... needs to be converted to KDI helpers 
+  ###
+
   def self.metadata 
     {
       id: "aws_inspector",

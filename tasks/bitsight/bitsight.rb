@@ -10,6 +10,7 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     {
       id: "bitsight",
       name: "Bitsight",
+      maintainers: ["jcran"],
       description: "This task connects to the Bitsight API and pulls results into the Kenna Platform.",
       options: [
         { :name => "bitsight_api_key", 

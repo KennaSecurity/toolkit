@@ -10,6 +10,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     {
       id: "riskiq",
       name: "RiskIQ",
+      maintainers: ["jcran"],
       description: "This task connects to the RiskIQ API and pulls results into the Kenna Platform.",
       options: [
         { :name => "riskiq_api_key", 

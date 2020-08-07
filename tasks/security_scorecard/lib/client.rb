@@ -14,31 +14,36 @@ class Client
     }
   end
 
-  def succesfully_authenticated?
+  def successfully_authenticated?
     json = get_portfolio
-
     return true if json["entries"]
-  
   false
   end   
 
-  def get_all_issues_for_all_companies_in_portfolio(portfolio_id)
+  def get_issues_for_portfolio(portfolio_id, issue_types=nil)
     out_issues = []
     companies = get_companies_by_portfolio(portfolio_id)["entries"]
     puts "DEBUG Got #{companies.count} companies"
     companies.each do |c|
       puts "Working on company #{c}"
-      get_issue_types.each do |it|
+     
+      # default to all issues 
+      unless issue_types
+        issue_types = get_issue_types
+      end
+
+      issue_types.each do |it|
         issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
         if issues 
           puts "#{issues.count} issues of type #{it}"
-          out_issues.concat issues
+          out_issues.concat(issues.map{|i| i.merge({ "type" => it })})
         else 
           puts "Missing (or error) on #{it} issues"
         end
       end
+
     end
-  out_issues
+  out_issues.flatten
   end
 
 
@@ -71,29 +76,6 @@ class Client
     rescue JSON::ParserError => e
     end
   end   
-
-
-=begin
-  def get_user_details(ssc_api_key)
-
-    begin 
-      response = RestClient.get "https://api.securityscorecard.io/portfolios", @headers
-      user_details = JSON.parse(response.body)
-    rescue RestClient::Unauthorized => e
-      return nil
-    rescue JSON::ParserError => e 
-      return nil 
-    end
-
-    if user_details["entries"].first.kind_of? Hash
-      return user_details
-    else 
-      puts "Error! Got user details: #{user_details}"
-    end
-    
-  nil  # default 
-  end
-=end
 
   def get_issues_by_type_for_company(company_id, itype="patching_cadence_low")
     

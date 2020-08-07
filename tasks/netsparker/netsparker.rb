@@ -6,7 +6,7 @@ class Netsparker < Kenna::Toolkit::BaseTask
     {
       id: "netsparker",
       name: "Netsparker",
-      authors: ["dbro", "jcran"],
+      maintainers: ["dbro", "jcran"],
       references: [
         "https://www.netsparkercloud.com/docs/index#!/Websites/Websites_List"
       ],
