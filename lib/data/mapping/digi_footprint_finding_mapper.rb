@@ -25,7 +25,8 @@ RIQ UNMAPPED:
 Expanse UNMAPPED: 
 =end
 
-  def self.get_canonical_vuln_details(orig_source, specific_details)
+
+  def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="")
 
     ###
     ### Transform the identifier from the upstream source downcasing and
@@ -48,9 +49,9 @@ Expanse UNMAPPED:
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
-            cwe_id: map[:cwe],
-            description: "#{map[:description]}".strip,
-            recommendation: "#{map[:recommendation]}".strip
+            cwe_identifiers: map[:cwe],
+            description: "#{map[:description]}...".strip,
+            recommendation: "#{map[:recommendation]} ".strip
           }.stringify_keys
         end
       end
@@ -369,7 +370,7 @@ Expanse UNMAPPED:
         },
         {
           source: "Expanse",
-          vuln_id: /^development_environments??$/
+          vuln_id: /^development_environments?$/
         }
       ]
     },
@@ -635,15 +636,7 @@ Expanse UNMAPPED:
         },        
         {
           source: "SecurityScorecard",
-          vuln_id: /^patching_cadence_high$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^patching_cadence_medium$/
-        },
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^patching_cadence_low$/
+          vuln_id: /^patching_cadence_.*$/
         }
       ]
     },
@@ -928,7 +921,6 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^wildcard_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_self_signed$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_short_key$/},
-        {:source=>"Intrigue", :vuln_id=>/^deprecated_protocol_detected$/},
         {:source=>"Intrigue", :vuln_id=>/^weak_cipher_suite_detected$/},
         {:source=>"Intrigue", :vuln_id=>/^self_signed_certificate$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^domain_missing_https$/},
@@ -944,6 +936,16 @@ Expanse UNMAPPED:
         {:source=>"SecurityScorecard", :vuln_id=>/^tls_ocsp_stapling$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_excessive_expiration$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^insecure_https_redirect_pattern$/}
+      ]
+    },
+    {
+      name: "High severity TLS Misconfig (1.0/1.1)",
+      score: 90,
+      cwe: "CWE-506",
+      description: "",
+      recommendation: "Check the system for signs of compromise ",
+      matches: [
+        {:source=>"Intrigue", :vuln_id=>/^deprecated_protocol_detected$/},
       ]
     },
     {
