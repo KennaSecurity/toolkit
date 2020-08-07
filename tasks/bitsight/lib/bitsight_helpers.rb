@@ -100,6 +100,8 @@ module BitsightHelpers
       asset_name = a["asset"]
       default_tags = ["Bitsight"]
 
+      puts a 
+
       if a["is_ip"] # TODO ... keep severity  ]
         asset_attributes = {"ip_address" => asset_name, "tags" => default_tags }
       else 

@@ -76,7 +76,7 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     print_good "Getting findings!"
 
     if @options[:debug]
-      max_findings = 10000
+      max_findings = 1000
       print_debug "Debug mode, only getting #{max_findings} findings"
     else 
       max_findings = 1000000 

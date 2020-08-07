@@ -87,8 +87,8 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
 
     
     if @options[:debug]
-      max_pages = 1 
-      max_per_page = 1
+      max_pages = 1
+      max_per_page = 1000
       print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
     else 
       max_pages = 100
