@@ -41,7 +41,7 @@ class Client
     page = 0
 
     while more_results && page < max_pages
-      puts "DEBUG Getting page: #{page}"
+      #puts "DEBUG Getting page: #{page}"
       
       more_results = nil
       page += 1 
@@ -49,7 +49,7 @@ class Client
       response_body = RestClient.get(url, @headers)
       result = JSON.parse response_body
 
-      puts "DEBUG Got #{result["data"].count} exposures."
+      #puts "DEBUG Got #{result["data"].count} exposures."
 
       # do stuff with the data 
       out.concat(result["data"])
@@ -57,7 +57,7 @@ class Client
       # prepare the next request
       offset += limit_per_page
       if result["pagination"]
-        puts "#{result["pagination"]}"
+        #puts "#{result["pagination"]}"
         more_results = !result["pagination"]["next"].nil?
       else 
         break
@@ -93,7 +93,7 @@ class Client
       while more_results && (page < max_pages)
         
         more_results = nil
-        puts "DEBUG Getting page: #{page}"
+        #puts "DEBUG Getting page: #{page}"
       
         # bump our page up
         page +=1
@@ -103,14 +103,14 @@ class Client
         response = RestClient.get(url, @headers)
         result = JSON.parse(response.body)
         
-        puts "DEBUG Got #{result["data"].count} cloud exposures"
+        #puts "DEBUG Got #{result["data"].count} cloud exposures"
 
         out.concat(result["data"])
 
         # prepare the next request
         offset += limit_per_page
         if result["pagination"] 
-          puts "#{result["pagination"]}"
+          #puts "#{result["pagination"]}"
           more_results = !result["pagination"]["next"].nil?
         else 
           break

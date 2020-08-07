@@ -23,14 +23,10 @@ describe "Client" do
   it "can get all issues for all companies in portfolio" do 
     pid = @client.get_portfolio["entries"].first["id"]
     issues = @client.get_issues_for_portfolio(pid, ["patching_cadence_low"])
-
-    require 'pry'
-    binding.pry
+    expect(issues.first).to be_a Hash
 
     issues = @client.get_issues_for_portfolio(pid, ["open_resolver"])
-
-    require 'pry'
-    binding.pry
+    expect(issues.first).to be_a Hash
 
   end
    

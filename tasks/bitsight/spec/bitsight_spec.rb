@@ -56,17 +56,14 @@ describe "Toolkit" do
     it "should translate api results into vali kdi" do
       guid = get_my_company(@key)
       
-      results = get_bitsight_findings_and_create_kdi(@key, guid, 3000)
+      results = get_bitsight_findings_and_create_kdi(@key, guid, 100)
 
       kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-      #puts JSON.pretty_generate(kdi_output)
 
       expect(@assets).to be_a Array
       expect(@assets.first).to be_a Hash
       expect(@assets.first[:tags]).to be_a Array 
       expect(@assets.first[:tags].include? "Bitsight" ).to be true
-
-
       # TODO... more verification here 
 
     end

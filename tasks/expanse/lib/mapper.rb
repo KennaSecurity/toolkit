@@ -68,9 +68,9 @@ module Mapper
     end
 
     # parse and create kdi 
-    print "Mapping #{exposures.count} exposures"
+    #print "Mapping #{exposures.count} exposures"
     result = exposures.map do |e|
-      print "Mapping #{e}"
+      #print "Mapping #{e}"
       # map fields for those expsures
       map_exposure_fields(false, e["exposureType"], e) 
     end
@@ -131,7 +131,7 @@ module Mapper
       # map fields for those expsures
       print "Mapping #{cloud_exposures.count} cloud exposures"
       result = cloud_exposures.map do |e| 
-        print "Mapping #{e}"
+        #print "Mapping #{e}"
         #print_debug "Got UNMAPPED Exposure #{et}:\n#{JSON.pretty_generate(e)}" if unmapped 
         map_exposure_fields(true, et, e) 
       end
@@ -139,7 +139,7 @@ module Mapper
 
       # convert to KDI 
       result.each do |r|
-        print_good "Getting #{r["asset"]}"
+        #print_good "Getting #{r["asset"]}"
 
         create_kdi_asset(r["asset"])
         create_kdi_asset_vuln(r["asset"], r["vuln"])      

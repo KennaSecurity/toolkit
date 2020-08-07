@@ -14,7 +14,7 @@ module BitsightHelpers
     
       endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=#{limit}&offset=#{offset}"
     
-      print_good "Requesting: #{endpoint}"
+      #print_good "DEBUG Requesting: #{endpoint}"
 
       response = RestClient::Request.new(
         :method => :get,
