@@ -1,4 +1,5 @@
 require_relative 'lib/client'
+require_relative 'lib/riskiq_helpers'
 
 module Kenna 
 module Toolkit

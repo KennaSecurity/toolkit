@@ -58,6 +58,16 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     #issue_types = ["patching_cadence_high", "patching_cadence_low", "service_imap", "csp_no_policy"]# nil 
     issue_types = nil # all 
 
+    if @options[:debug]
+      issue_types = [
+        "patching_cadence_high", 
+        "patching_cadence_low", 
+        "service_imap", 
+        "csp_no_policy"
+      ]# nil 
+      print_debug "Only getting #{issue_types}... "
+    end
+    
     client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
 
     ### Basic Sanity checking
@@ -90,24 +100,20 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
 
       create_kdi_asset(asset_attributes) 
 
-      ###
-      ### Vuln
-      ###
-      issue_type = i["type"]
-      vuln_attributes = {
-        "scanner_identifier" => issue_type,
-        "scanner_type" => scanner_type,
-        "details" => i, 
-        "created_at" => first_seen,
-        "last_seen_at" => last_seen,
-        "status" => "open"
-      }
-      vuln_attributes["port"] = port if port 
-
-      create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-      
       # handle patching cadence differently, these will have CVEs
       if i["vulnerability_id"] 
+
+        vuln_attributes = {
+          "scanner_identifier" => i["vulnerability_id"] ,
+          "scanner_type" => scanner_type,
+          "details" => i, 
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen,
+          "status" => "open"
+        }
+        vuln_attributes["port"] = port if port 
+
+        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
         vuln_def_attributes = {
           "scanner_identifier" => "#{i["vulnerability_id"]}",
@@ -115,14 +121,31 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
           "scanner_type" => scanner_type
         }
 
+        # create the vuln def entry 
         cvd = create_kdi_vuln_def(vuln_def_attributes)
 
       # OTHERWISE!!!
       else # run through mapper 
 
-        vuln_def_attributes = {
+        ###
+        ### Vuln
+        ###
+        issue_type = i["type"]
+        vuln_attributes = {
           "scanner_identifier" => issue_type,
-          "scanner_type" => scanner_type
+          "scanner_type" => scanner_type,
+          "details" => i, 
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen,
+          "status" => "open"
+        }
+        vuln_attributes["port"] = port if port 
+
+        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+
+
+        vuln_def_attributes = {
+          "scanner_identifier" => issue_type
         }
       
         ###
@@ -130,6 +153,8 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         ###
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
         vd = fm.get_canonical_vuln_details("SecurityScorecard", vuln_def_attributes)
+
+        # create the vuln def entry 
         cvd = create_kdi_vuln_def(vd)
   
       end

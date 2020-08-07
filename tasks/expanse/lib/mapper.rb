@@ -79,17 +79,27 @@ module Mapper
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
     result.each do |r|
 
+      vuln_def_id = "#{r["vuln_def"]}".downcase.gsub("-","_").gsub(" ","_")
+
       create_kdi_asset(r["asset"])
-      create_kdi_asset_vuln(r["asset"], r["vuln"])      
+      create_kdi_asset_vuln(r["asset"], 
+        {
+          "scanner_identifier" => "#{vuln_def_id}",
+          "first_seen" => Time.now.utc,
+          "last_seen" => Time.now.utc,
+          "scanner_type" => "Expanse",
+          "details" => JSON.pretty_generate(r["vuln"]),
+          "status" => "open"
+        }
+      )      
+
+      vd = { "scanner_identifier" => vuln_def_id}
 
       # Normalize
-      vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
-      
-      # set scanner type
-      vd["scanner_type"] = "Expanse"
+      cvd = fm.get_canonical_vuln_details("Expanse", vd )
       
       # Create the vuln def 
-      create_kdi_vuln_def(vd)
+      create_kdi_vuln_def(cvd)
     end
     
   end
@@ -100,10 +110,10 @@ module Mapper
     ### Get the list of exposure types
     ###
     if @options && @options[:cloud_exposure_types]
-      cloud_exposure_types = @options[:cloud_exposure_types]
+      cloud_exposure_types = "#{@options[:cloud_exposure_types]}".downcase.gsub("-","_")
     else
       cloud_exposure_counts = @client.cloud_exposure_counts
-      cloud_exposure_types = cloud_exposure_counts.map{|x| x["type"] }
+      cloud_exposure_types = cloud_exposure_counts.map{|x| "#{x["type"]}".downcase.gsub("-","_") }
     end
   
     ###
@@ -141,16 +151,16 @@ module Mapper
       result.each do |r|
         #print_good "Getting #{r["asset"]}"
 
+        # NORMALIZE 
+        vuln_def_id = "#{r["vuln_def"]}".downcase.gsub("-","_").gsub(" ","_")
+
         create_kdi_asset(r["asset"])
         create_kdi_asset_vuln(r["asset"], r["vuln"])      
 
         # Normalize
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-        vd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"].compact)
-        
-        # set scanner type
-        vd["scanner_type"] = "Expanse"
-        
+        vd = fm.get_canonical_vuln_details("Expanse", {"scanner_identifier" => vuln_def_id} )
+                
         # Create the vuln def 
         create_kdi_vuln_def(vd)
       end
@@ -185,12 +195,12 @@ module Mapper
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
         { action: "copy", source: "port", target: "port" },
-        { action: "proc", target: "details", proc: lambda{|x| 
-          "#{exposure_type.downcase} on port: #{x["port"]}\n\nFull Details:\n#{JSON.pretty_generate(x)}"  } },
+        { action: "proc", target: "details", proc: lambda{|x| JSON.pretty_generate(x)  } },
         { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
         { action: "data", target: "scanner_type", data: "Expanse" }
       ],
       'vuln_def' => [
+        { action: "data", target: "scanner_type", data: "Expanse" },
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
         { action: "data", target: "remediation", data: "Investigate this Exposure!" }
       ]
