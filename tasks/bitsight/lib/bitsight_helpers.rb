@@ -103,9 +103,15 @@ module BitsightHelpers
       puts a 
 
       if a["is_ip"] # TODO ... keep severity  ]
-        asset_attributes = {"ip_address" => asset_name, "tags" => default_tags }
+        asset_attributes = {
+          "ip_address" => asset_name, 
+          "tags" => default_tags 
+        }
       else 
-        asset_attributes = {"hostname" => asset_name, "tags" => default_tags}
+        asset_attributes = {
+          "hostname" => asset_name, 
+          "tags" => default_tags
+        }
       end
 
       create_kdi_asset(asset_attributes) 

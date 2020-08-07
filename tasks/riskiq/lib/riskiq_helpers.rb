@@ -65,7 +65,7 @@ module RiskIq
           "external_id" => "#{id}",
           #"first_seen" => "#{first_seen}",
           #"last_seen" => "#{last_seen}",
-          "tags" => tags.concat(organizations)
+          "tags" => ["RiskIQ"]
         }
         create_kdi_asset(asset)
         

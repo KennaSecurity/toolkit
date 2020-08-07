@@ -79,7 +79,7 @@ module Mapper
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
     result.each do |r|
 
-      vuln_def_id = "#{r["vuln_def"]}".downcase.gsub("-","_").gsub(" ","_")
+      vuln_def_id = "#{r["vuln_def"]["scanner_identifier"]}".downcase.gsub("-","_").gsub(" ","_")
 
       create_kdi_asset(r["asset"])
       create_kdi_asset_vuln(r["asset"], 
@@ -190,8 +190,8 @@ module Mapper
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        #{ action: "proc", target: "tags", proc: lambda{|x| x["tags"] } } # TODO... needs more thought 
-      ],
+        { action: "data", target: "tags", proc: ["Expanse"] } # TODO... needs more thought 
+      ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
         { action: "copy", source: "port", target: "port" },

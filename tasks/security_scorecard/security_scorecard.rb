@@ -92,7 +92,9 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       last_seen = i["last_seen_time"]
 
       # Create the assets
-      asset_attributes = {}
+      asset_attributes = {
+        "tags"=> ["SecurityScorecard"]
+      }
 
       if i["connection_attributes"]
         port = i["connection_attributes"]["dst_port"]
@@ -111,7 +113,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         vuln_attributes = {
           "scanner_identifier" => i["vulnerability_id"] ,
           "scanner_type" => scanner_type,
-          "details" => i, 
+          "details" => JSON.pretty_generate(i), 
           "created_at" => first_seen,
           "last_seen_at" => last_seen,
           "status" => "open"
@@ -139,7 +141,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         vuln_attributes = {
           "scanner_identifier" => issue_type,
           "scanner_type" => scanner_type,
-          "details" => i, 
+          "details" => JSON.pretty_generate(i), 
           "created_at" => first_seen,
           "last_seen_at" => last_seen,
           "status" => "open"
