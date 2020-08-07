@@ -13,20 +13,7 @@ https://securityscorecard.com/hub/securityscorecard-api/10-metadata/10-2-get-a-l
 
 =begin
 https://help.bitsighttech.com/hc/en-us/articles/360025011954-Diligence-Finding-Details#patching_cadence
-Bitsight UNMAPPED: 
- - spf 
- - dkim
- - ssl_certificates
- - ssl_configurations
- - open_ports
- - application_security
- - patching_cadence
- - insecure_systems
- - server_software
- - desktop_software
- - mobile_software
- - dnssec
- - mobile_application_security
+Bitsight:
  - Domain Squatting - Findings for this risk vector cannot be queried via the API
 =end
 
@@ -133,7 +120,7 @@ Expanse UNMAPPED:
         ]
       },
       {
-        name: "Application Security Content Security Policy",
+        name: "Application Security Headers",
         cwe: "CWE-693",
         score: 20,
         description: "One or more application security headers was detected missing or misconfigured.",
@@ -143,6 +130,10 @@ Expanse UNMAPPED:
           {
             source: "Bitsight",
             vuln_id: /^web_application_headers$/
+          },
+          {
+            source: "Bitsight",
+            vuln_id: /^application_security$/
           },
           {
             source: "SecurityScorecard",
@@ -193,6 +184,10 @@ Expanse UNMAPPED:
         {
           source: "Expanse",
           vuln_id: /^detected_webserver$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^web_servers?$/
         }
       ]
     },
@@ -358,11 +353,15 @@ Expanse UNMAPPED:
         {
           source: "Expanse",
           vuln_id: /^development_system_detected$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^development_environments??$/
         }
       ]
     },
     {
-      name: "DKIM Key Misconfiguration",
+      name: "DKIM Misconfiguration",
       cwe: "CWE-358",
       score: 20,
       description: "A problem with this domain's DKIM configuration was discovered.",
@@ -370,11 +369,7 @@ Expanse UNMAPPED:
       matches: [
         {
           source: "Bitsight",
-          vuln_id: /^dkim_public_key_size_is_less_than$/
-        },
-        {
-          source: "Bitsight",
-          vuln_id: /^dkim_this_dkim_record_is_intended_for_testing_purposes*$/
+          vuln_id: /^dkim$/
         }
       ]
     },
@@ -534,7 +529,7 @@ Expanse UNMAPPED:
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^internal_ip_address_advertisement$/
+          vuln_id: /^internal_ip_address_advertisements?$/
         },
         {
           source: "SecurityScorecard",
@@ -564,8 +559,21 @@ Expanse UNMAPPED:
       matches: [
         {
           source: "Expanse",
-          vuln_id: /^detected_load_balancer$/
+          vuln_id: /^load_balancers?$/
         }
+      ]
+    },
+    {
+      name: "Mobile Application Security Misconfiguration",
+      cwe: "CWE-693",
+      score: 20,
+      description: "A problem with this application's configuration was discoverd .",
+      recommendation: "Fix it",
+      matches: [
+        {
+          source: "Bitsight",
+          vuln_id: /^mobile_application_security$/
+        },
       ]
     },
     {
@@ -597,13 +605,21 @@ Expanse UNMAPPED:
         },
       ]
     },
-    { # TODO.. this should have the CVEs pulled out of it, and should never really match?
-      name: "Vulnerability Detected (Patching Cadence)",
+    { 
+      ####
+      #### individual tasks should not send anything that would map to this entry, 
+      ####  instead it shoudl be a CVE
+      ####
+      name: "Vulnerability Detected (Patching Cadence *** INCORRECTLY MAPPED?)",
       cwe: nil,
       score: 0,
       description: "Vulnerability seen on network more than 60 days after CVE was published.",
       recommendation: "Monitor CVE lists and vulnerability repositories for exploit code that may affect your infrastructure.",
       matches: [
+        {
+          source: "Bitsight",
+          vuln_id: /^patching_cadence$/
+        },        
         {
           source: "SecurityScorecard",
           vuln_id: /^patching_cadence_high$/
@@ -628,6 +644,14 @@ Expanse UNMAPPED:
           { # correct place for this? # Open TCP Ports Observed
             source: "Bitsight",
             vuln_id: /^open_ports$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^ftps_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^pop3_servers?$/
           },
           {
             source: "Expanse",
@@ -660,14 +684,6 @@ Expanse UNMAPPED:
           {
             source: "Expanse",
             vuln_id: /^detected_server_telnet$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_unencrypted_ftp$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_unencrypted_logins$/
           },
           { # NOTE .. many matches here, may need to be split up 
             source: "SecurityScorecard",
@@ -775,8 +791,13 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
+        {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisments?$/},
         {:source=>"Expanse", :vuln_id=>/^wildcard_certificate$/},
-        {:source=>"Expanse", :vuln_id=>/^insecure_signature_certificate_advertisement$/},
+        {:source=>"Expanse", :vuln_id=>/^insecure_signature_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^self_signed_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^wildcard_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_self_signed$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_short_key$/},
         {:source=>"Intrigue", :vuln_id=>/^deprecated_protocol_detected$/},
@@ -813,6 +834,28 @@ Expanse UNMAPPED:
         }
       ]
     },
+    {
+      name: "Unencrypted Login",
+      cwe: "CWE-319",
+      score: 50,
+      description: "An unencrypted login was detected.",
+      recommendation: "Ensure all logins happen over an encrypted channel.",
+      matches: [
+        {
+          source: "Expanse",
+          vuln_id: /^unencrypted_logins?$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^detected_server_unencrypted_ftp$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^detected_server_unencrypted_logins$/
+        }
+      ]
+    },
+    
     {
       name: "Unsolicited Email Sent from System",
       cwe: "CWE-358",

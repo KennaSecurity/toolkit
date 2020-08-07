@@ -122,20 +122,32 @@ module BitsightHelpers
       create_kdi_asset_vuln(asset_attributes, vuln_attributes)
     end
 
-    ## TODO.. parse out cve here
+    if vuln_def_id == "patching_cadence" && finding["vulnerability_name"] #handle as a CVE
 
-    vuln_def_attributes = {
-      "scanner_identifier" => "#{vuln_def_id}",
-      "scanner_type" => "Bitsight",
-      "name" => "#{vuln_def_id}"
-    }
+      vuln_def_attributes = {
+        "scanner_identifier" => "#{finding["vulnerability_name"]}",
+        "scanner_type" => "Bitsight",
+        "cve_identifiers" => "#{finding["vulnerability_name"]}"
+      }
+      
+      create_kdi_vuln_def(vd)
     
-    ###
-    ### Put them through our mapper 
-    ###
-    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-    vd = fm.get_canonical_vuln_details("Bitsight", vuln_def_attributes)
-    cvd = create_kdi_vuln_def(vd)
+    else 
+     
+      vuln_def_attributes = {
+        "scanner_identifier" => "#{vuln_def_id}",
+        "scanner_type" => "Bitsight",
+        "name" => "#{vuln_def_id}"
+      }
+      
+      ###
+      ### Put them through our mapper 
+      ###
+      fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+      vd = fm.get_canonical_vuln_details("Bitsight", vuln_def_attributes)
+      cvd = create_kdi_vuln_def(vd)
+    end
+    
   end
 
   

@@ -111,7 +111,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
 
         vuln_def_attributes = {
           "scanner_identifier" => "#{i["vulnerability_id"]}",
-          "cves" => "#{i["vulnerability_id"]}",
+          "cve_identifiers" => "#{i["vulnerability_id"]}",
           "scanner_type" => scanner_type
         }
 

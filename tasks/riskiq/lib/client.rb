@@ -26,7 +26,6 @@ class Client
  
   ##
   def footprint_query 
-    # consider... {"name": "state", "operator": "IN", "value": ["CONFIRMED"]}
     json_search_query = '{
       "filters": {
         "condition": "AND",

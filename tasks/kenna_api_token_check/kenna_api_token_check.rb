@@ -6,7 +6,7 @@ class KennaApiTokenCheck < Kenna::Toolkit::BaseTask
     {
       id: "kenna_api_key_check",
       name: "Kenna API Token Check",
-      description: "This task simply verifies a Kenna AOU token vs a given host",
+      description: "This task simply verifies a Kenna API token vs a given host",
       options: [
         {:name => "kenna_api_key", 
           :type => "api_key", 
