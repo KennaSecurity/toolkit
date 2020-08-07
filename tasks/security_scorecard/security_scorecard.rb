@@ -9,7 +9,6 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       id: "security_scorecard",
       name: "Security Scorecard",
       maintainers: ["jcran"],
-      disabled: true, 
       description: "This task connects to the Security Scorecard API and pulls results into the Kenna Platform.",
       options: [
         { :name => "ssc_api_key", 
