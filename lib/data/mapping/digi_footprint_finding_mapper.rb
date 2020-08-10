@@ -857,12 +857,12 @@ Expanse UNMAPPED:
       name: "SPF Misconfiguration",
       cwe: "CWE-183",
       score: 20,
-      description: "This system was found to have a SPF misconfiguration.",
+      description: "This system was found to have an SPF finding - which may be a positive finding, or a misconfiguration.",
       recommendation: "Correct the SPF configuration on the server.",
       matches: [
         {
-          source: "Bitsight",
-          vuln_id: /^spf$/
+          source: "Bitsight", # TODO... this can be a positive finding
+          vuln_id: /^spf$/ 
         },
         {
           source: "Bitsight",
