@@ -93,18 +93,54 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
 
       # Create the assets
       asset_attributes = {
-        "tags"=> ["SecurityScorecard"]
+        "tags" => ["SecurityScorecard"]
       }
 
+      ### 
+      ### Pull out the asset identfiiers here 
+      ###
+
       if i["connection_attributes"]
-        port = i["connection_attributes"]["dst_port"]
-        asset_attributes["ip_address"] = i["connection_attributes"]["dst_ip"] 
+        if i["connection_attributes"].kind_of? Hash
+          port = i["connection_attributes"]["dst_port"]
+          asset_attributes["ip_address"] = i["connection_attributes"]["dst_ip"]  if i["connection_attributes"]["dst_ip"]
+          asset_attributes["hostname"] = i["connection_attributes"]["dst_host"] if i["connection_attributes"]["dst_host"]
+        else
+          puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{i}"
+          next
+        end
       end
 
       if i["initial_url"]
         asset_attributes["url"] = i["initial_url"]
       end
 
+      if i["url"]
+        asset_attributes["url"] = i["url"]
+      end
+
+      if i["domain"]
+        asset_attributes["fqdn"] = i["domain"]
+      end
+
+      if i["ip_address"]
+        asset_attributes["ip_address"] = i["ip_address"]
+      end
+
+      if i["src_ip"]
+        asset_attributes["ip_address"] = i["src_ip"]
+      end
+
+      unless (asset_attributes["ip_address"] ||
+        asset_attributes["hostname"] || 
+        asset_attributes["url"] ||  
+        asset_attributes["domain"])
+        print_debug "UNMAPPED ASSET FOR FINDING: #{i}"
+      end
+
+      ### 
+      ### Create the KDI asset
+      ###
       create_kdi_asset(asset_attributes) 
 
       # handle patching cadence differently, these will have CVEs

@@ -7,8 +7,8 @@ class DigiFootprintFindingMapper
 =begin
 SSC UNMAPPED: 
 https://securityscorecard.com/hub/securityscorecard-api/10-metadata/10-2-get-a-list-of-issue-types
-0 issues of type employee_satisfaction
-0 issues of type marketing_site
+ - employee_satisfaction
+ - marketing_site
 =end
 
 =begin
@@ -23,6 +23,7 @@ RIQ UNMAPPED:
 
 =begin
 Expanse UNMAPPED: 
+ - domain_control_validated_certificate_advertisement
 =end
 
   def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="")
@@ -43,19 +44,26 @@ Expanse UNMAPPED:
       map[:matches].each do |match|
         next unless match[:source] == orig_source 
         if match[:vuln_id] =~ orig_vuln_id
+          
           out = {
             scanner_type: orig_source,
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
-            cwe_identifiers: map[:cwe],
             description: "#{map[:description]}\n\n #{description}".strip,
             recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
-          }.stringify_keys
+          }
+          
+          # only add in cwe_identifiers if we have a valid CWE
+          if map[:cwe]
+            out[:cwe_identifiers] = "#{map[:cwe]}"
+          end
+
+          out = out.stringify_keys
         end
       end
     end
-
+        
     # we didnt map it, so just pass it back
     if out.empty?
       #puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}" 
@@ -650,10 +658,15 @@ Expanse UNMAPPED:
             source: "Bitsight",
             vuln_id: /^open_ports$/
           },
-          {
+          {# literally match anyting coming from them in this vein
             source: "Expanse",
-            vuln_id: /^ftps_servers?$/
+            vuln_id: /^.*_servers?$/
           },
+=begin
+          #{
+          #  source: "Expanse",
+          #  vuln_id: /^ftps_servers?$/
+          #},
           {
             source: "Expanse",
             vuln_id: /^ftp_servers?$/
@@ -665,6 +678,10 @@ Expanse UNMAPPED:
           {
             source: "Expanse",
             vuln_id: /^pop3_servers?$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^smtp_servers??$/
           },
           {
             source: "Expanse",
@@ -770,10 +787,12 @@ Expanse UNMAPPED:
             source: "Expanse",
             vuln_id: /^xmmp_servers?$/
           },
+=end
           {
             source: "Expanse",
-            vuln_id: /^detected_server_dns$/
+            vuln_id: /^detected_server_.*$/
           },
+=begin          
           {
             source: "Expanse",
             vuln_id: /^detected_server_ftps$/
@@ -802,6 +821,7 @@ Expanse UNMAPPED:
             source: "Expanse",
             vuln_id: /^detected_server_telnet$/
           },
+=end
           { # NOTE .. many matches here, may need to be split up 
             source: "SecurityScorecard",
             vuln_id: /^service_.*+$/
@@ -908,12 +928,12 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
-        {:source=>"Expanse", :vuln_id=>/^certificate_advertisements?$/},
+        #{:source=>"Expanse", :vuln_id=>/^certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^domain_control_certificate_advertisements?$/},
-        {:source=>"Expanse", :vuln_id=>/^healthy_certificate_advertisements?$/},
+        #{:source=>"Expanse", :vuln_id=>/^healthy_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
-        {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisments?$/},
+        {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^wildcard_certificate$/},
         {:source=>"Expanse", :vuln_id=>/^insecure_signature_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^self_signed_certificate_advertisements?$/},
@@ -1029,6 +1049,19 @@ Expanse UNMAPPED:
       ]
     },
     {
+      name: "Collaboration Server Detected",
+      cwe: nil,
+      score: 0,
+      description: "Teleconferencing or Collaboration server detected.",
+      recommendation: "This is an informational finding.",
+      matches: [
+        {
+          source: "Expanse",
+          vuln_id: /^teleconferencing_and_collaboration$/
+        }
+      ]
+    },
+    {
       name: "Tor Exit Node Discoverd",
       score: 10,
       cwe: "CWE-506",
@@ -1039,6 +1072,19 @@ Expanse UNMAPPED:
           source: "SecurityScorecard",
           vuln_id: /^tor_node_events_last_month$/
         },
+      ]
+    },
+    {
+      name: "VPN Detected",
+      cwe: nil,
+      score: 0,
+      description: "VPN detected.",
+      recommendation: "This is an informational finding.",
+      matches: [
+        {
+          source: "Expanse",
+          vuln_id: /^vpn$/
+        }
       ]
     },
     {

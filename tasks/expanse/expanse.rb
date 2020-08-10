@@ -88,12 +88,15 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     
     if @options[:debug]
       max_pages = 1
-      max_per_page = 1000
+      max_per_page = 100
       print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
     else 
       max_pages = 100
       max_per_page = 10000
     end
+
+    # have to initialize here, as much is done in helpers / loops  
+    kdi_initialize
 
     ######
     # Handle normal exposures
@@ -110,7 +113,7 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
       print_good "Working on cloud exposures"
       create_kdi_from_cloud_exposures(max_pages, max_per_page)
     end
-   
+
     ####
     # Write KDI format
     ####

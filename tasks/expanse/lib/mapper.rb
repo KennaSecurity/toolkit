@@ -52,7 +52,6 @@ module Mapper
     out["vuln"]["scanner_identifier"] = exposure_type
     out["vuln_def"]["scanner_identifier"] = exposure_type
 
-
   out 
   end
 
@@ -97,11 +96,13 @@ module Mapper
 
       # Normalize
       cvd = fm.get_canonical_vuln_details("Expanse", vd )
-      
+
+      print_debug "Creating vuln def from #{cvd}"
+
       # Create the vuln def 
       create_kdi_vuln_def(cvd)
     end
-    
+
   end
 
   def create_kdi_from_cloud_exposures(max_pages = 100, max_per_page = 10000)
@@ -148,6 +149,7 @@ module Mapper
       print_good "Mapped #{result.count} cloud exposures"
 
       # convert to KDI 
+      fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
       result.each do |r|
         #print_good "Getting #{r["asset"]}"
 
@@ -158,11 +160,12 @@ module Mapper
         create_kdi_asset_vuln(r["asset"], r["vuln"])      
 
         # Normalize
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-        vd = fm.get_canonical_vuln_details("Expanse", {"scanner_identifier" => vuln_def_id} )
-                
+        cvd = fm.get_canonical_vuln_details("Expanse", {"scanner_identifier" => vuln_def_id} )
+
+        print_debug "Creating vuln def from #{cvd}"
+
         # Create the vuln def 
-        create_kdi_vuln_def(vd)
+        create_kdi_vuln_def(cvd)
       end
 
     end 
