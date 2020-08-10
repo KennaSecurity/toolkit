@@ -25,7 +25,6 @@ RIQ UNMAPPED:
 Expanse UNMAPPED: 
 =end
 
-
   def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="")
 
     ###
@@ -50,8 +49,8 @@ Expanse UNMAPPED:
             source: "#{orig_source} (Kenna Normalized)",
             name: map[:name],
             cwe_identifiers: map[:cwe],
-            description: "#{map[:description]}...".strip,
-            recommendation: "#{map[:recommendation]} ".strip
+            description: "#{map[:description]}\n\n #{description}".strip,
+            recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
           }.stringify_keys
         end
       end
