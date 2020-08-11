@@ -117,7 +117,8 @@ module Kenna
         ## Create a vuln def
         vuln_def_attributes = {
           "scanner_type" => "generator",
-          "scanner_identifier" => "#{cve_name}"
+          "scanner_identifier" => "#{cve_name}",
+          "cve_identifiers" => "#{cve_name}"
         }
         create_kdi_vuln_def(vuln_def_attributes) 
       end
