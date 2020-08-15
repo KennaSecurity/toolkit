@@ -193,7 +193,7 @@ module Mapper
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        { action: "data", target: "tags", proc: ["Expanse"] } # TODO... needs more thought 
+        { action: "data", target: "tags", data: ["Expanse"] } # TODO... needs more thought 
       ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},

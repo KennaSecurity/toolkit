@@ -81,19 +81,16 @@ class Client
 
       rescue RestClient::InternalServerError => e 
         puts "Error making request - server 500?!"
-        return nil 
+        sleep rand(10)
       rescue RestClient::ServerBrokeConnection => e 
         puts "Error making request - server dropped us?!"
-        return nil 
+        sleep rand(10)
       rescue RestClient::NotFound => e 
         puts "Error making request - bad endpoint?!"
-        return nil 
       rescue RestClient::BadRequest => e 
         puts "Error making request - bad creds?!"
-        return nil 
       rescue JSON::ParserError => e 
         puts "Error parsing json!"
-        return nil 
       end
 
       # do stuff with the data 
