@@ -7,8 +7,8 @@ class DigiFootprintFindingMapper
 =begin
 SSC UNMAPPED: 
 https://securityscorecard.com/hub/securityscorecard-api/10-metadata/10-2-get-a-list-of-issue-types
- - employee_satisfaction
- - marketing_site
+ - 
+ - 
 =end
 
 =begin
@@ -23,7 +23,6 @@ RIQ UNMAPPED:
 
 =begin
 Expanse UNMAPPED: 
- - domain_control_validated_certificate_advertisement
 =end
 
   def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="")
@@ -49,6 +48,8 @@ Expanse UNMAPPED:
             scanner_type: orig_source,
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
+            scanner_score: (map[:score] / 10).to_i,
+            #override_score: match[:score],
             name: map[:name],
             description: "#{map[:description]}\n\n #{description}".strip,
             recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
@@ -326,45 +327,6 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "Cloud Object Storage Host",
-      cwe: nil,
-      score: 0,
-      description: "This resource was detected on cloud storage",
-      recommendation: "this is an informational finding",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^hosted_on_object_storage$/
-        }
-      ]
-    },
-    {
-      name: "Cloud Object Storage Reference",
-      cwe: nil,
-      score: 0,
-      description: "This resource has a link to a resource on cloud storage",
-      recommendation: "this is an informational finding",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^references_object_storage$/
-        }
-      ]
-    },
-    {
-      name: "DDOS Protection Detected",
-      cwe: nil,
-      score: 0,
-      description: "DDOS Protection was detected.",
-      recommendation: "This is an informational finding.",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^ddos_protection$/
-        }
-      ]
-    },
-    {
       name: "Development System Detected",
       score: 30,
       cwe: "CWE-693",
@@ -408,19 +370,6 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "DNSSEC Detected",
-      cwe: nil,
-      score: 0,
-      description: "DNSSEC Detected.",
-      recommendation: "This is an infomrational finding.",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^dnssec_detected$/
-        }
-      ]
-    },
-    {
       name: "DNSSEC Misconfiguration",
       cwe: "CWE-298",
       score: 20,
@@ -436,7 +385,7 @@ Expanse UNMAPPED:
     {
       name: "End-of-Life (EOL) System or Software",
       cwe: nil,
-      score: 0,
+      score: 50,
       description: "This system was determined to be running software or services that are EOL.",
       recommendation: "Investigate this software to determine if this is intended and if supported options exist.",
       matches: [
@@ -568,19 +517,6 @@ Expanse UNMAPPED:
         {
           source: "SecurityScorecard",
           vuln_id: /^leaked_credentials$/
-        }
-      ]
-    },
-    {
-      name: "Load Balancer Detected",
-      score: 0,
-      cwe: nil,
-      description: "A Load balancer was detected",
-      recommendation: "This is an informational finding.",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^load_balancers?$/
         }
       ]
     },
@@ -891,32 +827,6 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "SSL/TLS - Extended Validation Certificate",
-      cwe: nil,
-      score: 0,
-      description: "An extended valiation certificate was found.",
-      recommendation: "No action needed, this is an informational finding.",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^tlscert_extended_validation$/
-        }
-      ]
-    },
-    {
-      name: "SSL/TLS - HSTS Configured",
-      cwe: nil,
-      score: 0,
-      description: "",
-      recommendation: "No action needed, this is a positive finding",
-      matches: [
-        {
-          source: "SecurityScorecard",
-          vuln_id: /^domain_uses_hsts_preloading$/
-        }
-      ]
-    },
-    {
       name: "SSL/TLS Misconfiguration",
       cwe: "CWE-326",
       score: 40,
@@ -1023,19 +933,6 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "Shared Infrastructure",
-      cwe: nil,
-      score: 0,
-      description: "A service was identified on shared infrastructure.",
-      recommendation: "Ensure this is intended.",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^colocated_.*$/
-        }
-      ]
-    },
-    {
       name: "System Running File-Sharing Software",
       cwe: "CWE-358",
       score: 30,
@@ -1045,19 +942,6 @@ Expanse UNMAPPED:
         {
           source: "Bitsight",
           vuln_id: /^file_sharing$/
-        }
-      ]
-    },
-    {
-      name: "Collaboration Server Detected",
-      cwe: nil,
-      score: 0,
-      description: "Teleconferencing or Collaboration server detected.",
-      recommendation: "This is an informational finding.",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^teleconferencing_and_collaboration$/
         }
       ]
     },
@@ -1072,19 +956,6 @@ Expanse UNMAPPED:
           source: "SecurityScorecard",
           vuln_id: /^tor_node_events_last_month$/
         },
-      ]
-    },
-    {
-      name: "VPN Detected",
-      cwe: nil,
-      score: 0,
-      description: "VPN detected.",
-      recommendation: "This is an informational finding.",
-      matches: [
-        {
-          source: "Expanse",
-          vuln_id: /^vpn$/
-        }
       ]
     },
     {
@@ -1130,20 +1001,77 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "WAF Protection Detected",
-      cwe: nil,
+      name: "Non-Security or Benign Finding",
+      cwe: "CWE-000",
       score: 0,
-      description: "WAF Protection was detected.",
-      recommendation: "This is an informational finding.",
-      matches: [
+      description: "A problem with this application's content security policy was identified.",
+      recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
+      matches: [ 
+        {
+          source: "Expanse",
+          vuln_id: /^certificate_advertisement$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^domain_control_validated_certificate_advertisement$/
+        }, 
+        {
+          source: "Expanse",
+          vuln_id: /^employee_satisfaction$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^teleconferencing_and_collaboration$/
+        }, 
+        {
+          source: "Expanse",
+          vuln_id: /^marketing_site$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^colocated_.*$/
+        },
+        {
+          source: "Expanse",
+          vuln_id: /^vpn$/
+        },
         {
           source: "SecurityScorecard",
           vuln_id: /^waf_detected$/
-        }
+        }, 
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^hosted_on_object_storage$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^references_object_storage$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^load_balancers$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^dnssec_detected$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^tlscert_extended_validation$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^domain_uses_hsts_preloading$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^ddos_protection$/
+        },
       ]
     }
   ]
   end
+
 
 end
 end

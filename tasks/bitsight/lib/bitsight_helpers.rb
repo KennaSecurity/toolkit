@@ -118,64 +118,96 @@ module BitsightHelpers
       ####
       #### CVE CASE
       #### 
+
+      ### CHECK OPEN PORTS AND LOOK OFOR VULNERABILITIEIS 
       if vuln_def_id == "patching_cadence" && finding["vulnerability_name"] #handle as a CVE
 
-        # then create each vuln for this asset
-        vuln_attributes = {
-          "scanner_identifier" => finding["vulnerability_name"],
-          "scanner_type" => "Bitsight",
-          "details" => JSON.pretty_generate(finding),
-          "created_at" => finding["first_seen"],
-          "last_seen_at" => finding["last_seen"],
-          "status" => "open"
-        }
-        
-        # def create_kdi_asset_vuln(asset_id, asset_locator, args)
-        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-
-
-        vd = {
-          "scanner_type" => "Bitsight",
-          "scanner_identifier" =>"#{finding["vulnerability_name"]}".downcase,
-          "cve_identifiers" => "#{finding["vulnerability_name"]}".downcase
-        }
-        
-        create_kdi_vuln_def(vd)
+        create_cve_vuln(vuln_def_id, finding, asset_attributes)
       
       ####
-      #### NON-CVE CASE
+      #### OPEN PORTS CAN HAVE BOTH!
+      #### 
+      elsif vuln_def_id == "open_ports" && finding["vulnerabilities"]
+
+        # create the sensitive service --  needed?
+        create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+
+        ###
+        ### for each vuln, create a cve 
+        ###
+        finding["vulnerabilities"].each do |v|
+          vuln_def_id = v["name"]
+          create_cve_vuln(vuln_def_id, finding, asset_attributes)
+        end
+
+      ####
+      #### NON-CVE CASE, just create the normal finding
       #### 
       else 
 
-        # then create each vuln for this asset
-        vuln_attributes = {
-          "scanner_identifier" => "#{vuln_def_id}",
-          "scanner_type" => "Bitsight",
-          "details" => JSON.pretty_generate(finding),
-          "created_at" => finding["first_seen"],
-          "last_seen_at" => finding["last_seen"],
-          "status" => "open"
-        }
-        
-        # def create_kdi_asset_vuln(asset_id, asset_locator, args)
-        create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-      
-        vd = {
-          "scanner_identifier" => "#{vuln_def_id}",
-        }
-        
-        ###
-        ### Put them through our mapper 
-        ###
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-        cvd = fm.get_canonical_vuln_details("Bitsight", vd)
-        create_kdi_vuln_def(cvd)
+        create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+
       end
+
     end
   end
 
-  
+  ###
+  ### Helper to handle creating a cve vuln 
+  ###
+  def create_cve_vuln(vuln_def_id, finding, asset_attributes)
+     # then create each vuln for this asset
+     vuln_attributes = {
+      "scanner_identifier" => finding["vulnerability_name"],
+      "scanner_type" => "Bitsight",
+      "details" => JSON.pretty_generate(finding),
+      "created_at" => finding["first_seen"],
+      "last_seen_at" => finding["last_seen"],
+      "status" => "open"
+    }
+    
+    # def create_kdi_asset_vuln(asset_id, asset_locator, args)
+    create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
+    vd = {
+      "scanner_type" => "Bitsight",
+      "scanner_identifier" =>"#{finding["vulnerability_name"]}".downcase,
+      "cve_identifiers" => "#{finding["vulnerability_name"]}".downcase
+    }
+    
+    create_kdi_vuln_def(vd)
+  end
+
+  ###
+  ### Helper to handle creating a cwe vuln 
+  ###
+  def create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+
+    # then create each vuln for this asset
+    vuln_attributes = {
+      "scanner_identifier" => "#{vuln_def_id}",
+      "scanner_type" => "Bitsight",
+      "details" => JSON.pretty_generate(finding),
+      "created_at" => finding["first_seen"],
+      "last_seen_at" => finding["last_seen"],
+      "status" => "open"
+    }
+    
+    # def create_kdi_asset_vuln(asset_id, asset_locator, args)
+    create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+  
+    vd = {
+      "scanner_identifier" => "#{vuln_def_id}",
+    }
+    
+    ###
+    ### Put them through our mapper 
+    ###
+    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+    cvd = fm.get_canonical_vuln_details("Bitsight", vd)
+    create_kdi_vuln_def(cvd)
+  end 
+  
 end
 end
 end
