@@ -67,7 +67,7 @@ class Snyk < Kenna::Toolkit::BaseTask
     org_json.each do |org|
       org_ids << org.fetch("id")
     end
-    #print "orgs = #{org_ids}"
+    print_debug "orgs = #{org_ids}"
 
 
     org_ids.each do |org|
@@ -78,7 +78,7 @@ class Snyk < Kenna::Toolkit::BaseTask
       end
     end
 
-    #print "projects = #{project_ids}"
+    print_debug "projects = #{project_ids}"
 
     types = ["vuln"]
     types << "license" if include_license
@@ -92,13 +92,16 @@ class Snyk < Kenna::Toolkit::BaseTask
               }
             }"
     
-    
+    print_debug "issue filter json = #{issue_filter_json}"
+
     morepages = true
     while morepages do 
 
       pagenum = pagenum + 1
 
       vuln_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum)
+
+      print_debug "issue json = #{vuln_json}"
 
       if vuln_json.nil? || vuln_json.empty? || vuln_json.length == 0 then
         morepages = false
@@ -111,10 +114,16 @@ class Snyk < Kenna::Toolkit::BaseTask
         issue = issue_obj["issue"]
         project = issue_obj["project"]
         identifiers = issue["identifiers"]
+
+        targetFile = project.fetch("targetFile")if project.key? ("targetFile")
+        package = project.fetch("package") if project.key("package")
+
+        file = "#{targetFile}/" if !targetFile.nil?
+        file = "#{file}#{package}"
         
         asset = {
 
-          "file" => "#{project.fetch("targetFile")}/#{issue.fetch("package")}",
+          "file" => file,
           "application" => project.fetch("name"),
           "tags" => [project.fetch("source"),project.fetch("packageManager")]
 
