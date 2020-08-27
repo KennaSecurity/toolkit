@@ -1,4 +1,4 @@
-#Running Microsoft Defender ATP task 
+## Running Microsoft Defender ATP task 
 
 To run this task you need the following information from Microsoft: 
 
@@ -8,9 +8,9 @@ To run this task you need the following information from Microsoft:
 
 Start here to learn how to register your app:
 
->https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-api-call-api-app-registration
+>>https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-api-call-api-app-registration
 
->https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-modify-supported-accounts
+>>https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-modify-supported-accounts
 
 
 Work is done here: https://portal.azure.com/
