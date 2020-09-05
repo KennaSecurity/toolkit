@@ -1,3 +1,6 @@
+
+require 'csv'
+
 module Kenna
 module Toolkit 
 module Ssc
@@ -132,7 +135,78 @@ class Client
     end
 
   end
- 
+
+  #  “https://api.securityscorecard.io/reports/issues”;     payload=‘’
+  def get_issues_report_for_domain(domain) 
+
+    ###
+    ### Generate an issues report
+    ###
+    puts "DEBUG Generating issues report"
+    endpoint = "#{@baseapi}/reports/issues"
+    response = RestClient::Request.execute({
+      method: :post,
+      payload: {
+        "domain" => domain,
+        "format"=> "csv"
+      },
+      url: endpoint,
+      headers: @headers
+    })
+
+    now = Time.now.utc
+    puts "DEBUG #{now}"
+    
+    ###
+    ### Now get the list of recently generated reports 
+    ###
+    puts "DEBUG getting list of recent reports"
+    endpoint = "https://api.securityscorecard.io/reports/recent"
+    response = RestClient::Request.execute({
+      method: :get,
+      url: endpoint,
+      headers: @headers
+    })
+
+    report_list = JSON.parse(response.body)["entries"]
+    
+    ###
+    ### Now wait for our report to be generated, and then get it 
+    ###
+    latest_report_completed_at = now
+    tries = 0
+    max_retries = 10
+    output = []
+    while latest_report_completed_at <= now
+      puts "DEBUG Waiting for report to be generatd. Last report generated: #{latest_report_completed_at}"
+
+      last_report = report_list.sort_by{|x| "#{x["completed_at"]}" }.reverse.first 
+      
+      download_url = last_report["download_url"]
+      latest_report_completed_at = Time.parse(last_report["completed_at"])
+      puts "DEBUG Latest report completed at: #{latest_report_completed_at}"
+      
+      ### Max retries
+      if latest_report_completed_at == now && tries < max_retries 
+        puts "DEBUG Waiting 10s for report generation"
+        sleep 10
+        tries += 1
+        next
+      end
+                
+      puts "DEBUG Got download url: #{download_url}"
+      response = RestClient::Request.execute({
+        method: :get,
+        url: download_url,
+        headers: @headers
+      })
+      
+      puts "DEBUG Returning parsed version"
+      return CSV.parse(response.body)
+    end
+
+  nil
+  end
 
 end
 end

@@ -439,6 +439,10 @@ Expanse UNMAPPED:
         {
           source: "SecurityScorecard",
           vuln_id: /^github_information_leak_disclosure$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^exposed_personal_information$/
         }
       ]
     },
