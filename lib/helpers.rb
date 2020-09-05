@@ -83,8 +83,10 @@ module Kenna
         # create full output path
         output_path = "#{directory}/#{filename}"
 
-        # write it
-        File.open(output_path,"w") {|f| f.puts output }
+        # write it, char by char to avoid large mem issues
+        File.open(output_path,"wb") do |file|
+          output.each_char { |char| file.write char }
+        end
       end
 
       ###

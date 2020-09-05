@@ -90,7 +90,7 @@ module RiskIq
               vuln = {
                 "scanner_identifier" => "#{cve["name"]}",
                 "scanner_type" => "RiskIQ",
-                "details" => JSON.pretty_generate(wc),
+                #"details" => JSON.pretty_generate(wc),
                 "first_seen" => first_seen,
                 "last_seen" => last_seen,
                 "status" => "open"

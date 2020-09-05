@@ -58,7 +58,7 @@ class Client
     while current_page <= max_pages || max_pages == -1
       puts "DEBUG Getting page: #{current_page} / #{max_pages}"
 
-      endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=500"
+      endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=100"
   
       begin
 
@@ -71,12 +71,18 @@ class Client
 
         result = JSON.parse(response.body)
 
+      rescue RestClient::Exceptions::ReadTimeout => e
+        puts "Error making request - server timeout?!"
+        sleep rand(10)
+        retry 
       rescue RestClient::InternalServerError => e 
         puts "Error making request - server 500?!"
         sleep rand(10)
+        retry 
       rescue RestClient::ServerBrokeConnection => e 
         puts "Error making request - server dropped us?!"
         sleep rand(10)
+        retry 
       rescue RestClient::NotFound => e 
         puts "Error making request - bad endpoint?!"
       rescue RestClient::BadRequest => e 
