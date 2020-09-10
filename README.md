@@ -104,15 +104,15 @@ Below is an example that maps volumes to directories on the local system - both 
 ## Docker
 
     docker run  -it --rm \
-    -v ~/Desktop/toolkit_input:/opt/toolkit/input \
-    -v ~/Desktop/toolkit_output:/opt/toolkit/output \
+    -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
+    -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
     -t toolkit:latest task=example
 
 ## Podman
 
     podman run  -it --rm \
-    -v ~/Desktop/toolkit_input:/opt/toolkit/input \
-    -v ~/Desktop/toolkit_output:/opt/toolkit/output \
+    -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
+    -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
     -t toolkit:latest task=example
 
 # TOOLKIT CAPABILITIES (TASKS)
