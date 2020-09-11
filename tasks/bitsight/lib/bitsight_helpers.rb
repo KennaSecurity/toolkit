@@ -135,7 +135,7 @@ module BitsightHelpers
         ###
         ### for each vuln, create a cve 
         ###
-        finding["vulnerabilities"].each do |v|
+        finding["details"]["vulnerabilities"].each do |v|
           vuln_def_id = v["name"]
           create_cve_vuln(vuln_def_id, finding, asset_attributes)
         end

@@ -3,13 +3,6 @@ module Toolkit
 module Data
 module Mapping
 class DigiFootprintFindingMapper
-  
-=begin
-SSC UNMAPPED: 
-https://securityscorecard.com/hub/securityscorecard-api/10-metadata/10-2-get-a-list-of-issue-types
- - 
- - 
-=end
 
 =begin
 https://help.bitsighttech.com/hc/en-us/articles/360025011954-Diligence-Finding-Details#patching_cadence
@@ -17,15 +10,7 @@ Bitsight:
  - Domain Squatting - Findings for this risk vector cannot be queried via the API
 =end
 
-=begin
-RIQ UNMAPPED: 
-=end
-
-=begin
-Expanse UNMAPPED: 
-=end
-
-  def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="")
+  def self.get_canonical_vuln_details(orig_source, specific_details, description="", remediation="", override_score=true)
 
     ###
     ### Transform the identifier from the upstream source downcasing and
@@ -42,6 +27,7 @@ Expanse UNMAPPED:
     self._mapping_data.each do |map|
       map[:matches].each do |match|
         next unless match[:source] == orig_source 
+       
         if match[:vuln_id] =~ orig_vuln_id
           
           out = {
@@ -49,12 +35,16 @@ Expanse UNMAPPED:
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             scanner_score: (map[:score] / 10).to_i,
-            #override_score: match[:score],
             name: map[:name],
             description: "#{map[:description]}\n\n #{description}".strip,
             recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
           }
-          
+
+          # if we're told to override the score, override it 
+          if override_score
+            out[:override_score] = map[:score].to_i
+          end
+
           # only add in cwe_identifiers if we have a valid CWE
           if map[:cwe]
             out[:cwe_identifiers] = "#{map[:cwe]}"
@@ -588,11 +578,11 @@ Expanse UNMAPPED:
       ]
     },
     {
-      name: "Sensitive Service Detected",
+      name: "Sensitive Service Detected or Open Port Detected",
       score: 10,
       cwe: "CWE-693",
       description: "A System was detected running a potentially sensitive service.",
-      recommendation: "Verify this is expected.",
+      recommendation: "Verify this is expected and firewall the port if it is not.",
       matches: [
           { # correct place for this? # Open TCP Ports Observed
             source: "Bitsight",
@@ -842,9 +832,7 @@ Expanse UNMAPPED:
         {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
-        #{:source=>"Expanse", :vuln_id=>/^certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^domain_control_certificate_advertisements?$/},
-        #{:source=>"Expanse", :vuln_id=>/^healthy_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisements?$/},
@@ -1012,13 +1000,13 @@ Expanse UNMAPPED:
       recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
       matches: [ 
         {
-          source: "Expanse",
-          vuln_id: /^certificate_advertisement$/
+          :source=>"Expanse", 
+          :vuln_id=>/^certificate_advertisements?$/
         },
         {
-          source: "Expanse",
-          vuln_id: /^domain_control_validated_certificate_advertisement$/
-        }, 
+          :source=>"Expanse", 
+          :vuln_id=>/^healthy_certificate_advertisements?$/
+        },
         {
           source: "Expanse",
           vuln_id: /^employee_satisfaction$/
