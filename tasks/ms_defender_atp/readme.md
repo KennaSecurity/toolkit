@@ -37,50 +37,14 @@ Recommended Steps:
 
 Complete list of Options:
 
-options: [
-        { :name => "atp_tenant_id", 
-          :type => "string", 
-          :required => true, 
-          :default => nil, 
-          :description => "MS Defender ATP Tenant ID" },
-        { :name => "atp_client_id", 
-          :type => "api_key", 
-          :required => true, 
-          :default => nil, 
-          :description => "MS Defender ATP Client ID" },
-        { :name => "atp_client_secret", 
-          :type => "api_key", 
-          :required => true, 
-          :default => nil, 
-          :description => "MS Defender ATP Client Secret" },
-        { :name => "atp_api_host", 
-          :type => "hostname", 
-          :required => false, 
-          :default => "https://api.securitycenter.microsoft.com", 
-          :description => "url to retrieve Defender hosts and vulns"},
-        { :name => "atp_oath_host", 
-          :type => "hostname", 
-          :required => false, 
-          :default => "https://login.windows.net", 
-          :description => "url for Defender authentication"},        
-        { :name => "kenna_api_key", 
-          :type => "api_key", 
-          :required => false, 
-          :default => nil, 
-          :description => "Kenna API Key for use with connector option"},
-        { :name => "kenna_api_host", 
-          :type => "hostname", 
-          :required => false, 
-          :default => "api.kennasecurity.com", 
-          :description => "Kenna API Hostname if not US shared" }, 
-        { :name => "kenna_connector_id", 
-          :type => "integer", 
-          :required => false, 
-          :default => nil, 
-          :description => "If set, we'll try to upload to this connector"  },    
-        { :name => "output_directory", 
-          :type => "filename", 
-          :required => false, 
-          :default => "output/microsoft_atp", 
-          :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
-      ]
+Option | Required | Description | default
+------------ | -------------
+atp_tenant_id | true | MS Defender ATP Tenant ID | n/a
+atp_client_id | true | MS Defender ATP Client ID | n/a
+atp_client_secret | true | MS Defender ATP Client Secret | n/a
+atp_api_host | false | url to retrieve Defender hosts and vulns | https://api.securitycenter.microsoft.com 
+atp_oath_host | false | url for Defender authentication | https://login.windows.net
+kenna_api_key | false | Kenna API Key for use with connector option | n/a
+kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com
+kenna_connector_id | false | If set, we'll try to upload to this connector | n/a
+output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/microsoft_atp
