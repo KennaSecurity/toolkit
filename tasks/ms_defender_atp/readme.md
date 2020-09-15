@@ -35,16 +35,17 @@ Recommended Steps:
 1. Run the task with Microsoft Keys and Kenna Key/connector id
 
 
+
 Complete list of Options:
 
 | Option | Required | Description | default |
------------- | -------------
-atp_tenant_id | true | MS Defender ATP Tenant ID | n/a
-atp_client_id | true | MS Defender ATP Client ID | n/a
-atp_client_secret | true | MS Defender ATP Client Secret | n/a
-atp_api_host | false | url to retrieve Defender hosts and vulns | https://api.securitycenter.microsoft.com 
-atp_oath_host | false | url for Defender authentication | https://login.windows.net
-kenna_api_key | false | Kenna API Key for use with connector option | n/a
-kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com
-kenna_connector_id | false | If set, we'll try to upload to this connector | n/a
-output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/microsoft_atp
+| --- | --- | --- | --- |
+| atp_tenant_id | true | MS Defender ATP Tenant ID | n/a |
+| atp_client_id | true | MS Defender ATP Client ID | n/a |
+| atp_client_secret | true | MS Defender ATP Client Secret | n/a |
+| atp_api_host | false | url to retrieve Defender hosts and vulns | https://api.securitycenter.microsoft.com |
+| atp_oath_host | false | url for Defender authentication | https://login.windows.net |
+| kenna_api_key | false | Kenna API Key for use with connector option | n/a |
+| kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
+| kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
+| output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/microsoft_atp |
