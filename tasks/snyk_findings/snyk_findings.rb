@@ -2,14 +2,14 @@ require_relative "lib/snyk_helper"
 
 module Kenna 
 module Toolkit
-class Snyk < Kenna::Toolkit::BaseTask
+class SnykFindings < Kenna::Toolkit::BaseTask
 
   include Kenna::Toolkit::SnykHelper
 
   def self.metadata 
     {
-      id: "snyk",
-      name: "Snyk",
+      id: "snyk_findings",
+      name: "Snyk Findings",
       description: "Pulls assets and vulnerabilitiies from Snyk",
       options: [
         {:name => "snyk_api_token", 
@@ -99,24 +99,24 @@ class Snyk < Kenna::Toolkit::BaseTask
 
       pagenum = pagenum + 1
 
-      vuln_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum)
+      finding_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum)
 
-      print_debug "issue json = #{vuln_json}"
+      print_debug "issue json = #{finding_json}"
 
-      if vuln_json.nil? || vuln_json.empty? || vuln_json.length == 0 then
+      if finding_json.nil? || finding_json.empty? || finding_json.length == 0 then
         morepages = false
         break
       end
 
       
-      vuln_severity = { "high" => 6, "medium" => 4, "low" => 1} # converter
-      vuln_json.each do |issue_obj|
+      finding_severity = { "high" => 6, "medium" => 4, "low" => 1} # converter
+      finding_json.each do |issue_obj|
         issue = issue_obj["issue"]
         project = issue_obj["project"]
         identifiers = issue["identifiers"]
 
         targetFile = project.fetch("targetFile")if project.key? ("targetFile")
-        package = project.fetch("package") if project.key("package")
+        package = project.fetch("package") if project.key? ("package")
 
         file = "#{targetFile}/" if !targetFile.nil?
         file = "#{file}#{package}"
@@ -131,7 +131,7 @@ class Snyk < Kenna::Toolkit::BaseTask
 
         scanner_score = ""
         if !issue.key?("cvssScore") then
-          scanner_score = vuln_severity.fetch(issue.fetch("severity")) 
+          scanner_score = finding_severity.fetch(issue.fetch("severity")) 
         else
           scanner_score = issue.fetch("cvssScore").to_i
         end
@@ -164,15 +164,15 @@ class Snyk < Kenna::Toolkit::BaseTask
         additional_fields = additional_fields.compact!
 
 
-
         # craft the vuln hash
-        vuln = {
+        finding = {
           "scanner_identifier" => issue.fetch("id"),
           "scanner_type" => "Snyk",
-          "scanner_score" => scanner_score, 
+          "severity" => scanner_score, 
           "created_at" => issue_obj.fetch("introducedDate"),
-          "details" => JSON.pretty_generate(additional_fields)
+          "additional_fields" => additional_fields
         }
+
         patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
         cves = nil
@@ -189,16 +189,16 @@ class Snyk < Kenna::Toolkit::BaseTask
           "scanner_identifier" => issue.fetch("id"),
           "scanner_type" => "Snyk",
           "solution" => patches,
+          "description" => description,
           "cve_identifiers" => cves,
           "cwe_identifiers" => cwes,
-          "name" => issue.fetch("title"),
-          "description" => description
+          "name" => issue.fetch("title")
         }
 
         vulndef = vuln_def.compact!
 
         # Create the KDI entries 
-        create_kdi_asset_vuln(asset, vuln)
+        create_kdi_asset_finding(asset, finding)
         create_kdi_vuln_def(vuln_def)
       end
     end
@@ -206,7 +206,7 @@ class Snyk < Kenna::Toolkit::BaseTask
     ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    filename = "snyk_kdi.json"
+    filename = "snyk_findings_kdi.json"
     write_file output_dir, filename, JSON.pretty_generate(kdi_output)
     print_good "Output is available at: #{output_dir}/#{filename}"
 

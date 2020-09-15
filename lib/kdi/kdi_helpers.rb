@@ -116,6 +116,34 @@ module Toolkit
 		vuln_hash
 	  end
 
+	  def create_kdi_asset_finding(asset_hash, finding_hash, match_key=nil)
+	    kdi_initialize unless @assets
+
+	    # check to make sure it doesnt exist
+	    if match_key.nil? then
+			a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
+		else
+			a = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
+		end
+
+	    # SAnity check to make sure we are pushing data into the correct asset 
+	    unless a #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+				puts "Unable to find asset #{asset_hash}, creating a new one... "
+				create_kdi_asset asset_hash
+				a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
+	    end 
+
+			# Default values & type conversions... just make it work
+			finding_hash["triage_state"] = "new" unless finding_hash["triage_state"]
+			finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless finding_hash["last_seen_at"]
+			
+			# add it in 
+			a["findings"] = [] unless a["findings"]
+			a["findings"] << finding_hash
+		
+		finding_hash
+	  end
+
 	  # Args can have the following key value pairs: 
 	  # A "*" indicates required  
 	  # {
