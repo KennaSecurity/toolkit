@@ -37,7 +37,7 @@ Recommended Steps:
 
 Complete list of Options:
 
-Option | Required | Description | default
+| Option | Required | Description | default |
 ------------ | -------------
 atp_tenant_id | true | MS Defender ATP Tenant ID | n/a
 atp_client_id | true | MS Defender ATP Client ID | n/a
