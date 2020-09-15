@@ -56,7 +56,7 @@ class Client
     out = []
 
     while current_page <= max_pages || max_pages == -1
-      #puts "DEBUG Getting page: #{current_page} / #{max_pages}"
+      puts "DEBUG Getting page: #{current_page} / #{max_pages}"
 
       endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=100"
   
@@ -69,22 +69,20 @@ class Client
           headers: @headers
         })
 
-        ###
-        ### uncomment to save pages of output
-        ###
-        #debug_out = "/tmp/riq_response_page_#{current_page}.json"
-        # puts "DEBUG: Writing #{debug_out}"
-        # File.open(debug_out, "w") do |f|
-        #   f.puts "#{response.body}"
-        # end
         result = JSON.parse(response.body)
 
+      rescue RestClient::Exceptions::ReadTimeout => e
+        puts "Error making request - server timeout?!"
+        sleep rand(10)
+        retry 
       rescue RestClient::InternalServerError => e 
         puts "Error making request - server 500?!"
         sleep rand(10)
+        retry 
       rescue RestClient::ServerBrokeConnection => e 
         puts "Error making request - server dropped us?!"
         sleep rand(10)
+        retry 
       rescue RestClient::NotFound => e 
         puts "Error making request - bad endpoint?!"
       rescue RestClient::BadRequest => e 
@@ -98,7 +96,7 @@ class Client
 
       # prepare the next request
       if max_pages == -1
-        puts "DEBUG Total Pages: #{result["totalPages"]}"
+        puts "Total Pages: #{result["totalPages"]}"
         max_pages = result["totalPages"].to_i
       end
 

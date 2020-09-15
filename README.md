@@ -29,7 +29,7 @@ A first example that will pull the latest image, and print the list of tasks:
 A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task to check your api key.
 In this case, the expanse task:
 
-    IMAGE="docker pull quay.io/kennasecurity/toolkit" && \
+    IMAGE="quay.io/kennasecurity/toolkit" && \
     docker pull $IMAGE && docker run -it $IMAGE task=kenna_api_key_check:kenna_api_key=$KENNA_API_KEY
 
 # Building your own Image
@@ -104,15 +104,15 @@ Below is an example that maps volumes to directories on the local system - both 
 ## Docker
 
     docker run  -it --rm \
-    -v ~/Desktop/toolkit_input:/opt/toolkit/input \
-    -v ~/Desktop/toolkit_output:/opt/toolkit/output \
+    -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
+    -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
     -t toolkit:latest task=example
 
 ## Podman
 
     podman run  -it --rm \
-    -v ~/Desktop/toolkit_input:/opt/toolkit/input \
-    -v ~/Desktop/toolkit_output:/opt/toolkit/output \
+    -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
+    -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
     -t toolkit:latest task=example
 
 # TOOLKIT CAPABILITIES (TASKS)
