@@ -137,10 +137,10 @@ Configuring A Volume With Podman:
 These are the current tasks available:
 
 - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
-- aws_inspector: This task pulls results from AWS inspector API and translates them into KDI
+- aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
-- generator: This task generates some demo data in KDI format!
+- generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
 - ms_defender_atp: Pulls assets and vulnerabilitiies from Microsoft Defenders ATP
 - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
@@ -154,7 +154,7 @@ These are the current tasks available:
 ---
 
 Proxy:
-If you need to use a proxy with this container the suggested implemntation is to use the built-in [Docker](https://docs.docker.com/network/proxy/) or [Podman](https://access.redhat.com/solutions/3939131)
+If you need to use a proxy with this container the suggested implementation is to use the built-in [Docker](https://docs.docker.com/network/proxy/) or [Podman](https://access.redhat.com/solutions/3939131) proxy support.
 
 ## CONTRIBUTORS
 
