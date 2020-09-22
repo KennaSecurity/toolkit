@@ -44,10 +44,10 @@ def self.metadata
 				:default => "ADGroup", 
 				:description => "Header for the CSV file column containing a role or AD group" },
 			{:name => "remove_users", 
-				:type => "string", 
+				:type => "boolean", 
 				:required => false, 
-				:default => "KEEP", 
-				:description => "Optional parameter to remove users not in data file from Kenna system. Set to REMOVE" },
+				:default => false, 
+				:description => "Optional parameter to remove users not in data file from Kenna system" },
 			{:name => "debug", :type => "boolean", 
 				:required => false, 
 				:default => false, 
@@ -166,7 +166,7 @@ def run(options)
 
 
 	# Remove Users not included in the new data file
-	if @remove_users == "REMOVE"
+	if @remove_users
 		print_good "REMOVING USERS!!!"
 		remove_users
 	end
