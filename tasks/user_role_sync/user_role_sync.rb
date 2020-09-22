@@ -160,9 +160,9 @@ def run(options)
 
 
 	# Remove Users not included in the new data file
-	# print_good "REMOVING USERS!!!"
+	print_good "REMOVING USERS!!!"
 
-	# remove_users
+	remove_users
 
 	print_good "DONE!"
 	@log_output << "\r" +  "DONE!"
