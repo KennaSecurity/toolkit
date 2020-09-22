@@ -145,7 +145,13 @@ module BitsightHelpers
       #### 
       else 
 
-        create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+        if finding["details"] && finding["details"]["grade"] && finding["details"]["grade"] == "GOOD" 
+          # handle "GOOD" findings here 
+          #puts "DEBUG... GOOD finding: #{vuln_def_id}\n#{finding}"
+          create_cwe_vuln("benign_finding", finding, asset_attributes)
+        else 
+          create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+        end
 
       end
 
@@ -183,6 +189,14 @@ module BitsightHelpers
   ###
   def create_cwe_vuln(vuln_def_id, finding, asset_attributes)
 
+    vd = {
+      "scanner_identifier" => "#{vuln_def_id}",
+    }
+    
+    # get our mapped vuln
+    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+    cvd = fm.get_canonical_vuln_details("Bitsight", vd)
+
     # then create each vuln for this asset
     vuln_attributes = {
       "scanner_identifier" => "#{vuln_def_id}",
@@ -192,19 +206,28 @@ module BitsightHelpers
       "last_seen_at" => finding["last_seen"],
       "status" => "open"
     }
-    
+
+    ###
+    ### TODO... port from finding? 
+    ###
+
+    ###
+    ### Set Scores based on what was available in the CVD
+    ###
+    if cvd["scanner_score"]
+      vuln_attributes["scanner_score"] = cvd["scanner_score"]
+    end
+
+    if cvd["override_score"]
+      vuln_attributes["override_score"] = cvd["override_score"]
+    end
+
     # def create_kdi_asset_vuln(asset_id, asset_locator, args)
     create_kdi_asset_vuln(asset_attributes, vuln_attributes)
   
-    vd = {
-      "scanner_identifier" => "#{vuln_def_id}",
-    }
-    
     ###
     ### Put them through our mapper 
     ###
-    fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-    cvd = fm.get_canonical_vuln_details("Bitsight", vd)
     create_kdi_vuln_def(cvd)
   end 
   

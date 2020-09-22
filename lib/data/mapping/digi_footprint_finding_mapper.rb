@@ -35,6 +35,7 @@ Bitsight:
             scanner_identifier: orig_vuln_id,
             source: "#{orig_source} (Kenna Normalized)",
             scanner_score: (map[:score] / 10).to_i,
+            override_score: (map[:score]).to_i,
             name: map[:name],
             description: "#{map[:description]}\n\n #{description}".strip,
             recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
@@ -999,6 +1000,10 @@ Bitsight:
       description: "A problem with this application's content security policy was identified.",
       recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
       matches: [ 
+        {
+          :source=>"Bitsight",  # this is something we manually labeled as a benign finding 
+          :vuln_id=>/^benign_finding$/
+        },
         {
           :source=>"Expanse", 
           :vuln_id=>/^certificate_advertisements?$/

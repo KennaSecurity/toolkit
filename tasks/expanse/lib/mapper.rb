@@ -74,32 +74,46 @@ module Mapper
       map_exposure_fields(false, e["exposureType"], e) 
     end
 
-    # convert to KDI 
+    
     fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+
+    # Create KDI
     result.each do |r|
 
       vuln_def_id = "#{r["vuln_def"]["scanner_identifier"]}".downcase.gsub("-","_").gsub(" ","_")
-
-      create_kdi_asset(r["asset"])
-      create_kdi_asset_vuln(r["asset"], 
-        {
-          "scanner_identifier" => "#{vuln_def_id}",
-          "first_seen" => Time.now.utc,
-          "last_seen" => Time.now.utc,
-          "scanner_type" => "Expanse",
-          "details" => JSON.pretty_generate(r["vuln"]),
-          "status" => "open"
-        }
-      )      
-
+    
+      # Get the normalized info
       vd = { "scanner_identifier" => vuln_def_id}
-
-      # Normalize
       cvd = fm.get_canonical_vuln_details("Expanse", vd )
 
-      print_debug "Creating vuln def from #{cvd}"
+      # create the asset 
+      create_kdi_asset(r["asset"])
+
+      
+      ### Setup basic vuln attributes
+      vuln_attributes =  {
+        "scanner_identifier" => "#{vuln_def_id}",
+        "first_seen" => Time.now.utc,
+        "last_seen" => Time.now.utc,
+        "scanner_type" => "Expanse",
+        "details" => JSON.pretty_generate(r["vuln"]),
+        "status" => "open"
+      }
+
+      ### Set Scores based on what was available in the CVD
+      if cvd["scanner_score"]
+        vuln_attributes["scanner_score"] = cvd["scanner_score"]
+      end
+
+      if cvd["override_score"]
+        vuln_attributes["override_score"] = cvd["override_score"]
+      end
+
+      # Create the vuln
+      create_kdi_asset_vuln(r["asset"], vuln_attributes)      
 
       # Create the vuln def 
+      print_debug "Creating vuln def from #{cvd}"
       create_kdi_vuln_def(cvd)
     end
 
@@ -151,20 +165,30 @@ module Mapper
       # convert to KDI 
       fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
       result.each do |r|
-        #print_good "Getting #{r["asset"]}"
 
         # NORMALIZE 
         vuln_def_id = "#{r["vuln_def"]}".downcase.gsub("-","_").gsub(" ","_")
-
-        create_kdi_asset(r["asset"])
-        create_kdi_asset_vuln(r["asset"], r["vuln"])      
-
-        # Normalize
         cvd = fm.get_canonical_vuln_details("Expanse", {"scanner_identifier" => vuln_def_id} )
 
-        print_debug "Creating vuln def from #{cvd}"
+        create_kdi_asset(r["asset"])
+
+        ### Setup basic vuln attributes
+        vuln_attributes =  r["vuln"]
+
+        ### Set Scores based on what was available in the CVD
+        if cvd["scanner_score"]
+          vuln_attributes["scanner_score"] = cvd["scanner_score"]
+        end
+
+        if cvd["override_score"]
+          vuln_attributes["override_score"] = cvd["override_score"]
+        end
+
+        # Create the vuln
+        create_kdi_asset_vuln(r["asset"], vuln_attributes)
 
         # Create the vuln def 
+        print_debug "Creating vuln def from #{cvd}"
         create_kdi_vuln_def(cvd)
       end
 
