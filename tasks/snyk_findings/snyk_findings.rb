@@ -161,7 +161,7 @@ class SnykFindings < Kenna::Toolkit::BaseTask
           "version" => version
         }
 
-        additional_fields = additional_fields.compact!
+        additional_fields.compact!
 
 
         # craft the vuln hash
@@ -173,29 +173,35 @@ class SnykFindings < Kenna::Toolkit::BaseTask
           "additional_fields" => additional_fields
         }
 
+        finding.compact!
+
         patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
         cves = nil
         cwes = nil
         if !identifiers.nil? then
-          cves = identifiers['CVE'].join(",") unless identifiers['CVE'].nil? || identifiers['CVE'].length == 0
-          cwes = identifiers['CWE'].join(",") unless identifiers['CWE'].nil? || identifiers['CVE'].length == 0
+          cve_array = identifiers['CVE'] unless identifiers['CVE'].nil? || identifiers['CVE'].length == 0
+          cwe_array = identifiers['CWE'] unless identifiers['CWE'].nil? || identifiers['CVE'].length == 0
+          cve_array.delete_if {|x| x.start_with?('RHBA','RHSA') } unless cve_array.nil? || cve_array.length == 0
+          cves = cve_array.join(",") unless cve_array.nil? || cve_array.length == 0
+          cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length == 0
         end 
-        name = nil
-        name = issue.fetch("title") unless issue.fetch("title").nil? 
+
+        vuln_name = nil
+        vuln_name = issue.fetch("title") unless issue.fetch("title").nil? 
 
 
         vuln_def= {
           "scanner_identifier" => issue.fetch("id"),
           "scanner_type" => "Snyk",
           "solution" => patches,
-          "description" => description,
           "cve_identifiers" => cves,
           "cwe_identifiers" => cwes,
-          "name" => issue.fetch("title")
+          "name" => vuln_name,
+          "description" => description
         }
 
-        vulndef = vuln_def.compact!
+        vuln_def.compact!
 
         # Create the KDI entries 
         create_kdi_asset_finding(asset, finding)
