@@ -88,7 +88,6 @@ module Mapper
 
       # create the asset 
       create_kdi_asset(r["asset"])
-
       
       ### Setup basic vuln attributes
       vuln_attributes =  {
@@ -188,7 +187,7 @@ module Mapper
         create_kdi_asset_vuln(r["asset"], vuln_attributes)
 
         # Create the vuln def 
-        print_debug "Creating vuln def from #{cvd}"
+        #print_debug "Creating vuln def from #{cvd}"
         create_kdi_vuln_def(cvd)
       end
 

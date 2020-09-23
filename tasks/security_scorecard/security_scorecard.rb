@@ -166,6 +166,13 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     # OTHERWISE!!!
     else # run through mapper 
 
+      ###
+      # if we got a positive finding, make it benign
+      ###
+      if i["issue_type_severity"] == "POSITIVE"
+        issue_type = "benign_finding"
+      end
+
       #puts "DEBUG NON CVE VULN: #{issue_type}"
       
       temp_vuln_def_attributes = {
@@ -353,6 +360,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         ### Get things in an acceptable format 
         ###
         asset_attributes = ssc_issue_to_kdi_asset_hash(i)
+
         vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
       
         # THEN create it 

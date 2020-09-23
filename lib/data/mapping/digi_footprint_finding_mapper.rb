@@ -395,7 +395,7 @@ Bitsight:
       ]
     },
     {
-      name: "Social Network Accounts Leaking Email Addresses",
+      name: "Social Network Accounts Leaking Data",
       cwe: "CWE-200",
       score: 20,
       description: "Leaked Company Emails Open to Spear-Phishing or other email-based interaction",
@@ -404,6 +404,10 @@ Bitsight:
         {
           source: "SecurityScorecard",
           vuln_id: /^social_network_issues$/ # Unsolicited Commercial Email
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^exposed_personal_information_info$/ 
         }
       ]
     },
@@ -1036,6 +1040,10 @@ Bitsight:
           source: "SecurityScorecard",
           vuln_id: /^waf_detected$/
         }, 
+        {
+          :source=>"SecurityScorecard",  # this is something we manually labeled as a benign finding 
+          :vuln_id=>/^benign_finding$/
+        },
         {
           source: "SecurityScorecard",
           vuln_id: /^hosted_on_object_storage$/
