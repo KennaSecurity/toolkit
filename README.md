@@ -13,7 +13,7 @@ All the code samples in this GitHub repository are offered “as is” and inclu
 
 MacOS/Windows
 
-- [Docker Desktop](https://www.docker.com), or an orchestrator capable of running a standalone docker image.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop), or an orchestrator capable of running a standalone docker image.
 - 8GB RAM (this is relative, some tasks will require much less memory)
 
 Linux
