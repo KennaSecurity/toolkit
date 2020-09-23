@@ -134,11 +134,19 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       port = i["port"]
     end
 
+    #puts JSON.pretty_generate(i) 
+    #puts 
+
+    issue_type = i["type"]
+
     # handle patching cadence differently, these will have CVEs
-    if i["vulnerability_id"] && !i["vulnerability_id"] == ""
+    if issue_type =~ /patching_cadence/ || issue_type =~ /service_vuln/ 
+
+      #puts "DEBUG CVE VULN: #{i["type"]} #{i['vulnerability_id']}"
+      #puts "#{i}"
 
       vuln_attributes = {
-        "scanner_identifier" => i["vulnerability_id"] ,
+        "scanner_identifier" => i["vulnerability_id"] || i["cve"] ,
         "scanner_type" => scanner_type,
         "details" => JSON.pretty_generate(i), 
         "created_at" => first_seen,
@@ -159,9 +167,27 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     else # run through mapper 
 
       ###
+      # if we got a positive finding, make it benign
+      ###
+      if i["issue_type_severity"] == "POSITIVE"
+        issue_type = "benign_finding"
+      end
+
+      #puts "DEBUG NON CVE VULN: #{issue_type}"
+      
+      temp_vuln_def_attributes = {
+        "scanner_identifier" => issue_type
+      }
+    
+      ###
+      ### Put them through our mapper 
+      ###
+      fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
+      vuln_def_attributes = fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
+
+      ###
       ### Vuln
       ###
-      issue_type = i["type"]
       vuln_attributes = {
         "scanner_identifier" => issue_type,
         "scanner_type" => scanner_type,
@@ -172,15 +198,18 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       }
       vuln_attributes["port"] = port if port 
 
-      temp_vuln_def_attributes = {
-        "scanner_identifier" => issue_type
-      }
-    
       ###
-      ### Put them through our mapper 
+      ### Set Scores based on what was available in the CVD
       ###
-      fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
-      vuln_def_attributes = fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
+      if vuln_def_attributes["scanner_score"]
+        vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"]
+      end
+
+      if vuln_def_attributes["override_score"]
+        vuln_attributes["override_score"] = vuln_def_attributes["override_score"]
+      end
+
+
 
     end
 
@@ -266,9 +295,9 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       
       # grab
       print_good "Pulling data for domain: #{ssc_domain}"
+      # process
       issues = client.get_issues_report_for_domain(ssc_domain)
 
-      # process
       print_good "Processing data for: #{ssc_domain}"
       
       if @options[:debug]
@@ -286,7 +315,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         end
 
         #print_debug "Processing issue: #{issue}"
-        print_good "Processing #{index}/#{issues_count}: #{issue[0]}"
+        print_good "Processing issue: #{index}/#{issues_count}: #{issue[0]}"
         i = ssc_csv_issue_to_hash(issue)
 
         ### 
@@ -298,6 +327,8 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         #print vuln_attributes 
         #print vuln_def_attributes
         
+        
+
         # THEN create it 
         create_kdi_asset(asset_attributes) 
         # vuln 
@@ -312,6 +343,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       if @options[:debug]
         issue_types = [
           "patching_cadence_high", 
+          "patching_cadence_medium", 
           "patching_cadence_low", 
           "service_imap", 
           "csp_no_policy"
@@ -328,6 +360,7 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
         ### Get things in an acceptable format 
         ###
         asset_attributes = ssc_issue_to_kdi_asset_hash(i)
+
         vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
       
         # THEN create it 
