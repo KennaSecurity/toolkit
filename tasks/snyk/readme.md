@@ -1,35 +1,34 @@
-This Task will use the Snyk API to:
+# Snyk API Taks
 
-1. [Get a lisk of Orgs](https://snyk.io/api/v1/orgs) to which the user has permission
-1. [Get a list of Projects](https://snyk.io/api/v1/org/#{org}/projects) using the retrieved Orgs
-1. [Get a list of Issues](https://snyk.io/api/v1/reporting/issues) for the Projects & Orgs
-1. Output a json file in the Kenna Data Importer (KDI) format. 
-1. Post the file to Kenna if API Key and Connector ID are provided
+## This Task will use the Snyk API to
 
+- [Get a lisk of Orgs](https://snyk.io/api/v1/orgs) to which the user has permission
+- [Get a list of Projects](https://snyk.io/api/v1/org/#{org}/projects) using the retrieved Orgs
+- [Get a list of Issues](https://snyk.io/api/v1/reporting/issues) for the Projects & Orgs
+- Output a json file in the Kenna Data Importer (KDI) format.
+- Post the file to Kenna if API Key and Connector ID are provided
 
+## Things you will need
 
-Things you will need: 
-
-1. Snyk API Key (Required)
-1. Kenna API Key (Optional but needed for automatic upload to Kenna)
-1. Kenna Connector ID (Optional but needed for automatic upload to Kenna)
+- Snyk API Key (Required)
+- Kenna API Key (Optional but needed for automatic upload to Kenna)
+- Kenna Connector ID (Optional but needed for automatic upload to Kenna)
 
 Running the Task:
 
-1. Retrieve the Snyk API Key from the Synk UI. 
-    1. From Name Dropdown (Upper right corner) select General Settings
-    1. On the Account Settings tab you will see a section for API Token. Show, create or regenerate a token. 
-1. Retrieve the Kenna API Key from the Kenna UI. 
-    1. From the Gear icon (Upper right corner) select API Keys
-    1. Copy the key using the copy button to the left of the obscured key
-1. Retrieve the Kenna Connector ID
-    1. If not already created, select the Add Connector button to create connector of type Kenna Data Importer. Be sure to rename the connector using 'Snyk' in the name. 
-    1. Click on the name of the connector and from the resulting page, copy the Connector ID.
+- Retrieve the Snyk API Key from the Synk UI.
+  - From Name Dropdown (Upper right corner) select General Settings
+  - On the Account Settings tab you will see a section for API Token. Show, create or regenerate a token.
+- Retrieve the Kenna API Key from the Kenna UI.
+  - From the Gear icon (Upper right corner) select API Keys
+  - Copy the key using the copy button to the left of the obscured key
+- Retrieve the Kenna Connector ID  
+  - If not already created, select the Add Connector button to create connector of type Kenna Data Importer. Be sure to rename the connector using 'Snyk' in the name.
+  - Click on the name of the connector and from the resulting page, copy the Connector ID.
 
-Run the Snyk task following the guidelines on the main [toolkit help page](https://github.com/KennaPublicSamples/toolkit#calling-a-specific-task) adding options as necessary 
+Run the Snyk task following the guidelines on the main [toolkit help page](https://github.com/KennaPublicSamples/toolkit#calling-a-specific-task) adding options as necessary
 
-
-options:
+## Options
 
 | Name | Type | Required | Description |
 | ------------ | ------------- | ------------ | ------------- |
