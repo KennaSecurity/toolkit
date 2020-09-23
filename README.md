@@ -143,7 +143,7 @@ These are the current tasks available:
 - generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
 - ms_defender_atp: Pulls assets and vulnerabilitiies from Microsoft Defenders ATP
-- nozomi: Pulls assets and vulnerabilites/issues from Nozomi Networks 
+- nozomi: Pulls assets and vulnerabilites/issues from Nozomi Networks
 - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
 - security_scorecard: This task connects to the Security Scorecard API and pulls results into the Kenna Platform.
 - snyk: Pulls assets and vulnerabilitiies from Snyk
