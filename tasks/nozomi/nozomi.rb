@@ -1,0 +1,196 @@
+require_relative "lib/nozomi_helper"
+
+module Kenna 
+module Toolkit
+class Nozomi < Kenna::Toolkit::BaseTask
+
+  include Kenna::Toolkit::NozomiHelper
+
+  def self.metadata 
+    {
+      id: "nozomi",
+      name: "Nozomi",
+      description: "Pulls assets and vulnerabilitiies from Nozomi",
+      options: [
+        {:name => "nozomi_user", 
+          :type => "user", 
+          :required => true, 
+          :default => nil, 
+          :description => "Nozomi User" },
+        {:name => "nozomi_password", 
+          :type => "password", 
+          :required => true, 
+          :default => nil, 
+          :description => "Nozomi Password" },
+        {:name => "nozomi_api_host", 
+          :type => "password", 
+          :required => true, 
+          :default => nil, 
+          :description => "Nozomi Hostname" },
+        {:name => "nozomi_page_size", 
+          :type => "integer", 
+          :required => false, 
+          :default => 5000, 
+          :description => "Nozomi page size" },
+        {:name => "kenna_api_key", 
+          :type => "api_key", 
+          :required => false, 
+          :default => nil, 
+          :description => "Kenna API Key" },
+        {:name => "kenna_api_host", 
+          :type => "hostname", 
+          :required => false  , 
+          :default => "api.kennasecurity.com", 
+          :description => "Kenna API Hostname" }, 
+        { :name => "kenna_connector_id", 
+          :type => "integer", 
+          :required => false, 
+          :default => nil, 
+          :description => "If set, we'll try to upload to this connector" },    
+        { :name => "output_directory", 
+          :type => "filename", 
+          :required => false, 
+          :default => "output/nozomi", 
+          :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
+
+      ]
+    }
+  end
+
+  def run(opts)
+    super # opts -> @options
+
+    nozomi_user = @options[:nozomi_user]
+    nozomi_password = @options[:nozomi_password]
+    nozomi_api_host = @options[:nozomi_api_host]
+    nozomi_page_size = @options[:nozomi_page_size]
+    kenna_api_host = @options[:kenna_api_host]
+    kenna_api_key = @options[:kenna_api_key]
+    kenna_connector_id = @options[:kenna_connector_id]
+
+    output_directory = @options[:output_directory]
+
+    morepages = true
+    pagenum = 0
+    while morepages do 
+
+      pagenum = pagenum + 1
+
+      issue_json = nozomi_get_issues(nozomi_user, nozomi_password, nozomi_api_host, nozomi_page_size, pagenum)
+
+      print_debug "issue json = #{issue_json}"
+
+      if issue_json.nil? || issue_json.empty? || issue_json.length == 0 then
+        morepages = false
+        break
+      end
+
+      issue_json.each do |issue_obj|
+        os = issue_obj["node_os"]
+        tags = []
+
+        tags << "Appliance:" + issue_obj["appliance_host"] unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
+        tags << "AssetType:" + issue_obj["node_type"] unless issue_obj["node_type"].nil? || issue_obj["node_type"].empty?
+        tags << "Product:" + issue_obj["node_product_name"] unless issue_obj["node_product_name"].nil? || issue_obj["node_product_name"].empty?
+        tags << "Vendor:" + issue_obj["node_vendor"] unless issue_obj["node_vendor"].nil? || issue_obj["node_vendor"].empty?
+        tags << "Zone:" + issue_obj["zone"] unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
+
+        host_identifier = issue_obj.fetch("node_id")
+
+        if host_identifier.include? "." then
+          ip_address = host_identifier
+        else
+          mac_address = host_identifier
+        end
+
+        
+        asset = {
+
+          "mac_address" => mac_address,
+          "ip_address" => ip_address,
+          "tags" => tags,
+          "os" => os
+
+        }
+
+        asset.compact!
+
+        details = {
+          "cve_references" => issue_obj["cve_references"],
+          "likelihood" => issue_obj["likelihood"],
+          "matching_cpes" => issue_obj["matching_cpes"],
+          "cve_source" => issue_obj["cve_source"]
+        }
+
+        details.compact!
+        
+        created_at = Time.at(issue_obj.fetch("cve_creation_time")/1000.0).iso8601
+        description = issue_obj.fetch("cve_summary")
+        vuln_name = nil
+
+        cve = nil
+        cwe = nil
+        
+
+        cve = issue_obj.fetch("cve") unless issue_obj.fetch("cve").nil? || issue_obj.fetch("cve").empty?
+        cwe = issue_obj.fetch("cwe_id") unless issue_obj.fetch("cwe_id").nil? || issue_obj.fetch("cwe_id").empty?
+        if cwe == "[unclassified]" then
+          cwe = nil
+        else
+          cwe = "CWE-#{cwe}"
+          vuln_name = issue_obj.fetch("cwe_name")
+        end
+
+        if cve.start_with?('NN') then
+          cve = description[/CVE-........../]
+          cve.slice! '.'
+        end
+
+
+        # craft the vuln hash
+        vuln = {
+          "scanner_identifier" => cve,
+          "scanner_type" => "Nozomi",
+          "scanner_score" => issue_obj.fetch("cve_score").to_i, 
+          "created_at" => created_at,
+          "details" => JSON.pretty_generate(details)
+        }
+
+        vuln.compact!
+
+
+        vuln_def= {
+          "scanner_identifier" => cve,
+          "scanner_type" => "Nozomi",
+          "description" => description,
+          "cve_identifiers" => cve,
+          "cwe_identifiers" => cwe,
+          "name" => vuln_name
+        }
+
+        vuln_def.compact!
+
+        # Create the KDI entries 
+        create_kdi_asset_vuln(asset, vuln)
+        create_kdi_vuln_def(vuln_def)
+      end
+     pagenum+=1 
+    end
+
+    ### Write KDI format
+    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+    output_dir = "#{$basedir}/#{@options[:output_directory]}"
+    filename = "nozomi_kdi.json"
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
+
+    ### Finish by uploading if we're all configured
+    if kenna_connector_id && kenna_api_host && kenna_api_key
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
+    end
+
+  end
+end
+end
+end
