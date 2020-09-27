@@ -33,6 +33,7 @@ module Mapper
 
       ## For each item in the mapping
       mapping.each do |map_item|
+
         target = map_item[:target]
         map_action = map_item[:action]
         
@@ -92,10 +93,11 @@ module Mapper
       ### Setup basic vuln attributes
       vuln_attributes =  {
         "scanner_identifier" => "#{vuln_def_id}",
-        "first_seen" => Time.now.utc,
-        "last_seen" => Time.now.utc,
+        "created_at" => r["vuln"]["created_at"],
+        "last_seen_at" => r["vuln"]["last_seen_at"],
         "scanner_type" => "Expanse",
-        "details" => JSON.pretty_generate(r["vuln"]),
+        "port" => r["vuln"]["port"],
+        "details" => r["vuln"]["details"],
         "status" => "open"
       }
 
@@ -220,9 +222,11 @@ module Mapper
       ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}" }},
-        { action: "copy", source: "port", target: "port" },
+        { action: "proc", target: "created_at", proc: lambda{|x| x["firstObservation"]["scanned"] }},
+        { action: "proc", target: "last_seen_at", proc: lambda{|x| x["lastObservation"]["scanned"] }},
+        { action: "copy", target: "port", source: "portNumber" },
         { action: "proc", target: "details", proc: lambda{|x| JSON.pretty_generate(x)  } },
-        { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
+        #{ action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
         { action: "data", target: "scanner_type", data: "Expanse" }
       ],
       'vuln_def' => [

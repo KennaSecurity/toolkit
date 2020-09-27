@@ -23,6 +23,16 @@ class BitsightTask < Kenna::Toolkit::BaseTask
           :required => false, 
           :default => "", 
           :description => "This is the Bitsight company GUID used to query the API." },
+        { :name => "bitsight_benign_finding_grades", 
+          :type => "string", 
+          :required => false, 
+          :default => "GOOD", 
+          :description => "Any bitsight findings with this grade will be considered benign" },
+        { :name => "bitsight_create_benign_findings", 
+          :type => "boolean", 
+          :required => false, 
+          :default => true, 
+          :description => "Create (informational) vulns for findings labeled benign" },
         { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
@@ -55,6 +65,8 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     kenna_connector_id = @options[:kenna_connector_id]
     bitsight_api_key = @options[:bitsight_api_key]
     bitsight_company_guid = @options[:bitsight_company_guid]
+    bitsight_create_benign_findings = @options[:bitsight_create_benign_findings]
+    benign_finding_grades = "#{@options[:bitsight_benign_finding_grades]}".split(",")
 
     ### Basic Sanity checking
     if valid_bitsight_api_key?(bitsight_api_key)
@@ -82,7 +94,12 @@ class BitsightTask < Kenna::Toolkit::BaseTask
       max_findings = 1000000 
     end
 
-    get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid, max_findings)
+    kdi_options = {
+      bitsight_create_benign_findings: bitsight_create_benign_findings,
+      benign_finding_grades: benign_finding_grades
+    }
+
+    get_bitsight_findings_and_create_kdi(bitsight_api_key, bitsight_company_guid, max_findings, kdi_options)
     
     ### Write KDI format
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
