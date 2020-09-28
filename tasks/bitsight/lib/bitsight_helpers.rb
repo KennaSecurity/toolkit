@@ -2,7 +2,7 @@ module Kenna
 module Toolkit
 module BitsightHelpers
 
-  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid, max_findings=1000000)
+  def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid, max_findings=1000000, options={})
     findings = []
     # then get the assets for it 
     #my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
@@ -14,8 +14,6 @@ module BitsightHelpers
     
       endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{my_company_guid}/findings?limit=#{limit}&offset=#{offset}"
     
-      #print_good "DEBUG Requesting: #{endpoint}"
-
       response = RestClient::Request.new(
         :method => :get,
         :url => endpoint,
@@ -28,8 +26,7 @@ module BitsightHelpers
 
       # do the right thing with the findings here 
       result["results"].each do |finding|
-        #puts "DEBUG finding: #{finding}\n"
-        _add_finding_to_working_kdi(finding)
+        _add_finding_to_working_kdi(finding, options)
       end
       
       # check for more 
@@ -91,19 +88,27 @@ module BitsightHelpers
 
   private 
 
-  def _add_finding_to_working_kdi(finding)
+  def _add_finding_to_working_kdi(finding, options)
 
     vuln_def_id = "#{finding["risk_vector_label"]}".gsub(" ", "_").gsub("-", "_").downcase
-    
+    print_debug "Working on finding of type: #{vuln_def_id}"
+
+    # get the grades labled as benign... Default: GOOD
+    benign_finding_grades = options[:benign_finding_grades]
+    #print_debug "Benign finding grades: #{benign_finding_grades}"
+
+
     finding["assets"].each do |a|
 
       asset_name = a["asset"]
       default_tags = ["Bitsight"]
+      asset_category_tag = "bitsight_cat_#{a["category"]}".downcase
+      tags = default_tags.concat [asset_category_tag]
 
       if a["is_ip"] # TODO ... keep severity  ]
         asset_attributes = {
           "ip_address" => asset_name, 
-          "tags" => default_tags 
+          "tags" => tags
         }
       else 
         asset_attributes = {
@@ -113,8 +118,7 @@ module BitsightHelpers
       end
 
       create_kdi_asset(asset_attributes) 
-    
-
+  
       ####
       #### CVE CASE
       #### 
@@ -145,11 +149,32 @@ module BitsightHelpers
       #### 
       else 
 
-        if finding["details"] && finding["details"]["grade"] && finding["details"]["grade"] == "GOOD" 
-          # handle "GOOD" findings here 
-          #puts "DEBUG... GOOD finding: #{vuln_def_id}\n#{finding}"
-          create_cwe_vuln("benign_finding", finding, asset_attributes)
-        else 
+        ###
+        ### Bitsight sometimes gives us stuff graded positively. 
+        ### check the options to determine what to do here. 
+        ###
+        if finding["details"] && finding["details"]["grade"]
+
+          print_debug "Got finding with grade: #{finding["details"]["grade"]}"
+          
+          # if it is labeled as one of our types
+          if benign_finding_grades.include?(finding["details"]["grade"])
+           
+            print "Adjusting to benign finding due to grade: #{vuln_def_id}"
+
+            # AND we're allowed to create 
+            if options[:bitsight_create_benign_findings]
+              # then create it 
+              create_cwe_vuln("benign_finding", finding, asset_attributes)
+            else # otherwise skip! 
+              print "Skipping benign finding: #{vuln_def_id}"
+            end
+          
+          else # we are probably a negative finding, just create it 
+            create_cwe_vuln(vuln_def_id, finding, asset_attributes)
+          end
+
+        else # no grade, so fall back to just creating
           create_cwe_vuln(vuln_def_id, finding, asset_attributes)
         end
 
@@ -172,6 +197,11 @@ module BitsightHelpers
       "status" => "open"
     }
     
+    # set the port if it's available 
+    if finding["details"]
+      vuln_attributes["port"] = "#{finding["details"]["dest_port"]}".to_i 
+    end
+
     # def create_kdi_asset_vuln(asset_id, asset_locator, args)
     create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
@@ -207,9 +237,10 @@ module BitsightHelpers
       "status" => "open"
     }
 
-    ###
-    ### TODO... port from finding? 
-    ###
+    # set the port if it's available 
+    if finding["details"]
+      vuln_attributes["port"] = "#{finding["details"]["dest_port"]}".to_i
+    end
 
     ###
     ### Set Scores based on what was available in the CVD

@@ -47,9 +47,9 @@ Bitsight:
           end
 
           # only add in cwe_identifiers if we have a valid CWE
-          if map[:cwe]
-            out[:cwe_identifiers] = "#{map[:cwe]}"
-          end
+          #if map[:cwe]
+          #  out[:cwe_identifiers] = "#{map[:cwe]}"
+          #end
 
           out = out.stringify_keys
         end
@@ -583,8 +583,33 @@ Bitsight:
       ]
     },
     {
-      name: "Sensitive Service Detected or Open Port Detected",
+      name: "Non-Sensitive (HTTP) Service Detected or Open Port Detected",
       score: 10,
+      cwe: "CWE-693",
+      description: "A System was detected running a non-sensitive service.",
+      recommendation: "Verify this is expected and firewall the port if it is not.",
+      matches: [
+          {
+            source: "Bitsight",
+            vuln_id: /^http_open_port$/
+          },
+          {
+            source: "Expanse",
+            vuln_id: /^http_open_port$/
+          },
+          { 
+            source: "SecurityScorecard",
+            vuln_id: /^http_open_port$/
+          },
+          { 
+            source: "RiskIQ",
+            vuln_id: /^http_open_port$/
+          }, 
+        ]
+      },
+      {
+      name: "Sensitive Service Detected or Open Port Detected",
+      score: 60,
       cwe: "CWE-693",
       description: "A System was detected running a potentially sensitive service.",
       recommendation: "Verify this is expected and firewall the port if it is not.",
@@ -597,166 +622,10 @@ Bitsight:
             source: "Expanse",
             vuln_id: /^.*_servers?$/
           },
-=begin
-          #{
-          #  source: "Expanse",
-          #  vuln_id: /^ftps_servers?$/
-          #},
-          {
-            source: "Expanse",
-            vuln_id: /^ftp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^ajp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^pop3_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^smtp_servers??$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^bacnet_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^cassandra_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^couch_db_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^dns_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^elasticsearch_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^ethernet_ip_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^ike2_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^imap_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^memcached_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^modbus_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^mongo_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^nat_pmp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^net_bios_name_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^ntp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^pc_anywhere_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^postgres_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^rdp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^redis_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^rpc_bind_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^rsync_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^telnet_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^upnp_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^vnc_over_http_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^vnc_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^vx_works_servers?$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^xmmp_servers?$/
-          },
-=end
           {
             source: "Expanse",
             vuln_id: /^detected_server_.*$/
           },
-=begin          
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_ftps$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_pop3$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_sip$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_smtp$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_snmp$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_ssh$/
-          },
-          {
-            source: "Expanse",
-            vuln_id: /^detected_server_telnet$/
-          },
-=end
           { # NOTE .. many matches here, may need to be split up 
             source: "SecurityScorecard",
             vuln_id: /^service_.*+$/
@@ -1001,7 +870,7 @@ Bitsight:
       name: "Non-Security or Benign Finding",
       cwe: "CWE-000",
       score: 0,
-      description: "A problem with this application's content security policy was identified.",
+      description: "This is a benign finding.",
       recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
       matches: [ 
         {
@@ -1054,7 +923,7 @@ Bitsight:
         },
         {
           source: "SecurityScorecard",
-          vuln_id: /^load_balancers$/
+          vuln_id: /^load_balancers?$/
         },
         {
           source: "SecurityScorecard",

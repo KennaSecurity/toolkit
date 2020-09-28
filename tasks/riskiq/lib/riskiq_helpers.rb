@@ -14,6 +14,7 @@ module RiskIq
   
       print_debug "Working on on #{data_items.count} items"
       data_items.each do |item| 
+        
         ###
         ### Handle Asset, note, host was used in the past, but now 
         ### page is the way to go 
@@ -79,35 +80,38 @@ module RiskIq
         if item["asset"]["webComponents"]
           (item["asset"]["webComponents"] || []).each do |wc|
   
-            # if you want to create open ports
-            #wc["ports"].each do |port|
-            #  puts port["port"]
-            #end
-  
-            # if you want to create open ports
-            (wc["cves"] || []).each do |cve| 
-              
-              vuln = {
-                "scanner_identifier" => "#{cve["name"]}",
-                "scanner_type" => "RiskIQ",
-                #"details" => JSON.pretty_generate(wc),
-                "first_seen" => first_seen,
-                "last_seen" => last_seen,
-                "status" => "open"
-              }
-  
-              vuln_def= {
-                "scanner_identifier" => "#{cve["name"]}",
-                "scanner_type" => "RiskIQ",
-                "cve_identifiers" => "#{cve["name"]}"
-              }
-              
-              create_kdi_asset_vuln(asset, vuln)
-              
-              #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
-              create_kdi_vuln_def(vuln_def)
+            # default to derived if no port specified
+            derived_port = "#{item["asset"]["service"]}".split(":").last
+
+            # if you want to create open ports, we need to infer the port from the service
+            # in addition to whatever else we've gotten
+            (wc["ports"] << derived_port).each do |port|
+    
+              # if you want to create open ports
+              (wc["cves"] || []).each do |cve| 
+                
+                vuln = {
+                  "scanner_identifier" => "#{cve["name"]}",
+                  "scanner_type" => "RiskIQ",
+                  #"details" => JSON.pretty_generate(wc),
+                  "port" => port.to_i,
+                  "first_seen" => first_seen,
+                  "last_seen" => last_seen,
+                  "status" => "open"
+                }
+    
+                vuln_def= {
+                  "scanner_identifier" => "#{cve["name"]}",
+                  "scanner_type" => "RiskIQ",
+                  "cve_identifiers" => "#{cve["name"]}"
+                }
+                
+                create_kdi_asset_vuln(asset, vuln)
+                
+                #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
+                create_kdi_vuln_def(vuln_def)
+              end
             end
-  
           end
         end
       end
