@@ -32,7 +32,7 @@ Bitsight:
           
           out = {
             scanner_type: orig_source,
-            scanner_identifier: orig_vuln_id,
+            scanner_identifier: "#{orig_vuln_id}",
             source: "#{orig_source} (Kenna Normalized)",
             scanner_score: (map[:score] / 10).to_i,
             override_score: (map[:score]).to_i,
@@ -101,7 +101,7 @@ Bitsight:
     [
       {
         name: "Application Content Security Policy Issue",
-        cwe: "CWE-358",
+        #cwe: "CWE-358",
         score: 20,
         description: "A problem with this application's content security policy was identified.",
         recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
@@ -122,7 +122,7 @@ Bitsight:
       },
       {
         name: "Application Security Headers",
-        cwe: "CWE-693",
+        #cwe: "CWE-693",
         score: 20,
         description: "One or more application security headers was detected missing or misconfigured.",
         recommendation: "Correct the header configuration on the server.",
@@ -152,7 +152,7 @@ Bitsight:
       },
       {
         name: "Application Subresource Integrity",
-        cwe: "CWE-358",
+        #cwe: "CWE-358",
         score: 20,
         description: "An unsafe subresource was detected.",
         recommendation: "Update the application's content.",
@@ -166,7 +166,7 @@ Bitsight:
       {
       name: "Application Software Version Detected",
       score: 10,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "Software details were detected.",
       recommendation: "Verify this is not leaking sensitive data:.",
       matches: [
@@ -195,7 +195,7 @@ Bitsight:
     {
       name: "Browser Software Inconsistent",
       score: 10,
-      cwe: "CWE-671",
+      #cwe: "CWE-671",
       description: "Multiple browser software packages detected.",
       recommendation: "Verify this is expected",
       matches: [
@@ -208,7 +208,7 @@ Bitsight:
     {
       name: "Client Software Outdated or Vulnerable",
       score: 10,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "A system was identified running an outdated browser or other client software.",
       recommendation: "Update the system.",
       matches: [
@@ -233,7 +233,7 @@ Bitsight:
     {
       name: "Compromised Application",
       score: 90,
-      cwe: "CWE-506",
+      #cwe: "CWE-506",
       description: "System was discovered by an attack feed.",
       recommendation: "Check this application for signs of compromise",
       matches: [
@@ -250,7 +250,7 @@ Bitsight:
     {
       name: "Compromised System",
       score: 90,
-      cwe: "CWE-506",
+      #cwe: "CWE-506",
       description: "System was discovered by an attack feed. It may be compromised by malware or a bot.",
       recommendation: "Check this system for signs of compromise",
       matches: [
@@ -268,6 +268,10 @@ Bitsight:
         },
         {
           source: "SecurityScorecard",
+          vuln_id: /^attack_detected$/
+        },
+        {
+          source: "SecurityScorecard",
           vuln_id: /^malware_1_day$/
         },
         {
@@ -277,13 +281,17 @@ Bitsight:
         {
           source: "SecurityScorecard",
           vuln_id: /^malware_365_day$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^suspicious_traffic$/
         }
       ]
     },
     {
       name: "Database Server Detected",
       score: 60,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "System was detected.",
       recommendation: "Verify this is expected:.",
       matches: [
@@ -320,7 +328,7 @@ Bitsight:
     {
       name: "Development System Detected",
       score: 30,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "System fit the pattern of a development system.",
       recommendation: "Verify this system should be exposed:.",
       matches: [
@@ -336,7 +344,7 @@ Bitsight:
     },
     {
       name: "DKIM Misconfiguration",
-      cwe: "CWE-358",
+      #cwe: "CWE-358",
       score: 20,
       description: "A problem with this domain's DKIM configuration was discovered.",
       recommendation: "Check the DKIM configuration:.",
@@ -349,7 +357,7 @@ Bitsight:
     },
     {
       name: "Domain Squatting",
-      cwe: "CWE-358",
+      #cwe: "CWE-358",
       score: 20,
       description: "A domain typosquat was detected.",
       recommendation: "Contact the registrar.",
@@ -362,7 +370,7 @@ Bitsight:
     },
     {
       name: "DNSSEC Misconfiguration",
-      cwe: "CWE-298",
+      #cwe: "CWE-298",
       score: 20,
       description: ".",
       recommendation: "See specifics for more detail about the DNSSEC misconfiguration.",
@@ -375,7 +383,7 @@ Bitsight:
     },
     {
       name: "End-of-Life (EOL) System or Software",
-      cwe: nil,
+      #cwe: nil,
       score: 50,
       description: "This system was determined to be running software or services that are EOL.",
       recommendation: "Investigate this software to determine if this is intended and if supported options exist.",
@@ -396,7 +404,7 @@ Bitsight:
     },
     {
       name: "Social Network Accounts Leaking Data",
-      cwe: "CWE-200",
+      #cwe: "CWE-200",
       score: 20,
       description: "Leaked Company Emails Open to Spear-Phishing or other email-based interaction",
       recommendation: "Best practice indicates you should disabld this access.",
@@ -413,7 +421,7 @@ Bitsight:
     },
     {
       name: "Exposed Cloud Object Storage (S3 Bucket)",
-      cwe: "CWE-284",
+      #cwe: "CWE-284",
       score: 80,
       description: "A cloud storage bucket was found with risky ACLss",
       recommendation: "Check the ACLs and adjust if needed.",
@@ -426,7 +434,7 @@ Bitsight:
     },
     {
       name: "Github - Sensitive Data Leakage",
-      cwe: "CWE-284",
+      #cwe: "CWE-284",
       score: 80,
       description: "Sensitive information was found leaked via Github",
       recommendation: "Investigate and remove the sensitive data if not intended.",
@@ -443,7 +451,7 @@ Bitsight:
     },
     {
       name: "Google - Sensitive Data Leakage",
-      cwe: "CWE-284",
+      #cwe: "CWE-284",
       score: 80,
       description: "Sensitive information was found leaked via Google",
       recommendation: "Investigate and remove the sensitive data if not intended.",
@@ -456,7 +464,7 @@ Bitsight:
     },
     {
       name: "Hacker Chatter",
-      cwe: "CWE-326",
+      #cwe: "CWE-326",
       score: 10,
       description: "Hacker chatter was detected.",
       recommendation: "Determine if this poses a risk.",
@@ -469,7 +477,7 @@ Bitsight:
     },
     {
       name: "Insecure Cookie",
-      cwe: "CWE-298",
+      #cwe: "CWE-298",
       score: 20,
       description: "The cookie is missing HTTPOnly flag.",
       recommendation: "Update cookie to include this flag.",
@@ -492,7 +500,7 @@ Bitsight:
     {
       name: "Internal IP Address Exposure",
       score: 10,
-      cwe: "CWE-202",
+      #cwe: "CWE-202",
       description: "A dns record was found pointing to an internal system.",
       recommendation: "Remove the entry from public DNS.",
       matches: [
@@ -509,19 +517,23 @@ Bitsight:
     {
       name: "Leaked Credentials",
       score: 80,
-      cwe: "CWE-359",
+      #cwe: "CWE-359",
       description: "Credentials were found exposed.",
       recommendation: "Revoke the credentials and/or prompt a reset. Examine systems to which the credentials provided access for signs of compromise.",
       matches: [
         {
           source: "SecurityScorecard",
           vuln_id: /^leaked_credentials$/
+        },
+        {
+          source: "SecurityScorecard",
+          vuln_id: /^leaked_credentials_info$/
         }
       ]
     },
     {
       name: "Mobile Application Security Misconfiguration",
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       score: 20,
       description: "A problem with this application's configuration was discoverd .",
       recommendation: "Fix it",
@@ -535,7 +547,7 @@ Bitsight:
     {
       name: "Open DNS Resolver",
       score: 80,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "Some DNS servers perform their hierarchical lookups by means of recursion, and rather than limit the ability to make recursive requests to local or authorized clients, DNS servers referred to as Open Resolvers allow recursive DNS requests from any client. Open Resolvers (especially with the newer RFC specifications supporting extensions to the DNS system such as IPv6 and DNSSEC) require the ability to send DNS replies much larger than their respective requests, and an attacker can abuse this fact to amplify his or her available outgoing bandwidth and subsequently direct it at a target in a DNS Amplification Attack.",
       recommendation: "Disable recursive queries on this DNS REsolver.",
       references: [
@@ -551,7 +563,7 @@ Bitsight:
     {
       name: "P2P Activity Detected",
       score: 10,
-      cwe: "CWE-506",
+      #cwe: "CWE-506",
       description: "This system was detected with P2P Activity ",
       recommendation: "Check the system for signs of compromise ",
       matches: [
@@ -567,7 +579,7 @@ Bitsight:
       ####  instead it shoudl be a CVE
       ####
       name: "Vulnerability Detected (Patching Cadence *** INCORRECTLY MAPPED?)",
-      cwe: nil,
+      #cwe: nil,
       score: 0,
       description: "Vulnerability seen on network more than 60 days after CVE was published.",
       recommendation: "Monitor CVE lists and vulnerability repositories for exploit code that may affect your infrastructure.",
@@ -585,32 +597,32 @@ Bitsight:
     {
       name: "Non-Sensitive (HTTP) Service Detected or Open Port Detected",
       score: 10,
-      cwe: "CWE-693",
+      #cwe: "CWE-693",
       description: "A System was detected running a non-sensitive service.",
       recommendation: "Verify this is expected and firewall the port if it is not.",
       matches: [
-          {
-            source: "Bitsight",
-            vuln_id: /^http_open_port$/
-          },
+          #{
+          #  source: "Bitsight",
+          #  vuln_id: /^http_open_port$/
+          #},
           {
             source: "Expanse",
-            vuln_id: /^http_open_port$/
+            vuln_id: /^web_servers?$/
           },
-          { 
-            source: "SecurityScorecard",
-            vuln_id: /^http_open_port$/
-          },
-          { 
-            source: "RiskIQ",
-            vuln_id: /^http_open_port$/
-          }, 
+          #{ 
+          #  source: "SecurityScorecard",
+          #  vuln_id: /^http_open_port$/
+          #},
+          #{ 
+          #  source: "RiskIQ",
+          #  vuln_id: /^http_open_port$/
+          #}, 
         ]
       },
       {
       name: "Sensitive Service Detected or Open Port Detected",
       score: 60,
-      cwe: "CWE-693",
+      ##cwe: "CWE-693",
       description: "A System was detected running a potentially sensitive service.",
       recommendation: "Verify this is expected and firewall the port if it is not.",
       matches: [
@@ -638,7 +650,7 @@ Bitsight:
       },
       {
         name: "SSH Misconfiguration",
-        cwe: "CWE-358",
+        #cwe: "CWE-358",
         score: 20,
         description: "A problem with this SSH server's configuration was detected.",
         recommendation: "Updated the configuration on the SSH server.",
@@ -659,7 +671,7 @@ Bitsight:
       },
       {
       name: "SPF Misconfiguration",
-      cwe: "CWE-183",
+      #cwe: "CWE-183",
       score: 20,
       description: "This system was found to have an SPF finding - which may be a positive finding, or a misconfiguration.",
       recommendation: "Correct the SPF configuration on the server.",
@@ -696,7 +708,7 @@ Bitsight:
     },
     {
       name: "SSL/TLS Misconfiguration",
-      cwe: "CWE-326",
+      #cwe: "CWE-326",
       score: 40,
       description: "This server has a configuration weakness with its SSL/TLS settings or certificate.",
       recommendation: "Correct the SSL configuration on the server. See specifics for more detail about the SSL/TLS misconfiguration",
@@ -736,7 +748,7 @@ Bitsight:
     {
       name: "High severity TLS Misconfig (1.0/1.1)",
       score: 90,
-      cwe: "CWE-506",
+      #cwe: "CWE-506",
       description: "",
       recommendation: "Check the system for signs of compromise ",
       matches: [
@@ -745,7 +757,7 @@ Bitsight:
     },
     {
       name: "Subresource Integrity Issues",
-      cwe: "CWE-353",
+      #cwe: "CWE-353",
       score: 30,
       description: "Subresource Integrity (SRI) is a security feature that enables browsers to verify that resources they fetch (for example, from a CDN) are delivered without unexpected manipulation. It works by allowing you to provide a cryptographic hash that a fetched resource must match.",
       references: [
@@ -761,7 +773,7 @@ Bitsight:
     },
     {
       name: "Unencrypted Login",
-      cwe: "CWE-319",
+      #cwe: "CWE-319",
       score: 50,
       description: "An unencrypted login was detected.",
       recommendation: "Ensure all logins happen over an encrypted channel.",
@@ -783,7 +795,7 @@ Bitsight:
     
     {
       name: "Unsolicited Email Sent from System",
-      cwe: "CWE-358",
+      #cwe: "CWE-358",
       score: 30,
       description: "A system was identified on a spam blacklist.",
       recommendation: "Ensure the system has not been compromised.",
@@ -800,7 +812,7 @@ Bitsight:
     },
     {
       name: "System Running File-Sharing Software",
-      cwe: "CWE-358",
+      #cwe: "CWE-358",
       score: 30,
       description: "A system was identified on a file-sharing network.",
       recommendation: "Ensure the system has not been compromised.",
@@ -814,7 +826,7 @@ Bitsight:
     {
       name: "Tor Exit Node Discoverd",
       score: 10,
-      cwe: "CWE-506",
+      #cwe: "CWE-506",
       description: "A Tor exit node was discovered",
       recommendation: "Check the system for signs of compromise ",
       matches: [
@@ -826,7 +838,7 @@ Bitsight:
     },
     {
       name: "Vulnerability Detected - Application Layer",
-      cwe: "CWE-200",
+      #cwe: "CWE-200",
       score: 0,
       description: "A vulnerability was detected at the application layer",
       recommendation: "Investigate the vulnerability.",
@@ -847,7 +859,7 @@ Bitsight:
     },
     {
       name: "Vulnerability Detected - OS/System Layer",
-      cwe: "CWE-200",
+      #cwe: "CWE-200",
       score: 0,
       description: "A vulnerability was detected at the service or OS layer",
       recommendation: "Investigate the vulnerability.",
@@ -868,7 +880,7 @@ Bitsight:
     },
     {
       name: "Non-Security or Benign Finding",
-      cwe: "CWE-000",
+      #cwe: "CWE-000",
       score: 0,
       description: "This is a benign finding.",
       recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
@@ -923,6 +935,10 @@ Bitsight:
         },
         {
           source: "SecurityScorecard",
+          vuln_id: /^load_balancers?$/
+        },
+        {
+          source: "Expanse",
           vuln_id: /^load_balancers?$/
         },
         {
