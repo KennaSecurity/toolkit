@@ -1,5 +1,8 @@
 # require task-specific libraries etc 
 
+require 'date'
+require 'base64'
+
 module Kenna
 module Toolkit
 class BaseTask

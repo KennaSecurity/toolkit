@@ -27,7 +27,7 @@ class BitsightTask < Kenna::Toolkit::BaseTask
           :type => "string", 
           :required => false, 
           :default => "GOOD", 
-          :description => "Any bitsight findings with this grade will be considered benign" },
+          :description => "Any bitsight findings with this grade will be considered benign (comma delimited list)" },
         { :name => "bitsight_create_benign_findings", 
           :type => "boolean", 
           :required => false, 
@@ -88,7 +88,7 @@ class BitsightTask < Kenna::Toolkit::BaseTask
     print_good "Getting findings!"
 
     if @options[:debug]
-      max_findings = 1000
+      max_findings = 10000
       print_debug "Debug mode, only getting #{max_findings} findings"
     else 
       max_findings = 1000000 

@@ -85,7 +85,6 @@ class ExpanseTask < Kenna::Toolkit::BaseTask
     end
     print_good "Valid key, proceeding!"
 
-    
     if @options[:debug]
       max_pages = 1
       max_per_page = 100

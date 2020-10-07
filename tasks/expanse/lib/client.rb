@@ -98,10 +98,31 @@ class Client
         # bump our page up
         page +=1
 
-        # get the listing 
-        url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}?page[limit]=#{limit_per_page}&page[offset]=#{offset}"
-        response = RestClient.get(url, @headers)
-        result = JSON.parse(response.body)
+        begin 
+
+          # get the listing 
+          url = "https://expander.expanse.co/api/v1/exposures/cloud/#{exposure_type}?page[limit]=#{limit_per_page}&page[offset]=#{offset}"
+          response = RestClient.get(url, @headers)
+          result = JSON.parse(response.body)
+        rescue RestClient::Exceptions::ReadTimeout => e
+          puts "Error making request - server timeout?! #{e}"
+          sleep rand(10)
+          retry 
+        rescue RestClient::InternalServerError => e 
+          puts "Error making request - server 500?! #{e}"
+          sleep rand(10)
+          retry 
+        rescue RestClient::ServerBrokeConnection => e 
+          puts "Error making request - server dropped us?! #{e}"
+          sleep rand(10)
+          retry 
+        rescue RestClient::NotFound => e 
+          puts "Error making request - bad endpoint?! #{e}"
+        rescue RestClient::BadRequest => e 
+          puts "Error making request - bad query or creds?! #{e}"
+        rescue JSON::ParserError => e 
+          puts "Error parsing json! #{e}"
+        end
         
         #puts "DEBUG Got #{result["data"].count} cloud exposures"
 

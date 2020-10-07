@@ -186,10 +186,10 @@ Bitsight:
           source: "Expanse",
           vuln_id: /^detected_webserver$/
         },
-        {
-          source: "Expanse",
-          vuln_id: /^web_servers?$/
-        }
+        #{
+        #  source: "Expanse",
+        #  vuln_id: /^web_servers?$/
+        #}
       ]
     },
     {
@@ -613,10 +613,10 @@ Bitsight:
           #  source: "SecurityScorecard",
           #  vuln_id: /^http_open_port$/
           #},
-          #{ 
-          #  source: "RiskIQ",
-          #  vuln_id: /^http_open_port$/
-          #}, 
+          { 
+            source: "RiskIQ",
+            vuln_id: /^http_open_port$/
+          }
         ]
       },
       {
@@ -645,6 +645,10 @@ Bitsight:
           { # correct place for this? # Open TCP Ports Observed
             source: "SecurityScorecard",
             vuln_id: /^exposed_ports$/
+          },
+          { 
+            source: "RiskIQ",
+            vuln_id: /^other_open_port$/
           }
         ]
       },
@@ -715,44 +719,63 @@ Bitsight:
       matches: [
         {:source=>"Bitsight", :vuln_id=>/^ssl_certificates$/},
         {:source=>"Bitsight", :vuln_id=>/^ssl_configurations$/},
-        {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
-        {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_insecure_signature$/},
         {:source=>"Expanse", :vuln_id=>/^domain_control_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^short_key_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^long_expiration_certificate_advertisements?$/},
-        {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^wildcard_certificate$/},
         {:source=>"Expanse", :vuln_id=>/^insecure_signature_certificate_advertisements?$/},
-        {:source=>"Expanse", :vuln_id=>/^self_signed_certificate_advertisements?$/},
         {:source=>"Expanse", :vuln_id=>/^wildcard_certificate_advertisements?$/},
-        {:source=>"Expanse", :vuln_id=>/^certificate_self_signed$/},
         {:source=>"Expanse", :vuln_id=>/^certificate_short_key$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_long_expiration$/},
         {:source=>"Intrigue", :vuln_id=>/^weak_cipher_suite_detected$/},
-        {:source=>"Intrigue", :vuln_id=>/^self_signed_certificate$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^domain_missing_https$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_self_signed$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_no_revocation/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_revoked$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^redirect_chain_contains_http$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_weak_signature$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^hsts_incorrect$/},
-        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_expired$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^ssl_weak_cipher$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^tls_weak_cipher$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_no_revocation/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_revoked$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_weak_signature$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^hsts_incorrect$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^tls_ocsp_stapling$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_excessive_expiration$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^insecure_https_redirect_pattern$/}
       ]
     },
     {
-      name: "High severity TLS Misconfig (1.0/1.1)",
-      score: 90,
+      name: "Insecure Resource Request",
+      score: 40,
+      #cwe: "CWE-506",
+      description: "A resource was requested over an insecure protocol",
+      recommendation: "Transition the resource to an HTTPS request",
+      matches: [
+        {:source=>"SecurityScorecard", :vuln_id=>/^domain_missing_https$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^redirect_chain_contains_http$/}
+      ]
+    },
+    {
+      name: "Self-Signed Certificate",
+      score: 40,
+      #cwe: "CWE-506",
+      description: "A self-signed certificate was detected",
+      recommendation: "Certificate should be issued from a valid CA",
+      matches: [
+        {:source=>"Expanse", :vuln_id=>/^self_signed_certificate_advertisements?$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_self_signed$/},
+        {:source=>"Intrigue", :vuln_id=>/^self_signed_certificate$/},
+        {:source=>"RiskIQ", :vuln_id=>/^self_signed_certificate$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_self_signed$/}
+      ]
+    },
+    {
+      name: "Expired Certificate",
+      score: 40,
       #cwe: "CWE-506",
       description: "",
       recommendation: "Check the system for signs of compromise ",
       matches: [
-        {:source=>"Intrigue", :vuln_id=>/^deprecated_protocol_detected$/},
+        {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
+        {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisements?$/},
+        {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_expired$/}
+
       ]
     },
     {
@@ -896,6 +919,10 @@ Bitsight:
         {
           :source=>"Expanse", 
           :vuln_id=>/^healthy_certificate_advertisements?$/
+        },
+        {
+          :source=>"Expanse", 
+          :vuln_id=>/^domain_control_validated_certificate_advertisements?$/
         },
         {
           source: "Expanse",
