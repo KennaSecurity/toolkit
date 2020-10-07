@@ -32,6 +32,11 @@ class Nozomi < Kenna::Toolkit::BaseTask
           :required => false, 
           :default => 5000, 
           :description => "Nozomi page size" },
+        {:name => "external_id_key",
+          :type => "string",
+          :required => false,
+          :default => nil,
+          :description => "Nozomi field name used to set Kenna Asset ExternalId"},
         {:name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
@@ -67,6 +72,7 @@ class Nozomi < Kenna::Toolkit::BaseTask
     kenna_api_host = @options[:kenna_api_host]
     kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
+    external_id_key = @options[:external_id_key]
 
     output_directory = @options[:output_directory]
 
@@ -86,7 +92,7 @@ class Nozomi < Kenna::Toolkit::BaseTask
       end
 
       issue_json.each do |issue_obj|
-        os = issue_obj["node_os"]
+        os = issue_obj["node_os"] unless issue_obj["node_os"].nil? || issue_obj["node_os"].empty?
         tags = []
 
         tags << "Appliance:" + issue_obj["appliance_host"] unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
@@ -103,13 +109,18 @@ class Nozomi < Kenna::Toolkit::BaseTask
           mac_address = host_identifier
         end
 
+        external_id = issue_obj[external_id_key] if external_id_key && !issue_obj[external_id_key].nil? && !issue_obj[external_id_key].empty?
+        hostname = issue_obj["node_label"] unless issue_obj["node_label"].nil? || issue_obj["node_label"].empty?
+
         
         asset = {
 
           "mac_address" => mac_address,
           "ip_address" => ip_address,
           "tags" => tags,
-          "os" => os
+          "os" => os,
+          "hostname" => hostname,
+          "external_id" => external_id
 
         }
 
@@ -134,7 +145,7 @@ class Nozomi < Kenna::Toolkit::BaseTask
 
         cve = issue_obj.fetch("cve") unless issue_obj.fetch("cve").nil? || issue_obj.fetch("cve").empty?
         cwe = issue_obj.fetch("cwe_id") unless issue_obj.fetch("cwe_id").nil? || issue_obj.fetch("cwe_id").empty?
-        if cwe == "[unclassified]" then
+        if cwe == "[unclassified]"  || !cve.nil? then
           cwe = nil
         else
           cwe = "CWE-#{cwe}"
@@ -150,7 +161,7 @@ class Nozomi < Kenna::Toolkit::BaseTask
         # craft the vuln hash
         vuln = {
           "scanner_identifier" => cve,
-          "scanner_type" => "Nozomi",
+          "scanner_type" => "NozomiNetworks",
           "scanner_score" => issue_obj.fetch("cve_score").to_i, 
           "created_at" => created_at,
           "details" => JSON.pretty_generate(details)
@@ -161,7 +172,7 @@ class Nozomi < Kenna::Toolkit::BaseTask
 
         vuln_def= {
           "scanner_identifier" => cve,
-          "scanner_type" => "Nozomi",
+          "scanner_type" => "NozomiNetworks",
           "description" => description,
           "cve_identifiers" => cve,
           "cwe_identifiers" => cwe,
