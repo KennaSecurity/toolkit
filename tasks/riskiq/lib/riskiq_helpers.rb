@@ -10,8 +10,8 @@ module RiskIq
         "scanner_identifier" => "self_signed_certificate",
         "scanner_type" => "RiskIQ",
         "details" => JSON.pretty_generate(cert),
-        "first_seen" => first_seen,
-        "last_seen" => last_seen,
+        #"first_seen" => first_seen,
+        #"last_seen" => last_seen,
         "status" => "open"
       }
 
@@ -31,7 +31,7 @@ module RiskIq
       port_number = s["port"] if s.kind_of? Hash
       port_number = port_number.to_i
       
-      puts "DEBUG creating open port #{port_number} on #{asset}"
+      #puts "DEBUG creating open port #{port_number} on #{asset}"
 
       ### 
       ### handle http ports differently ... todo, standardize this
@@ -47,10 +47,12 @@ module RiskIq
         "scanner_type" => "RiskIQ",
         "details" => JSON.pretty_generate(s.except("banners")),
         "port" => port_number,
-        "first_seen" => first_seen,
-        "last_seen" => last_seen,
+        #"first_seen" => first_seen,
+        #"last_seen" => last_seen,
         "status" => "open"
       }
+
+      puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
       create_kdi_asset_vuln(asset, vuln)
 
 
@@ -63,13 +65,14 @@ module RiskIq
       create_kdi_vuln_def(vuln_def)
     end
 
-
     def convert_riq_output_to_kdi(data_items)
       output = []
       
       # just return empty array if we weren't handed anything
       return output unless data_items
   
+      kdi_initialize
+
       @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper 
   
       print_debug "Working on on #{data_items.count} items"
@@ -127,47 +130,58 @@ module RiskIq
             ip_address = item["asset"]["ipAddress"] unless ip_address
           end
 
+          # create base asset, then optional identifiers
           asset = { 
-            "hostname" => "#{hostname}",
-            "ip_address" => "#{ip_address}",
-            "external_id" => "#{id}",
-            "first_seen" => "#{first_seen}",
-            "last_seen" => "#{last_seen}",
+            #"first_seen" => "#{first_seen}",
+            #"last_seen" => "#{last_seen}",
             "tags" => tags
           }
+          asset["external_id"] = "#{id}" if id
+          asset["hostname"] = "#{hostname}" if hostname
+          asset["ip_address"] = "#{ip_address}" if ip_address
+
           create_kdi_asset(asset)
         
           if "#{hostname}".empty? && "#{ip_address}".empty? && "#{id}".empty? 
-            puts "UKNOWN item: #{item}"
+            print_error "UKNOWN item: #{item}"
           end
 
         elsif item["type"] == "IP_ADDRESS"
 
           asset = { 
             "ip_address" => "#{item["name"]}",
-            "external_id" => "#{id}",
-            "first_seen" => "#{first_seen}",
-            "last_seen" => "#{last_seen}",
+            #"first_seen" => "#{first_seen}",
+            #"last_seen" => "#{last_seen}",
             "tags" => tags
           }
-          create_kdi_asset(asset)
+          asset["external_id"] = "#{id}" if id
+
+          # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
+          create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count > 0
 
         elsif item["type"] == "SSL_CERT"
 
-          # grab the hostname
+          # grab the sha
+          sha_name = item["name"]
+
+          # grab a hostname
           hostname = item["asset"]["subjectAlternativeNames"].first if item["asset"] && item["asset"]["subjectAlternativeNames"]
+          hostname = item["asset"]["subject"]["common_name"] if item["asset"] && item["asset"]["subject"] && !hostname
+          hostname = item["asset"]["issuer"]["common_name"] if item["asset"] && item["asset"]["issuer"] && !hostname
+          hostname = "unknown host, unable to get from the certificate" unless hostname
 
           asset = { 
-            "hostname" => "#{hostname || "unknown" }",
-            "external_id" => "#{id}",
-            "first_seen" => "#{first_seen}",
-            "last_seen" => "#{last_seen}",
+            "hostname" => "#{hostname}",
+            "external_id" => "#{sha_name}",
+            #"first_seen" => "#{first_seen}",
+            #"last_seen" => "#{last_seen}",
             "tags" => tags
           }
-          create_kdi_asset(asset)
-
-          #puts "Handling SSL CERT HERE: #{item}"
+          asset["external_id"] = "#{id}" if id
+          
+          #  ... only create the asset if we have a self-signed cert
           if item["asset"]["selfSigned"]
+            create_kdi_asset(asset)
             create_self_signed_cert_vuln(asset, item, first_seen, last_seen)
           end
           
@@ -182,9 +196,11 @@ module RiskIq
         ###
         ### Get the open port out of services
         ###
-        if item["asset"]["services"]
-          (item["asset"]["services"] || []).each do |serv|
-            create_open_port_vuln(asset, serv, first_seen, last_seen)
+        if @riq_create_open_ports
+          if item["asset"]["services"]
+            (item["asset"]["services"] || []).uniq.each do |serv|
+              create_open_port_vuln(asset, serv, first_seen, last_seen)
+            end
           end
         end
 
@@ -192,48 +208,50 @@ module RiskIq
         ###
         ### Get the CVES out of web components
         ###
-        if item["asset"]["webComponents"]
-          (item["asset"]["webComponents"] || []).each do |wc|
-  
-            # default to derived if no port specified
-            derived_port = "#{item["asset"]["service"]}".split(":").last
-
-            # if you want to create open ports, we need to infer the port from the service
-            # in addition to whatever else we've gotten
-            (wc["ports"] << derived_port).compact.each do |port|
+        if @riq_create_cves
+          if item["asset"]["webComponents"]
+            (item["asset"]["webComponents"] || []).each do |wc|
     
-              if port.kind_of? Hash
-                port = port["port"]
-              end
+              # default to derived if no port specified
+              derived_port = "#{item["asset"]["service"]}".split(":").last
 
-              # if you want to create open ports
-              (wc["cves"] || []).each do |cve| 
-                
-                puts "DEBUG using port for CVE #{cve["name"]}: #{port}"
+              # if you want to create open ports, we need to infer the port from the service
+              # in addition to whatever else we've gotten
+              (wc["ports"] << derived_port).uniq.compact.each do |port|
+      
+                if port.kind_of? Hash
+                  port = port["port"]
+                end
 
-                vuln = {
-                  "scanner_identifier" => "#{cve["name"]}",
-                  "scanner_type" => "RiskIQ",
-                  "port" => port.to_i,
-                  "first_seen" => first_seen,
-                  "last_seen" => last_seen,
-                  "status" => "open"
-                }
-    
-                vuln_def= {
-                  "scanner_identifier" => "#{cve["name"]}",
-                  "scanner_type" => "RiskIQ",
-                  "cve_identifiers" => "#{cve["name"]}"
-                }
-                
-                create_kdi_asset_vuln(asset, vuln)
-                
-                #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
-                create_kdi_vuln_def(vuln_def)
+                # if you want to create open ports
+                (wc["cves"] || []).uniq.each do |cve| 
+
+                  vuln = {
+                    "scanner_identifier" => "#{cve["name"]}",
+                    "scanner_type" => "RiskIQ",
+                    "port" => port.to_i,
+                    #"first_seen" => first_seen,
+                    #"last_seen" => last_seen,
+                    "status" => "open"
+                  }
+      
+                  vuln_def= {
+                    "scanner_identifier" => "#{cve["name"]}",
+                    "scanner_type" => "RiskIQ",
+                    "cve_identifiers" => "#{cve["name"]}"
+                  }
+                  
+                  create_kdi_asset_vuln(asset, vuln)
+                  
+                  #vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
+                  create_kdi_vuln_def(vuln_def)
+                end
               end
             end
           end
         end
+
+
       end
     end
   end
