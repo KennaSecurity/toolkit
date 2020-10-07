@@ -169,8 +169,12 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
       ###
       # if we got a positive finding, make it benign
       ###
+      print_debug "Got: #{issue_type}: #{i["issue_type_severity"]}"
+
       if i["issue_type_severity"] == "POSITIVE"
         issue_type = "benign_finding"
+      #elsif i["issue_type_severity"] == "INFO"
+      #  issue_type = "benign_finding"
       end
 
       #puts "DEBUG NON CVE VULN: #{issue_type}"

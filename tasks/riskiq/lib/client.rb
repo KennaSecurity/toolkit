@@ -1,6 +1,3 @@
-require 'date'
-require 'base64'
-
 module Kenna
 module Toolkit
 module RiskIq
@@ -23,10 +20,20 @@ class Client
   def successfully_authenticated?
     true # TODO ... let's sort 
   end
+
+  ##
+  def ssl_cert_query 
+    '{ "filters": { "operator": "EQ",  "name": "type",  "value": "SSL_CERT" } }'
+  end
+
+  ##
+  def open_port_query 
+    '{ "filters": { "operator": "EQ",  "name": "type",  "value": "IP_ADDRESS" } }'
+  end
  
   ##
-  def footprint_query 
-    json_search_query = '{
+  def cve_footprint_query 
+    '{
       "filters": {
         "condition": "AND",
           "value": [
@@ -50,7 +57,7 @@ class Client
     }'
   end
 
-  def get_global_footprint(max_pages=-1)
+  def search_global_inventory(query=cve_footprint_query,max_pages=-1)
     # start with sensible defaults
     current_page = 1
     out = []
@@ -58,38 +65,41 @@ class Client
     while current_page <= max_pages || max_pages == -1
       puts "DEBUG Getting page: #{current_page} / #{max_pages}"
 
-      endpoint = "#{@api_url}/globalinventory/search?page=#{current_page}&size=100"
+      endpoint = "#{@api_url}globalinventory/search?page=#{current_page}&size=100"
   
       begin
 
         response = RestClient::Request.execute({
           method: :post,
           url: endpoint,
-          payload: footprint_query,
+          payload: query,
           headers: @headers
         })
 
         result = JSON.parse(response.body)
-
+        
       rescue RestClient::Exceptions::ReadTimeout => e
-        puts "Error making request - server timeout?!"
+        puts "Error making request - server timeout?! #{e}. Retrying."
         sleep rand(10)
         retry 
       rescue RestClient::InternalServerError => e 
-        puts "Error making request - server 500?!"
+        puts "Error making request - server 500?! #{e}. Retrying."
         sleep rand(10)
         retry 
       rescue RestClient::ServerBrokeConnection => e 
-        puts "Error making request - server dropped us?!"
+        puts "Error making request - server dropped us?! #{e}. Retrying."
         sleep rand(10)
         retry 
       rescue RestClient::NotFound => e 
-        puts "Error making request - bad endpoint?!"
+        puts "Error making request - bad endpoint?! #{e}"
       rescue RestClient::BadRequest => e 
-        puts "Error making request - bad creds?!"
+        puts "Error making request - bad query or creds?! #{e}"
       rescue JSON::ParserError => e 
-        puts "Error parsing json!"
+        puts "Error parsing json! #{e}"
       end
+
+      # handle empty result
+      return [] unless result
 
       # do stuff with the data 
       out.concat(result["content"])

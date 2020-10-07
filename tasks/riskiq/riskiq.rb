@@ -24,6 +24,21 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
           :required => true, 
           :default => "", 
           :description => "This is the RiskIQ secret used to query the API." },
+        { :name => "riskiq_create_cves", 
+          :type => "boolean", 
+          :required => true, 
+          :default => true, 
+          :description => "Create vulns for CVEs" },
+        { :name => "riskiq_create_open_ports", 
+          :type => "boolean", 
+          :required => true, 
+          :default => false, 
+          :description => "Create vulns for RiskIQ Open Ports (alpha!!)" },
+        { :name => "riskiq_create_ssl_misconfigs", 
+          :type => "boolean", 
+          :required => true, 
+          :default => false, 
+          :description => "Create vulns for SSL Miconfigurations (alpha!!)" },
         { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
@@ -58,6 +73,10 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     riq_api_key = @options[:riskiq_api_key]
     riq_api_secret = @options[:riskiq_api_secret]
 
+    riq_create_cves = @options[:riskiq_create_cves]
+    riq_create_open_ports = @options[:riskiq_create_open_ports]
+    riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
+
     # create an api client
     client = Kenna::Toolkit::RiskIq::Client.new(riq_api_key, riq_api_secret)
 
@@ -68,16 +87,29 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     print_good "Valid key, proceeding!"
 
     if @options[:debug]
-      max_pages = 20
+      max_pages = 90
       print_debug "Limiting pages to #{max_pages}"
     else
       max_pages = -1 # all 
     end
 
-    print_good "Getting footprint"
-    result = client.get_global_footprint(max_pages)
-    print_good "Conveting to KDI"
-    output = convert_riq_output_to_kdi result
+    if riq_create_cves # 156219
+      print_good "Getting CVEs from footprint"
+      result = client.search_global_inventory(client.cve_footprint_query, max_pages)
+      output = convert_riq_output_to_kdi result
+    end
+
+    if riq_create_open_ports # 156220
+      print_good "Getting open ports from footprint... WARNING! this an alpha feature"
+      result = client.search_global_inventory(client.open_port_query, max_pages)
+      output = convert_riq_output_to_kdi result
+    end
+
+    if riq_create_ssl_misconfigs # 156221
+      print_good "Getting ssl misconfigs from footprint... WARNING! this an alpha feature"
+      result = client.search_global_inventory(client.ssl_cert_query, max_pages)
+      output = convert_riq_output_to_kdi result
+    end
 
     print_good "KDI Conversion complete!"
 

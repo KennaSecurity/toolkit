@@ -90,12 +90,12 @@ module BitsightHelpers
 
   def _add_finding_to_working_kdi(finding, options)
 
-    vuln_def_id = "#{finding["risk_vector_label"]}".gsub(" ", "_").gsub("-", "_").downcase
+    vuln_def_id = "#{finding["risk_vector_label"]}".gsub(" ", "_").gsub("-", "_").downcase.strip
     print_debug "Working on finding of type: #{vuln_def_id}"
 
     # get the grades labled as benign... Default: GOOD
     benign_finding_grades = options[:benign_finding_grades]
-    #print_debug "Benign finding grades: #{benign_finding_grades}"
+    print_debug "Benign finding grades: #{benign_finding_grades}"
 
 
     finding["assets"].each do |a|
@@ -123,25 +123,41 @@ module BitsightHelpers
       #### CVE CASE
       #### 
 
-      ### CHECK OPEN PORTS AND LOOK OFOR VULNERABILITIEIS 
-      if vuln_def_id == "patching_cadence" && finding["vulnerability_name"] #handle as a CVE
+      ###
+      ### BUG BUG BUG 
+      ###
 
-        create_cve_vuln(vuln_def_id, finding, asset_attributes)
+      ### CHECK OPEN PORTS AND LOOK OFOR VULNERABILITIEIS 
+      if vuln_def_id == "patching_cadence" 
+
+        # grab the CVE
+        cve_id = finding["vulnerability_name"]
+        
+        if cve_id =~ /^CVE-/i
+          create_cve_vuln(cve_id, finding, asset_attributes)
+        else
+          print_error "ERROR! Unknown vulnerability: #{cve_id}!" 
+          print_debug "#{finding}\n\n"
+        end
+
+        
       
       ####
       #### OPEN PORTS CAN HAVE BOTH!
       #### 
-      elsif vuln_def_id == "open_ports" && finding["vulnerabilities"]
+      elsif vuln_def_id == "open_ports"
 
-        # create the sensitive service --  needed?
+        # create the sensitive service first
         create_cwe_vuln(vuln_def_id, finding, asset_attributes)
 
         ###
-        ### for each vuln, create a cve 
+        ### for each vuln on the service, create a cve 
         ###
         finding["details"]["vulnerabilities"].each do |v|
-          vuln_def_id = v["name"]
-          create_cve_vuln(vuln_def_id, finding, asset_attributes)
+          cve_id = v["name"]
+          print_debug "Got CVE: #{cve_id}"
+          print_error "ERROR! Unknown vulnerability!" unless cve_id =~ /cve-/i
+          create_cve_vuln(cve_id, finding, asset_attributes)
         end
 
       ####
@@ -155,12 +171,12 @@ module BitsightHelpers
         ###
         if finding["details"] && finding["details"]["grade"]
 
-          print_debug "Got finding with grade: #{finding["details"]["grade"]}"
+          print_debug "Got finding #{vuln_def_id} with grade: #{finding["details"]["grade"]}"
           
           # if it is labeled as one of our types
           if benign_finding_grades.include?(finding["details"]["grade"])
            
-            print "Adjusting to benign finding due to grade: #{vuln_def_id}"
+            print_debug "Adjusting to benign finding due to grade: #{vuln_def_id}"
 
             # AND we're allowed to create 
             if options[:bitsight_create_benign_findings]
@@ -189,7 +205,7 @@ module BitsightHelpers
   def create_cve_vuln(vuln_def_id, finding, asset_attributes)
      # then create each vuln for this asset
      vuln_attributes = {
-      "scanner_identifier" => finding["vulnerability_name"],
+      "scanner_identifier" => vuln_def_id,
       "scanner_type" => "Bitsight",
       "details" => JSON.pretty_generate(finding),
       "created_at" => finding["first_seen"],
@@ -207,8 +223,8 @@ module BitsightHelpers
 
     vd = {
       "scanner_type" => "Bitsight",
-      "scanner_identifier" =>"#{finding["vulnerability_name"]}".downcase,
-      "cve_identifiers" => "#{finding["vulnerability_name"]}".downcase
+      "scanner_identifier" =>"#{vuln_def_id}",
+      "cve_identifiers" => "#{vuln_def_id}"
     }
     
     create_kdi_vuln_def(vd)
