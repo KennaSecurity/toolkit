@@ -79,6 +79,7 @@ module Mapper
 
     # Create KDI
     result.each do |r|
+      print r
     
       # Get the normalized info
       cvd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"] )
@@ -216,7 +217,19 @@ module Mapper
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        { action: "data", target: "tags", data: ["Expanse"] } # TODO... needs more thought 
+        { action: "proc", target: "tags", proc: lambda{ 
+          |x| temp=[] 
+          temp<<"Expanse" 
+          temp<<"businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
+          if x.key?('businessUnits') then
+            x['businessUnits'].each do |bu|
+              temp << bu.fetch('name')
+            end
+          end
+          temp << x['tags']['ipRange'] if x.key?('tags')
+          temp.flatten
+          }
+        }# TODO... needs more thought 
       ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}".gsub("-","_") }},
