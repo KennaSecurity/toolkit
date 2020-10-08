@@ -769,13 +769,12 @@ Bitsight:
       name: "Expired Certificate",
       score: 40,
       #cwe: "CWE-506",
-      description: "",
-      recommendation: "Check the system for signs of compromise ",
+      description: "An expried Ceritficate was Found",
+      recommendation: "Replace ths ceritificate",
       matches: [
         {:source=>"Expanse", :vuln_id=>/^certificate_expired_when_scanned$/},
         {:source=>"Expanse", :vuln_id=>/^expired_when_scanned_certificate_advertisements?$/},
         {:source=>"SecurityScorecard", :vuln_id=>/^tlscert_expired$/}
-
       ]
     },
     {
@@ -902,10 +901,10 @@ Bitsight:
       ]
     },
     {
-      name: "Non-Security or Benign Finding",
+      name: "Non-Security, Benign, or Informational Finding",
       #cwe: "CWE-000",
       score: 0,
-      description: "This is a benign finding.",
+      description: "This is an informational finding.",
       recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
       matches: [ 
         {

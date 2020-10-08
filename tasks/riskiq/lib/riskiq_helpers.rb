@@ -203,7 +203,6 @@ module RiskIq
             end
           end
         end
-
   
         ###
         ### Get the CVES out of web components
