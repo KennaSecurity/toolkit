@@ -216,7 +216,22 @@ module Mapper
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        { action: "data", target: "tags", data: ["Expanse"] } # TODO... needs more thought 
+        { action: "proc", target: "tags", proc: lambda{ |x| temp=[] 
+          temp<<"Expanse" 
+          temp<<"businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
+          if x.key?('businessUnits') then
+            x['businessUnits'].each do |bu|
+              temp << bu.fetch('name')
+            end
+          end
+          if x.key?('annotations') then
+            x["annotations"]["tags"].each do |at|
+              temp<<at.fetch('name')
+            end
+          end
+          temp.flatten
+          }
+        }# TODO... needs more thought 
       ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}".gsub("-","_") }},
