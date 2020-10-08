@@ -226,7 +226,11 @@ module Mapper
               temp << bu.fetch('name')
             end
           end
-          temp << x['tags']['ipRange'] if x.key?('tags')
+          if x.key?('annotations') then
+            x["annotations"]["tags"].each do |at|
+              temp<<at.fetch('name')
+            end
+          end
           temp.flatten
           }
         }# TODO... needs more thought 
