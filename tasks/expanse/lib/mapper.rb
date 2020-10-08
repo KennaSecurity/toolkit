@@ -216,8 +216,7 @@ module Mapper
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        { action: "proc", target: "tags", proc: lambda{ 
-          |x| temp=[] 
+        { action: "proc", target: "tags", proc: lambda{ |x| temp=[] 
           temp<<"Expanse" 
           temp<<"businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
           if x.key?('businessUnits') then
