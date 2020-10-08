@@ -79,7 +79,6 @@ module Mapper
 
     # Create KDI
     result.each do |r|
-      print r
     
       # Get the normalized info
       cvd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"] )
