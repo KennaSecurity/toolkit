@@ -210,28 +210,41 @@ module Mapper
   out 
   end
 
+
+  ###
+  ### This method provides a field mapping for an exposure, giving the caller
+  ### the ability to process each field later with the data it has. 
+  ###
   def default_exposure_field_mapping(exposure_type)
     {
       'asset' => [  
         { action: "copy", source: "parentDomain", target: "domain" },
         { action: "copy", source: "domain", target: "hostname" },
         { action: "copy", source: "ip", target: "ip_address" },
-        { action: "proc", target: "tags", proc: lambda{ |x| temp=[] 
-          temp<<"Expanse" 
+        { action: "proc", target: "tags", proc: lambda{ |x| 
+          temp=["Expanse"]  # always tag as 'Expanse'
+          
+          # Handle legacy businessUnit tag 
           temp<<"businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
+          
+          # Handle new businessUnits (plural) tag 
           if x.key?('businessUnits') then
             x['businessUnits'].each do |bu|
               temp << bu.fetch('name')
             end
           end
+
+          # Annotations are like tags, add each one
           if x.key?('annotations') then
             x["annotations"]["tags"].each do |at|
               temp<<at.fetch('name')
             end
           end
-          temp.flatten
+          
+          # flatten since we have an array of arrays
+          temp.flatten 
           }
-        }# TODO... needs more thought 
+        }
       ], 
       'vuln' => [
         { action: "proc", target: "scanner_identifier", proc: lambda{|x| "#{exposure_type.downcase}".gsub("-","_") }},
