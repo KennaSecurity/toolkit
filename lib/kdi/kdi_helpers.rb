@@ -107,7 +107,11 @@ module Toolkit
 			# Default values & type conversions... just make it work
 			vuln_hash["status"] = "open" unless vuln_hash["status"]
 			vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
-			vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
+			
+			# create dates if they weren't passed to us 
+			now = Time.now.utc.strftime("%Y-%m-%d")
+			vuln_hash["last_seen_at"] = now unless vuln_hash["last_seen_at"]
+			vuln_hash["created_at"] = now unless vuln_hash["last_seen_at"]
 			
 			# add it in 
 			a["vulns"] = [] unless a["vulns"]

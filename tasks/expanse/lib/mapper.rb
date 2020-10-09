@@ -24,6 +24,7 @@ module Mapper
       mapping_areas = default_exposure_field_mapping(exposure_type).deep_merge(
         field_mapping_for_standard_exposures[exposure_type]) # asset, vuln, vuln_def
     end
+    
     # then execute the mapping 
     out = {}
 
@@ -68,10 +69,9 @@ module Mapper
     end
 
     # parse and create kdi 
-    #print "Mapping #{exposures.count} exposures"
     result = exposures.map do |e|
-      #print "Mapping #{e}"
       # map fields for those expsures
+      print_debug "Mapping: #{e["exposureType"]}"
       map_exposure_fields(false, e["exposureType"], e) 
     end
     
@@ -110,7 +110,7 @@ module Mapper
       create_kdi_asset_vuln(r["asset"], vuln_attributes)      
 
       # Create the vuln def 
-      print_debug "Creating vuln def from #{cvd}"
+      #print_debug "Creating vuln def from #{cvd}"
       create_kdi_vuln_def(cvd)
     end
 

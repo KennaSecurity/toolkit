@@ -73,9 +73,9 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     riq_api_key = @options[:riskiq_api_key]
     riq_api_secret = @options[:riskiq_api_secret]
 
-    riq_create_cves = @options[:riskiq_create_cves]
-    riq_create_open_ports = @options[:riskiq_create_open_ports]
-    riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
+    @riq_create_cves = @options[:riskiq_create_cves]
+    @riq_create_open_ports = @options[:riskiq_create_open_ports]
+    @riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
 
     # create an api client
     client = Kenna::Toolkit::RiskIq::Client.new(riq_api_key, riq_api_secret)
@@ -87,25 +87,25 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     print_good "Valid key, proceeding!"
 
     if @options[:debug]
-      max_pages = 90
+      max_pages = 50
       print_debug "Limiting pages to #{max_pages}"
     else
       max_pages = -1 # all 
     end
 
-    if riq_create_cves # 156219
+    if @riq_create_cves # 156219
       print_good "Getting CVEs from footprint"
       result = client.search_global_inventory(client.cve_footprint_query, max_pages)
       output = convert_riq_output_to_kdi result
     end
 
-    if riq_create_open_ports # 156220
+    if @riq_create_open_ports # 156220
       print_good "Getting open ports from footprint... WARNING! this an alpha feature"
       result = client.search_global_inventory(client.open_port_query, max_pages)
       output = convert_riq_output_to_kdi result
     end
 
-    if riq_create_ssl_misconfigs # 156221
+    if @riq_create_ssl_misconfigs # 156221
       print_good "Getting ssl misconfigs from footprint... WARNING! this an alpha feature"
       result = client.search_global_inventory(client.ssl_cert_query, max_pages)
       output = convert_riq_output_to_kdi result
@@ -118,7 +118,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     ####
     kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
     output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    filename = "riskiq.kdi.json"
+    filename = "riskiq-#{Time.now.utc.strftime("%s")}-#{rand(100000)}.kdi.json"
 
     # actually write it 
     write_file output_dir, filename, JSON.pretty_generate(kdi_output)
