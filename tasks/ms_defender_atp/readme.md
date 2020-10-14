@@ -23,7 +23,7 @@ Work is done here: https://portal.azure.com/
 
 ## Command Line
 
-See the main Toolkit for instrustions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specifed output directory. You can review the file before attempting to upload to the Kenna directly. 
+See the main Toolkit for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna directly.
 
 Recommended Steps: 
 

@@ -1,9 +1,9 @@
 
 # ABOUT
 
-The Kenna toolkit is a set of functions for data and api manipulation around the the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
+The Kenna toolkit is a set of functions for data and api manipulation around the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
 
-All the code samples in this GitHub repository are offered “as is” and include no warranty of any kind. Use them at your own risk. In no event will Kenna be liable to end user or any other party for damages of any kind arising from the use of these samples.
+All the code samples in this GitHub repository are offered “as is” and include no warranty of any kind. Use them at your own risk. In no event will Kenna be liable to the end user or any other party for damages of any kind arising from the use of these samples.
 
 # USAGE
 
@@ -71,7 +71,7 @@ If everything's working, lets move on to accessing the toolkit's functionality t
 
 ---
 
-In order to utilize the toolkit's funcitonality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names!
+In order to utilize the toolkit's functionality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names!
 
 Calling A Specific Task WIth Docker:
 
@@ -87,7 +87,7 @@ Calling A Specific Task With Podman:
 
 Sometimes, you'll need to send arguments to tasks in order to specify how they should behave.
 
-Each tasks has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variable in, is one big string, separated by colons. An example:
+Each task has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variables in is one big string, separated by colons. An example:
 
     'arg1=val1:arg2=val2:arg3=val3'
 
@@ -105,7 +105,7 @@ Podman:
 
 ---
 
-Many tasks will require input and output json or log files. The way to handle this is with docker volumes. Volumes can be mapped into the container's OS at runtime.  The toolkit's tasks are programmed to use directories relative to "/opt/toolkit" to facilitate input and output. Specifically, tasks shoudl use these directories as the base when looking for files:
+Many tasks will require input and output json or log files. The way to handle this is with docker volumes. Volumes can be mapped into the container's OS at runtime.  The toolkit's tasks are programmed to use directories relative to "/opt/toolkit" to facilitate input and output. Specifically, tasks should use these directories as the base when looking for files:
 
     - Default Input Directory: /opt/toolkit/input
     - Default Output Directory: /opt/toolkit/output
@@ -130,7 +130,7 @@ Configuring A Volume With Podman:
     -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
     -t toolkit:latest task=example
 
-## Toolkit Capabilitties (TASKS)
+## Toolkit Capabilities (TASKS)
 
 ---
 
@@ -142,11 +142,11 @@ These are the current tasks available:
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 - generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
-- ms_defender_atp: Pulls assets and vulnerabilitiies from Microsoft Defenders ATP
-- nozomi: Pulls assets and vulnerabilites/issues from Nozomi Networks
+- ms_defender_atp: Pulls assets and vulnerabilities from Microsoft Defenders ATP
+- nozomi: Pulls assets and vulnerabilities/issues from Nozomi Networks
 - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
 - security_scorecard: This task connects to the Security Scorecard API and pulls results into the Kenna Platform.
-- snyk: Pulls assets and vulnerabilitiies from Snyk
+- snyk: Pulls assets and vulnerabilities from Snyk
 - upload_file: This task uploads a file to a specified connector
 - user_role_sync: This task creates users and assigns them to roles via the API
 
