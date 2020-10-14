@@ -169,5 +169,5 @@ If you need to use a proxy with this container the suggested implementation is t
 ## Security Badges
 
 ![Lint Code Base](https://github.com/KennaPublicSamples/toolkit/workflows/Lint%20Code%20Base/badge.svg)
-![Bunlder Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bunlder%20Audit/badge.svg)
+![Bundler Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bundler%20Audit/badge.svg)
 [![Docker Repository on Quay](https://quay.io/repository/kennasecurity/toolkit/status "Docker Repository on Quay")](https://quay.io/repository/kennasecurity/toolkit)
