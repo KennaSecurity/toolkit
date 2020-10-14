@@ -122,7 +122,7 @@ module Mapper
     ### Get the list of exposure types
     ###
     if @options && @options[:cloud_exposure_types]
-      cloud_exposure_types = "#{@options[:cloud_exposure_types]}".downcase.gsub("-","_")
+      cloud_exposure_types = "#{@options[:cloud_exposure_types]}".downcase.gsub('-','_').split(',')
     else
       cloud_exposure_counts = @client.cloud_exposure_counts
       puts "Got Cloud Exposure Counts: #{cloud_exposure_counts}"
