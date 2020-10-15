@@ -1,4 +1,4 @@
-name: Bunlder Audit
+name: Bundler Audit
 
 on:
   push:

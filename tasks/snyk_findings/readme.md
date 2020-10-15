@@ -2,7 +2,7 @@
 
 ## This Task will use the Snyk API to
 
-- [Get a lisk of Orgs](https://snyk.io/api/v1/orgs) to which the user has permission
+- [Get a list of Orgs](https://snyk.io/api/v1/orgs) to which the user has permission
 - [Get a list of Projects](https://snyk.io/api/v1/org/#{org}/projects) using the retrieved Orgs
 - [Get a list of Issues](https://snyk.io/api/v1/reporting/issues) for the Projects & Orgs
 - Output a json file in the Kenna Data Importer (KDI) format.
@@ -23,7 +23,7 @@ Running the Task:
   - From the Gear icon (Upper right corner) select API Keys
   - Copy the key using the copy button to the left of the obscured key
 - Retrieve the Kenna Connector ID  
-  - If not already created, select the Add Connector button to create connector of type Kenna Data Importer. Be sure to rename the connector using 'Snyk' in the name.
+  - If not already created, select the Add Connector button to create a connector of type Kenna Data Importer. Be sure to rename the connector using 'Snyk' in the name.
   - Click on the name of the connector and from the resulting page, copy the Connector ID.
 
 Run the Snyk task following the guidelines on the main [toolkit help page](https://github.com/KennaPublicSamples/toolkit#calling-a-specific-task) adding options as necessary
