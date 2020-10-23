@@ -11,20 +11,19 @@ module MSDefenderAtpHelper
   @token = nil
 
   def atp_get_machines(page_param=nil)
-    print_debug "Getting machines"
+    print "Getting machines"
     atp_get_auth_token() if @token.nil?
-    url = "#{@atp_query_api}/api/machines?$orderby=id"
-    url = "#{url}&#{page_param}" if !page_param.nil?
-    print_debug "url = #{url}"
+    url = "#{@atp_query_api}/api/machines"
+    url = "#{url}?#{page_param}" if !page_param.nil?
+    print "url = #{url}"
     begin
       headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
       response = http_get(url, headers,1)
-      return nil if !response
-      if response.code == 401 then
+      if !response.code == 200 then
         response = nil
         raise "unauthorized"
       end
-    rescue RestClient::Unauthorized
+    rescue
       atp_get_auth_token()
       retry
     end
@@ -40,21 +39,19 @@ module MSDefenderAtpHelper
   end
   
   def atp_get_vulns(page_param=nil)
-    print_debug "Getting vulns"
+    print "Getting vulns"
     #headers = {'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
-    url =  "#{@atp_query_api}/api/vulnerabilities/machinesVulnerabilities?$orderby=machineId"
-    url = "#{url}&#{page_param}" if !page_param.nil?
-    #ComputerDnsName, LastSeen, HealthStatus, OsPlatform,
-    print_debug "url = #{url}"
+    url =  "#{@atp_query_api}/api/vulnerabilities/machinesVulnerabilities"
+    url = "#{url}?#{page_param}" if !page_param.nil?
+    print "url = #{url}"
     begin
       headers = {'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
       response = http_get(url, headers,1)
-      return nil if !response
-      if response.code == 401 then
+      if !response.code == 200 then
         response = nil
         raise "unauthorized"
       end
-    rescue RestClient::Unauthorized
+    rescue
       atp_get_auth_token()
       retry
     end
@@ -70,7 +67,7 @@ module MSDefenderAtpHelper
   end
  
   def atp_get_auth_token()
-    print_debug "Getting token"
+    print "Getting token"
     oauth_url = "#{@atp_oath_url}/#{@tenant_id}/oauth2/token"
     headers = {'content-type' =>  'application/x-www-form-urlencoded'}
     mypayload = {
