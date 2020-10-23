@@ -6,7 +6,6 @@ module Toolkit
 		def kdi_initialize
 			@assets = []
 			@vuln_defs = []
-			@paged_assets = []
 		end
 
 		def uniq(a)
@@ -147,50 +146,6 @@ module Toolkit
 			a["findings"] << finding_hash
 		
 		finding_hash
-	  end
-
-	  def create_paged_kdi_asset_vuln(asset_hash, vuln_hash, match_key=nil)
-	    kdi_initialize unless @assets
-
-	    # check to make sure it doesnt exist
-	    if !@paged_assets.nil? && !@paged_assets.empty? then
-	    	if match_key.nil? then
-				pa = @paged_assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			else
-				pa = @paged_assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
-			end
-		end
-
-	    unless pa # check to make sure it doesnt exist
-		    if match_key.nil? then
-				pa = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			else
-				pa = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
-			end
-			@paged_assets << pa
-		end
-
-	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless pa #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-				puts "Unable to find asset #{asset_hash}, creating a new one... "
-				create_kdi_asset asset_hash
-				pa = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-				@paged_assets << pa
-	    end 
-
-			# Default values & type conversions... just make it work
-			vuln_hash["status"] = "open" unless vuln_hash["status"]
-			vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
-			vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
-			
-			# add it in 
-			pa["vulns"] = [] unless pa["vulns"]
-			pa["vulns"] << vuln_hash
-	  end
-
-	  def clearDataArrays
-	  	@paged_assets = []
-	  	@vuln_defs = []
 	  end
 
 	  # Args can have the following key value pairs: 
