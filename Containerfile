@@ -20,7 +20,7 @@ ENV BUNDLER_VERSION=2.0.2
 RUN gem install bundler:"${BUNDLER_VERSION}"
 ENV GEM_HOME=/opt/app/bundle/
 ENV BUNDLE_SILENCE_ROOT_WARNING=1 BUNDLE_APP_CONFIG="${GEM_HOME}"
-ENV PATH "${GEM_HOME}"/bin:$PATH
+ENV PATH "${GEM_HOME}"/bin:"$PATH"
 RUN mkdir -p "${GEM_HOME}" && chown -R "${TOOLKIT_USER}" "${GEM_HOME}"
 
 # add our files, ensure we can write to output
@@ -34,4 +34,4 @@ RUN bundle install
 
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 
-CMD ['help']
+CMD ["help"]
