@@ -8,6 +8,9 @@ ENV TOOLKIT_HOME=/opt/app/toolkit/
 ENV TOOLKIT_UID=1000
 ENV TOOLKIT_USER=kenna
 
+# Removing NodeJS from base image since it isnt needed. (JG 10/25/2020)
+RUN yum remove -y nodejs 
+
 RUN mkdir -p ${TOOLKIT_HOME}
 
 RUN groupadd -g "${TOOLKIT_GID}" "${TOOLKIT_USER}" && \
