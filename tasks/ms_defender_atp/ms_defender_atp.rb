@@ -51,7 +51,12 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           :type => "integer", 
           :required => false, 
           :default => nil, 
-          :description => "If set, we'll try to upload to this connector"  },    
+          :description => "If set, we'll try to upload to this connector"  },
+        { :name => "batch_page_size", 
+          :type => "integer", 
+          :required => false, 
+          :default => 5000, 
+          :description => "Number of assets and their vulns to batch to the connector"},     
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
@@ -59,6 +64,20 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           :description => "If set, will write a file upon completion. Path is relative to #{$basedir}"  }
       ]
     }
+  end
+
+  def connectorKickoff(filename, kenna_connector_id,kenna_api_host,kenna_api_key)
+        ### Write KDI format
+    kdi_output = { skip_autoclose: false, assets: @paged_assets, vuln_defs: @vuln_defs }
+    output_dir = "#{$basedir}/#{@options[:output_directory]}"
+    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+    print_good "Output is available at: #{output_dir}/#{filename}"
+
+    ### Finish by uploading if we're all configured
+    if kenna_connector_id && kenna_api_host && kenna_api_key
+      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false
+    end
   end
 
   def run(opts)
@@ -73,6 +92,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     kenna_api_host = @options[:kenna_api_host]
     kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
+    batch_page_size = @options[:batch_page_size]
     
     set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
     page = 0
@@ -84,7 +104,9 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         machine_json = atp_get_machines("$skip=#{page}0000")
       end
 
-      break if machine_json.empty?
+      break if machine_json.nil? || machine_json.empty?
+
+      #print_debug machine_json
 
       machine_json.each do |machine| 
         
@@ -107,6 +129,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
 
         # Construct tags
         tags = []
+        tags << "MSDefenderAtp"
         tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
         tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
         tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
@@ -121,6 +144,9 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     end
     morevuln = true
     page = 0
+    asset_count = 0
+    submit_count = 0
+    asset_id = nil
     # now get the vulns 
     while morevuln do 
 
@@ -129,8 +155,10 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
       else
         vuln_json = atp_get_vulns("$skip=#{page}0000")
       end
-      break if vuln_json.empty?
+      break if vuln_json.nil? || vuln_json.empty?
+      #print_debug vuln_json
       vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
+
       vuln_json.each do |vuln|
 
         #print JSON.pretty_generate vuln
@@ -141,6 +169,22 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           
         #end
         vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0 ).to_i
+
+        if asset_id.nil? then
+          asset_id = machine_id 
+          asset_count += 1
+        end
+        if !asset_id.eql? machine_id then
+          if asset_count == batch_page_size then
+            submit_count +=1
+            filename = "microsoft_atp_kdi_#{submit_count}.json"
+            connectorKickoff(filename, kenna_connector_id,kenna_api_host,kenna_api_key)
+            asset_count = 0
+            clearDataArrays
+          end
+          asset_id = machine_id
+        end
+
 
         # craft the vuln hash
 
@@ -168,26 +212,15 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         vuln_def = vuln_def.compact
 
         # Create the KDI entries 
-        create_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+        create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
         create_kdi_vuln_def(vuln_def)
       end
       page = page+1
     end
 
-    #end
-
-    ### Write KDI format
-    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-    output_dir = "#{$basedir}/#{@options[:output_directory]}"
-    filename = "microsoft_atp.kdi.json"
-    write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-    print_good "Output is available at: #{output_dir}/#{filename}"
-
-    ### Finish by uploading if we're all configured
-    if kenna_connector_id && kenna_api_host && kenna_api_key
-      print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-      upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
-    end
+    submit_count +=1
+    filename = "microsoft_atp_kdi_#{submit_count}.json"
+    connectorKickoff(filename, kenna_connector_id,kenna_api_host,kenna_api_key)
 
   end
 

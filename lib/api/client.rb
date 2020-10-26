@@ -110,7 +110,7 @@ module Api
       _kenna_api_request(:get, "dashboard_groups")
     end
 
-    def upload_to_connector(connector_id, filepath)
+    def upload_to_connector(connector_id, filepath, monitor=true)
     
       max_retries = 3
 
@@ -142,25 +142,28 @@ module Api
 
         running = true
 
-        connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
-        while running do
-          #print_good "Waiting for 20 seconds... "
-          sleep(20)
+        if monitor then
 
-          #print_good "Checking on connector status..."
-          connector_check_response = RestClient::Request.execute(
-            method: :get,
-            url: connector_check_endpoint,
-            headers: headers
-          )
+          connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
+          while running do
+            #print_good "Waiting for 20 seconds... "
+            sleep(20)
 
-          connector_check_json = JSON.parse(connector_check_response)['connector']
-          print_good "#{connector_check_json["name"]} connector running!" if connector_check_json["running"]
+            #print_good "Checking on connector status..."
+            connector_check_response = RestClient::Request.execute(
+              method: :get,
+              url: connector_check_endpoint,
+              headers: headers
+            )
 
-          # check our value to see if we need to keep going
-          running = connector_check_json["running"]
-        end  
-      
+            connector_check_json = JSON.parse(connector_check_response)['connector']
+            print_good "#{connector_check_json["name"]} connector running!" if connector_check_json["running"]
+
+            # check our value to see if we need to keep going
+            running = connector_check_json["running"]
+          end 
+        end 
+        
       rescue RestClient::Exceptions::OpenTimeout => e 
         print_error "Timeout: #{e.message}..."
       rescue RestClient::UnprocessableEntity => e
@@ -186,6 +189,7 @@ module Api
         end
 
       end
+
 
       print_good "Done!"
     end

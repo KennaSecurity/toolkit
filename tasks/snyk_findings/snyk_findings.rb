@@ -67,6 +67,7 @@ class SnykFindings < Kenna::Toolkit::BaseTask
     org_json.each do |org|
       org_ids << org.fetch("id")
     end
+    print_debug org_json
     print_debug "orgs = #{org_ids}"
 
 
@@ -78,6 +79,7 @@ class SnykFindings < Kenna::Toolkit::BaseTask
       end
     end
 
+    print_debug project_json
     print_debug "projects = #{project_ids}"
 
     types = ["vuln"]
@@ -114,16 +116,10 @@ class SnykFindings < Kenna::Toolkit::BaseTask
         issue = issue_obj["issue"]
         project = issue_obj["project"]
         identifiers = issue["identifiers"]
-
-        targetFile = project.fetch("targetFile")if project.key? ("targetFile")
-        package = project.fetch("package") if project.key? ("package")
-
-        file = "#{targetFile}/" if !targetFile.nil?
-        file = "#{file}#{package}"
         
         asset = {
 
-          "file" => file,
+          "file" => project.fetch("targetFile"),
           "application" => project.fetch("name"),
           "tags" => [project.fetch("source"),project.fetch("packageManager")]
 
@@ -136,6 +132,7 @@ class SnykFindings < Kenna::Toolkit::BaseTask
           scanner_score = issue.fetch("cvssScore").to_i
         end
 
+        source = project.fetch("source") if issue.key? ("source")
         fixedIn = issue.fetch("fixedIn") if issue.key? ("fixedIn")
         from = issue.fetch("from") if issue.key? ("from")
         functions =  issue.fetch("functions") if issue.key? ("functions")
@@ -149,6 +146,7 @@ class SnykFindings < Kenna::Toolkit::BaseTask
         description = issue.fetch("description") if issue.key? ("description")
 
         additional_fields= {
+          "source" => source,
           "fixedIn" => fixedIn,
           "from" => from,
           "functions" => functions,
@@ -158,7 +156,8 @@ class SnykFindings < Kenna::Toolkit::BaseTask
           "references" => references,
           "semver" => semver,
           "severity" => issue_severity,
-          "version" => version
+          "version" => version,
+          "identifiers" => identifiers
         }
 
         additional_fields.compact!
