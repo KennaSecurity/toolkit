@@ -61,7 +61,8 @@ module Kenna
       def print_task_help(task_name)
         task = TaskManager.tasks.select{|x| x.metadata[:id] == task_name }.first.new
         task.class.metadata[:options].each do |o|
-          puts "- Task Option: #{o[:name]} (#{o[:type]}): #{o[:description]}"
+          puts "- Task Option: #{o[:name]} (#{o[:type]}): Required? #{o[:required]}: #{o[:description]}"
+          puts "               (Default setting: #{o[:default]})"
         end
       end
 
@@ -92,8 +93,13 @@ module Kenna
       ###
       ### Helper to upload to kenna api
       ###
+<<<<<<< Updated upstream
       def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename)
         # optionally upload the file if a connector ID has been specified 
+=======
+      def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename, monitor=true)
+        # optionally upload the file if a connector ID has been specified
+>>>>>>> Stashed changes
         if connector_id && api_host && api_token
 
           print_good "Attempting to upload to Kenna API"
@@ -102,8 +108,13 @@ module Kenna
           # upload it
           if connector_id && connector_id != -1
             kenna = Kenna::Api::Client.new(api_token, api_host)
+<<<<<<< Updated upstream
             kenna.upload_to_connector(connector_id, filename)
           else 
+=======
+            kenna.upload_to_connector(connector_id, filename, monitor)
+          else
+>>>>>>> Stashed changes
             print_error "Invalid Connector ID (#{connector_id}), unable to upload."
           end
         end
