@@ -89,10 +89,7 @@ module Kenna
         end
       end
 
-      ###
-      ### Helper to upload to kenna api
-      ###
-      def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename, monitor=true)
+      def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids)
         # optionally upload the file if a connector ID has been specified 
         if connector_id && api_host && api_token
 
@@ -102,11 +99,33 @@ module Kenna
           # upload it
           if connector_id && connector_id != -1
             kenna = Kenna::Api::Client.new(api_token, api_host)
-            kenna.upload_to_connector(connector_id, filename, monitor)
+            query_response_json = kenna.run_files_on_connector(connector_id, upload_ids)
           else 
             print_error "Invalid Connector ID (#{connector_id}), unable to upload."
           end
         end
+      end
+
+      ###
+      ### Helper to upload to kenna api
+      ###
+
+      def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename, run_now=true)
+        # optionally upload the file if a connector ID has been specified 
+        if connector_id && api_host && api_token
+
+          print_good "Attempting to upload to Kenna API"
+          print_good "Kenna API host: #{api_host}"
+
+          # upload it
+          if connector_id && connector_id != -1
+            kenna = Kenna::Api::Client.new(api_token, api_host)
+            query_response_json = kenna.upload_to_connector(connector_id, filename, run_now)
+          else 
+            print_error "Invalid Connector ID (#{connector_id}), unable to upload."
+          end
+        end
+        return query_response_json
       end
     end
   end

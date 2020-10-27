@@ -110,7 +110,7 @@ module Api
       _kenna_api_request(:get, "dashboard_groups")
     end
 
-    def upload_to_connector(connector_id, filepath, monitor=true)
+    def upload_to_connector(connector_id, filepath, run_now=true)
     
       max_retries = 3
 
@@ -123,7 +123,9 @@ module Api
         'accept' => 'application/json'
       }
   
-      connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file?run=true"
+      connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
+
+      connector_endpoint = "#{connector_endpoint}?run=true" if run_now
 
       begin
         print_good "Sending request"
@@ -142,7 +144,7 @@ module Api
 
         running = true
 
-        if monitor then
+        if run_now then
 
           connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
           while running do
@@ -185,13 +187,94 @@ module Api
 
         else
          print_error "Max retries hit, failing with... #{e}"
-         return
+         return 
         end
 
       end
 
 
       print_good "Done!"
+      return query_response_json
+    end
+
+    def run_files_on_connector(connector_id, upload_ids)
+    
+      max_retries = 3
+
+      kenna_api_endpoint = "#{@base_url}/connectors"
+      #puts "Uploading to: #{kenna_api_endpoint}"
+
+      headers = {
+        'content-type' => 'application/json', 
+        'X-Risk-Token' => @token,
+        'accept' => 'application/json'
+      }
+  
+      connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
+
+      connector_endpoint = "#{connector_endpoint}#{upload_ids.join('&data_files[]=')}"
+
+      begin
+        print_good "Sending request"
+        query_response = RestClient::Request.execute(
+          method: :post,
+          url: connector_endpoint,
+          headers: headers
+        )
+
+        query_response_json = JSON.parse(query_response.body)
+        print_good "Success!" if query_response_json.fetch("success")
+
+        running = true
+
+        connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
+        while running do
+          #print_good "Waiting for 20 seconds... "
+          sleep(20)
+
+          #print_good "Checking on connector status..."
+          connector_check_response = RestClient::Request.execute(
+            method: :get,
+            url: connector_check_endpoint,
+            headers: headers
+          )
+
+          connector_check_json = JSON.parse(connector_check_response)['connector']
+          print_good "#{connector_check_json["name"]} connector running!" if connector_check_json["running"]
+
+          # check our value to see if we need to keep going
+          running = connector_check_json["running"]
+        end 
+      
+      rescue RestClient::Exceptions::OpenTimeout => e 
+        print_error "Timeout: #{e.message}..."
+      rescue RestClient::UnprocessableEntity => e
+        print_error "Unprocessable Entity: #{e.message}..."
+      rescue RestClient::BadRequest => e
+        print_error "Bad Request: #{e.message}... #{e}"
+      rescue RestClient::Unauthorized => e
+        print_error "Unauthorized: #{e.message}... #{e}"
+      rescue RestClient::Exception  => e
+        print_error "Unknown Exception: #{e}"
+        print_error "Are you sure you provided a valid connector id?"
+
+        retries ||= 0
+        if retries < max_retries
+          print_error "Retrying in 60s..."
+          retries += 1
+          sleep(60)
+          retry
+
+        else
+         print_error "Max retries hit, failing with... #{e}"
+         return 
+        end
+
+      end
+
+
+      print_good "Done!"
+      return query_response_json
     end
 
     private
