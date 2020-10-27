@@ -62,6 +62,7 @@ module Kenna
         task = TaskManager.tasks.select{|x| x.metadata[:id] == task_name }.first.new
         task.class.metadata[:options].each do |o|
           puts "- Task Option: #{o[:name]} (#{o[:type]}): #{o[:description]}"
+          puts "               Required:(#{o[:required]}): Default: #{o[:default]}"
         end
       end
 
