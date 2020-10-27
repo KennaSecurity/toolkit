@@ -22,6 +22,7 @@ ENV GEM_HOME=/opt/app/bundle/
 ENV BUNDLE_SILENCE_ROOT_WARNING=1 BUNDLE_APP_CONFIG="${GEM_HOME}"
 ENV PATH "${GEM_HOME}"/bin:"$PATH"
 RUN mkdir -p "${GEM_HOME}" && chown -R "${TOOLKIT_USER}" "${GEM_HOME}"
+RUN chown -R "${TOOLKIT_USER}" /opt/app-root/src
 
 # add our files, ensure we can write to output
 ADD . "${TOOLKIT_HOME}"
