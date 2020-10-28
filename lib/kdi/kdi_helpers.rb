@@ -172,10 +172,14 @@ module Toolkit
 
 	    # SAnity check to make sure we are pushing data into the correct asset 
 	    unless pa #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-				puts "Unable to find asset #{asset_hash}, creating a new one... "
-				create_kdi_asset asset_hash
+			print_debug "Unable to find asset #{asset_hash}, creating a new one... "
+			create_kdi_asset asset_hash
+			if match_key.nil? then
 				pa = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-				@paged_assets << pa
+			else
+				pa = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
+			end
+			@paged_assets << pa
 	    end 
 
 			# Default values & type conversions... just make it work
@@ -186,6 +190,8 @@ module Toolkit
 			# add it in 
 			pa["vulns"] = [] unless pa["vulns"]
 			pa["vulns"] << vuln_hash
+			
+		vuln_hash
 	  end
 
 	  def clearDataArrays
