@@ -65,35 +65,10 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
       ]
     }
   end
+  def build_assets(response_json)
+      machine_json = response_json["value"]
 
-  def run(opts)
-    super # opts -> @options
-
-    atp_tenant_id = @options[:atp_tenant_id]
-    atp_client_id = @options[:atp_client_id]
-    atp_client_secret = @options[:atp_client_secret]
-    atp_api_host = @options[:atp_api_host]
-    atp_oath_host = @options[:atp_oath_host]
-
-    kenna_api_host = @options[:kenna_api_host]
-    kenna_api_key = @options[:kenna_api_key]
-    kenna_connector_id = @options[:kenna_connector_id]
-    batch_page_size = @options[:batch_page_size].to_i
-    output_directory = @options[:output_directory]
-    
-    set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
-    page = 0
-    moremachines = true
-    while moremachines do 
-      if page == 0 then
-        machine_json = atp_get_machines()
-      else
-        machine_json = atp_get_machines("$skip=#{page}0000")
-      end
-
-      break if machine_json.nil? || machine_json.empty?
-
-      #print_debug machine_json
+      #break if machine_json.nil? || machine_json.empty?
 
       machine_json.each do |machine| 
         
@@ -126,25 +101,61 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         # Add them to our asset hash
         asset.merge({"tags" => tags})
         create_kdi_asset(asset)
+
+
       end
-      page = page + 1
-    end
+  end
+
+  def run(opts)
+    super # opts -> @options
+
+    atp_tenant_id = @options[:atp_tenant_id]
+    atp_client_id = @options[:atp_client_id]
+    atp_client_secret = @options[:atp_client_secret]
+    atp_api_host = @options[:atp_api_host]
+    atp_oath_host = @options[:atp_oath_host]
+
+    kenna_api_host = @options[:kenna_api_host]
+    kenna_api_key = @options[:kenna_api_key]
+    kenna_connector_id = @options[:kenna_connector_id]
+    batch_page_size = @options[:batch_page_size].to_i
+    output_directory = @options[:output_directory]
+
+
+    
+    set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
+    asset_next_link = nil
+    asset_json_response = atp_get_machines()
+    asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
+    build_assets(asset_json_response)
+
     morevuln = true
     page = 0
     asset_count = 0
     submit_count = 0
     asset_id = nil
+    vuln_next_link = nil
+
     # now get the vulns 
     while morevuln do 
 
       if page == 0 then
-        vuln_json = atp_get_vulns()
+        vuln_json_response = atp_get_vulns()
       else
-        vuln_json = atp_get_vulns("$skip=#{page}0000")
+        break if vuln_next_link.nil? || vuln_next_link.empty?
+        vuln_json_response = atp_get_vulns(vuln_next_link)       
       end
-      break if vuln_json.nil? || vuln_json.empty?
+
       #print_debug vuln_json
       vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
+
+      vuln_json = vuln_json_response["value"]
+
+      if vuln_json_response.key('@odata.nextLink') then
+        next_link = vuln_json_response.fetch("@odata.nextLink")
+      else
+        next_link = nil
+      end
 
       vuln_json.each do |vuln|
         
@@ -207,7 +218,20 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         vuln_def = vuln_def.compact
 
         # Create the KDI entries 
-        create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+         
+        worked = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+
+        if !worked then
+          asset_response_json = atp_get_machines(asset_next_link)
+          build_assets(asset_response_json)
+          if json_response.key?("@odata.nextLink") then
+              asset_next_link = json_response.fetch("@odata.nextLink")
+          else
+            asset_next_link = nil
+          end
+          create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+        end
+
         create_kdi_vuln_def(vuln_def)
       end
       page = page+1
