@@ -150,36 +150,32 @@ module Toolkit
 	  end
 
 	  def create_paged_kdi_asset_vuln(asset_hash, vuln_hash, match_key=nil)
-	    kdi_initialize unless @assets
+	    kdi_initialize unless @paged_assets
 
-	    # check to make sure it doesnt exist
-	    if !@paged_assets.nil? && !@paged_assets.empty? then
-	    	if match_key.nil? then
-				pa = @paged_assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			else
-				pa = @paged_assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
-			end
+	    # check to make sure it doesnt exists
+
+	    if match_key.nil? then
+			a = @paged_assets.select{|a| uniq(a) == uniq(asset_hash) }.first
+		else
+			a = @paged_assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
 		end
 
-	    unless pa # check to make sure it doesnt exist
+		unless a
 		    if match_key.nil? then
-				pa = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
+				a = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
 			else
-				pa = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
+				a = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
 			end
-			@paged_assets << pa
+			if a then
+				@paged_assets << a
+				@assets.delete(a)
+			end
+
 		end
 
 	    # SAnity check to make sure we are pushing data into the correct asset 
-	    unless pa #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-			print_debug "Unable to find asset #{asset_hash}, creating a new one... "
-			create_kdi_asset asset_hash
-			if match_key.nil? then
-				pa = @assets.select{|a| uniq(a) == uniq(asset_hash) }.first
-			else
-				pa = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
-			end
-			@paged_assets << pa
+	    unless a #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+	    	return false
 	    end 
 
 			# Default values & type conversions... just make it work
@@ -188,16 +184,19 @@ module Toolkit
 			vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
 			
 			# add it in 
-			pa["vulns"] = [] unless pa["vulns"]
-			pa["vulns"] << vuln_hash
+			a["vulns"] = [] unless a["vulns"]
+			a["vulns"] << vuln_hash
 			
 		vuln_hash
 	  end
+
+
 
 	  def clearDataArrays
 	  	@paged_assets = []
 	  	@vuln_defs = []
 	  end
+
 
 	  # Args can have the following key value pairs: 
 	  # A "*" indicates required  

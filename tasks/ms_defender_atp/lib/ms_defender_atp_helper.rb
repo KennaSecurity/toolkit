@@ -40,8 +40,13 @@ module MSDefenderAtpHelper
   def atp_get_machines(page_param=nil)
     print_debug "Getting machines"
     atp_get_auth_token() if @token.nil?
-    url = "#{@atp_query_api}/api/machines?$orderby=id"
-    url = "#{url}&#{page_param}" if !page_param.nil?
+
+    if page_param.nil? then
+      url = "#{@atp_query_api}/api/machines?$orderby=id"
+      #url = "#{url}&#{page_param}" if !page_param.nil?
+    else
+      url = page_param
+    end
     print_debug "url = #{url}"
     begin
       headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
@@ -63,14 +68,19 @@ module MSDefenderAtpHelper
       print_error "Unable to process response!"
     end
 
-    json["value"]
+    json
   end
   
   def atp_get_vulns(page_param=nil)
     print_debug "Getting vulns"
-    #headers = {'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
-    url =  "#{@atp_query_api}/api/vulnerabilities/machinesVulnerabilities?$orderby=machineId"
-    url = "#{url}&#{page_param}" if !page_param.nil?
+    atp_get_auth_token() if @token.nil?
+
+    if page_param.nil? then
+      url =  "#{@atp_query_api}/api/vulnerabilities/machinesVulnerabilities?$orderby=machineId"
+      #url = "#{url}&#{page_param}" if !page_param.nil?
+    else
+      url = page_param
+    end
     #ComputerDnsName, LastSeen, HealthStatus, OsPlatform,
     print_debug "url = #{url}"
     begin
@@ -93,7 +103,7 @@ module MSDefenderAtpHelper
       print_error "Unable to process response!"
     end
 
-    json["value"]
+    json
   end
  
   def atp_get_auth_token()
