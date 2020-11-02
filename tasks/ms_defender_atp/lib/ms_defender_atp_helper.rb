@@ -22,10 +22,11 @@ module MSDefenderAtpHelper
       print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
       response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false
       filenum = response_json.fetch("data_file")
-      print filenum
       @uploaded_files = Array.new if @uploaded_files.nil?
       @uploaded_files << filenum  
+      File.delete("#{output_dir}/#{filename}") unless @debug
    end
+   return response_json
   end
 
   def connectorKickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
