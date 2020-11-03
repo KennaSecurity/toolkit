@@ -100,7 +100,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         
         # Add them to our asset hash
         asset.merge({"tags" => tags})
-        create_kdi_asset(asset)
+        create_kdi_asset(asset,false)
 
 
       end
@@ -163,6 +163,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         if vuln_cve.start_with?('TVM') then
           vuln_name = vuln_cve
           vuln_cve = ""
+        else
+          vuln_cve = vuln_cve.strip
         end 
 
 
@@ -178,12 +180,13 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           asset_count += 1
           print_debug "asset count = #{asset_count}"
         end
-        if asset_id != machine_id then
+        if asset_id.!= machine_id then
           if asset_count == batch_page_size then
             submit_count +=1
             print_debug "#{submit_count} about to upload file"
             filename = "microsoft_atp_kdi_#{submit_count}.json"
-            connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
+            connector_response_json = connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
+            print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
             asset_count = 0
             clearDataArrays
           end
@@ -224,12 +227,13 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         if !worked then
           asset_response_json = atp_get_machines(asset_next_link)
           build_assets(asset_response_json)
-          if json_response.key?("@odata.nextLink") then
-              asset_next_link = json_response.fetch("@odata.nextLink")
+          if asset_response_json.key?("@odata.nextLink") then
+              asset_next_link = asset_response_json.fetch("@odata.nextLink")
           else
             asset_next_link = nil
           end
-          create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+          worked_2nd_time = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+          print_debug "still can't find asset for #{machine_id}" unless worked_2nd_time
         end
 
         create_kdi_vuln_def(vuln_def)
