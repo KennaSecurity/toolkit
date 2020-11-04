@@ -57,7 +57,7 @@ module Toolkit
 	    # and making sure we don't already have it
 
 	    if dup_check then
-	    	return nil unless @assets.to_h.select{|a| uniq(a) == uniq(asset_hash) }.empty?
+	    	return nil unless @assets.select{|a| uniq(a) == uniq(asset_hash) }.empty?
 	    end
 		 
 			# create default values
