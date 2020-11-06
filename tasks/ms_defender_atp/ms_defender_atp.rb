@@ -56,7 +56,12 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           :type => "integer", 
           :required => false, 
           :default => 5000, 
-          :description => "Number of assets and their vulns to batch to the connector"},     
+          :description => "Number of assets and their vulns to batch to the connector"}, 
+        { :name => "file_cleanup", 
+          :type => "boolean", 
+          :required => false, 
+          :default => false, 
+          :description => "Use this parameter to clean up files after upload to Kenna"},      
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
@@ -114,7 +119,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     atp_client_secret = @options[:atp_client_secret]
     atp_api_host = @options[:atp_api_host]
     atp_oath_host = @options[:atp_oath_host]
-
+    file_cleanup = @options[:file_cleanup]
     kenna_api_host = @options[:kenna_api_host]
     kenna_api_key = @options[:kenna_api_key]
     kenna_connector_id = @options[:kenna_connector_id]
@@ -123,7 +128,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
 
 
     
-    set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host)
+    set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host,file_cleanup)
     asset_next_link = nil
     asset_json_response = atp_get_machines()
     asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
@@ -152,9 +157,9 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
       vuln_json = vuln_json_response["value"]
 
       if vuln_json_response.key('@odata.nextLink') then
-        next_link = vuln_json_response.fetch("@odata.nextLink")
+        vuln_next_link = vuln_json_response.fetch("@odata.nextLink")
       else
-        next_link = nil
+        vuln_next_link = nil
       end
 
       vuln_json.each do |vuln|
@@ -233,10 +238,15 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
             asset_next_link = nil
           end
           worked_2nd_time = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-          print_debug "still can't find asset for #{machine_id}" unless worked_2nd_time
+          unless worked_2nd_time
+            print_debug "still can't find asset for #{machine_id}" 
+            asset = { 
+              "external_id" => machine_id,
+            }
+            create_kdi_asset(asset,false)
+            create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+          end
         end
-
-        create_kdi_vuln_def(vuln_def)
       end
       page = page+1
     end
