@@ -169,12 +169,13 @@ module Toolkit
 			else
 				a = @assets.select{|a| a[match_key] == asset_hash.fetch(match_key)}.first
 			end
-			if a then
-				@paged_assets << a
-				@assets.delete(a)
-			end
-
 		end
+		if a then
+			@paged_assets << a
+			@assets.delete(a)
+		end
+
+
 
 	    # SAnity check to make sure we are pushing data into the correct asset 
 	    unless a #&& asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?

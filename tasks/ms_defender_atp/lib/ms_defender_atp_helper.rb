@@ -10,6 +10,7 @@ module MSDefenderAtpHelper
   @atp_oath_url = nil
   @token = nil
   @uploaded_files = nil
+  @file_cleanup = nil
 
   def connectorUpload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key)
         ### Write KDI format
@@ -24,7 +25,7 @@ module MSDefenderAtpHelper
       filenum = response_json.fetch("data_file")
       @uploaded_files = Array.new if @uploaded_files.nil?
       @uploaded_files << filenum  
-      File.delete("#{output_dir}/#{filename}") unless @debug
+      File.delete("#{output_dir}/#{filename}") unless @file_cleanup
    end
    return response_json
   end
@@ -130,12 +131,13 @@ module MSDefenderAtpHelper
     @token = json.fetch("access_token")
   end
 
-  def set_client_data(tenant_id, client_id,secret,atp_query_api,atp_oath_url)
+  def set_client_data(tenant_id, client_id,secret,atp_query_api,atp_oath_url,file_cleanup)
     @atp_oath_url = atp_oath_url
     @tenant_id = tenant_id
     @client_id = client_id
     @client_secret = secret 
     @atp_query_api = atp_query_api
+    @file_cleanup = file_cleanup
   end
 
 end
