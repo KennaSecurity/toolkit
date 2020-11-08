@@ -148,7 +148,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         vuln_json_response = atp_get_vulns()
       else
         break if vuln_next_link.nil? || vuln_next_link.empty?
-        vuln_json_response = atp_get_vulns(vuln_next_link)       
+        vuln_json_response = atp_get_vulns(vuln_next_link)
+        print_debug "got the link for more vulns #{vuln_next_link}"       
       end
 
       #print_debug vuln_json
@@ -230,15 +231,19 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         worked = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
 
         if !worked then
-          asset_response_json = atp_get_machines(asset_next_link)
-          build_assets(asset_response_json)
+          if !asset_next_link.nil? then
+            asset_response_json = atp_get_machines(asset_next_link)
+            print_debug "got current page of assets #{asset_next_link}"
+            build_assets(asset_response_json)
+          end
           if asset_response_json.key?("@odata.nextLink") then
               asset_next_link = asset_response_json.fetch("@odata.nextLink")
+              print_debug "able to get link for next page of data #{asset_next_link}"
           else
             asset_next_link = nil
           end
           worked_2nd_time = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-          unless worked_2nd_time
+          if  !worked_2nd_time then
             print_debug "still can't find asset for #{machine_id}" 
             asset = { 
               "external_id" => machine_id,
@@ -249,8 +254,9 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         end
       end
       page = page+1
+      print_debug "number of pages retrieved for vulns = #{page}"
     end
-
+    print_debug "should be at the end of all the data and now making the final push to the server and running the connector"
     submit_count +=1
     print_debug "#{submit_count} about to run connector"
     filename = "microsoft_atp_kdi_#{submit_count}.json"
