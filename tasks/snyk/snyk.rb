@@ -73,13 +73,13 @@ class Snyk < Kenna::Toolkit::BaseTask
 
     org_ids.each do |org|
       project_json = snyk_get_projects(snyk_api_token,org)
+      print_debug project_json
       project_json.each do |project|
         projects << [project.fetch("name"),project.fetch("id")]
         project_ids << project.fetch("id")
       end
     end
 
-    print_debug project_json
     print_debug "projects = #{project_ids}"
 
     types = ["vuln"]
