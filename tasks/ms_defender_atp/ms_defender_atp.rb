@@ -71,9 +71,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     }
   end
   def build_assets(response_json)
+      @assets = []
       machine_json = response_json["value"]
-
-      #break if machine_json.nil? || machine_json.empty?
 
       machine_json.each do |machine| 
         
@@ -236,8 +235,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
             print_debug "got current page of assets #{asset_next_link}"
             build_assets(asset_response_json)
           end
-          if asset_response_json.key?("@odata.nextLink") then
-              asset_next_link = asset_response_json.fetch("@odata.nextLink")
+          if asset_json_response.key?("@odata.nextLink") then
+              asset_next_link = asset_json_response.fetch("@odata.nextLink")
               print_debug "able to get link for next page of data #{asset_next_link}"
           else
             asset_next_link = nil
@@ -250,7 +249,10 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
             }
             create_kdi_asset(asset,false)
             create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
+            create_kdi_vuln_def(vuln_def)
           end
+        else
+          create_kdi_vuln_def(vuln_def)
         end
       end
       page = page+1
@@ -259,6 +261,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     print_debug "should be at the end of all the data and now making the final push to the server and running the connector"
     submit_count +=1
     print_debug "#{submit_count} about to run connector"
+    print_debug "assets should be empty #{@assets.count}"
     filename = "microsoft_atp_kdi_#{submit_count}.json"
     connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
     connectorKickoff(kenna_connector_id,kenna_api_host,kenna_api_key)

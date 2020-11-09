@@ -25,7 +25,7 @@ module MSDefenderAtpHelper
       filenum = response_json.fetch("data_file")
       @uploaded_files = Array.new if @uploaded_files.nil?
       @uploaded_files << filenum  
-      File.delete("#{output_dir}/#{filename}") unless @file_cleanup
+      File.delete("#{output_dir}/#{filename}") if @file_cleanup
    end
    return response_json
   end
