@@ -71,8 +71,9 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     }
   end
   def build_assets(response_json)
-      @assets = []
       machine_json = response_json["value"]
+
+      #break if machine_json.nil? || machine_json.empty?
 
       machine_json.each do |machine| 
         
@@ -133,34 +134,33 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
     build_assets(asset_json_response)
 
+    while !asset_next_link.nil?
+      asset_json_response = atp_get_machines(asset_next_link)
+      build_assets(asset_json_response)
+      asset_next_link = nil
+      asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
+    end
+
     morevuln = true
     page = 0
     asset_count = 0
     submit_count = 0
     asset_id = nil
+    vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
     vuln_next_link = nil
+    
 
     # now get the vulns 
-    while morevuln do 
-
-      if page == 0 then
-        vuln_json_response = atp_get_vulns()
-      else
-        break if vuln_next_link.nil? || vuln_next_link.empty?
-        vuln_json_response = atp_get_vulns(vuln_next_link)
-        print_debug "got the link for more vulns #{vuln_next_link}"       
-      end
+    while morevuln do
 
       #print_debug vuln_json
-      vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
-
-      vuln_json = vuln_json_response["value"]
-
-      if vuln_json_response.key('@odata.nextLink') then
-        vuln_next_link = vuln_json_response.fetch("@odata.nextLink")
+      if vuln_next_link.nil? then
+        vuln_json_response = atp_get_vulns()
       else
-        vuln_next_link = nil
+        vuln_json_response = atp_get_vulns(vuln_next_link)
       end
+      
+      vuln_json = vuln_json_response["value"]
 
       vuln_json.each do |vuln|
         
@@ -230,38 +230,25 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         worked = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
 
         if !worked then
-          if !asset_next_link.nil? then
-            asset_response_json = atp_get_machines(asset_next_link)
-            print_debug "got current page of assets #{asset_next_link}"
-            build_assets(asset_response_json)
-          end
-          if asset_json_response.key?("@odata.nextLink") then
-              asset_next_link = asset_json_response.fetch("@odata.nextLink")
-              print_debug "able to get link for next page of data #{asset_next_link}"
-          else
-            asset_next_link = nil
-          end
-          worked_2nd_time = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-          if  !worked_2nd_time then
-            print_debug "still can't find asset for #{machine_id}" 
-            asset = { 
-              "external_id" => machine_id,
-            }
-            create_kdi_asset(asset,false)
-            create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-            create_kdi_vuln_def(vuln_def)
-          end
-        else
-          create_kdi_vuln_def(vuln_def)
+          print_debug "still can't find asset for #{machine_id}" 
+          asset = { 
+            "external_id" => machine_id,
+          }
+          create_kdi_asset(asset,false)
+          create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
         end
+        create_kdi_vuln_def(vuln_def)
       end
-      page = page+1
-      print_debug "number of pages retrieved for vulns = #{page}"
+      if vuln_json_response.key('@odata.nextLink') then
+        vuln_next_link = vuln_json_response.fetch("@odata.nextLink") 
+      else
+        morevuln = false
+      end
+
     end
     print_debug "should be at the end of all the data and now making the final push to the server and running the connector"
     submit_count +=1
     print_debug "#{submit_count} about to run connector"
-    print_debug "assets should be empty #{@assets.count}"
     filename = "microsoft_atp_kdi_#{submit_count}.json"
     connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
     connectorKickoff(kenna_connector_id,kenna_api_host,kenna_api_key)
