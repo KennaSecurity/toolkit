@@ -33,7 +33,7 @@ A first example that will pull the latest image, and print the list of tasks:
 A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task to check your api key.
 In this case, the expanse task:
 
-    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit task=kenna_api_key_check:kenna_api_key=$KENNA_API_KEY
+    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
 
 ## Building your own Image
 
@@ -87,19 +87,19 @@ Calling A Specific Task With Podman:
 
 Sometimes, you'll need to send arguments to tasks in order to specify how they should behave.
 
-Each task has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variables in is one big string, separated by colons. An example:
+Each task has its own arguments, and the toolkit attempts to make it simple to pass in additional arguments. The format for passing variables in is one big string, separated by spaces. An example:
 
-    'arg1=val1:arg2=val2:arg3=val3'
+    'arg1=val1 arg2=val2 arg3=val3'
 
 Here's an example ('aws_inspeector' task) with arguments being passed to it:
 
 Docker:
 
-    docker run -it --rm -t toolkit:latest task=aws_inspector:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
+    docker run -it --rm -t toolkit:latest task=aws_inspector aws_region=us-east-1 aws_access_key=$AWS_ACCESS_KEY aws_secret_key='$AWS_SECRET_KEY'
 
 Podman:
 
-    podman run -it --rm -t toolkit:latest task=aws_inspector:aws_region=us-east-1:aws_access_key=$AWS_ACCESS_KEY:aws_secret_key='$AWS_SECRET_KEY'
+    podman run -it --rm -t toolkit:latest task=aws_inspector aws_region=us-east-1 aws_access_key=$AWS_ACCESS_KEY aws_secret_key='$AWS_SECRET_KEY'
 
 ## Getting Data In & Out Of The API
 

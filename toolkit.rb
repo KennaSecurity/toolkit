@@ -4,7 +4,7 @@
 require_relative "lib/toolkit"
 
 # First split up whatever we got
-args_array = "#{ARGV[0]}".split(":")
+args_array = ARGV.map { |arg| arg.split(':') }.flatten
 
 # Then split up this into a hash
 args = {}
@@ -22,7 +22,7 @@ args_array.each do |arg|
   unless arg_name && arg_value
     print_error "FATAL! Invalid Argument: #{arg}"
     print_error "All arguments should take the form [name]=[value]"
-    print_error "Multiple arguments should be separated by a semicolon (;)"
+    print_error 'Multiple arguments should be separated by colons (:) or spaces'
     exit
   end
 
