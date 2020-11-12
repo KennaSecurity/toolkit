@@ -290,10 +290,10 @@ class SecurityScorecard < Kenna::Toolkit::BaseTask
     end
 
     # use the first one !!!
-    #unless ssc_portfolio_id
-    #  ssc_portfolio_id = client.get_portfolio["entries"].first["id"]
-    #  print_good "Using first portfolio since none was specified: #{ssc_portfolio_id}"
-    #end
+    unless ssc_portfolio_id
+      ssc_portfolio_id = client.get_portfolio["entries"].first["id"]
+      print_good "Using first portfolio since none was specified: #{ssc_portfolio_id}"
+    end
 
     if ssc_domain 
       
