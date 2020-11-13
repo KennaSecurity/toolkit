@@ -55,7 +55,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         { :name => "batch_page_size", 
           :type => "integer", 
           :required => false, 
-          :default => 5000, 
+          :default => 500, 
           :description => "Number of assets and their vulns to batch to the connector"}, 
         { :name => "file_cleanup", 
           :type => "boolean", 
@@ -131,14 +131,14 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     set_client_data(atp_tenant_id, atp_client_id, atp_client_secret,atp_api_host,atp_oath_host,file_cleanup)
     asset_next_link = nil
     asset_json_response = atp_get_machines()
-    asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
+    asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
     build_assets(asset_json_response)
 
     while !asset_next_link.nil?
       asset_json_response = atp_get_machines(asset_next_link)
       build_assets(asset_json_response)
       asset_next_link = nil
-      asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?('"@odata.nextLink"')
+      asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
     end
 
     morevuln = true
@@ -185,6 +185,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           asset_count += 1
           print_debug "asset count = #{asset_count}"
         end
+
         if asset_id.!= machine_id then
           if asset_count == batch_page_size then
             submit_count +=1
@@ -195,6 +196,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
             asset_count = 0
             clearDataArrays
           end
+          asset_count += 1
+          print_debug "asset count = #{asset_count}"
           asset_id = machine_id
         end
 
@@ -239,7 +242,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         end
         create_kdi_vuln_def(vuln_def)
       end
-      if vuln_json_response.key('@odata.nextLink') then
+      if vuln_json_response.key?("@odata.nextLink") then
         vuln_next_link = vuln_json_response.fetch("@odata.nextLink") 
       else
         morevuln = false
