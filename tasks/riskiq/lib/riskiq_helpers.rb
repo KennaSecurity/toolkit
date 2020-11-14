@@ -31,7 +31,11 @@ module RiskIq
       port_number = s["port"] if s.kind_of? Hash
       port_number = port_number.to_i
       
-      #puts "DEBUG creating open port #{port_number} on #{asset}"
+      
+      unless s["recent"]
+        puts "DEBUG skipping unrecent #{s} port"
+      end
+
 
       ### 
       ### handle http ports differently ... todo, standardize this
@@ -45,7 +49,7 @@ module RiskIq
       vuln = {
         "scanner_identifier" => scanner_identifier,
         "scanner_type" => "RiskIQ",
-        "details" => JSON.pretty_generate(s.except("banners")),
+        "details" => JSON.pretty_generate( s.except("banners", "webComponents", "scanMetadata")),
         "port" => port_number,
         #"first_seen" => first_seen,
         #"last_seen" => last_seen,
@@ -198,8 +202,13 @@ module RiskIq
         ###
         if @riq_create_open_ports
           if item["asset"]["services"]
-            (item["asset"]["services"] || []).uniq.each do |serv|
-              create_open_port_vuln(asset, serv, first_seen, last_seen)
+            if (item["asset"]["services"].count > 1200) && @riskiq_limit_spurious_ports
+              puts "TOO MANY OPEN PORTS on #{item["name"]}, SKIPPING!"
+              next
+            else
+              (item["asset"]["services"] || []).uniq.each do |serv|
+                create_open_port_vuln(asset, serv, first_seen, last_seen)
+              end
             end
           end
         end
