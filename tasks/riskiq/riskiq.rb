@@ -33,12 +33,17 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
           :type => "boolean", 
           :required => true, 
           :default => false, 
-          :description => "Create vulns for RiskIQ Open Ports (alpha!!)" },
+          :description => "Create vulns for RiskIQ Open Ports (beta!!)" },
+        { :name => "riskiq_limit_spurious_ports", 
+          :type => "boolean", 
+          :required => false, 
+          :default => true, 
+          :description => "Limit information for RiskIQ Open Ports (beta!!)" },
         { :name => "riskiq_create_ssl_misconfigs", 
           :type => "boolean", 
           :required => true, 
-          :default => false, 
-          :description => "Create vulns for SSL Miconfigurations (alpha!!)" },
+          :default => false,
+          :description => "Create vulns for SSL Miconfigurations (beta!!)" },
         { :name => "kenna_api_key", 
           :type => "api_key", 
           :required => false, 
@@ -75,6 +80,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
 
     @riq_create_cves = @options[:riskiq_create_cves]
     @riq_create_open_ports = @options[:riskiq_create_open_ports]
+    @riq_limit_spurious_ports = @options[:riskiq_limit_spurious_ports]
     @riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
 
     # create an api client
@@ -87,7 +93,7 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     print_good "Valid key, proceeding!"
 
     if @options[:debug]
-      max_pages = 50
+      max_pages = 300
       print_debug "Limiting pages to #{max_pages}"
     else
       max_pages = -1 # all 
@@ -100,13 +106,13 @@ class RiskIqTask < Kenna::Toolkit::BaseTask
     end
 
     if @riq_create_open_ports # 156220
-      print_good "Getting open ports from footprint... WARNING! this an alpha feature"
+      print_good "Getting open ports from footprint... BETA feature!"
       result = client.search_global_inventory(client.open_port_query, max_pages)
       output = convert_riq_output_to_kdi result
     end
 
     if @riq_create_ssl_misconfigs # 156221
-      print_good "Getting ssl misconfigs from footprint... WARNING! this an alpha feature"
+      print_good "Getting ssl misconfigs from footprint... BETA feature!"
       result = client.search_global_inventory(client.ssl_cert_query, max_pages)
       output = convert_riq_output_to_kdi result
     end
