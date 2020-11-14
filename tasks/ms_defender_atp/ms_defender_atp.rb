@@ -148,6 +148,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     asset_id = nil
     vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3} # converter
     vuln_next_link = nil
+
+    sleep 7200
     
 
     # now get the vulns 
