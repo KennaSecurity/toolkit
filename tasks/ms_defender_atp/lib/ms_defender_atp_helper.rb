@@ -53,12 +53,11 @@ module MSDefenderAtpHelper
     begin
       headers = {'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
       response = http_get(url, headers,1)
-      return nil if !response
-      if response.code == 401 then
+      if !response.code == 200 then
         response = nil
         raise "unauthorized"
       end
-    rescue RestClient::Unauthorized
+    rescue
       atp_get_auth_token()
       retry
     end
@@ -88,12 +87,11 @@ module MSDefenderAtpHelper
     begin
       headers = {'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity'}
       response = http_get(url, headers,1)
-      return nil if !response
-      if response.code == 401 then
+      if !response.code == 200 then
         response = nil
         raise "unauthorized"
       end
-    rescue RestClient::Unauthorized
+    rescue
       atp_get_auth_token()
       retry
     end
