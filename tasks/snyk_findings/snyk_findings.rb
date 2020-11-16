@@ -36,7 +36,22 @@ class SnykFindings < Kenna::Toolkit::BaseTask
           :type => "integer", 
           :required => false, 
           :default => nil, 
-          :description => "If set, we'll try to upload to this connector" },    
+          :description => "If set, we'll try to upload to this connector" },
+        { :name => "projectName_strip_colon", 
+          :type => "boolean", 
+          :required => false, 
+          :default => false, 
+          :description => "strip colon and following data from Project Name - used as application identifier" },  
+        { :name => "packageManager_strip_colon", 
+          :type => "boolean", 
+          :required => false, 
+          :default => false, 
+          :description => "strip colon and following data from packageManager - used in asset file locator" },  
+        { :name => "package_strip_colon", 
+          :type => "boolean", 
+          :required => false, 
+          :default => false, 
+          :description => "strip colon and following data from package - used in asset file locator" },     
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
@@ -58,6 +73,10 @@ class SnykFindings < Kenna::Toolkit::BaseTask
 
     output_directory = @options[:output_directory]
     include_license = @options[:include_license]
+
+    projectName_strip_colon = @options[:projectName_strip_colon]
+    packageManager_strip_colon = @options[:packageManager_strip_colon]
+    package_strip_colon = @options[:package_strip_colon]
     
     org_json = snyk_get_orgs(snyk_api_token)
     projects = []
@@ -79,7 +98,6 @@ class SnykFindings < Kenna::Toolkit::BaseTask
       end
     end
 
-    print_debug project_json
     print_debug "projects = #{project_ids}"
 
     types = ["vuln"]
@@ -116,7 +134,20 @@ class SnykFindings < Kenna::Toolkit::BaseTask
         issue = issue_obj["issue"]
         project = issue_obj["project"]
         identifiers = issue["identifiers"]
+        application = project.fetch("name") 
+        application = application.slice(0..(application.index(':'))) if projectName_strip_colon
         
+        if project.key?("targetFile") then
+          targetFile = project.fetch("targetFile")
+        else
+          print_debug = "using strip colon params if set"
+          packageManager = issue_obj.fetch("packageManager") 
+          packageManager = packageManager.slice(0..(packageManager.index(':'))) if packageManager_strip_colon
+          package = issue_obj.fetch("package")
+          package = package.slice(0..(package.index(':'))) if package_strip_colon
+          targetFile = "#{packageManager}/#{package}"
+        end
+
         asset = {
 
           "file" => project.fetch("targetFile"),
