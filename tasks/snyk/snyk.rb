@@ -136,16 +136,16 @@ class Snyk < Kenna::Toolkit::BaseTask
         project = issue_obj["project"]
         identifiers = issue["identifiers"]
         application = project.fetch("name") 
-        application = application.slice(0..(application.index(':'))) if projectName_strip_colon
+        application = application.slice(0..(application.rindex(':')-1)) if projectName_strip_colon && !application.rindex(':').nil?
 
         if project.key?("targetFile") then
           targetFile = project.fetch("targetFile")
         else
           print_debug = "using strip colon params if set"
           packageManager = issue_obj.fetch("packageManager") 
-          packageManager = packageManager.slice(0..(packageManager.index(':'))) if packageManager_strip_colon
+          packageManager = packageManager.slice(0..(packageManager.rindex(':')-1)) if packageManager_strip_colon && !packageManager.rindex(':').nil?
           package = issue_obj.fetch("package")
-          package = package.slice(0..(package.index(':'))) if package_strip_colon
+          package = package.slice(0..(package.rindex(':')-1)) if package_strip_colon && !package.rindex(':').nil?
           targetFile = "#{packageManager}/#{package}"
         end
         
