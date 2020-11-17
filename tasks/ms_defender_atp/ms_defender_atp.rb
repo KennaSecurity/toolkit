@@ -165,9 +165,10 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
       vuln_json.each do |vuln|
         
         vuln_cve = vuln.fetch("cveId")
+        scanner_id = vuln_cve
         if vuln_cve.start_with?('TVM') then
           vuln_name = vuln_cve
-          vuln_cve = ""
+          vuln_cve = nil
         else
           vuln_cve = vuln_cve.strip
         end 
@@ -209,7 +210,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         }
 
         vuln = {
-          "scanner_identifier" => vuln_cve,
+          "scanner_identifier" => scanner_id,
           "scanner_type" => "MS Defender ATP",
           # scanner score should fallback using criticality (in case of missing cvss)
           "scanner_score" => vuln_score, 
@@ -218,15 +219,15 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
 
         # craft the vuln def hash
         vuln_def= {
-          "scanner_identifier" => vuln_cve,
+          "scanner_identifier" => scanner_id,
           "scanner_type" => "MS Defender ATP",
           "name" => vuln_name,
           "cve_identifiers" => "#{vuln_cve}"
         }
 
-        vuln_asset = vuln_asset.compact
-        vuln = vuln.compact
-        vuln_def = vuln_def.compact
+        vuln_asset.compact!
+        vuln.compact!
+        vuln_def.compact!
 
         # Create the KDI entries 
          
