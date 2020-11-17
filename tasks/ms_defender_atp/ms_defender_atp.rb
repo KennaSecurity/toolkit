@@ -166,7 +166,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
         
         vuln_cve = vuln.fetch("cveId")
         scanner_id = vuln_cve
-        if vuln_cve.start_with?('TVM') then
+        if !vuln_cve.start_with?('CVE') then
           vuln_name = vuln_cve
           vuln_cve = nil
         else
