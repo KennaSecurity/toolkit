@@ -104,7 +104,9 @@ module Kenna
           #  created_at: string, (iso8601 timestamp - defaults to current date if not provided)
           #  last_seen_at: string, * (iso8601 timestamp)
           #  last_fixed_on: string, (iso8601 timestamp)
-          #  closed_at: string, ** (required with closed status - This field used with status may be provided on remediated vulns to indicate they're closed, or vulns that are already present in Kenna but absent from this data load, for any specific asset, will be closed via our autoclose logic)
+          #  closed_at: string, ** (required with closed status - This field used with status may be provided on
+          #    remediated vulns to indicate they're closed, or vulns that are already present in Kenna but absent from
+          #    this data load, for any specific asset, will be closed via our autoclose logic)
           #  status: string, * (required - valid values open, closed, false_positive, risk_accepted)
           #  port: integer
           vuln_attributes = {

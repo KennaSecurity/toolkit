@@ -48,7 +48,10 @@ module Kenna
               end
         print_debug "url = #{url}"
         begin
-          headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity' }
+          headers = { 'Content-Type' => 'application/json',
+                      'Accept' => 'application/json',
+                      'Authorization' => "Bearer #{@token}",
+                      'accept-encoding' => 'identity' }
           response = http_get(url, headers, 1)
           return nil unless response
 
@@ -84,7 +87,10 @@ module Kenna
         # ComputerDnsName, LastSeen, HealthStatus, OsPlatform,
         print_debug "url = #{url}"
         begin
-          headers = { 'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity' }
+          headers = { 'content-type' => 'application/json',
+                      'accept' => 'application/json',
+                      'Authorization' => "Bearer #{@token}",
+                      'accept-encoding' => 'identity' }
           response = http_get(url, headers, 1)
           return nil unless response
 
