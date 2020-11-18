@@ -10,7 +10,7 @@ module Kenna
       @uploaded_files = nil
       @file_cleanup = nil
 
-      def connectorUpload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key)
+      def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key)
         ### Write KDI format
         kdi_output = { skip_autoclose: false, assets: @paged_assets, vuln_defs: @vuln_defs }
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
@@ -28,7 +28,7 @@ module Kenna
         return response_json
       end
 
-      def connectorKickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
+      def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key
           print_good "Attempting to run to Kenna Connector at #{kenna_api_host}"

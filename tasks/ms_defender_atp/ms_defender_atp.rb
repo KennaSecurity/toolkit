@@ -183,10 +183,10 @@ module Kenna
                 submit_count += 1
                 print_debug "#{submit_count} about to upload file"
                 filename = "microsoft_atp_kdi_#{submit_count}.json"
-                connector_response_json = connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key)
+                connector_response_json = connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key)
                 print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
                 asset_count = 0
-                clearDataArrays
+                clear_data_arrays
               end
               asset_id = machine_id
             end
@@ -251,8 +251,8 @@ module Kenna
         submit_count += 1
         print_debug "#{submit_count} about to run connector"
         filename = "microsoft_atp_kdi_#{submit_count}.json"
-        connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key)
-        connectorKickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
+        connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key)
+        connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
       end
     end
   end

@@ -188,7 +188,7 @@ module Kenna
         vuln_hash
       end
 
-      def clearDataArrays
+      def clear_data_arrays
         @paged_assets = []
         @vuln_defs = []
       end
