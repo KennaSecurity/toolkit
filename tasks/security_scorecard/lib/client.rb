@@ -52,7 +52,7 @@ module Kenna
           out_issues.flatten
         end
 
-        def get_portfolio
+        def get_portfolio # rubocop:disable Naming/AccessorMethodName
           endpoint = "#{@baseapi}/portfolios"
 
           begin
@@ -109,7 +109,7 @@ module Kenna
           end
         end
 
-        def get_issue_types
+        def get_issue_types # rubocop:disable Naming/AccessorMethodName
           endpoint = "#{@baseapi}/metadata/issue-types"
 
           response = RestClient::Request.execute({

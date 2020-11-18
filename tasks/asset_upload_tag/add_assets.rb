@@ -249,7 +249,7 @@ module Kenna
         end
       end
 
-      def set_field_mappings(csv_file)
+      def set_field_mappings(csv_file) # rubocop:disable Naming/AccessorMethodName
         CSV.parse(File.open(csv_file, 'r:iso-8859-1:utf-8') { |f| f.read }, headers: true) do |row|
           case row['Kenna Field']
           when 'ip_address'
@@ -276,7 +276,7 @@ module Kenna
         print_good 'Finished with field mapping'
       end
 
-      def set_tag_mapping(csv_file)
+      def set_tag_mapping(csv_file) # rubocop:disable Naming/AccessorMethodName
         if !csv_file.empty? && !csv_file.nil?
           CSV.foreach(csv_file, headers: true, encoding: "UTF-8") do |row|
             @tag_columns << Array[row[0], row[1], row[2]]

@@ -63,7 +63,7 @@ module Kenna
             out
           end
 
-          def self.get_mapping_stats
+          def self.get_mapping_stats # rubocop:disable Naming/AccessorMethodName
             stats = {}
             stats[:bitsight] = []
             stats[:expanse] = []

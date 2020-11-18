@@ -1,3 +1,4 @@
+# rubocop:disable Naming/AccessorMethodName
 module Kenna
   module Api
     class Client
@@ -309,3 +310,4 @@ module Kenna
     end
   end
 end
+# rubocop:enable Naming/AccessorMethodName
