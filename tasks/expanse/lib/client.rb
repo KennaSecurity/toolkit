@@ -128,7 +128,8 @@ module Kenna
               # puts "#{result["pagination"]}"
               more_results = !result["pagination"]["next"].nil?
             end
-
+          end
+          
           out
         end
       end
