@@ -138,22 +138,28 @@ class Snyk < Kenna::Toolkit::BaseTask
         application = project.fetch("name") 
         application = application.slice(0..(application.rindex(':')-1)) if projectName_strip_colon && !application.rindex(':').nil?
 
+        packageManager = issue_obj.fetch("packageManager") if issue_obj.key?("packageManager")
         if project.key?("targetFile") then
           targetFile = project.fetch("targetFile")
         else
           print_debug = "using strip colon params if set"
-          packageManager = issue_obj.fetch("packageManager") 
-          packageManager = packageManager.slice(0..(packageManager.rindex(':')-1)) if packageManager_strip_colon && !packageManager.rindex(':').nil?
-          package = issue_obj.fetch("package")
-          package = package.slice(0..(package.rindex(':')-1)) if package_strip_colon && !package.rindex(':').nil?
-          targetFile = "#{packageManager}/#{package}"
+          if issue_obj.key?("packageManager") then
+            packageManager = packageManager.slice(0..(packageManager.rindex(':')-1)) if packageManager_strip_colon && !packageManager.rindex(':').nil?
+          end
+          if issue_obj.key?("package") then
+            package = issue_obj.fetch("package")
+            package = package.slice(0..(package.rindex(':')-1)) if package_strip_colon && !package.rindex(':').nil?
+          end
+          targetFile = "#{packageManager}" if !packageManager.nil?
+          targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil? 
+          targetFile = "#{targetFile}#{package}"
         end
         
         asset = {
 
           "file" => targetFile,
           "application" => application,
-          "tags" => [project.fetch("source"),project.fetch("packageManager")]
+          "tags" => [project.fetch("source"),packageManager].compact!
 
         }
 
