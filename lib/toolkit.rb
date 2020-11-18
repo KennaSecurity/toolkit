@@ -10,8 +10,10 @@ require_relative '../initialize/string'
 # local deps
 require_relative 'helpers'
 require_relative 'http'
+# rubocop:todo Style/MixinUsage
 include Kenna::Toolkit::Helpers
 include Kenna::Toolkit::Helpers::Http
+# rubocop:enable Style/MixinUsage
 
 # Shared libraries / mapping / data etc
 require_relative 'data/mapping/digi_footprint_finding_mapper'
