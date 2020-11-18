@@ -46,6 +46,7 @@ module Kenna
         }
       end
 
+      # rubocop:disable Naming/VariableName
       def run(opts)
         super # opts -> @options
 
@@ -218,6 +219,7 @@ module Kenna
           upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
         end
       end
+      # rubocop:enable Naming/VariableName
     end
   end
 end

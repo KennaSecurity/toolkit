@@ -74,14 +74,14 @@ module Kenna
           # this is dark magic from @dbro's script, needs testing
           scan_list_results = JSON.parse(pull_scan_list(website))
           scan_list_array = field_values(scan_list_results["List"], "Id", "TargetUrl", "InitiatedAt")
-          scanId = scan_list_array.sort_by { |_a, _b, c| c }.reverse![0][0]
+          scan_id = scan_list_array.sort_by { |_a, _b, c| c }.reverse![0][0]
 
           # get the file
           puts "Retrieving Scan ID: #{scan_list_array.sort_by { |_a, _b, c| c }.reverse![0][0]} for #{website}"
-          scan_file_data = pull_scan_file(scanId)
+          scan_file_data = pull_scan_file(scan_id)
 
           # write the file
-          filename = "#{scanId}.xml"
+          filename = "#{scan_id}.xml"
           write_file output_directory, filename, scan_file_data
           print_good "Output is available at: #{output_dir}/#{filename}"
         end
