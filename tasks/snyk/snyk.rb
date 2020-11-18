@@ -51,11 +51,9 @@ module Kenna
         super # opts -> @options
 
         snyk_api_token = @options[:snyk_api_token]
-
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
-
         include_license = @options[:include_license]
 
         org_json = snyk_get_orgs(snyk_api_token)
