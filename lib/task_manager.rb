@@ -7,7 +7,7 @@ module Kenna
       end
 
       def self.tasks
-        @tasks.select { |x| !x.metadata[:disabled] }
+        @tasks.reject { |x| x.metadata[:disabled] }
       end
 
       def self.find_by_id(provided_id)
