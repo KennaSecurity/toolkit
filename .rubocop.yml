@@ -41,6 +41,10 @@ Lint/AmbiguousBlockAssociation:
   Enabled: true
 Style/GlobalVars:
   AllowedVariables: ['$basedir']
+Style/OptionalBooleanParameter:
+  Enabled: false
+Style/SafeNavigation:
+  Enabled: false # requires 2.3
 Style/TrailingCommaInArguments:
   Enabled: false
 Style/TrailingCommaInArrayLiteral:
