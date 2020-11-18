@@ -1,7 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.5.3
   NewCops: enable
-Documentation:
+Style/Documentation:
   Enabled: false
 Metrics/BlockLength:
   Enabled: true
