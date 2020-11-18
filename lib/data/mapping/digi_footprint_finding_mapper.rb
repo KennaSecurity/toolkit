@@ -88,7 +88,7 @@ module Kenna
             stats
           end
 
-          def self._mapping_data
+          def self._mapping_data # rubocop:disable Metrics/MethodLength
             [
               {
                 name: "Application Content Security Policy Issue",

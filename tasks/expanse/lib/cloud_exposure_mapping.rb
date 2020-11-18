@@ -16,7 +16,7 @@ module Kenna
         ###   data - static data, use directly without worrying about source data
         ###
 
-        def field_mapping_for_cloud_exposures
+        def field_mapping_for_cloud_exposures # rubocop:disable Metrics/MethodLength
           {
             "application_server_software" => {
               "asset" => [],
