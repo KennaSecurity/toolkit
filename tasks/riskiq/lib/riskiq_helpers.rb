@@ -94,7 +94,7 @@ module Kenna
             ### First handle tags (same across all assets)
             ###
             tags = ["RiskIQ"]
-            tags = tags.concat(item["tags"].map { |x| x["name"] }) if item["tags"]
+            tags.concat(item["tags"].map { |x| x["name"] }) if item["tags"]
 
             ###
             ### Always set External ID
