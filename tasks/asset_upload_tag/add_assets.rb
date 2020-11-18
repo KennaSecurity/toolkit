@@ -141,7 +141,7 @@ module Kenna
 
           # DBro - Added Tagging Section
           tag_list = []
-          if @tag_columns.count > 0
+          if @tag_columns.count.positive?
             @tag_columns.each do |item|
               pull_column = []
               pull_string = "" # <==== Should this be an array? The loop next doesn't work.

@@ -49,7 +49,7 @@ describe "Kenna" do
           max_pages = 1
           max_per_page = 1
           cloud_exposures = @client.cloud_exposures(max_pages, max_per_page)
-          if cloud_exposures && cloud_exposures.count > 0
+          if cloud_exposures && cloud_exposures.count.positive?
             expect(exposures.first["id"]).to be_a String
           else
             puts "ERROR? No cloud exposurs"

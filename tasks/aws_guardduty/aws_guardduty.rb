@@ -191,7 +191,7 @@ module Kenna
                 finding_ids.concat resp.finding_ids
                 next_token = resp.next_token
 
-                break unless next_token.length > 0
+                break unless next_token.length.positive?
 
               end
 

@@ -61,7 +61,7 @@ module Kenna
           exposures = @client.exposures(max_pages, max_per_page)
 
           # skip if we don't have any
-          unless exposures.count > 0 # skip empty
+          unless exposures.count.positive? # skip empty
             print "No exposures found!"
             return
           end
@@ -140,7 +140,7 @@ module Kenna
             print_good "Got #{cloud_exposures.count} cloud exposures of type #{et}"
 
             # skip if we don't have any
-            unless cloud_exposures.count > 0 # skip empty
+            unless cloud_exposures.count.positive? # skip empty
               print_debug "No cloud exposures of type #{et} found!"
               next
             end

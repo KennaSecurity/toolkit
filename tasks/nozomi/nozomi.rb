@@ -85,7 +85,7 @@ module Kenna
 
           print_debug "issue json = #{issue_json}"
 
-          if issue_json.nil? || issue_json.empty? || issue_json.length == 0
+          if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
             morepages = false
             break
           end

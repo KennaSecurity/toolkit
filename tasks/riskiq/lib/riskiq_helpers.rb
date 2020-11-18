@@ -147,7 +147,7 @@ module Kenna
               asset["external_id"] = id.to_s if id
 
               # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
-              create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count > 0
+              create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count.positive?
 
             elsif item["type"] == "SSL_CERT"
 

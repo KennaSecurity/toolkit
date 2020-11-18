@@ -13,7 +13,7 @@ module Kenna
         end
 
         def successfully_authenticated?
-          @token && @token.length > 0
+          @token && @token.length.positive?
         end
 
         def exposure_types

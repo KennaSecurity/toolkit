@@ -27,7 +27,7 @@ module Kenna
           companies = get_companies_by_portfolio(portfolio_id)
           puts "DEBUG Got #{companies.count} companies"
 
-          if companies.count > 0
+          if companies.count.positive?
 
             companies["entries"].each do |c|
               puts "Working on company #{c}"

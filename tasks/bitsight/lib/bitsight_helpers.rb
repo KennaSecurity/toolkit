@@ -30,7 +30,7 @@ module Kenna
 
           # check for more
           endpoint = result["links"]["next"]
-          more_findings = endpoint && endpoint.length > 0
+          more_findings = endpoint && endpoint.length.positive?
 
           if more_findings && endpoint =~ /0.0.0.0/
             print_error "WARNING: endpoint is not well formed, doing a gsub on: #{endpoint}"

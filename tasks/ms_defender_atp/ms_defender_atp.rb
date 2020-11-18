@@ -139,7 +139,7 @@ module Kenna
         # now get the vulns
         while morevuln
 
-          if page == 0
+          if page.zero?
             vuln_json_response = atp_get_vulns
           else
             break if vuln_next_link.nil? || vuln_next_link.empty?
