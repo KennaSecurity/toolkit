@@ -56,6 +56,7 @@ module Kenna
             # prepare the next request
             offset += limit_per_page
             break unless result["pagination"]
+
             # puts "#{result["pagination"]}"
             more_results = !result["pagination"]["next"].nil?
           end
@@ -125,6 +126,7 @@ module Kenna
               # prepare the next request
               offset += limit_per_page
               break unless result["pagination"]
+              
               # puts "#{result["pagination"]}"
               more_results = !result["pagination"]["next"].nil?
             end
