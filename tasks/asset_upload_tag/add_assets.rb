@@ -98,15 +98,6 @@ module Kenna
         CSV.foreach(@csv_file, headers: true) do |row|
           # "Reading line #{$.}... "
           current_line = $.
-          ip_address = nil
-          hostname = nil
-          url = nil
-          mac_address = nil
-          database = nil
-          netbios = nil
-          fqdn = nil
-          file_name = nil
-          application_name = nil
 
           # your csv column names should match these if you don't want to change the script
           next if row[@ip_address_col.to_s].nil?
@@ -143,7 +134,6 @@ module Kenna
           tag_list = []
           if @tag_columns.count.positive?
             @tag_columns.each do |item|
-              pull_column = []
               pull_string = "" # <==== Should this be an array? The loop next doesn't work.
               pull_column = CSV.parse_line((item[0]).to_s)
               pull_column.each do |col|
@@ -231,7 +221,7 @@ module Kenna
             print_good tag_update_json if @debug
 
             begin
-              tag_update_response = RestClient::Request.execute(
+              RestClient::Request.execute(
                 method: :put,
                 url: tag_api_url,
                 headers: @headers,

@@ -62,7 +62,7 @@ module Kenna
                                                      headers: @headers
                                                    })
 
-            json = JSON.parse(response.body.to_s)
+            JSON.parse(response.body.to_s)
           rescue JSON::ParserError => e
             return nil
           rescue RestClient::Unauthorized => e
@@ -82,7 +82,7 @@ module Kenna
                                                  })
 
           begin
-            json = JSON.parse(response.body)
+            JSON.parse(response.body)
           rescue JSON::ParserError => e
             # do nothing
           rescue RestClient::NotFound => e
@@ -100,7 +100,7 @@ module Kenna
                                                      headers: @headers
                                                    })
 
-            json = JSON.parse(response.body.to_s)
+            JSON.parse(response.body.to_s)
           rescue RestClient::InternalServerError => e
             puts "Error! 500 getting #{itype}: #{e}"
             return {}
@@ -120,7 +120,7 @@ module Kenna
                                                  })
 
           begin
-            json = JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
+            JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
           rescue JSON::ParserError => e
             # do nothing
           end
@@ -165,7 +165,7 @@ module Kenna
           latest_report_completed_at = now
           tries = 0
           max_retries = 10
-          output = []
+
           while latest_report_completed_at <= now
             puts "DEBUG Waiting for report to be generatd. Last report generated: #{latest_report_completed_at}"
 

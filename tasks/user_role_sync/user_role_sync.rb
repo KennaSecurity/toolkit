@@ -114,12 +114,6 @@ module Kenna
         # Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
         CSV.open(csv_file_path, 'r:bom|utf-8', headers: true) do |csv|
           csv.each do |row|
-            current_line = $INPUT_LINE_NUMBER
-            email_address = nil
-            first_name = nil
-            last_name = nil
-            role_name = nil
-
             email_address = row[@email_col].downcase
             first_name = row[@firstname_col]
             last_name = row[@lastname_col]
@@ -175,7 +169,7 @@ module Kenna
 
       def pull_roles_list
         puts @role_post_url
-        query_post_return = RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :get,
           url: @role_post_url,
           # payload: json_data,
@@ -189,7 +183,7 @@ module Kenna
       end
 
       def pull_user_list
-        query_post_return = RestClient::Request.execute(
+        RestClient::Request.execute(
           method: :get,
           url: @user_post_url,
           # payload: json_data,
@@ -217,7 +211,7 @@ module Kenna
         print_good json_data if @debug
 
         begin
-          query_post_return = RestClient::Request.execute(
+          RestClient::Request.execute(
             method: :post,
             url: @role_post_url,
             payload: json_data,
@@ -252,7 +246,7 @@ module Kenna
         }
         # print_good json_data
         begin
-          query_post_return = RestClient::Request.execute(
+          RestClient::Request.execute(
             method: :post,
             url: @user_post_url,
             payload: json_data,
@@ -305,7 +299,7 @@ module Kenna
           end
 
           begin
-            query_post_return = RestClient::Request.execute(
+            RestClient::Request.execute(
               method: :put,
               url: url,
               payload: json_data,
@@ -330,7 +324,7 @@ module Kenna
         print_good url # if @debug
 
         begin
-          query_post_return = RestClient::Request.execute(
+          RestClient::Request.execute(
             method: :delete,
             url: url,
             headers: @headers

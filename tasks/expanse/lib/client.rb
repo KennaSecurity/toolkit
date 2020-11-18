@@ -19,13 +19,13 @@ module Kenna
         def exposure_types
           url = "https://expander.expanse.co/api/v2/configurations/exposures"
           response_body = RestClient.get(url, @headers)
-          result = JSON.parse response_body
+          JSON.parse response_body
         end
 
         def exposure_counts
           url = "https://expander.qadium.com/api/v2/summaries/ip-ports/counts"
           response_body = RestClient.get(url, @headers)
-          result = JSON.parse response_body
+          JSON.parse response_body
         end
 
         def exposures(max_pages = 100, limit_per_page = 10_000)

@@ -2,7 +2,6 @@ module Kenna
   module Toolkit
     module BitsightHelpers
       def get_bitsight_findings_and_create_kdi(bitsight_api_key, my_company_guid, max_findings = 1_000_000, options = {})
-        findings = []
         # then get the assets for it
         # my_company = result["companies"].select{|x| x["guid"] == my_company_guid}
         more_findings = true
@@ -47,7 +46,7 @@ module Kenna
         # First get my company
         response = RestClient.get("https://#{bitsight_api_key}:@api.bitsighttech.com/portfolio")
         portfolio = JSON.parse(response.body)
-        my_company_guid = portfolio["my_company"]["guid"]
+        portfolio["my_company"]["guid"]
       end
 
       def valid_bitsight_api_key?(bitsight_api_key)

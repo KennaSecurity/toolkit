@@ -56,7 +56,6 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
 
-        output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
         org_json = snyk_get_orgs(snyk_api_token)
@@ -123,7 +122,6 @@ module Kenna
 
             }
 
-            scanner_score = ""
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else

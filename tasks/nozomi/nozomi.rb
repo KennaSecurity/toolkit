@@ -73,8 +73,6 @@ module Kenna
         kenna_connector_id = @options[:kenna_connector_id]
         external_id_key = @options[:external_id_key]
 
-        output_directory = @options[:output_directory]
-
         morepages = true
         pagenum = 0
         while morepages
