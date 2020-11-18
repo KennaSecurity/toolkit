@@ -938,7 +938,7 @@ module Kenna
                     vuln_id: /^waf_detected$/
                   },
                   {
-                    source: "SecurityScorecard",  # this is something we manually labeled as a benign finding
+                    source: "SecurityScorecard", # this is something we manually labeled as a benign finding
                     vuln_id: /^benign_finding$/
                   },
                   {
