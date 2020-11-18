@@ -20,6 +20,6 @@ group :development, :test do
 end
 
 group :development, :test do
-	gem 'pry'
-	gem 'rspec'
+  gem 'pry'
+  gem 'rspec'
 end
