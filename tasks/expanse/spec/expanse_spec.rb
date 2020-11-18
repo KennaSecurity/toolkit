@@ -1,88 +1,85 @@
 # cloud exposure field mapping
-#require_relative '../lib/mapper'
-#require_relative '../lib/client'
-require_relative "../../../lib/toolkit.rb"
+# require_relative '../lib/mapper'
+# require_relative '../lib/client'
+require_relative '../../../lib/toolkit'
 
 require_relative '../../../spec/rspec_helper'
 require 'rspec'
 
 describe "Kenna" do
-describe "Toolkit" do
-describe "Expanse" do
-describe "Client" do
+  describe "Toolkit" do
+    describe "Expanse" do
+      describe "Client" do
+        include Kenna::Toolkit::Expanse::Mapper
 
-  include Kenna::Toolkit::Expanse::Mapper
+        before do
+          @api_key = (ENV['EXPANSE_TEST_KEY']).to_s
+          @client = Kenna::Toolkit::Expanse::Client.new @api_key
+        end
 
-  before do 
-    @api_key = "#{ENV["EXPANSE_TEST_KEY"]}"
-    @client = Kenna::Toolkit::Expanse::Client.new @api_key
-  end
+        it "can authenticate" do
+          expect(@client.successfully_authenticated?).to be true
+        end
 
-  it "can authenticate" do
-    
-    expect(@client.successfully_authenticated?).to be true
-  end
-   
-  it  "can get exposure types" do
-    expect(@client.exposure_types).to be_a Hash
-  end 
+        it "can get exposure types" do
+          expect(@client.exposure_types).to be_a Hash
+        end
 
-  it "can get exposures" do 
-    max_pages = 1 
-    max_per_page = 1
-    exposures = @client.exposures(max_pages,max_per_page)
-    expect(exposures.first["id"]).to be_a String
-  end
+        it "can get exposures" do
+          max_pages = 1
+          max_per_page = 1
+          exposures = @client.exposures(max_pages, max_per_page)
+          expect(exposures.first["id"]).to be_a String
+        end
 
-  it "can map an exposure to kdi format" do
-    max_pages = 1 
-    max_per_page = 1
-    exposures = @client.exposures(max_pages,max_per_page)
-    fail unless exposures && exposures.first 
-    e = exposures.first
-    
-    out = map_exposure_fields(false, e["exposureType"], e) 
+        it "can map an exposure to kdi format" do
+          max_pages = 1
+          max_per_page = 1
+          exposures = @client.exposures(max_pages, max_per_page)
+          raise unless exposures && exposures.first
 
-    expect(out["asset"]).to be_a Hash
-  end
+          e = exposures.first
 
-  it "can get cloud exposures" do 
-    max_pages = 1 
-    max_per_page = 1
-    cloud_exposures = @client.cloud_exposures(max_pages,max_per_page)
-    if cloud_exposures && cloud_exposures.count > 0
-      expect(exposures.first["id"]).to be_a String
-    else 
-      puts "ERROR? No cloud exposurs"
+          out = map_exposure_fields(false, e["exposureType"], e)
+
+          expect(out["asset"]).to be_a Hash
+        end
+
+        it "can get cloud exposures" do
+          max_pages = 1
+          max_per_page = 1
+          cloud_exposures = @client.cloud_exposures(max_pages, max_per_page)
+          if cloud_exposures && cloud_exposures.count > 0
+            expect(exposures.first["id"]).to be_a String
+          else
+            puts "ERROR? No cloud exposurs"
+          end
+        end
+
+        it "can create kdi from cloud exposures" do
+          max_pages = 1
+          max_per_page = 1
+          create_kdi_from_cloud_exposures(max_pages, max_per_page)
+          kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+
+          expect(kdi_output[:assets].first["vulns"].first["scanner_type"]).to match("Expanse")
+          expect(kdi_output[:vuln_defs].first["scanner_type"]).to match("Expanse")
+          # expect(kdi_output[:vuln_defs].first["scanner_identifier"]).to match(/^CVE-/)
+          # expect(kdi_output[:vuln_defs].first["cve_identifiers"]).to match(/^CVE-/)
+        end
+
+        it "can create kdi from exposures" do
+          max_pages = 1
+          max_per_page = 1
+          create_kdi_from_exposures(max_pages, max_per_page)
+          kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+
+          expect(kdi_output[:assets].first["vulns"].first["scanner_type"]).to match("Expanse")
+          expect(kdi_output[:vuln_defs].first["scanner_type"]).to match("Expanse")
+          # expect(kdi_output[:vuln_defs].first["scanner_identifier"]).to match(/^CVE-/)
+          # expect(kdi_output[:vuln_defs].first["cve_identifiers"]).to match(/^CVE-/)
+        end
+      end
     end
   end
-
-  it "can create kdi from cloud exposures" do 
-    max_pages = 1 
-    max_per_page = 1
-    create_kdi_from_cloud_exposures(max_pages, max_per_page)
-    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-
-    expect(kdi_output[:assets].first["vulns"].first["scanner_type"]).to match("Expanse")
-    expect(kdi_output[:vuln_defs].first["scanner_type"]).to match("Expanse")
-    #expect(kdi_output[:vuln_defs].first["scanner_identifier"]).to match(/^CVE-/)
-    #expect(kdi_output[:vuln_defs].first["cve_identifiers"]).to match(/^CVE-/)
-
-  end
-
-  it "can create kdi from exposures" do 
-    max_pages = 1 
-    max_per_page = 1
-    create_kdi_from_exposures(max_pages, max_per_page)
-    kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-
-    expect(kdi_output[:assets].first["vulns"].first["scanner_type"]).to match("Expanse")
-    expect(kdi_output[:vuln_defs].first["scanner_type"]).to match("Expanse")
-    #expect(kdi_output[:vuln_defs].first["scanner_identifier"]).to match(/^CVE-/)
-    #expect(kdi_output[:vuln_defs].first["cve_identifiers"]).to match(/^CVE-/)
-  end
-
-end
-end
-end
 end

@@ -4,19 +4,18 @@
 require_relative "lib/toolkit"
 
 # First split up whatever we got
-args_array = "#{ARGV[0]}".split(":")
+args_array = (ARGV[0]).to_s.split(":")
 
 # Then split up this into a hash
 args = {}
-args_array.each do |arg| 
-
+args_array.each do |arg|
   arg_name  = arg.split("=").first.to_sym
   arg_value = arg.split("=").last
 
   # handle a request for just "help" as a special case
-  #if arg_name = "help"
+  # if arg_name = "help"
   #  print_usage && exit
-  #end
+  # end
 
   # make sure all arguments were well formed
   unless arg_name && arg_value
@@ -30,7 +29,7 @@ args_array.each do |arg|
   args[arg_name] = arg_value
 end
 
-# Fail if we didnt get a task 
+# Fail if we didnt get a task
 unless args[:task]
   print_error "FATAL! Missing required argument: 'task'"
   print_usage
@@ -39,14 +38,14 @@ end
 
 # handle task request
 case args[:task]
-  when "help"
-    print_usage && exit
+when "help"
+  print_usage && exit
+else
+  task_class = Kenna::Toolkit::TaskManager.find_by_id((args[:task]).to_s.strip)
+  if task_class
+    puts "Running: #{task_class}"
+    task_class.new.run(args)
   else
-    task_class = Kenna::Toolkit::TaskManager.find_by_id("#{args[:task]}".strip)
-    if task_class
-      puts "Running: #{task_class}"
-      task_class.new.run(args)
-    else
-      puts "[!] Error. Unknown task requested!"
-    end
+    puts "[!] Error. Unknown task requested!"
+  end
 end

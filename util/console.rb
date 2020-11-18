@@ -11,4 +11,4 @@ alias print_error puts
 ###
 ### Define the prompt & drop into pry repl
 ###
-Pry.start(self, :prompt => [proc{"toolkit>"}])
+Pry.start(self, prompt: [proc { "toolkit>" }])
