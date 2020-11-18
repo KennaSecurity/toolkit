@@ -101,13 +101,13 @@ module Kenna
         end
       end
 
-      def pull_scan_file(scanId)
+      def pull_scan_file(scan_id)
         begin
           scan_post_url = "https://#{@netsparker_api_host}/api/1.0/scans/report/?excludeResponseData=false&format=Xml&type=Vulnerabilities&id="
 
           response = RestClient::Request.execute(
             method: :get,
-            url: "#{scan_post_url} + #{scanId}",
+            url: "#{scan_post_url} + #{scan_id}",
             headers: { 'Accept' => 'application/xml', 'Authorization' => "Basic #{@netsparker_token}" }
           )
         rescue StandardError => e
@@ -156,14 +156,14 @@ module Kenna
         websites
       end
 
-      def pull_scan_list(websiteUrl)
+      def pull_scan_list(website_url)
         begin
           last_page = false
           page = 1
           scans = []
 
           until last_page
-            scan_list_url = "https://#{@netsparker_api_host}/api/1.0/scans/list?websiteUrl=#{websiteUrl}&page=#{page}&pageSize=20"
+            scan_list_url = "https://#{@netsparker_api_host}/api/1.0/scans/list?websiteUrl=#{website_url}&page=#{page}&pageSize=20"
 
             # make the request
             response = RestClient::Request.execute(

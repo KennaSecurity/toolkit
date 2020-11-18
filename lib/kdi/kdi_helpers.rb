@@ -7,19 +7,19 @@ module Kenna
         @paged_assets = []
       end
 
-      def uniq(a)
+      def uniq(asset)
         {
-          "file": a["file"],
-          "ip_address": a["ip_address"],
-          "mac_address": a["mac_address"],
-          "hostname": a["hostname"],
-          "ec2": a["ec2"],
-          "netbios": a["netbios"],
-          "url": a["url"],
-          "fqdn": a["fqdn"],
-          "external_id": a["external_id"],
-          "database": a["database"],
-          "application": a["application"]
+          "file": asset["file"],
+          "ip_address": asset["ip_address"],
+          "mac_address": asset["mac_address"],
+          "hostname": asset["hostname"],
+          "ec2": asset["ec2"],
+          "netbios": asset["netbios"],
+          "url": asset["url"],
+          "fqdn": asset["fqdn"],
+          "external_id": asset["external_id"],
+          "database": asset["database"],
+          "application": asset["application"]
         }.compact
       end
 

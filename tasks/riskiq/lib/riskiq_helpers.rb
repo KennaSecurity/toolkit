@@ -23,8 +23,8 @@ module Kenna
           create_kdi_vuln_def(vuln_def)
         end
 
-        def create_open_port_vuln(asset, s, _first_seen, _last_seen)
-          port_number = s["port"] if s.is_a? Hash
+        def create_open_port_vuln(asset, services, _first_seen, _last_seen)
+          port_number = services["port"] if services.is_a? Hash
           port_number = port_number.to_i
 
           # puts "DEBUG creating open port #{port_number} on #{asset}"
