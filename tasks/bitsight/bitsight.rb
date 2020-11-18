@@ -83,7 +83,8 @@ module Kenna
         end
 
         ### This does the work. Connects to API and shoves everything into memory as KDI
-        @assets = []; @vuln_defs = [] # currently a necessary side-effect
+        @assets = []
+        @vuln_defs = [] # currently a necessary side-effect
         print_good "Getting findings!"
 
         if @options[:debug]

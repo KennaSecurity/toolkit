@@ -73,7 +73,8 @@ module Kenna
 
         # iterate through the findings, looking for CVEs
         print_good "Getting inspector findings"
-        @assets = []; @vuln_defs = []
+        @assets = []
+        @vuln_defs = []
         get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
           # create an asset with our locators (regardless of whether we have vulns)
           fqdn = f[:asset_attributes][:hostname]
