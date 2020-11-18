@@ -66,17 +66,15 @@ module Kenna
           next unless option_hash
 
           expected_type = option_hash[:type]
-          next unless expected_type
+          next unless expected_type && expected_type == "boolean"
 
-          if expected_type == "boolean"
-            case ovalue
-            when "false"
-              print_good "Converting #{oname} to false value" if opts[:debug]
-              opts[oname] = false
-            when "true"
-              print_good "Converting #{oname} to true value" if opts[:debug]
-              opts[oname] = true
-            end
+          case ovalue
+          when "false"
+            print_good "Converting #{oname} to false value" if opts[:debug]
+            opts[oname] = false
+          when "true"
+            print_good "Converting #{oname} to true value" if opts[:debug]
+            opts[oname] = true
           end
         end
 
