@@ -1,4 +1,4 @@
-# inherit_from: .rubocop_todo.yml
+inherit_from: .rubocop_todo.yml
 
 AllCops:
   TargetRubyVersion: 2.5.3
@@ -25,19 +25,18 @@ Naming/PredicateName:
   Enabled: false
 Naming/HeredocDelimiterNaming:
   Enabled: false
-Metrics/MethodLength:
-  Max: 75 # 25 in conduit
 Layout/HashAlignment:
   Enabled: true
   EnforcedHashRocketStyle: key
-Layout/LineLength:
-  Max: 120
+Layout/MultilineHashBraceLayout:
+  Enabled: true
+Layout/MultilineHashKeyLineBreaks:
+  Enabled: true
 Metrics/AbcSize:
   Enabled: false
 Metrics/ModuleLength:
-  Max: 120
-Metrics/ClassLength:
-  Max: 300 # 125 in conduit
+  Max: 300
+  CountComments: false
 Metrics/ParameterLists:
   CountKeywordArgs: false
 Lint/AmbiguousBlockAssociation:
