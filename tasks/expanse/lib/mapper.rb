@@ -38,11 +38,12 @@ module Kenna
               map_action = map_item[:action]
 
               ## Perform the requested mapping action
-              if map_action == "proc" # call a lambda, passing in the whole exposure
+              case map_action
+              when "proc" # call a lambda, passing in the whole exposure
                 out[area][target] = map_item[:proc].call(exposure)
-              elsif map_action == "copy" # copy from source data
+              when "copy" # copy from source data
                 out[area][target] = exposure[map_item[:source]]
-              elsif map_action == "data" # static data
+              when "data" # static data
                 out[area][target] = map_item[:data]
               end
             end

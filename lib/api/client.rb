@@ -276,7 +276,8 @@ module Kenna
         endpoint = "#{@base_url}/#{resource}"
         out = { method: method.to_s, resource: resource.to_s }
 
-        if method == :get
+        case method
+        when :get
 
           begin
             results = RestClient.get endpoint, headers
@@ -284,7 +285,7 @@ module Kenna
             out.merge!({ status: "fail", message: "access denied", results: {} })
           end
 
-        elsif method == :post
+        when :post
 
           begin
             results = RestClient.post endpoint, body, headers

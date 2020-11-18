@@ -104,7 +104,8 @@ module Kenna
             ###
             ### Handle Assets by type
             ###
-            if item["type"] == "HOST" || item["type"] == "PAGE"
+            case item["type"]
+            when "HOST", "PAGE"
 
               # Hostname
               begin
@@ -136,7 +137,7 @@ module Kenna
 
               print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
 
-            elsif item["type"] == "IP_ADDRESS"
+            when "IP_ADDRESS"
 
               asset = {
                 "ip_address" => (item['name']).to_s,
@@ -149,7 +150,7 @@ module Kenna
               # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
               create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count.positive?
 
-            elsif item["type"] == "SSL_CERT"
+            when "SSL_CERT"
 
               # grab the sha
               sha_name = item["name"]
