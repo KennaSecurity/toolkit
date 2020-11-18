@@ -130,6 +130,7 @@ module Kenna
         @token = json.fetch("access_token")
       end
 
+      # rubocop:disable Metrics/ParameterLists
       def set_client_data(tenant_id, client_id, secret, atp_query_api, atp_oath_url, file_cleanup)
         @atp_oath_url = atp_oath_url
         @tenant_id = tenant_id
@@ -138,6 +139,7 @@ module Kenna
         @atp_query_api = atp_query_api
         @file_cleanup = file_cleanup
       end
+      # rubocop:enable Metrics/ParameterLists
     end
   end
 end
