@@ -127,8 +127,7 @@ module Kenna
               break unless result["pagination"]
               # puts "#{result["pagination"]}"
               more_results = !result["pagination"]["next"].nil?
-            end # end while more results
-          end
+            end
 
           out
         end

@@ -51,9 +51,10 @@ module Kenna
             print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"
           end
           opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym] # but still set it to whatever
+          # set empty string to nil so it's a little easier to check for that
           if opts[o[:name].to_sym] == ""
             opts[o[:name].to_sym] = nil
-          end # set empty string to nil so it's a little easier to check for that
+          end
         end
 
         #### !!!!!!!
