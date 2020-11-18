@@ -39,6 +39,8 @@ Metrics/ParameterLists:
   CountKeywordArgs: false
 Lint/AmbiguousBlockAssociation:
   Enabled: true
+Style/GlobalVars:
+  AllowedVariables: ['$basedir']
 Style/TrailingCommaInArguments:
   Enabled: false
 Style/TrailingCommaInArrayLiteral:
