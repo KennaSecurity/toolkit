@@ -176,7 +176,7 @@ module Kenna
             result = JSON.parse(response.body)
 
             # grab the list
-            scans.concat result["List"].map { |x| x["Id"] }
+            scans.concat(result["List"].map { |x| x["Id"] })
 
             # handle iteration
             if result["IsLastPage"]
