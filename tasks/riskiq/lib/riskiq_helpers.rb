@@ -191,11 +191,9 @@ module Kenna
             ###
             ### Get the open port out of services
             ###
-            if @riq_create_open_ports
-              if item["asset"]["services"]
-                (item["asset"]["services"] || []).uniq.each do |serv|
-                  create_open_port_vuln(asset, serv, first_seen, last_seen)
-                end
+            if @riq_create_open_ports && item["asset"]["services"]
+              (item["asset"]["services"] || []).uniq.each do |serv|
+                create_open_port_vuln(asset, serv, first_seen, last_seen)
               end
             end
 

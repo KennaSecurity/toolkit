@@ -45,6 +45,11 @@ Style/OptionalBooleanParameter:
   Enabled: false
 Style/SafeNavigation:
   Enabled: false # requires 2.3
+Style/SoleNestedConditional:
+  Exclude:
+    - lib/kdi/kdi_helpers.rb
+    - tasks/snyk/snyk.rb
+    - tasks/snyk_findings/snyk_findings.rb
 Style/TrailingCommaInArguments:
   Enabled: false
 Style/TrailingCommaInArrayLiteral:
