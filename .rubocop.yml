@@ -1,3 +1,5 @@
+# inherit_from: .rubocop_todo.yml
+
 AllCops:
   TargetRubyVersion: 2.5.3
   NewCops: enable
@@ -25,14 +27,14 @@ Naming/HeredocDelimiterNaming:
   Enabled: false
 Metrics/MethodLength:
   Max: 25
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 Metrics/AbcSize:
   Enabled: false
 Metrics/ModuleLength:
   Max: 120
 Metrics/ClassLength:
-  Max: 125
+  Max: 300 # 125 in conduit
 Metrics/ParameterLists:
   CountKeywordArgs: false
 Lint/AmbiguousBlockAssociation:
