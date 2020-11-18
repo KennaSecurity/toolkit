@@ -7,7 +7,8 @@ module Kenna
           # Bitsight:
           #  - Domain Squatting - Findings for this risk vector cannot be queried via the API
 
-          def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "", override_score = true)
+          def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "",
+                                              override_score = true)
             ###
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore
@@ -93,7 +94,7 @@ module Kenna
                 # cwe: "CWE-358",
                 score: 20,
                 description: "A problem with this application's content security policy was identified.",
-                recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
+                recommendation: "Update the certificate to include the hostname, or ensure that clients access the host from the matched hostname.",
                 matches: [
                   {
                     source: "SecurityScorecard",
