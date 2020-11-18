@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 module Kenna
   module Toolkit
     module Data
@@ -981,3 +982,4 @@ module Kenna
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
