@@ -84,6 +84,7 @@ module Kenna
           begin
             json = JSON.parse(response.body)
           rescue JSON::ParserError => e
+            # do nothing
           rescue RestClient::NotFound => e
             puts "Error, unable to find resource"
           end
@@ -121,6 +122,7 @@ module Kenna
           begin
             json = JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
           rescue JSON::ParserError => e
+            # do nothing
           end
         end
 
