@@ -15,8 +15,11 @@ gem 'aws-sdk-inspector'
 gem 'json'
 gem 'rest-client'
 
-gem 'rubocop', require: false
+group :development, :test do
+  gem 'rubocop', require: false
+end
 
-# TESTING
-gem 'pry'
-gem 'rspec'
+group :development, :test do
+	gem 'pry'
+	gem 'rspec'
+end
