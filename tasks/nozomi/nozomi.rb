@@ -95,18 +95,18 @@ module Kenna
             tags = []
 
             unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
-              tags << "Appliance:#{issue_obj["appliance_host"]}"
+              tags << "Appliance:#{issue_obj['appliance_host']}"
             end
             unless issue_obj["node_type"].nil? || issue_obj["node_type"].empty?
-              tags << "AssetType:#{issue_obj["node_type"]}"
+              tags << "AssetType:#{issue_obj['node_type']}"
             end
             unless issue_obj["node_product_name"].nil? || issue_obj["node_product_name"].empty?
-              tags << "Product:#{issue_obj["node_product_name"]}"
+              tags << "Product:#{issue_obj['node_product_name']}"
             end
             unless issue_obj["node_vendor"].nil? || issue_obj["node_vendor"].empty?
-              tags << "Vendor:#{issue_obj["node_vendor"]}"
+              tags << "Vendor:#{issue_obj['node_vendor']}"
             end
-            tags << "Zone:#{issue_obj["zone"]}" unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
+            tags << "Zone:#{issue_obj['zone']}" unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
 
             host_identifier = issue_obj.fetch("node_id")
 
