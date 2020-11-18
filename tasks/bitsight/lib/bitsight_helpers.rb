@@ -60,7 +60,7 @@ module Kenna
             headers: { accept: :json, content_type: :json }
           ).execute
           result = JSON.parse(response.body)
-          result.has_key? "disclaimer"
+          result.key? "disclaimer"
         rescue RestClient::Unauthorized => e
           return false
         end
