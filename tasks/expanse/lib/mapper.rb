@@ -204,31 +204,33 @@ module Kenna
               { action: "copy", source: "parentDomain", target: "domain" },
               { action: "copy", source: "domain", target: "hostname" },
               { action: "copy", source: "ip", target: "ip_address" },
-              { action: "proc", target: "tags", proc: lambda { |x|
-                                                        temp = ["Expanse"] # always tag as 'Expanse'
+              { action: "proc",
+                target: "tags",
+                proc: lambda { |x|
+                        temp = ["Expanse"] # always tag as 'Expanse'
 
-                                                        # Handle legacy businessUnit tag
-                                                        if x.key?('businessUnit')
-                                                          temp << "businessUnit:#{x['businessUnit']['name']}"
-                                                        end
+                        # Handle legacy businessUnit tag
+                        if x.key?('businessUnit')
+                          temp << "businessUnit:#{x['businessUnit']['name']}"
+                        end
 
-                                                        # Handle new businessUnits (plural) tag
-                                                        if x.key?('businessUnits')
-                                                          x['businessUnits'].each do |bu|
-                                                            temp << bu.fetch('name')
-                                                          end
-                                                        end
+                        # Handle new businessUnits (plural) tag
+                        if x.key?('businessUnits')
+                          x['businessUnits'].each do |bu|
+                            temp << bu.fetch('name')
+                          end
+                        end
 
-                                                        # Annotations are like tags, add each one
-                                                        if x.key?('annotations')
-                                                          x["annotations"]["tags"].each do |at|
-                                                            temp << at.fetch('name')
-                                                          end
-                                                        end
+                        # Annotations are like tags, add each one
+                        if x.key?('annotations')
+                          x["annotations"]["tags"].each do |at|
+                            temp << at.fetch('name')
+                          end
+                        end
 
-                                                        # flatten since we have an array of arrays
-                                                        temp.flatten
-                                                      } }
+                        # flatten since we have an array of arrays
+                        temp.flatten
+                      } }
             ],
             'vuln' => [
               { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.gsub("-", "_") } },

@@ -49,7 +49,8 @@ module Kenna
               required: false,
               default: false,
               description: 'Optional parameter to remove users not in data file from Kenna system' },
-            { name: 'debug', type: 'boolean',
+            { name: 'debug',
+              type: 'boolean',
               required: false,
               default: false,
               description: 'Debug Flag' }

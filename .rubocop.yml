@@ -27,6 +27,9 @@ Naming/HeredocDelimiterNaming:
   Enabled: false
 Metrics/MethodLength:
   Max: 75 # 25 in conduit
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: key
 Layout/LineLength:
   Max: 120
 Metrics/AbcSize:

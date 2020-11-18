@@ -21,9 +21,11 @@ module Kenna
             "application_server_software" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Exposed App Server Software: #{x['firstObservation']['configuration']['applicationServerSoftware']}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Exposed App Server Software: #{x['firstObservation']['configuration']['applicationServerSoftware']}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -76,9 +78,11 @@ module Kenna
             "domain_control_validated_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Domain Control Validated Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Domain Control Validated Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -87,9 +91,11 @@ module Kenna
             "expired_when_scanned_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Expired Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Expired Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -98,18 +104,22 @@ module Kenna
             "_healthy_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Healthy Certificate Advertisement: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Healthy Certificate Advertisement: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
             "insecure_signature_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Insecure Signature Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Insecure Signature Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -117,9 +127,11 @@ module Kenna
               "asset" => [],
               "vuln" => [
 
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Detected Internal IP advertisement with configuration: #{JSON.pretty_generate(x['firstObservation']['configuration'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Detected Internal IP advertisement with configuration: #{JSON.pretty_generate(x['firstObservation']['configuration'])}"
+                        }                                                      },
 
               ],
               "vuln_def" => []
@@ -129,9 +141,11 @@ module Kenna
             "long_expiration_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Long Expiration Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Long Expiration Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -143,9 +157,11 @@ module Kenna
             "pop3_servers" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Detected Pop3 Server with configuration: #{JSON.pretty_generate(x['firstObservation']['configuration'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Detected Pop3 Server with configuration: #{JSON.pretty_generate(x['firstObservation']['configuration'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -153,9 +169,11 @@ module Kenna
             "self_signed_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Self Signed Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Self Signed Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
 
               ],
               "vuln_def" => []
@@ -163,18 +181,22 @@ module Kenna
             "server_software" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Exposed Server Software: #{x['firstObservation']['configuration']['serverSoftware']}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Exposed Server Software: #{x['firstObservation']['configuration']['serverSoftware']}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
             "short_key_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Short Key Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Short Key Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
@@ -191,9 +213,11 @@ module Kenna
             "wildcard_certificate_advertisements" => {
               "asset" => [],
               "vuln" => [
-                { action: "proc", target: "details", proc: lambda { |x|
-                                                             "Wildcard Certificate: #{JSON.pretty_generate(x['certificate'])}"
-                                                           }                                                      },
+                { action: "proc",
+                  target: "details",
+                  proc: lambda { |x|
+                          "Wildcard Certificate: #{JSON.pretty_generate(x['certificate'])}"
+                        }                                                      },
               ],
               "vuln_def" => []
             },
