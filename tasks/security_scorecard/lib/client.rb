@@ -124,7 +124,7 @@ module Kenna
           end
         end
 
-        #  “https://api.securityscorecard.io/reports/issues”;     payload=‘’
+        #  "https://api.securityscorecard.io/reports/issues";     payload=''
         def get_issues_report_for_domain(domain)
           ###
           ### Generate an issues report
