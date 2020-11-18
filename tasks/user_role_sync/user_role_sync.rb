@@ -132,7 +132,7 @@ module Kenna
             print_good '------' if @debug
 
             print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
-            @log_output << "\r" + "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
+            @log_output << "\rEmail:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
 
             if role_exists(role_name)
               # Role Doesn't Exist
@@ -262,7 +262,7 @@ module Kenna
           print_good e.message
           print_error "Unable to create this user (email:#{email})"
           @log_output << "\r#{e.message}"
-          @log_output << "\r" + "Unable to create this user (email:#{email})"
+          @log_output << "\rUnable to create this user (email:#{email})"
         rescue Exception => e
           print_error e.message
           print_error e.backtrace.inspect
@@ -279,7 +279,7 @@ module Kenna
         # Check for Admin users
         if user['role'] == 'administrator'
           print_good "User #{email} is Administrator and will not be updated."
-          @log_output << "\r" + "User #{email} is Administrator and will not be updated."
+          @log_output << "\rUser #{email} is Administrator and will not be updated."
         else
 
           json_data = {
@@ -301,7 +301,7 @@ module Kenna
           # Check for Role change
           if user['role'] != role_name
             print_good "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
-            @log_output << "\r" + "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
+            @log_output << "\rROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
           end
 
           begin
@@ -315,7 +315,7 @@ module Kenna
             print_error e.message
             print_error "Unable to update this user (id:#{uid} email:#{email})"
             @log_output << "\r#{e.message}"
-            @log_output << "\r" + "Unable to update this user (id:#{uid} email:#{email})"
+            @log_output << "\rUnable to update this user (id:#{uid} email:#{email})"
           rescue Exception => e
             print_error e.message
             print_error e.backtrace.inspect
@@ -339,7 +339,7 @@ module Kenna
           print_error e.message
           print_error "Unable to delete this user (id:#{uid})"
           @log_output << "\r#{e.message}"
-          @log_output << "\r" + "Unable to delete this user (id:#{uid})"
+          @log_output << "\rUnable to delete this user (id:#{uid})"
         rescue Exception => e
           print_error e.message
           print_error e.backtrace.inspect
@@ -365,7 +365,7 @@ module Kenna
           next if @user_file_list.include? email
 
           print_good "Deleting #{email} with ID: #{id}"
-          @log_output << "\r" + "Deleting #{email} with ID: #{id}"
+          @log_output << "\rDeleting #{email} with ID: #{id}"
           delete_user(id.to_s)
         end
       end

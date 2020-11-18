@@ -3,7 +3,7 @@ module Kenna
     module NozomiHelper
       def nozomi_get_issues(username, password, hostname, pagesize, pagenum)
         print "Getting issues"
-        auth_string = username.to_s + ':' + password.to_s
+        auth_string = "#{username}:#{password}"
 
         key = Base64.encode64(auth_string)
 
