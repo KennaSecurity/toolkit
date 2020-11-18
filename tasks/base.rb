@@ -52,9 +52,7 @@ module Kenna
           end
           opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym] # but still set it to whatever
           # set empty string to nil so it's a little easier to check for that
-          if opts[o[:name].to_sym] == ""
-            opts[o[:name].to_sym] = nil
-          end
+          opts[o[:name].to_sym] = nil if opts[o[:name].to_sym] == ""
         end
 
         #### !!!!!!!
