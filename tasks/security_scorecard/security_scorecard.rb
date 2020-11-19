@@ -48,7 +48,7 @@ module Kenna
         }
       end
 
-      def ssc_issue_to_kdi_asset_hash(i)
+      def ssc_issue_to_kdi_asset_hash(issue)
         # Create the assets
         asset_attributes = {
           "tags" => ["SecurityScorecard"]
@@ -57,68 +57,68 @@ module Kenna
         ###
         ### Pull out the asset identfiiers here
         ###
-        if i["connection_attributes"]
-          if i["connection_attributes"].is_a? Hash
-            port = i["connection_attributes"]["dst_port"]
-            if i["connection_attributes"]["dst_ip"]
-              asset_attributes["ip_address"] = i["connection_attributes"]["dst_ip"]
+        if issue["connection_attributes"]
+          if issue["connection_attributes"].is_a? Hash
+            port = issue["connection_attributes"]["dst_port"]
+            if issue["connection_attributes"]["dst_ip"]
+              asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"]
             end
-            if i["connection_attributes"]["dst_host"]
-              asset_attributes["hostname"] = i["connection_attributes"]["dst_host"]
+            if issue["connection_attributes"]["dst_host"]
+              asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"]
             end
           else
-            puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{i}"
+            puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{issue}"
             return nil
           end
         end
 
         # Converted Csv only
-        asset_attributes["hostname"] = i["hostname"] if i["hostname"]
+        asset_attributes["hostname"] = issue["hostname"] if issue["hostname"]
 
-        asset_attributes["hostname"] = i["subdomain"] if i["subdomain"] && !i["hostname"]
+        asset_attributes["hostname"] = issue["subdomain"] if issue["subdomain"] && !issue["hostname"]
 
-        asset_attributes["hostname"] = i["common_name"] if i["common_name"] && !i["hostname"]
+        asset_attributes["hostname"] = issue["common_name"] if issue["common_name"] && !issue["hostname"]
 
         ### End converted csv-only stuff
 
-        asset_attributes["ip_address"] = i["ip_address"] if i["ip_address"]
+        asset_attributes["ip_address"] = issue["ip_address"] if issue["ip_address"]
 
-        asset_attributes["url"] = i["initial_url"] if i["initial_url"]
+        asset_attributes["url"] = issue["initial_url"] if issue["initial_url"]
 
-        asset_attributes["url"] = i["url"] if i["url"]
+        asset_attributes["url"] = issue["url"] if issue["url"]
 
-        asset_attributes["fqdn"] = i["domain"] if i["domain"]
+        asset_attributes["fqdn"] = issue["domain"] if issue["domain"]
 
-        asset_attributes["ip_address"] = i["src_ip"] if i["src_ip"]
+        asset_attributes["ip_address"] = issue["src_ip"] if issue["src_ip"]
 
         unless asset_attributes["ip_address"] ||
                asset_attributes["hostname"] ||
                asset_attributes["url"] ||
                asset_attributes["domain"]
-          print_debug "UNMAPPED ASSET FOR FINDING: #{i}"
+          print_debug "UNMAPPED ASSET FOR FINDING: #{issue}"
         end
 
         asset_attributes
       end
 
-      def ssc_issue_to_kdi_vuln_hash(i)
+      def ssc_issue_to_kdi_vuln_hash(issue)
         # hardcoded
         scanner_type = "SecurityScorecard"
 
         # create the asset baesd on
-        first_seen = i["first_seen_time"]
-        last_seen = i["last_seen_time"]
+        first_seen = issue["first_seen_time"]
+        last_seen = issue["last_seen_time"]
 
-        if i["connection_attributes"]
-          port = i["connection_attributes"]["dst_port"] if i["connection_attributes"].is_a? Hash
-        elsif i["port"]
-          port = i["port"]
+        if issue["connection_attributes"]
+          port = issue["connection_attributes"]["dst_port"] if issue["connection_attributes"].is_a? Hash
+        elsif issue["port"]
+          port = issue["port"]
         end
 
         # puts JSON.pretty_generate(i)
         # puts
 
-        issue_type = i["type"]
+        issue_type = issue["type"]
 
         # handle patching cadence differently, these will have CVEs
         if issue_type =~ /patching_cadence/ || issue_type =~ /service_vuln/
@@ -127,7 +127,7 @@ module Kenna
           # puts "#{i}"
 
           vuln_attributes = {
-            "scanner_identifier" => i["vulnerability_id"] || i["cve"],
+            "scanner_identifier" => issue["vulnerability_id"] || issue["cve"],
             "scanner_type" => scanner_type,
             "details" => JSON.pretty_generate(i),
             "created_at" => first_seen,
@@ -139,8 +139,8 @@ module Kenna
           # create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
           vuln_def_attributes = {
-            "scanner_identifier" => (i['vulnerability_id']).to_s,
-            "cve_identifiers" => (i['vulnerability_id']).to_s,
+            "scanner_identifier" => (issue['vulnerability_id']).to_s,
+            "cve_identifiers" => (issue['vulnerability_id']).to_s,
             "scanner_type" => scanner_type
           }
 
@@ -150,9 +150,9 @@ module Kenna
           ###
           # if we got a positive finding, make it benign
           ###
-          print_debug "Got: #{issue_type}: #{i['issue_type_severity']}"
+          print_debug "Got: #{issue_type}: #{issue['issue_type_severity']}"
 
-          if i["issue_type_severity"] == "POSITIVE"
+          if issue["issue_type_severity"] == "POSITIVE"
             issue_type = "benign_finding"
             # elsif i["issue_type_severity"] == "INFO"
             #  issue_type = "benign_finding"
