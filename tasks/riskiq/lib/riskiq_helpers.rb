@@ -156,8 +156,12 @@ module Kenna
               sha_name = item["name"]
 
               # grab a hostname
-              hostname = item["asset"]["subjectAlternativeNames"].first if item["asset"] && item["asset"]["subjectAlternativeNames"]
-              hostname = item["asset"]["subject"]["common_name"] if item["asset"] && item["asset"]["subject"] && !hostname
+              if item["asset"] && item["asset"]["subjectAlternativeNames"]
+                hostname = item["asset"]["subjectAlternativeNames"].first
+              end
+              if item["asset"] && item["asset"]["subject"] && !hostname
+                hostname = item["asset"]["subject"]["common_name"]
+              end
               hostname = item["asset"]["issuer"]["common_name"] if item["asset"] && item["asset"]["issuer"] && !hostname
               hostname ||= "unknown host, unable to get from the certificate"
 

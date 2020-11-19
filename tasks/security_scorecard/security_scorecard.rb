@@ -60,8 +60,12 @@ module Kenna
         if i["connection_attributes"]
           if i["connection_attributes"].is_a? Hash
             port = i["connection_attributes"]["dst_port"]
-            asset_attributes["ip_address"] = i["connection_attributes"]["dst_ip"] if i["connection_attributes"]["dst_ip"]
-            asset_attributes["hostname"] = i["connection_attributes"]["dst_host"] if i["connection_attributes"]["dst_host"]
+            if i["connection_attributes"]["dst_ip"]
+              asset_attributes["ip_address"] = i["connection_attributes"]["dst_ip"]
+            end
+            if i["connection_attributes"]["dst_host"]
+              asset_attributes["hostname"] = i["connection_attributes"]["dst_host"]
+            end
           else
             puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{i}"
             return nil
@@ -182,9 +186,13 @@ module Kenna
           ###
           ### Set Scores based on what was available in the CVD
           ###
-          vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"] if vuln_def_attributes["scanner_score"]
+          if vuln_def_attributes["scanner_score"]
+            vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"]
+          end
 
-          vuln_attributes["override_score"] = vuln_def_attributes["override_score"] if vuln_def_attributes["override_score"]
+          if vuln_def_attributes["override_score"]
+            vuln_attributes["override_score"] = vuln_def_attributes["override_score"]
+          end
 
         end
 

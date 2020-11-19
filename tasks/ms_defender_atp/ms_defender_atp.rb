@@ -167,7 +167,9 @@ module Kenna
             end
 
             machine_id = vuln.fetch("machineId")
-            details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
+            unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
+              details = "fixingKbId = #{vuln.fetch('fixingKbId')}"
+            end
 
             # end
             vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0).to_i

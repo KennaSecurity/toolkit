@@ -133,7 +133,9 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application = application.slice(0..(application.rindex(':') - 1)) if projectName_strip_colon && !application.rindex(':').nil?
+            if projectName_strip_colon && !application.rindex(':').nil?
+              application = application.slice(0..(application.rindex(':') - 1))
+            end
 
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
@@ -142,10 +144,14 @@ module Kenna
             else
               print_debug = "using strip colon params if set"
               if !packageManager.nil? && !packageManager.empty?
-                packageManager = packageManager.slice(0..(packageManager.rindex(':') - 1)) if packageManager_strip_colon && !packageManager.rindex(':').nil?
+                if packageManager_strip_colon && !packageManager.rindex(':').nil?
+                  packageManager = packageManager.slice(0..(packageManager.rindex(':') - 1))
+                end
               end
               if !package.nil? && !package.empty?
-                package = package.slice(0..(package.rindex(':') - 1)) if package_strip_colon && !package.rindex(':').nil?
+                if package_strip_colon && !package.rindex(':').nil?
+                  package = package.slice(0..(package.rindex(':') - 1))
+                end
               end
               targetFile = packageManager.to_s unless packageManager.nil?
               targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
