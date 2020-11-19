@@ -45,15 +45,17 @@ Lint/SuppressedException:
   AllowComments: true
 Style/GlobalVars:
   AllowedVariables: ['$basedir']
-Style/OptionalBooleanParameter:
-  Enabled: false
+# not available until 0.92.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#0920-2020-09-25
+# Style/OptionalBooleanParameter:
+#   Enabled: false
 Style/SafeNavigation:
   Enabled: false # requires 2.3
-Style/SoleNestedConditional:
-  Exclude:
-    - lib/kdi/kdi_helpers.rb
-    - tasks/snyk/snyk.rb
-    - tasks/snyk_findings/snyk_findings.rb
+# not available until 0.90.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#0900-2020-09-01
+# Style/SoleNestedConditional:
+#   Exclude:
+#     - lib/kdi/kdi_helpers.rb
+#     - tasks/snyk/snyk.rb
+#     - tasks/snyk_findings/snyk_findings.rb
 Style/TrailingCommaInArguments:
   Enabled: false
 Style/TrailingCommaInArrayLiteral:
