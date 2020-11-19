@@ -193,15 +193,13 @@ module Kenna
             ###
             ### Get the open port out of services
             ###
-            if @riq_create_open_ports
-              if item["asset"]["services"]
-                if (item["asset"]["services"].count > 1200) && @riskiq_limit_spurious_ports
-                  puts "TOO MANY OPEN PORTS on #{item['name']}, SKIPPING!"
-                  next
-                else
-                  (item["asset"]["services"] || []).uniq.each do |serv|
-                    create_open_port_vuln(asset, serv, first_seen, last_seen)
-                  end
+            if @riq_create_open_ports && item["asset"]["services"]
+              if (item["asset"]["services"].count > 1200) && @riskiq_limit_spurious_ports
+                puts "TOO MANY OPEN PORTS on #{item['name']}, SKIPPING!"
+                next
+              else
+                (item["asset"]["services"] || []).uniq.each do |serv|
+                  create_open_port_vuln(asset, serv, first_seen, last_seen)
                 end
               end
             end
