@@ -240,7 +240,7 @@ module Kenna
       end
 
       def set_field_mappings(csv_file) # rubocop:disable Naming/AccessorMethodName
-        CSV.parse(File.open(csv_file, 'r:iso-8859-1:utf-8') { |f| f.read }, headers: true) do |row|
+        CSV.parse(File.open(csv_file, 'r:iso-8859-1:utf-8', &:read), headers: true) do |row|
           case row['Kenna Field']
           when 'ip_address'
             @ip_address_col = row['Customer Field']
