@@ -69,39 +69,23 @@ module Kenna
         end
 
         # Converted Csv only
-        if i["hostname"]
-          asset_attributes["hostname"] = i["hostname"]
-        end
+        asset_attributes["hostname"] = i["hostname"] if i["hostname"]
 
-        if i["subdomain"] && !i["hostname"]
-          asset_attributes["hostname"] = i["subdomain"]
-        end
+        asset_attributes["hostname"] = i["subdomain"] if i["subdomain"] && !i["hostname"]
 
-        if i["common_name"] && !i["hostname"]
-          asset_attributes["hostname"] = i["common_name"]
-        end
+        asset_attributes["hostname"] = i["common_name"] if i["common_name"] && !i["hostname"]
 
         ### End converted csv-only stuff
 
-        if i["ip_address"]
-          asset_attributes["ip_address"] = i["ip_address"]
-        end
+        asset_attributes["ip_address"] = i["ip_address"] if i["ip_address"]
 
-        if i["initial_url"]
-          asset_attributes["url"] = i["initial_url"]
-        end
+        asset_attributes["url"] = i["initial_url"] if i["initial_url"]
 
-        if i["url"]
-          asset_attributes["url"] = i["url"]
-        end
+        asset_attributes["url"] = i["url"] if i["url"]
 
-        if i["domain"]
-          asset_attributes["fqdn"] = i["domain"]
-        end
+        asset_attributes["fqdn"] = i["domain"] if i["domain"]
 
-        if i["src_ip"]
-          asset_attributes["ip_address"] = i["src_ip"]
-        end
+        asset_attributes["ip_address"] = i["src_ip"] if i["src_ip"]
 
         unless asset_attributes["ip_address"] ||
                asset_attributes["hostname"] ||
@@ -122,9 +106,7 @@ module Kenna
         last_seen = i["last_seen_time"]
 
         if i["connection_attributes"]
-          if i["connection_attributes"].is_a? Hash
-            port = i["connection_attributes"]["dst_port"]
-          end
+          port = i["connection_attributes"]["dst_port"] if i["connection_attributes"].is_a? Hash
         elsif i["port"]
           port = i["port"]
         end
@@ -200,13 +182,9 @@ module Kenna
           ###
           ### Set Scores based on what was available in the CVD
           ###
-          if vuln_def_attributes["scanner_score"]
-            vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"]
-          end
+          vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"] if vuln_def_attributes["scanner_score"]
 
-          if vuln_def_attributes["override_score"]
-            vuln_attributes["override_score"] = vuln_def_attributes["override_score"]
-          end
+          vuln_attributes["override_score"] = vuln_def_attributes["override_score"] if vuln_def_attributes["override_score"]
 
         end
 

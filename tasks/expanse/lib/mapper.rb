@@ -210,9 +210,7 @@ module Kenna
                         temp = ["Expanse"] # always tag as 'Expanse'
 
                         # Handle legacy businessUnit tag
-                        if x.key?('businessUnit')
-                          temp << "businessUnit:#{x['businessUnit']['name']}"
-                        end
+                        temp << "businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
 
                         # Handle new businessUnits (plural) tag
                         if x.key?('businessUnits')

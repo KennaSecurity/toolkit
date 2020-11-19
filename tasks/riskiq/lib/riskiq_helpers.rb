@@ -27,9 +27,7 @@ module Kenna
           port_number = s["port"] if s.is_a? Hash
           port_number = port_number.to_i
 
-          unless s["recent"]
-            puts "DEBUG skipping unrecent #{s} port"
-          end
+          puts "DEBUG skipping unrecent #{s} port" unless s["recent"]
 
           ###
           ### handle http ports differently ... todo, standardize this
@@ -96,9 +94,7 @@ module Kenna
             ### First handle tags (same across all assets)
             ###
             tags = ["RiskIQ"]
-            if item["tags"]
-              tags.concat(item["tags"].map { |x| x["name"] })
-            end
+            tags.concat(item["tags"].map { |x| x["name"] }) if item["tags"]
 
             ###
             ### Always set External ID
@@ -139,9 +135,7 @@ module Kenna
 
               create_kdi_asset(asset)
 
-              if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
-                print_error "UKNOWN item: #{item}"
-              end
+              print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
 
             when "IP_ADDRESS"
 
@@ -218,9 +212,7 @@ module Kenna
               # if you want to create open ports, we need to infer the port from the service
               # in addition to whatever else we've gotten
               (wc["ports"] << derived_port).uniq.compact.each do |port|
-                if port.is_a? Hash
-                  port = port["port"]
-                end
+                port = port["port"] if port.is_a? Hash
 
                 # if you want to create open ports
                 (wc["cves"] || []).uniq.each do |cve|
