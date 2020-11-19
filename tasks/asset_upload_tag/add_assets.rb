@@ -97,7 +97,7 @@ module Kenna
         ## Iterate through CSV
         CSV.foreach(@csv_file, headers: true) do |row|
           # "Reading line #{$.}... "
-          current_line = $.
+          current_line = $INPUT_LINE_NUMBER
 
           # your csv column names should match these if you don't want to change the script
           next if row[@ip_address_col.to_s].nil?
