@@ -30,10 +30,10 @@ module Kenna
 
       def connectorKickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
         ### Finish by uploading if we're all configured
-        if kenna_connector_id && kenna_api_host && kenna_api_key
-          print_good "Attempting to run to Kenna Connector at #{kenna_api_host}"
-          run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files
-        end
+        return unless kenna_connector_id && kenna_api_host && kenna_api_key
+
+        print_good "Attempting to run to Kenna Connector at #{kenna_api_host}"
+        run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files
       end
 
       def atp_get_machines(page_param = nil)
