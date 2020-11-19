@@ -6,16 +6,18 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
+# not available until 1.3.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#130-2020-11-12
 # Offense count: 5
-Lint/DuplicateBranch:
-  Exclude:
-    - 'lib/http.rb'
-    - 'tasks/security_scorecard/lib/client.rb'
+# Lint/DuplicateBranch:
+#   Exclude:
+#     - 'lib/http.rb'
+#     - 'tasks/security_scorecard/lib/client.rb'
 
+# not available until 0.89.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#0890-2020-08-05
 # Offense count: 1
-Lint/MissingSuper:
-  Exclude:
-    - 'tasks/base.rb'
+# Lint/MissingSuper:
+#   Exclude:
+#     - 'tasks/base.rb'
 
 # Offense count: 6
 Lint/RescueException:
