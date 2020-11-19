@@ -94,9 +94,9 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
             else
-              @assets.select { |a| a[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
@@ -104,9 +104,9 @@ module Kenna
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
           a = if match_key.nil?
-                @assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
               else
-                @assets.select { |a| a[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
               end
         end
 
@@ -131,16 +131,16 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
             else
-              @assets.select { |a| a[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
-          a = @assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+          a = @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
         end
 
         # Default values & type conversions... just make it work
@@ -160,16 +160,16 @@ module Kenna
         # check to make sure it doesnt exists
 
         a = if match_key.nil?
-              @paged_assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+              @paged_assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
             else
-              @paged_assets.select { |a| a[match_key] == asset_hash.fetch(match_key) }.first
+              @paged_assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
             end
 
         unless a
           a = if match_key.nil?
-                @assets.select { |a| uniq(a) == uniq(asset_hash) }.first
+                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
               else
-                @assets.select { |a| a[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
               end
           if a
             @paged_assets << a
