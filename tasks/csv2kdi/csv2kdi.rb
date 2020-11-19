@@ -144,7 +144,7 @@ module Kenna
           status_map_string = $mapping_array.assoc('status_map').last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
-        end # Added for ASSET ONLY Run
+        end
 
         # Configure Date format
         ###########################
@@ -245,7 +245,7 @@ module Kenna
             name = row[map_name.to_s] # (string) Name/title of Vuln
             description = row[map_description.to_s] # (string) Description
             solution = row[map_solution.to_s] # (string) Solution
-          end # Added for ASSET ONLY Run
+          end
 
           # #call the methods that will build the json now##
 
