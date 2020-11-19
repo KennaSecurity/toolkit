@@ -305,7 +305,7 @@ module Kenna
 
           issues_count = issues.count
           issues.each_with_index do |issue, index|
-            if index == 0
+            if index.zero?
               # puts "HEADERS: #{issue}"
               next
             end

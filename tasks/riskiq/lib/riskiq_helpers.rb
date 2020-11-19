@@ -97,7 +97,7 @@ module Kenna
             ###
             tags = ["RiskIQ"]
             if item["tags"]
-              tags = tags.concat(item["tags"].map { |x| x["name"] })
+              tags.concat(item["tags"].map { |x| x["name"] })
             end
 
             ###
@@ -108,7 +108,8 @@ module Kenna
             ###
             ### Handle Assets by type
             ###
-            if item["type"] == "HOST" || item["type"] == "PAGE"
+            case item["type"]
+            when "HOST", "PAGE"
 
               # Hostname
               begin
@@ -142,7 +143,7 @@ module Kenna
                 print_error "UKNOWN item: #{item}"
               end
 
-            elsif item["type"] == "IP_ADDRESS"
+            when "IP_ADDRESS"
 
               asset = {
                 "ip_address" => (item['name']).to_s,
@@ -153,9 +154,9 @@ module Kenna
               asset["external_id"] = id.to_s if id
 
               # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
-              create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count > 0
+              create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count.positive?
 
-            elsif item["type"] == "SSL_CERT"
+            when "SSL_CERT"
 
               # grab the sha
               sha_name = item["name"]

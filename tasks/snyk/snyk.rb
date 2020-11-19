@@ -122,7 +122,7 @@ module Kenna
 
           print_debug "issue json = #{vuln_json}"
 
-          if vuln_json.nil? || vuln_json.empty? || vuln_json.length == 0
+          if vuln_json.nil? || vuln_json.empty? || vuln_json.length.zero?
             morepages = false
             break
           end
@@ -219,11 +219,11 @@ module Kenna
             cves = nil
             cwes = nil
             unless identifiers.nil?
-              cve_array = identifiers['CVE'] unless identifiers['CVE'].nil? || identifiers['CVE'].length == 0
-              cwe_array = identifiers['CWE'] unless identifiers['CWE'].nil? || identifiers['CVE'].length == 0
-              cve_array.delete_if { |x| x.start_with?('RHBA', 'RHSA') } unless cve_array.nil? || cve_array.length == 0
-              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length == 0
-              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length == 0
+              cve_array = identifiers['CVE'] unless identifiers['CVE'].nil? || identifiers['CVE'].length.zero?
+              cwe_array = identifiers['CWE'] unless identifiers['CWE'].nil? || identifiers['CVE'].length.zero?
+              cve_array.delete_if { |x| x.start_with?('RHBA', 'RHSA') } unless cve_array.nil? || cve_array.length.zero?
+              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
+              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
             end
 
             vuln_name = nil

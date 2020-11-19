@@ -101,7 +101,7 @@ module Kenna
         assetvulns << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s, }
         assetvulns << { details: details.to_s } unless details.nil?
         assetvulns << { created_at: created.to_s } unless created.nil?
-        assetvulns << { scanner_score: scanner_score } unless scanner_score.nil? || scanner_score == 0
+        assetvulns << { scanner_score: scanner_score } unless scanner_score.nil? || scanner_score.zero?
         assetvulns << { last_fixed_on: last_fixed.to_s } unless last_fixed.nil?
         assetvulns << { last_seen_at: last_seen.to_s } unless last_seen.nil?
         assetvulns << { closed_at: closed.to_s } unless closed.nil?

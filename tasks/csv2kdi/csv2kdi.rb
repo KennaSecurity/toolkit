@@ -96,7 +96,7 @@ module Kenna
         $date_format_in = ''
         # meta = $basedir/@meta_file
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", 'r:iso-8859-1:utf-8') { |f| f.read }, headers: @has_header.eql?('true') ? true : false) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", 'r:iso-8859-1:utf-8', &:read), headers: @has_header.eql?('true') ? true : false) do |row|
           $mapping_array << Array[row[0], row[1]]
           $mapping_array.compact
         end
@@ -153,7 +153,7 @@ module Kenna
         # date_format_in = "%m/%d/%Y %H:%M"
         date_format_KDI = "%Y-%m-%d-%H:%M:%S"
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:iso-8859-1:utf-8') { |f| f.read }, headers: true || false) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:iso-8859-1:utf-8', &:read), headers: true || false) do |row|
           ##################
           #  CSV MAPPINGS  #
           ##################
