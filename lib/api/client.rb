@@ -113,7 +113,6 @@ module Kenna
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
-        
         headers = {
           'content-type' => 'application/json',
           'X-Risk-Token' => @token,
@@ -234,7 +233,7 @@ module Kenna
 
             # check our value to see if we need to keep going
             running = connector_check_json["running"]
-          end  
+          end
         
         rescue RestClient::Exceptions::OpenTimeout => e 
           print_error "Timeout: #{e.message}..."
