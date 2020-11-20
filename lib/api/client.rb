@@ -169,7 +169,7 @@ module Kenna
           print_error "Bad Request: #{e.message}... #{e}"
         rescue RestClient::Unauthorized => e
           print_error "Unauthorized: #{e.message}... #{e}"
-        rescue => e
+        rescue Exception, StandardError => e
           print_error "Unknown Exception: #{e}"
           print_error "Are you sure you provided a valid connector id?"
 
@@ -243,7 +243,7 @@ module Kenna
         rescue RestClient::Unauthorized => e
           print_error "Unauthorized: #{e.message}... #{e}"
         # rescue RestClient::Exception => e
-        rescue => e
+        rescue Exception, StandardError => e
           print_error "Unknown Exception: #{e}"
           print_error "Are you sure you provided a valid connector id?"
 
