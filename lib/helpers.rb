@@ -88,7 +88,7 @@ module Kenna
         end
       end
 
-      def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids,max_retries=3)
+      def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids, max_retries = 3)
         # optionally upload the file if a connector ID has been specified
         return unless connector_id && api_host && api_token
 
