@@ -10,7 +10,7 @@ module Kenna
       @uploaded_files = nil
       @file_cleanup = nil
 
-      def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key)
+      def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
         ### Write KDI format
         kdi_output = { skip_autoclose: false, assets: @paged_assets, vuln_defs: @vuln_defs }
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
@@ -19,7 +19,7 @@ module Kenna
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-          response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false
+          response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
           filenum = response_json.fetch("data_file")
           @uploaded_files = [] if @uploaded_files.nil?
           @uploaded_files << filenum
@@ -28,12 +28,12 @@ module Kenna
         return response_json
       end
 
-      def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
+      def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
         ### Finish by uploading if we're all configured
         return unless kenna_connector_id && kenna_api_host && kenna_api_key
 
         print_good "Attempting to run to Kenna Connector at #{kenna_api_host}"
-        run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files
+        run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files, max_retries
       end
 
       def atp_get_machines(page_param = nil)
