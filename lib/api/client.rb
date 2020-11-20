@@ -111,11 +111,9 @@ module Kenna
       end
 
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
-        
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
-
-
+        
         headers = {
           'content-type' => 'application/json',
           'X-Risk-Token' => @token,
@@ -182,7 +180,6 @@ module Kenna
             retries += 1
             sleep(60)
             retry
-
           else
             print_error "Max retries hit, failing with... #{e}"
             return
@@ -194,7 +191,6 @@ module Kenna
       end
 
       def run_files_on_connector(connector_id, upload_ids, max_retries = 3)
-
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
 
