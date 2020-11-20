@@ -1,0 +1,64 @@
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 2.5.3
+  NewCops: enable
+Style/Documentation:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: true
+Security:
+  Enabled: true
+Style/FormatStringToken:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/Encoding:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false
+Style/RedundantReturn:
+  Enabled: false
+Style/HashSyntax:
+  EnforcedStyle: ruby19
+Naming/PredicateName:
+  Enabled: false
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+Layout/HashAlignment:
+  Enabled: true
+  EnforcedHashRocketStyle: key
+Layout/MultilineHashBraceLayout:
+  Enabled: true
+Layout/MultilineHashKeyLineBreaks:
+  Enabled: true
+Metrics/AbcSize:
+  Enabled: false
+Metrics/ModuleLength:
+  Max: 300
+  CountComments: false
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+Lint/AmbiguousBlockAssociation:
+  Enabled: true
+Lint/SuppressedException:
+  AllowComments: true
+Style/GlobalVars:
+  AllowedVariables: ['$basedir']
+# not available until 0.92.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#0920-2020-09-25
+# Style/OptionalBooleanParameter:
+#   Enabled: false
+Style/SafeNavigation:
+  Enabled: false # requires 2.3
+# not available until 0.90.0: https://github.com/rubocop-hq/rubocop/blob/master/CHANGELOG.md#0900-2020-09-01
+# Style/SoleNestedConditional:
+#   Exclude:
+#     - lib/kdi/kdi_helpers.rb
+#     - tasks/snyk/snyk.rb
+#     - tasks/snyk_findings/snyk_findings.rb
+Style/TrailingCommaInArguments:
+  Enabled: false
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+Style/TrailingCommaInHashLiteral:
+  Enabled: false

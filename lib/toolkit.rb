@@ -10,8 +10,10 @@ require_relative '../initialize/string'
 # local deps
 require_relative 'helpers'
 require_relative 'http'
+# rubocop:todo Style/MixinUsage
 include Kenna::Toolkit::Helpers
 include Kenna::Toolkit::Helpers::Http
+# rubocop:enable Style/MixinUsage
 
 # Shared libraries / mapping / data etc
 require_relative 'data/mapping/digi_footprint_finding_mapper'
@@ -20,8 +22,8 @@ require_relative 'data/mapping/digi_footprint_port_mapper'
 # Task manager
 require_relative 'task_manager'
 
-# kenna api client 
-require_relative 'api/client' 
+# kenna api client
+require_relative 'api/client'
 
 # KDI Helpers
 require_relative 'kdi/kdi_helpers'
@@ -30,7 +32,7 @@ require_relative 'kdi/kdi_helpers'
 require_relative '../tasks/base'
 
 ### GLOBAL VARIABLES - ONLY SET THESE ONCE
-$basedir = "#{File.expand_path("..", File.dirname(__FILE__))}"
+$basedir = File.expand_path("..", File.dirname(__FILE__)).to_s
 ### END GLOBALS
 
 # Tasks

@@ -2,16 +2,14 @@ module Kenna
   module Toolkit
     module Helpers
       module Http
-      
-      def http_get(url, headers, max_retries=5)
-        begin
+        def http_get(url, headers, max_retries = 5)
           RestClient::Request.execute(
             method: :get,
             url: url,
             headers: headers
           )
-        rescue RestClient::TooManyRequests =>e
-          puts "Exception! #{e}" 
+        rescue RestClient::TooManyRequests => e
+          puts "Exception! #{e}"
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -20,11 +18,11 @@ module Kenna
             retry
           end
         rescue RestClient::UnprocessableEntity => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
         rescue RestClient::BadRequest => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
         rescue RestClient::Exception => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -33,18 +31,16 @@ module Kenna
             retry
           end
         end
-      end
 
-      def http_post(url, headers, payload, max_retries=5)
-        begin
+        def http_post(url, headers, payload, max_retries = 5)
           RestClient::Request.execute(
             method: :post,
             url: url,
             payload: payload,
             headers: headers
           )
-        rescue RestClient::TooManyRequests =>e
-          puts "Exception! #{e}" 
+        rescue RestClient::TooManyRequests => e
+          puts "Exception! #{e}"
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -53,11 +49,11 @@ module Kenna
             retry
           end
         rescue RestClient::UnprocessableEntity => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
         rescue RestClient::BadRequest => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
         rescue RestClient::Exception => e
-          puts "Exception! #{e}" 
+          puts "Exception! #{e}"
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -67,8 +63,6 @@ module Kenna
           end
         end
       end
-
     end
   end
-end
 end
