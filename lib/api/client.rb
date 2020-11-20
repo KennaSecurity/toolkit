@@ -110,7 +110,7 @@ module Kenna
         _kenna_api_request(:get, "dashboard_groups")
       end
 
-      def upload_to_connector(connector_id, filepath, run_now=true,max_retries = 3)
+      def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
         
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
@@ -172,7 +172,7 @@ module Kenna
           print_error "Bad Request: #{e.message}... #{e}"
         rescue RestClient::Unauthorized => e
           print_error "Unauthorized: #{e.message}... #{e}"
-        rescue RestClient::Exception => e
+        rescue => e
           print_error "Unknown Exception: #{e}"
           print_error "Are you sure you provided a valid connector id?"
 
@@ -193,7 +193,7 @@ module Kenna
         return query_response_json
       end
 
-      def run_files_on_connector(connector_id, upload_ids,max_retries=3)
+      def run_files_on_connector(connector_id, upload_ids, max_retries = 3)
 
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
