@@ -61,7 +61,12 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
           :type => "boolean", 
           :required => false, 
           :default => false, 
-          :description => "Use this parameter to clean up files after upload to Kenna"},      
+          :description => "Use this parameter to clean up files after upload to Kenna"}, 
+        { :name => "max_retries", 
+          :type => "integer", 
+          :required => false, 
+          :default => 5, 
+          :description => "Use this parameter to clean up files after upload to Kenna"},           
         { :name => "output_directory", 
           :type => "filename", 
           :required => false, 
@@ -125,6 +130,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     kenna_connector_id = @options[:kenna_connector_id]
     batch_page_size = @options[:batch_page_size].to_i
     output_directory = @options[:output_directory]
+    max_retries = @options[:max_retries]
 
 
     
@@ -192,7 +198,7 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
             submit_count +=1
             print_debug "#{submit_count} about to upload file"
             filename = "microsoft_atp_kdi_#{submit_count}.json"
-            connector_response_json = connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
+            connector_response_json = connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key,max_retries)
             print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
             asset_count = 0
             clearDataArrays
@@ -254,8 +260,8 @@ class MSDefenderAtp < Kenna::Toolkit::BaseTask
     submit_count +=1
     print_debug "#{submit_count} about to run connector"
     filename = "microsoft_atp_kdi_#{submit_count}.json"
-    connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key)
-    connectorKickoff(kenna_connector_id,kenna_api_host,kenna_api_key)
+    connectorUpload("#{$basedir}/#{output_directory}", filename, kenna_connector_id,kenna_api_host,kenna_api_key,max_retries)
+    connectorKickoff(kenna_connector_id,kenna_api_host,kenna_api_key,max_retries)
 
   end
 
