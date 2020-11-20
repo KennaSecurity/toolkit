@@ -234,8 +234,7 @@ module Kenna
             # check our value to see if we need to keep going
             running = connector_check_json["running"]
           end
-        
-        rescue RestClient::Exceptions::OpenTimeout => e 
+        rescue RestClient::Exceptions::OpenTimeout => e
           print_error "Timeout: #{e.message}..."
         rescue RestClient::UnprocessableEntity => e
           print_error "Unprocessable Entity: #{e.message}..."
@@ -243,7 +242,7 @@ module Kenna
           print_error "Bad Request: #{e.message}... #{e}"
         rescue RestClient::Unauthorized => e
           print_error "Unauthorized: #{e.message}... #{e}"
-        #rescue RestClient::Exception => e
+        # rescue RestClient::Exception => e
         rescue => e
           print_error "Unknown Exception: #{e}"
           print_error "Are you sure you provided a valid connector id?"
@@ -256,8 +255,8 @@ module Kenna
             retry
 
           else
-           print_error "Max retries hit, failing with... #{e}"
-           return 
+            print_error "Max retries hit, failing with... #{e}"
+            return
           end
         end
 
