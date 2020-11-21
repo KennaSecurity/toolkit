@@ -8,8 +8,10 @@ module Kenna
           # Bitsight:
           #  - Domain Squatting - Findings for this risk vector cannot be queried via the API
 
+          # rubocop:disable Style/OptionalBooleanParameter
           def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "",
                                               override_score = true)
+            # rubocop:enable Style/OptionalBooleanParameter
             ###
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore

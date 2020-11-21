@@ -10,9 +10,11 @@ module Kenna
       include Kenna::Toolkit::Helpers
       include Kenna::Toolkit::KdiHelpers
 
+      # rubocop:disable Lint/MissingSuper
       def self.inherited(base)
         Kenna::Toolkit::TaskManager.register(base)
       end
+      # rubocop:enable Lint/MissingSuper
 
       # all tasks must implement a run method and call super, so
       # this code should be run immediately upon entry into the task

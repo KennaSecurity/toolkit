@@ -1,3 +1,4 @@
+# rubocop:disable Style/SoleNestedConditional
 require_relative "lib/snyk_helper"
 
 module Kenna
@@ -269,3 +270,4 @@ module Kenna
     end
   end
 end
+# rubocop:enable Style/SoleNestedConditional

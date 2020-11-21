@@ -127,7 +127,9 @@ module Kenna
       ### Helper to upload to kenna api
       ###
 
+      # rubocop:disable Style/OptionalBooleanParameter
       def upload_file_to_kenna_connector(connector_id, api_host, api_token, filename, run_now = true)
+        # rubocop:enable Style/OptionalBooleanParameter
         # optionally upload the file if a connector ID has been specified
         if connector_id && api_host && api_token
 

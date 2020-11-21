@@ -17,7 +17,7 @@ module Kenna
         csv.to_json
       end
 
-      def to_hash(sym_keys = false)
+      def to_hash(sym_keys = false) # rubocop:disable Style/OptionalBooleanParameter
         # uses Hash#transform_keys: https://bugs.ruby-lang.org/issues/13583
         csv_hash = csv.map(&:to_h)
 

@@ -48,15 +48,17 @@ module Kenna
       #            but to avoid vulnerabilities from being closed, use the skip-autoclose flag) ]
       #  }
       #
-      def create_kdi_asset(asset_hash, dup_check = true)
+      def create_kdi_asset(asset_hash, dup_check = true) # rubocop:disable Style/OptionalBooleanParameter
         kdi_initialize unless @assets
 
         # if we already have it, skip ... do this by selecting based on our dedupe field
         # and making sure we don't already have it
 
+        # rubocop:disable Style/SoleNestedConditional
         if dup_check
           return nil unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
         end
+        # rubocop:enable Style/SoleNestedConditional
 
         # create default values
         asset_hash["priority"] = 10 unless asset_hash["priority"]

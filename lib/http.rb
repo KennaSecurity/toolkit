@@ -1,3 +1,5 @@
+# rubocop:disable Lint/DuplicateBranch
+
 module Kenna
   module Toolkit
     module Helpers
@@ -66,3 +68,5 @@ module Kenna
     end
   end
 end
+
+# rubocop:enable Lint/DuplicateBranch

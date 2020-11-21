@@ -166,10 +166,12 @@ module Kenna
             functions = issue.fetch("functions") if issue.key?("functions")
             isPatchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
             isUpgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
+            # rubocop:disable Style/SoleNestedConditional
             if issue.key?("references")
               language = issue.fetch("language") if issue.key? "language",
                                                                references = issue.fetch("references")
             end
+            # rubocop:enable Style/SoleNestedConditional
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
             version =  issue.fetch("version") if issue.key?("version")

@@ -110,7 +110,9 @@ module Kenna
         _kenna_api_request(:get, "dashboard_groups")
       end
 
+      # rubocop:disable Style/OptionalBooleanParameter
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
+        # rubocop:enable Style/OptionalBooleanParameter
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
         headers = {
