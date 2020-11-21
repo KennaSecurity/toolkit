@@ -74,10 +74,11 @@ module Kenna
           next unless expected_type
 
           if expected_type == "boolean"
-            if ovalue == "false"
+            case ovalue
+            when "false"
               print_good "Converting #{oname} to false value" if opts[:debug]
               opts[oname] = false
-            elsif ovalue == "true"
+            when "true"
               print_good "Converting #{oname} to true value" if opts[:debug]
               opts[oname] = true
             end
