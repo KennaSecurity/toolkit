@@ -63,9 +63,7 @@ module Kenna
                                                    })
 
             JSON.parse(response.body.to_s)
-          rescue JSON::ParserError => e
-            return nil
-          rescue RestClient::Unauthorized => e
+          rescue JSON::ParserError, RestClient::Unauthorized => e
             return nil
           end
         end
