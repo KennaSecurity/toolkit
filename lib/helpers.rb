@@ -109,18 +109,17 @@ module Kenna
 
       def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids)
         # optionally upload the file if a connector ID has been specified
-        if connector_id && api_host && api_token
+        return unless connector_id && api_host && api_token
 
-          print_good "Attempting to upload to Kenna API"
-          print_good "Kenna API host: #{api_host}"
+        print_good "Attempting to upload to Kenna API"
+        print_good "Kenna API host: #{api_host}"
 
-          # upload it
-          if connector_id && connector_id != -1
-            kenna = Kenna::Api::Client.new(api_token, api_host)
-            query_response_json = kenna.run_files_on_connector(connector_id, upload_ids)
-          else
-            print_error "Invalid Connector ID (#{connector_id}), unable to upload."
-          end
+        # upload it
+        if connector_id && connector_id != -1
+          kenna = Kenna::Api::Client.new(api_token, api_host)
+          query_response_json = kenna.run_files_on_connector(connector_id, upload_ids)
+        else
+          print_error "Invalid Connector ID (#{connector_id}), unable to upload."
         end
       end
 
