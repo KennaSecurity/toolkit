@@ -100,14 +100,14 @@ module Kenna
 
         # associate the asset
         assetvulns = []
-        assetvulns << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s, }
+        assetvulns << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s }
         assetvulns << { details: details.to_s } unless details.nil?
         assetvulns << { created_at: created.to_s } unless created.nil?
         assetvulns << { scanner_score: scanner_score } unless scanner_score.nil? || scanner_score.zero?
         assetvulns << { last_fixed_on: last_fixed.to_s } unless last_fixed.nil?
         assetvulns << { last_seen_at: last_seen.to_s } unless last_seen.nil?
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
-        assetvulns << { port: port, } unless port.nil?
+        assetvulns << { port: port } unless port.nil?
         assetvulns << { status: status.to_s }
 
         asset[:vulns] << assetvulns.reduce(&:merge)
@@ -115,7 +115,7 @@ module Kenna
 
       def create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)
         vuln_def = []
-        vuln_def << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s, }
+        vuln_def << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s }
         vuln_def << { cve_identifiers: cve_id.to_s } unless cve_id.nil? || cve_id.empty?
         vuln_def << { wasc_identifiers: wasc_id.to_s } unless wasc_id.nil? || wasc_id.empty?
         vuln_def << { cwe_identifiers: cwe_id.to_s } unless cwe_id.nil? || cwe_id.empty?
