@@ -212,8 +212,10 @@ module Kenna
                              row[map_scanner_type.to_s] # (string) - default is freeform if nil from CSV
                            end
             raise "no scanner type found!" unless !scanner_type.nil? && !scanner_type.empty?
+
             scanner_id = row[map_scanner_id.to_s]
             raise "no scanner id found!" unless !scanner_id.nil? && !scanner_id.empty?
+
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
             if score_map.nil? || score_map.empty? # (string) - Date vuln created
@@ -293,10 +295,10 @@ module Kenna
         print_good "Output is available at: #{output_dir}/#{filename}"
 
         ### Finish by uploading if we're all configured
-        if @kenna_connector_id && @kenna_api_host && @kenna_api_key
-          print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-          upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
-        end
+        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
+
+        print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
+        upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
       end
     end
   end
