@@ -16,7 +16,7 @@ gem 'json'
 gem 'rest-client'
 
 group :development, :test do
-  gem 'rubocop', require: false
+  gem 'rubocop', "~> 0.82.0", require: false
 end
 
 group :development, :test do
