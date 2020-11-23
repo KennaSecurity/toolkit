@@ -74,7 +74,7 @@ module Kenna
       end
 
       def print_readme(task_name)
-        if (File.exist?("#{$basedir}/tasks/#{task_name}/readme.md"))
+        if File.exist?("#{$basedir}/tasks/#{task_name}/readme.md")
           readme = File.open("#{$basedir}/tasks/#{task_name}/readme.md").read
           readme_header = "\n \n \n \n# ***********************************************\n"
           readme_header << "#     Displaying readme.md for #{task_name} \n"
