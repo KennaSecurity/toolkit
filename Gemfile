@@ -14,6 +14,7 @@ gem 'aws-sdk-guardduty'
 gem 'aws-sdk-inspector'
 gem 'json'
 gem 'rest-client'
+gem 'tty-pager'
 
 group :development, :test do
   gem 'rubocop', require: false
