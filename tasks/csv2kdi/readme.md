@@ -2,7 +2,8 @@
 
 ## This Task will take a CSV (utf-8) file as input and utilize the metafile to map the field for conversion into the Kenna KDI JSON format
 ## More information on the Kenna KDI can be found at help.kennasecurity.com
-## A non-toolkit version of the script can be found at
+## A non-toolkit version of the script and sample metafiles can be found at:
+   https://github.com/KennaPublicSamples/All_Samples/tree/master/KDI%20Importer
 
 This script will transform csv files into json that can be consumed by the Kenna Data Importer. It also can process assets only if required.
 
@@ -42,19 +43,19 @@ Example command to get task help for csv2kdi:
 docker run -it --rm toolkit:latest task=csv2kdi:help
 
 Example command
-docker run -it --rm \
-       -v ~/input:/opt/app/toolkit/input \
+docker run -it --rm  \
+     -v ~/input:/opt/app/toolkit/input \
 	   -v ~/output:/opt/app/toolkit/output \
 	   toolkit:latest task=csv2kdi:csv_in=input.csv:meta_file=metafile.csv:kenna_connector_id=156373:kenna_api_key=APICODE-KEY
 
-	   ( Note: on -v option: Example above would have the ~/input resides on host and /opt/app/toolkit/input resides in the container )
+	   ( Note: on -v option: Example above has the ~/input on host and /opt/app/toolkit/input resides in the container )
      ( Note - 2: The container will run as the default user starting it so therefore will need perms to write to the mounted output volume or change perms appropriately)
 
 Sample run output:
 dzq6k6@Kenna-Gerhart:/mnt/c/Users/toby/OneDrive/Documents/GitHub/toolkit$ docker run -it --rm \
-       -v ~/input:/opt/app/toolkit/input \
-	   -v ~/output:/opt/app/toolkit/output \
-	   toolkit:latest task=csv2kdi:csv_in=input.csv:meta_file=metafile.csv:kenna_connector_id=156373:kenna_api_key=place_APIKEY_here
+  -v ~/input:/opt/app/toolkit/input \
+	-v ~/output:/opt/app/toolkit/output \
+	toolkit:latest task=csv2kdi:csv_in=input.csv:meta_file=metafile.csv:kenna_connector_id=<ID>:kenna_api_key=<APIKEY>
 
 Running: Kenna::Toolkit::Csv2kdi
 [+] (20201024133027) Setting csv_in to default value: input.csv

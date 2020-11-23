@@ -144,7 +144,7 @@ module Kenna
           status_map_string = $mapping_array.assoc('status_map').last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
-        end
+        end # Added for ASSET ONLY Run
 
         # Configure Date format
         ###########################
@@ -153,7 +153,7 @@ module Kenna
         # date_format_in = "%m/%d/%Y %H:%M"
         date_format_KDI = "%Y-%m-%d-%H:%M:%S"
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:iso-8859-1:utf-8', &:read), headers: true || false) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:bom|utf-8', &:read), headers: @has_header) do |row|
           ##################
           #  CSV MAPPINGS  #
           ##################
@@ -175,7 +175,7 @@ module Kenna
           application = row[map_application.to_s] # (string) ID/app Name
 
           # Added for ASSET ONLY Run
-          hostname += ".#{@domain_suffix}" if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false)
+          if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false) then hostname += ".#{@domain_suffix}" end
 
           #########################
           # Asset Metadata fields #
@@ -199,9 +199,7 @@ module Kenna
           owner = row[map_owner.to_s] # (string) Some string that identifies an owner of an asset
           os = row[map_os.to_s] # (string) Operating system of asset
           os_version = row[map_os_version.to_s] # (string) OS version
-          unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
-            priority = row[map_priority.to_s].to_i
-          end # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
+          priority = row[map_priority.to_s].to_i unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty? # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
           if @assets_only == "false" # Added for ASSET ONLY Run
 
@@ -221,13 +219,9 @@ module Kenna
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
             if score_map.nil? || score_map.empty? # (string) - Date vuln created
-              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
-                scanner_score = row[map_scanner_score.to_s].to_i
-              end # (Integer) - scanner score
+              scanner_score = row[map_scanner_score.to_s].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty? # (Integer) - scanner score
             else
-              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
-                scanner_score = score_map[row[map_scanner_score.to_s]].to_i
-              end # (Integer) - scanner score
+              scanner_score = score_map[row[map_scanner_score.to_s]].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty? # (Integer) - scanner score
             end
             last_fixed = row[map_last_fixed.to_s] # (string) - Last fixed date
             last_seen = row[map_last_seen.to_s]
@@ -237,9 +231,7 @@ module Kenna
                        status_map[row[map_status.to_s]]
                      end
             closed = row[map_closed.to_s] # (string) Date it was closed
-            unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
-              port = row[map_port.to_s].to_i
-            end # (Integer) Port if associated with vuln
+            port = row[map_port.to_s].to_i unless row[map_port.to_s].nil? || row[map_port.to_s].empty? # (Integer) Port if associated with vuln
 
             ############################
             # Vulnerability Definition #
@@ -253,27 +245,23 @@ module Kenna
             name = row[map_name.to_s] # (string) Name/title of Vuln
             description = row[map_description.to_s] # (string) Description
             solution = row[map_solution.to_s] # (string) Solution
-          end
+          end # Added for ASSET ONLY Run
 
           # #call the methods that will build the json now##
 
           status = "open" if status.nil? || status.empty?
           # Convert the dates
-          unless created.nil? || created.empty?
-            created = DateTime.strptime(created, $date_format_in).strftime(date_format_KDI)
-          end
-          unless last_fixed.nil? || last_fixed.empty?
-            last_fixed = DateTime.strptime(last_fixed, $date_format_in).strftime(date_format_KDI)
-          end
+          created = Time.strptime(created, $date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
+          last_fixed = Time.strptime(last_fixed, $date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
 
           last_seen = if last_seen.nil? || last_seen.empty?
                         # last_seen = "2019-03-01-14:00:00"
-                        DateTime.now.strftime(date_format_KDI)
+                        Time.now.strftime(date_format_KDI)
                       else
-                        DateTime.strptime(last_seen, $date_format_in).strftime(date_format_KDI)
+                        Time.strptime(last_seen, $date_format_in).strftime(date_format_KDI)
                       end
 
-          closed = DateTime.strptime(closed, $date_format_in).strftime(date_format_KDI) unless closed.nil?
+          closed = Time.strptime(closed, $date_format_in).strftime(date_format_KDI) unless closed.nil?
 
           ### CREATE THE ASSET
           done = create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
