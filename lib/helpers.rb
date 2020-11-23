@@ -73,6 +73,22 @@ module Kenna
         output.sanitize_unicode
       end
 
+      def print_readme(task_name)
+        if(File.exist?("#{$basedir}/tasks/#{task_name}/readme.md"))
+          readme = (File.open("#{$basedir}/tasks/#{task_name}/readme.md")).read
+          readme_header = "\n \n \n \n# ***********************************************\n"
+          readme_header << "#     Displaying readme.md for #{task_name} \n"
+          readme_header << "# ***********************************************\n"
+          readme_header << "\n "
+          readme_header << "\n "
+          readme = readme_header + readme
+          pager = TTY::Pager.new
+          pager.page("#{readme}")
+        else
+          print_error("No readme.md found for #{task_name}")
+        end
+      end
+      
       ###
       ### Helper to write a file consistently
       ###
