@@ -221,8 +221,8 @@ module Kenna
               "scanner_type" => "MS Defender ATP",
               "name" => vuln_name,
             }
-            if !vuln_cve.nil? and !vuln_cve.empty? then
-              vuln_def.merge!(cve_identifiers: vuln_cve.to_s) 
+            if !vuln_cve.nil? && !vuln_cve.empty?
+              vuln_def.merge!(cve_identifiers: vuln_cve.to_s)
             end
 
             vuln_asset.compact!
