@@ -2,6 +2,7 @@
 
 require 'date'
 require 'base64'
+require 'tty-pager'
 
 module Kenna
   module Toolkit
@@ -32,6 +33,13 @@ module Kenna
         # Task help!
         if opts[:help]
           print_task_help self.class.metadata[:id]
+          print_good "Returning!"
+          exit
+        end
+
+        # Task readme!
+        if opts[:readme]
+          print_readme self.class.metadata[:id]
           print_good "Returning!"
           exit
         end

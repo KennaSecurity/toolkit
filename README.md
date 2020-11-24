@@ -60,7 +60,7 @@ Excellent, now you have an image, and are ready to launch it!
 Launching Your Own Container Image Docker:
 
     docker run -it --rm toolkit:latest
-  
+
 Launching Your Own Container Image Podman:
 
     podman run -it --rm toolkit:latest
@@ -91,7 +91,11 @@ Each task has its own arguments, and the toolkit attempts to make it simple to p
 
     'arg1=val1 arg2=val2 arg3=val3'
 
-Here's an example ('aws_inspeector' task) with arguments being passed to it:
+Task line help and access to available readme.md files are available by invoking the command format:
+    docker run -it --rm -t toolkit:latest task=csv2kdi:help      #(task's parameter help)
+    docker run -it --rm -t toolkit:latest task=csv2kdi:readme    #(task's readme in a paging format)
+
+Here's an example ('aws_inspector' task) with arguments being passed to it:
 
 Docker:
 
@@ -139,6 +143,7 @@ These are the current tasks available:
 - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
 - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
+- csv2kdi: This task converts a csv formatted file to the Kenna JSON & optionally pulls results into Kenna 
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 - generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
