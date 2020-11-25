@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/csv2kdi_helper"
 
 module Kenna
@@ -87,61 +89,61 @@ module Kenna
         @domain_suffix = @options[:domain_suffix]
 
         @debug = true
-        $map_locator = ''
+        $map_locator = ""
 
         # Global variables required between methods
         $assets = []
         $vuln_defs = []
         $mapping_array = []
-        $Date_Format_In = ''
+        $Date_Format_In = ""
         # meta = $basedir/@meta_file
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", 'r:iso-8859-1:utf-8', &:read), headers: @has_header.eql?('true') ? true : false) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", "r:iso-8859-1:utf-8", &:read), headers: @has_header.eql?("true") ? true : false) do |row|
           $mapping_array << Array[row[0], row[1]]
           $mapping_array.compact
         end
         # headers =
-        $Date_Format_In = $mapping_array.assoc('date_format').last.to_s
-        $map_locator = $mapping_array.assoc('locator').last.to_s
-        map_file = $mapping_array.assoc('file').last.to_s
-        map_ip_address = $mapping_array.assoc('ip_address').last.to_s
-        map_mac_address = $mapping_array.assoc('mac_address').last.to_s
-        map_hostname = $mapping_array.assoc('hostname').last.to_s
-        map_ec2 = $mapping_array.assoc('ec2').last.to_s
-        map_netbios = $mapping_array.assoc('netbios').last.to_s
-        map_url = $mapping_array.assoc('url').last.to_s
-        map_fqdn = $mapping_array.assoc('fqdn').last.to_s
-        map_external_id = $mapping_array.assoc('external_id').last.to_s
-        map_database = $mapping_array.assoc('database').last.to_s
-        map_application = $mapping_array.assoc('application').last.to_s
-        map_tags = $mapping_array.assoc('tags').last.to_s
-        map_tag_prefix = $mapping_array.assoc('tag_prefix').last.to_s
-        map_owner = $mapping_array.assoc('owner').last.to_s
-        map_os = $mapping_array.assoc('os').last.to_s
-        map_os_version = $mapping_array.assoc('os_version').last.to_s
-        map_priority = $mapping_array.assoc('priority').last.to_s
+        $Date_Format_In = $mapping_array.assoc("date_format").last.to_s
+        $map_locator = $mapping_array.assoc("locator").last.to_s
+        map_file = $mapping_array.assoc("file").last.to_s
+        map_ip_address = $mapping_array.assoc("ip_address").last.to_s
+        map_mac_address = $mapping_array.assoc("mac_address").last.to_s
+        map_hostname = $mapping_array.assoc("hostname").last.to_s
+        map_ec2 = $mapping_array.assoc("ec2").last.to_s
+        map_netbios = $mapping_array.assoc("netbios").last.to_s
+        map_url = $mapping_array.assoc("url").last.to_s
+        map_fqdn = $mapping_array.assoc("fqdn").last.to_s
+        map_external_id = $mapping_array.assoc("external_id").last.to_s
+        map_database = $mapping_array.assoc("database").last.to_s
+        map_application = $mapping_array.assoc("application").last.to_s
+        map_tags = $mapping_array.assoc("tags").last.to_s
+        map_tag_prefix = $mapping_array.assoc("tag_prefix").last.to_s
+        map_owner = $mapping_array.assoc("owner").last.to_s
+        map_os = $mapping_array.assoc("os").last.to_s
+        map_os_version = $mapping_array.assoc("os_version").last.to_s
+        map_priority = $mapping_array.assoc("priority").last.to_s
 
         if @assets_only == "false" # Added for ASSET ONLY Run
-          map_scanner_source = $mapping_array.assoc('scanner_source').last.to_s
-          map_scanner_type = $mapping_array.assoc('scanner_type').last.to_s
-          map_scanner_id = $mapping_array.assoc('scanner_id').last.to_s
+          map_scanner_source = $mapping_array.assoc("scanner_source").last.to_s
+          map_scanner_type = $mapping_array.assoc("scanner_type").last.to_s
+          map_scanner_id = $mapping_array.assoc("scanner_id").last.to_s
           map_scanner_id.encode!("utf-8")
-          map_details = $mapping_array.assoc('details').last.to_s
-          map_created = $mapping_array.assoc('created').last.to_s
-          map_scanner_score = $mapping_array.assoc('scanner_score').last.to_s
-          map_last_fixed = $mapping_array.assoc('last_fixed').last.to_s
-          map_last_seen = $mapping_array.assoc('last_seen').last.to_s
-          map_status = $mapping_array.assoc('status').last.to_s
-          map_closed = $mapping_array.assoc('closed').last.to_s
-          map_port = $mapping_array.assoc('port').last.to_s
-          map_cve_id = $mapping_array.assoc('cve_id').last.to_s
-          map_wasc_id = $mapping_array.assoc('wasc_id').last.to_s
-          map_cwe_id = $mapping_array.assoc('cwe_id').last.to_s
-          map_name = $mapping_array.assoc('name').last.to_s
-          map_description = $mapping_array.assoc('description').last.to_s
-          map_solution = $mapping_array.assoc('solution').last.to_s
-          score_map_string = $mapping_array.assoc('score_map').last.to_s
-          status_map_string = $mapping_array.assoc('status_map').last.to_s
+          map_details = $mapping_array.assoc("details").last.to_s
+          map_created = $mapping_array.assoc("created").last.to_s
+          map_scanner_score = $mapping_array.assoc("scanner_score").last.to_s
+          map_last_fixed = $mapping_array.assoc("last_fixed").last.to_s
+          map_last_seen = $mapping_array.assoc("last_seen").last.to_s
+          map_status = $mapping_array.assoc("status").last.to_s
+          map_closed = $mapping_array.assoc("closed").last.to_s
+          map_port = $mapping_array.assoc("port").last.to_s
+          map_cve_id = $mapping_array.assoc("cve_id").last.to_s
+          map_wasc_id = $mapping_array.assoc("wasc_id").last.to_s
+          map_cwe_id = $mapping_array.assoc("cwe_id").last.to_s
+          map_name = $mapping_array.assoc("name").last.to_s
+          map_description = $mapping_array.assoc("description").last.to_s
+          map_solution = $mapping_array.assoc("solution").last.to_s
+          score_map_string = $mapping_array.assoc("score_map").last.to_s
+          status_map_string = $mapping_array.assoc("status_map").last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
         end
@@ -152,9 +154,9 @@ module Kenna
         # CUSTOMIZE Date format
         ###########################
         # Date_Format_In = "%m/%d/%Y %H:%M"
-        Date_Format_KDI = "%Y-%m-%d-%H:%M:%S"
+        date_format_kdi = "%Y-%m-%d-%H:%M:%S"
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:bom|utf-8', &:read), headers: @has_header) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", "r:bom|utf-8", &:read), headers: @has_header) do |row|
           ##################
           #  CSV MAPPINGS  #
           ##################
@@ -182,8 +184,8 @@ module Kenna
           #########################
           # Asset Metadata fields #
           #########################
-          tag_list = map_tags.split(',') # (string) list of strings that correspond to tags on an asset
-          prefix_list = map_tag_prefix.split(',')
+          tag_list = map_tags.split(",") # (string) list of strings that correspond to tags on an asset
+          prefix_list = map_tag_prefix.split(",")
           # puts tag_list
           tags = []
           count = 0
@@ -254,17 +256,17 @@ module Kenna
 
           status = "open" if status.nil? || status.empty?
           # Convert the dates
-          created = Time.strptime(created, $Date_Format_In).strftime(Date_Format_KDI) unless created.nil? || created.empty?
-          last_fixed = Time.strptime(last_fixed, $Date_Format_In).strftime(Date_Format_KDI) unless last_fixed.nil? || last_fixed.empty?
+          created = Time.strptime(created, $Date_Format_In).strftime(date_format_kdi) unless created.nil? || created.empty?
+          last_fixed = Time.strptime(last_fixed, $Date_Format_In).strftime(date_format_kdi) unless last_fixed.nil? || last_fixed.empty?
 
           last_seen = if last_seen.nil? || last_seen.empty?
                         # last_seen = "2019-03-01-14:00:00"
-                        Time.now.strftime(Date_Format_KDI)
+                        Time.now.strftime(date_format_kdi)
                       else
-                        Time.strptime(last_seen, $Date_Format_In).strftime(Date_Format_KDI)
+                        Time.strptime(last_seen, $Date_Format_In).strftime(date_format_kdi)
                       end
 
-          closed = Time.strptime(closed, $Date_Format_In).strftime(Date_Format_KDI) unless closed.nil?
+          closed = Time.strptime(closed, $Date_Format_In).strftime(date_format_kdi) unless closed.nil?
 
           ### CREATE THE ASSET
           done = create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)

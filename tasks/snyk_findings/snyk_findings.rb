@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/snyk_helper"
 
 module Kenna
@@ -74,9 +76,9 @@ module Kenna
         # ^ Unused 11/25/2020 -JG
         include_license = @options[:include_license]
 
-        ProjectName_Strip_Colon = @options[:ProjectName_Strip_Colon]
-        PackageManager_Strip_Colon = @options[:PackageManager_Strip_Colon]
-        Package_Strip_Colon = @options[:Package_Strip_Colon]
+        project_name_strip_colon = @options[:ProjectName_Strip_Colon]
+        package_manager_strip_colon = @options[:PackageManager_Strip_Colon]
+        package_strip_colon = @options[:Package_Strip_Colon]
 
         org_json = snyk_get_orgs(snyk_api_token)
         projects = []
@@ -133,25 +135,20 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            if ProjectName_Strip_Colon
-              application = application.slice(0..(application.index(':')))
-            end
+            application.slice(0..(application.index(":"))) if project_name_strip_colon
 
             if project.key?("TargetFile")
-              TargetFile = project.fetch("TargetFile")
-               # ^ Unused 11/25/2020 -JG
+            #   target_file = project.fetch("TargetFile")
+            # # ^ Unused 11/25/2020 -JG
             else
               # print_debug = "using strip colon params if set"
               # ^ Unused 11/25/2020 -JG
-              PackageManager = issue_obj.fetch("PackageManager")
-              if PackageManager_Strip_Colon
-                PackageManager = PackageManager.slice(0..(PackageManager.index(':')))
-              end
+              package_manager = issue_obj.fetch("PackageManager")
+              package_manager.slice(0..(package_manager.index(":"))) if package_manager_strip_colon
               package = issue_obj.fetch("package")
-              if Package_Strip_Colon
-                package = package.slice(0..(package.index(':')))
-              end
-              TargetFile = "#{PackageManager}/#{package}"
+              package.slice(0..(package.index(":"))) if package_strip_colon
+              # target_file = "#{package_manager}/#{package}"
+              # # ^ Unused 11/25/2020 - JC
             end
 
             asset = {
@@ -162,7 +159,6 @@ module Kenna
 
             }
 
-            scanner_score = ""
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else
@@ -170,35 +166,27 @@ module Kenna
                             end
 
             source = project.fetch("source") if issue.key?("source")
-            FixedIn = issue.fetch("FixedIn") if issue.key?("FixedIn")
+            fixed_in = issue.fetch("FixedIn") if issue.key?("FixedIn")
             from = issue.fetch("from") if issue.key?("from")
             functions = issue.fetch("functions") if issue.key?("functions")
-            if issue.key?("IsPatchable")
-              IsPatchable = issue.fetch("IsPatchable").to_s
-            end
-            if issue.key?("IsUpgradable")
-              IsUpgradable = issue.fetch("IsUpgradable").to_s
-            end
+            is_patchable = issue.fetch("IsPatchable").to_s if issue.key?("IsPatchable")
+            is_upgradable = issue.fetch("IsUpgradable").to_s if issue.key?("IsUpgradable")
             if issue.key?("references")
               language = issue.fetch("language") if issue.key? "language",
                                                                references = issue.fetch("references")
             end
-            if issue.key?("semver")
-              semver = JSON.pretty_generate(issue.fetch("semver"))
-            end
+            semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
             version =  issue.fetch("version") if issue.key?("version")
-            if issue.key?("description")
-              description = issue.fetch("description")
-            end
+            description = issue.fetch("description") if issue.key?("description")
 
             additional_fields = {
               "source" => source,
-              "FixedIn" => FixedIn,
+              "FixedIn" => fixed_in,
               "from" => from,
               "functions" => functions,
-              "IsPatchable" => IsPatchable,
-              "IsUpgradable" => IsUpgradable,
+              "IsPatchable" => is_patchable,
+              "IsUpgradable" => is_upgradable,
               "language" => language,
               "references" => references,
               "semver" => semver,
@@ -220,28 +208,16 @@ module Kenna
 
             finding.compact!
 
-            unless issue["patches"].nil? || issue["patches"].empty?
-              patches = issue["patches"].first.to_s
-            end
+            patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
             cves = nil
             cwes = nil
             unless identifiers.nil?
-              unless identifiers['CVE'].nil? || identifiers['CVE'].length.zero?
-                cve_array = identifiers['CVE']
-              end
-              unless identifiers['CWE'].nil? || identifiers['CVE'].length.zero?
-                cwe_array = identifiers['CWE']
-              end
-              unless cve_array.nil? || cve_array.length.zero?
-                cve_array.delete_if { |x| x.start_with?('RHBA', 'RHSA') }
-              end
-              unless cve_array.nil? || cve_array.length.zero?
-                cves = cve_array.join(",")
-              end
-              unless cwe_array.nil? || cwe_array.length.zero?
-                cwes = cwe_array.join(",")
-              end
+              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
+              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CVE"].length.zero?
+              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
+              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
+              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
             end
 
             vuln_name = nil
