@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/ms_defender_atp_helper"
 module Kenna
   module Toolkit
@@ -100,21 +102,11 @@ module Kenna
           # Construct tags
           tags = []
           tags << "MSDefenderAtp"
-          unless machine.fetch("riskScore").nil?
-            tags << "riskScore: #{machine.fetch('riskScore')}"
-          end
-          unless machine.fetch("exposureLevel").nil?
-            tags << "exposureLevel: #{machine.fetch('exposureLevel')}"
-          end
-          unless machine.fetch("agentVersion").nil?
-            tags << "ATP Agent Version: #{machine.fetch('agentVersion')}"
-          end
-          unless machine.fetch("rbacGroupName").nil?
-            tags << "rbacGroup: #{machine.fetch('rbacGroupName')}"
-          end
-          unless machine.fetch("machineTags").nil?
-            tags.concat(machine.fetch("machineTags"))
-          end
+          tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
+          tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
+          tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
+          tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
+          tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
 
           # Add them to our asset hash
           asset.merge({ "tags" => tags })
@@ -141,18 +133,14 @@ module Kenna
         set_client_data(atp_tenant_id, atp_client_id, atp_client_secret, atp_api_host, atp_oath_host, file_cleanup)
         asset_next_link = nil
         asset_json_response = atp_get_machines
-        if asset_json_response.key?("@odata.nextLink")
-          asset_next_link = asset_json_response.fetch("@odata.nextLink")
-        end
+        asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
         build_assets(asset_json_response)
 
         until asset_next_link.nil?
           asset_json_response = atp_get_machines(asset_next_link)
           build_assets(asset_json_response)
           asset_next_link = nil
-          if asset_json_response.key?("@odata.nextLink")
-            asset_next_link = asset_json_response.fetch("@odata.nextLink")
-          end
+          asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
         end
 
         morevuln = true
@@ -178,7 +166,7 @@ module Kenna
           vuln_json.each do |vuln|
             vuln_cve = vuln.fetch("cveId")
             scanner_id = vuln_cve
-            if vuln_cve.start_with?('CVE')
+            if vuln_cve.start_with?("CVE")
               vuln_cve = vuln_cve.strip
             else
               vuln_name = vuln_cve
@@ -186,9 +174,7 @@ module Kenna
             end
 
             machine_id = vuln.fetch("machineId")
-            unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
-              details = "fixingKbId = #{vuln.fetch('fixingKbId')}"
-            end
+            details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
 
             # end
             vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0).to_i
@@ -206,9 +192,7 @@ module Kenna
                 print_debug "#{submit_count} about to upload file"
                 filename = "microsoft_atp_kdi_#{submit_count}.json"
                 connector_response_json = connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries)
-                if !connector_response_json.nil? && connector_response_json.fetch("success")
-                  print_good "Success!"
-                end
+                print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
                 asset_count = 0
                 clear_data_arrays
               end
@@ -235,11 +219,9 @@ module Kenna
             vuln_def = {
               "scanner_identifier" => scanner_id,
               "scanner_type" => "MS Defender ATP",
-              "name" => vuln_name,
+              "name" => vuln_name
             }
-            if !vuln_cve.nil? && !vuln_cve.empty?
-              vuln_def.merge!(cve_identifiers: vuln_cve.to_s)
-            end
+            vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
 
             vuln_asset.compact!
             vuln.compact!
@@ -252,7 +234,7 @@ module Kenna
             unless worked
               print_debug "still can't find asset for #{machine_id}"
               asset = {
-                "external_id" => machine_id,
+                "external_id" => machine_id
               }
               create_kdi_asset(asset, false)
               create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")

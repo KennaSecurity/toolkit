@@ -1,4 +1,6 @@
-require_relative 'lib/client'
+# frozen_string_literal: true
+
+require_relative "lib/client"
 module Kenna
   module Toolkit
     class SecurityScorecard < Kenna::Toolkit::BaseTask
@@ -60,12 +62,8 @@ module Kenna
         if issue["connection_attributes"]
           if issue["connection_attributes"].is_a? Hash
             port = issue["connection_attributes"]["dst_port"]
-            if issue["connection_attributes"]["dst_ip"]
-              asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"]
-            end
-            if issue["connection_attributes"]["dst_host"]
-              asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"]
-            end
+            asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"] if issue["connection_attributes"]["dst_ip"]
+            asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"] if issue["connection_attributes"]["dst_host"]
           else
             puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{issue}"
             return nil
@@ -75,19 +73,13 @@ module Kenna
         # Converted Csv only
         asset_attributes["hostname"] = issue["hostname"] if issue["hostname"]
 
-        if issue["subdomain"] && !issue["hostname"]
-          asset_attributes["hostname"] = issue["subdomain"]
-        end
+        asset_attributes["hostname"] = issue["subdomain"] if issue["subdomain"] && !issue["hostname"]
 
-        if issue["common_name"] && !issue["hostname"]
-          asset_attributes["hostname"] = issue["common_name"]
-        end
+        asset_attributes["hostname"] = issue["common_name"] if issue["common_name"] && !issue["hostname"]
 
         ### End converted csv-only stuff
 
-        if issue["ip_address"]
-          asset_attributes["ip_address"] = issue["ip_address"]
-        end
+        asset_attributes["ip_address"] = issue["ip_address"] if issue["ip_address"]
 
         asset_attributes["url"] = issue["initial_url"] if issue["initial_url"]
 
@@ -116,9 +108,7 @@ module Kenna
         last_seen = issue["last_seen_time"]
 
         if issue["connection_attributes"]
-          if issue["connection_attributes"].is_a? Hash
-            port = issue["connection_attributes"]["dst_port"]
-          end
+          port = issue["connection_attributes"]["dst_port"] if issue["connection_attributes"].is_a? Hash
         elsif issue["port"]
           port = issue["port"]
         end
@@ -147,8 +137,8 @@ module Kenna
           # create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
           vuln_def_attributes = {
-            "scanner_identifier" => (issue['vulnerability_id']).to_s,
-            "cve_identifiers" => (issue['vulnerability_id']).to_s,
+            "scanner_identifier" => (issue["vulnerability_id"]).to_s,
+            "cve_identifiers" => (issue["vulnerability_id"]).to_s,
             "scanner_type" => scanner_type
           }
 
@@ -194,13 +184,9 @@ module Kenna
           ###
           ### Set Scores based on what was available in the CVD
           ###
-          if vuln_def_attributes["scanner_score"]
-            vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"]
-          end
+          vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"] if vuln_def_attributes["scanner_score"]
 
-          if vuln_def_attributes["override_score"]
-            vuln_attributes["override_score"] = vuln_def_attributes["override_score"]
-          end
+          vuln_attributes["override_score"] = vuln_def_attributes["override_score"] if vuln_def_attributes["override_score"]
 
         end
 

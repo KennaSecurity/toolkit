@@ -1,6 +1,8 @@
-require 'rspec'
+# frozen_string_literal: true
 
-require_relative '../../../lib/toolkit'
+require "rspec"
+
+require_relative "../../../lib/toolkit"
 
 describe "Kenna" do
   describe "Toolkit" do
@@ -19,7 +21,7 @@ describe "Kenna" do
         expect(@riq_secret).to be_a String
       end
 
-      it 'should get the global footprint' do
+      it "should get the global footprint" do
         max_pages = 1
 
         client = Kenna::Toolkit::RiskIq::Client.new(@riq_user, @riq_secret)

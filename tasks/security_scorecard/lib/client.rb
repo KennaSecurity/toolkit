@@ -1,4 +1,6 @@
-require 'csv'
+# frozen_string_literal: true
+
+require "csv"
 
 module Kenna
   module Toolkit
@@ -64,9 +66,9 @@ module Kenna
 
             JSON.parse(response.body.to_s)
           rescue JSON::ParserError => e
-            return nil
+            nil
           rescue RestClient::Unauthorized => e
-            return nil
+            nil
           end
         end
 
@@ -103,10 +105,10 @@ module Kenna
             JSON.parse(response.body.to_s)
           rescue RestClient::InternalServerError => e
             puts "Error! 500 getting #{itype}: #{e}"
-            return {}
+            {}
           rescue JSON::ParserError => e
             puts "Error! Parsing #{itype}: #{e}"
-            return {}
+            {}
           end
         end
 
@@ -169,7 +171,7 @@ module Kenna
           while latest_report_completed_at <= now
             puts "DEBUG Waiting for report to be generatd. Last report generated: #{latest_report_completed_at}"
 
-            last_report = report_list.sort_by { |x| (x['completed_at']).to_s }.reverse.first
+            last_report = report_list.max_by { |x| (x["completed_at"]).to_s }
 
             download_url = last_report["download_url"]
             latest_report_completed_at = Time.parse(last_report["completed_at"])

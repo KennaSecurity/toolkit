@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module RiskIq
@@ -27,9 +29,7 @@ module Kenna
           port_number = sservice["port"] if sservice.is_a? Hash
           port_number = port_number.to_i
 
-          unless sservice["recent"]
-            puts "DEBUG skipping unrecent #{sservice} port"
-          end
+          puts "DEBUG skipping unrecent #{sservice} port" unless sservice["recent"]
 
           ###
           ### handle http ports differently ... todo, standardize this
@@ -112,16 +112,14 @@ module Kenna
               # Hostname
               begin
                 hostname = URI.parse(item["name"]).hostname
-                if !hostname && item["hosts"] && !item["hosts"].empty?
-                  hostname = item["hosts"].first
-                end
+                hostname = item["hosts"].first if !hostname && item["hosts"] && !item["hosts"].empty?
                 hostname ||= item["name"]
               rescue URI::InvalidURIError => e
                 hostname = nil
               end
 
               # get ip address
-              if item["asset"] && (item["asset"]["ipAddress"] || (item["asset"]["ipAddresses"] && item["asset"]["ipAddresses"].first))
+              if item["asset"] && (item["asset"]["ipAddress"] || item["asset"]["ipAddresses"]&.first)
                 # TODO: - we should pull all ip addresses when we can support it in KDI
                 ip_address = item["asset"]["ipAddresses"].first["value"]
                 ip_address ||= item["asset"]["ipAddress"]
@@ -139,14 +137,12 @@ module Kenna
 
               create_kdi_asset(asset)
 
-              if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
-                print_error "UKNOWN item: #{item}"
-              end
+              print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
 
             when "IP_ADDRESS"
 
               asset = {
-                "ip_address" => (item['name']).to_s,
+                "ip_address" => (item["name"]).to_s,
                 # "first_seen" => "#{first_seen}",
                 # "last_seen" => "#{last_seen}",
                 "tags" => tags
@@ -154,9 +150,7 @@ module Kenna
               asset["external_id"] = id.to_s if id
 
               # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
-              if item["asset"]["services"] && item["asset"]["services"].count.positive?
-                create_kdi_asset(asset)
-              end
+              create_kdi_asset(asset) if item["asset"]["services"]&.count&.positive?
 
             when "SSL_CERT"
 
@@ -164,15 +158,9 @@ module Kenna
               sha_name = item["name"]
 
               # grab a hostname
-              if item["asset"] && item["asset"]["subjectAlternativeNames"]
-                hostname = item["asset"]["subjectAlternativeNames"].first
-              end
-              if item["asset"] && item["asset"]["subject"] && !hostname
-                hostname = item["asset"]["subject"]["common_name"]
-              end
-              if item["asset"] && item["asset"]["issuer"] && !hostname
-                hostname = item["asset"]["issuer"]["common_name"]
-              end
+              hostname = item["asset"]["subjectAlternativeNames"].first if item["asset"] && item["asset"]["subjectAlternativeNames"]
+              hostname = item["asset"]["subject"]["common_name"] if item["asset"] && item["asset"]["subject"] && !hostname
+              hostname = item["asset"]["issuer"]["common_name"] if item["asset"] && item["asset"]["issuer"] && !hostname
               hostname ||= "unknown host, unable to get from the certificate"
 
               asset = {
@@ -221,7 +209,7 @@ module Kenna
 
             (item["asset"]["webComponents"] || []).each do |wc|
               # default to derived if no port specified
-              derived_port = (item['asset']['service']).to_s.split(":").last
+              derived_port = (item["asset"]["service"]).to_s.split(":").last
 
               # if you want to create open ports, we need to infer the port from the service
               # in addition to whatever else we've gotten
@@ -231,7 +219,7 @@ module Kenna
                 # if you want to create open ports
                 (wc["cves"] || []).uniq.each do |cve|
                   vuln = {
-                    "scanner_identifier" => (cve['name']).to_s,
+                    "scanner_identifier" => (cve["name"]).to_s,
                     "scanner_type" => "RiskIQ",
                     "port" => port.to_i,
                     # "first_seen" => first_seen,
@@ -240,9 +228,9 @@ module Kenna
                   }
 
                   vuln_def = {
-                    "scanner_identifier" => (cve['name']).to_s,
+                    "scanner_identifier" => (cve["name"]).to_s,
                     "scanner_type" => "RiskIQ",
-                    "cve_identifiers" => (cve['name']).to_s
+                    "cve_identifiers" => (cve["name"]).to_s
                   }
 
                   create_kdi_asset_vuln(asset, vuln)

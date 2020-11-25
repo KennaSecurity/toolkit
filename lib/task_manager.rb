@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module TaskManager
@@ -11,7 +13,7 @@ module Kenna
       end
 
       def self.find_by_id(provided_id)
-        @tasks.select { |x| x.metadata[:id] == provided_id }.first
+        @tasks.find { |x| x.metadata[:id] == provided_id }
       end
     end
   end

@@ -1,5 +1,7 @@
-require 'uri'
-require 'csv'
+# frozen_string_literal: true
+
+require "uri"
+require "csv"
 
 module Kenna
   module Toolkit
@@ -13,7 +15,7 @@ module Kenna
         end
 
         def successfully_authenticated?
-          @token && @token.length.positive?
+          @token&.length&.positive?
         end
 
         def exposure_types

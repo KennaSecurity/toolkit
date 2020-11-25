@@ -5,55 +5,55 @@ module Kenna
     class UserRoleSync < Kenna::Toolkit::BaseTask
       def self.metadata
         {
-          id: 'user_role_sync',
-          name: 'User Role Sync',
-          description: 'This task creates users and assigns them to roles via the API',
+          id: "user_role_sync",
+          name: "User Role Sync",
+          description: "This task creates users and assigns them to roles via the API",
           options: [
-            { name: 'kenna_api_key',
-              type: 'api_key',
+            { name: "kenna_api_key",
+              type: "api_key",
               required: true,
               default: nil,
-              description: 'Kenna API Key' },
-            { name: 'kenna_api_host',
-              type: 'hostname',
+              description: "Kenna API Key" },
+            { name: "kenna_api_host",
+              type: "hostname",
               required: false,
-              default: 'api.kennasecurity.com',
-              description: 'Kenna API Hostname' },
-            { name: 'csv_file',
-              type: 'filename',
+              default: "api.kennasecurity.com",
+              description: "Kenna API Hostname" },
+            { name: "csv_file",
+              type: "filename",
               required: true,
-              default: 'tasks/user_role_sync/users.csv',
+              default: "tasks/user_role_sync/users.csv",
               description: "Path to CSV file with user and role information, relative to #{$basedir}" },
-            { name: 'email_column',
-              type: 'string',
+            { name: "email_column",
+              type: "string",
               required: false,
-              default: 'EmailAddress',
-              description: 'Header for the CSV file column containing an email address' },
-            { name: 'firstname_column',
-              type: 'string',
+              default: "EmailAddress",
+              description: "Header for the CSV file column containing an email address" },
+            { name: "firstname_column",
+              type: "string",
               required: false,
-              default: 'FirstName',
-              description: 'Header for the CSV file column containing a first name' },
-            { name: 'lastname_column',
-              type: 'string',
+              default: "FirstName",
+              description: "Header for the CSV file column containing a first name" },
+            { name: "lastname_column",
+              type: "string",
               required: false,
-              default: 'Lastname',
-              description: 'Header for the CSV file column containing a last name' },
-            { name: 'role_column',
-              type: 'string',
+              default: "Lastname",
+              description: "Header for the CSV file column containing a last name" },
+            { name: "role_column",
+              type: "string",
               required: false,
-              default: 'ADGroup',
-              description: 'Header for the CSV file column containing a role or AD group' },
-            { name: 'remove_users',
-              type: 'boolean',
-              required: false,
-              default: false,
-              description: 'Optional parameter to remove users not in data file from Kenna system' },
-            { name: 'debug',
-              type: 'boolean',
+              default: "ADGroup",
+              description: "Header for the CSV file column containing a role or AD group" },
+            { name: "remove_users",
+              type: "boolean",
               required: false,
               default: false,
-              description: 'Debug Flag' }
+              description: "Optional parameter to remove users not in data file from Kenna system" },
+            { name: "debug",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "Debug Flag" }
           ]
         }
       end
@@ -79,12 +79,12 @@ module Kenna
         # Variables we'll need later
         @role_post_url = "https://#{@api_host}/roles"
         @user_post_url = "https://#{@api_host}/users"
-        @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @api_token }
+        @headers = { "content-type" => "application/json", "X-Risk-Token" => @api_token }
         @role_found = false
-        @role_list = ''
-        @user_list = ''
+        @role_list = ""
+        @user_list = ""
         @user_file_list = []
-        @user_id = ''
+        @user_id = ""
 
         csv_file_path = "#{$basedir}/#{@csv_file}"
         print_good "Attempting to read from #{csv_file_path}"
@@ -98,7 +98,7 @@ module Kenna
         # @user_list = JSON.parse(pull_user_list)
 
         output_filename = "#{$basedir}/output/user-role-sync_log-#{start_time.strftime('%Y%m%dT%H%M')}.txt"
-        @log_output = File.open(output_filename, 'a+')
+        @log_output = File.open(output_filename, "a+")
         @log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now}, start time: #{start_time})\n"
         # binding.pry
 
@@ -113,7 +113,7 @@ module Kenna
         # Iterate through CSV
         # CSV.foreach(@csv_file, :headers => true) do |row|
         # Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
-        CSV.open(csv_file_path, 'r:bom|utf-8', headers: true) do |csv|
+        CSV.open(csv_file_path, "r:bom|utf-8", headers: true) do |csv|
           csv.each do |row|
             email_address = row[@email_col].downcase
             first_name = row[@firstname_col]
@@ -122,19 +122,19 @@ module Kenna
 
             # append to list
             @user_file_list << row[@email_col]
-            print_good '------' if @debug
+            print_good "------" if @debug
             print_good @user_file_list if @debug
-            print_good '------' if @debug
+            print_good "------" if @debug
 
             print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
             @log_output << "\rEmail:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
 
             if role_exists(role_name)
               # Role Doesn't Exist
-              print_error 'Role Already Exists.'
+              print_error "Role Already Exists."
               @log_output << "\rRole Already Exists."
             else
-              print_good 'Role Does Not Exist. Creating Role.'
+              print_good "Role Does Not Exist. Creating Role."
               @log_output << "\rRole Does Not Exist. Creating Role."
               create_role(role_name)
               # Refresh Role List
@@ -143,13 +143,13 @@ module Kenna
 
             if user_exists(email_address)
               # User Doesn't Exist
-              print_error 'User Already Exists. Updating User.'
+              print_error "User Already Exists. Updating User."
               @log_output << "\rUser Already Exists. Updating User."
               update_user(@user_id.to_s, first_name, last_name, email_address, role_name)
-              @user_id = ''
+              @user_id = ""
             else
               # User Exists
-              print_good 'User Does Not Exist. Creating User.'
+              print_good "User Does Not Exist. Creating User."
               @log_output << "\rUser Does Not Exist. Creating User."
               create_user(first_name, last_name, email_address, role_name)
             end
@@ -159,11 +159,11 @@ module Kenna
 
         # Remove Users not included in the new data file
         if @remove_users
-          print_good 'REMOVING USERS!!!'
+          print_good "REMOVING USERS!!!"
           remove_users
         end
 
-        print_good 'DONE!'
+        print_good "DONE!"
         @log_output << "\rDONE!"
         @log_output.close
       end
@@ -198,15 +198,15 @@ module Kenna
       end
 
       def role_exists(role_name)
-        @role_list['roles'].any? { |r1| r1['name'] == role_name }
+        @role_list["roles"].any? { |r1| r1["name"] == role_name }
       end
 
       def create_role(role_name)
         json_data = {
-          'role' =>
+          "role" =>
           {
-            'name' => role_name.strip,
-            'access_level' => 'read'
+            "name" => role_name.strip,
+            "access_level" => "read"
           }
         }
         print_good json_data if @debug
@@ -227,9 +227,9 @@ module Kenna
       def user_exists(email)
         # @user_list["users"].any? {|r1| r1['email']==email}
 
-        user = @user_list['users'].find { |r1| r1['email'] == email.downcase }
+        user = @user_list["users"].find { |r1| r1["email"] == email.downcase }
         if user
-          @user_id = user['id']
+          @user_id = user["id"]
         else
           user
         end
@@ -237,12 +237,12 @@ module Kenna
 
       def create_user(fname, lname, email, role_name)
         json_data = {
-          'user' =>
+          "user" =>
           {
-            'firstname' => fname,
-            'lastname' => lname,
-            'email' => email,
-            'role' => role_name
+            "firstname" => fname,
+            "lastname" => lname,
+            "email" => email,
+            "role" => role_name
           }
         }
         # print_good json_data
@@ -267,23 +267,23 @@ module Kenna
       end
 
       def update_user(uid, fname, lname, email, role_name)
-        user = @user_list['users'].find { |r1| r1['email'] == email.downcase }
+        user = @user_list["users"].find { |r1| r1["email"] == email.downcase }
 
         # binding.pry
 
         # Check for Admin users
-        if user['role'] == 'administrator'
+        if user["role"] == "administrator"
           print_good "User #{email} is Administrator and will not be updated."
           @log_output << "\rUser #{email} is Administrator and will not be updated."
         else
 
           json_data = {
-            'user' =>
+            "user" =>
             {
-              'firstname' => fname,
-              'lastname' => lname,
-              'email' => email,
-              'role' => role_name
+              "firstname" => fname,
+              "lastname" => lname,
+              "email" => email,
+              "role" => role_name
             }
           }
           print_good json_data if @debug
@@ -294,7 +294,7 @@ module Kenna
           # binding.pry
 
           # Check for Role change
-          if user['role'] != role_name
+          if user["role"] != role_name
             print_good "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
             @log_output << "\rROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
           end
@@ -353,7 +353,7 @@ module Kenna
         # binding.pry
         # print_good "in remove_users"
 
-        curr_users_array = field_values(@user_list['users'], 'id', 'email')
+        curr_users_array = field_values(@user_list["users"], "id", "email")
 
         curr_users_array.each do |id, email|
           # binding.pry

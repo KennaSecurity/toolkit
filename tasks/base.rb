@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 # require task-specific libraries etc
 
-require 'date'
-require 'base64'
-require 'tty-pager'
+require "date"
+require "base64"
+require "tty-pager"
 
 module Kenna
   module Toolkit
@@ -55,9 +57,7 @@ module Kenna
 
         # No missing arguments, so let's add in our default arguments now
         self.class.metadata[:options].each do |o|
-          unless o[:default] == "" || !o[:default]
-            print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}"
-          end
+          print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}" unless o[:default] == "" || !o[:default]
           opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym]
           # but still set it to whatever
           # set empty string to nil so it's a little easier to check for that
@@ -71,7 +71,7 @@ module Kenna
         # Convert booleans to an actual false value
         opts.each do |oname, ovalue|
           # get the option specfics by iterating through our hash
-          option_hash = self.class.metadata[:options].select { |a| a[:name] == oname.to_s.strip }.first
+          option_hash = self.class.metadata[:options].find { |a| a[:name] == oname.to_s.strip }
           next unless option_hash
 
           expected_type = option_hash[:type]

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module KdiHelpers
@@ -55,9 +57,7 @@ module Kenna
         # and making sure we don't already have it
 
         if dup_check
-          unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
-            return nil
-          end
+          return nil unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
         end
 
         # create default values
@@ -96,9 +96,9 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
@@ -106,9 +106,9 @@ module Kenna
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
           a = if match_key.nil?
-                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
         end
 
@@ -133,23 +133,21 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
-          a = @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+          a = @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
         end
 
         # Default values & type conversions... just make it work
         finding_hash["triage_state"] = "new" unless finding_hash["triage_state"]
-        unless finding_hash["last_seen_at"]
-          finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d")
-        end
+        finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless finding_hash["last_seen_at"]
 
         # add it in
         a["findings"] = [] unless a["findings"]
@@ -164,16 +162,16 @@ module Kenna
         # check to make sure it doesnt exists
 
         a = if match_key.nil?
-              @paged_assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @paged_assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @paged_assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @paged_assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         unless a
           a = if match_key.nil?
-                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
           if a
             @paged_assets << a
@@ -189,15 +187,13 @@ module Kenna
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
-        unless vuln_hash["last_seen_at"]
-          vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d")
-        end
+        vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
 
         # add it in
         a["vulns"] = [] unless a["vulns"]
         a["vulns"] << vuln_hash
 
-        return true
+        true
       end
 
       def clear_data_arrays
@@ -221,9 +217,7 @@ module Kenna
       def create_kdi_vuln_def(vuln_def)
         kdi_initialize unless @vuln_defs
 
-        unless @vuln_defs.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
-          return
-        end
+        return unless @vuln_defs.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
 
         @vuln_defs << vuln_def
 

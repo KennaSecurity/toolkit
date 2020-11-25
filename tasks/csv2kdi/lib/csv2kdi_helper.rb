@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module Csv2kdihelper
       def generate_kdi_file
-        { skip_autoclose: ($skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+        { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
       end
 
       def create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
@@ -14,35 +16,23 @@ module Kenna
 
         case $map_locator
         when "ip_address"
-          unless $assets.select { |a| a[:ip_address] == ip_address }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:ip_address] == ip_address }.empty?
         when "hostname"
-          unless $assets.select { |a| a[:hostname] == hostname }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:hostname] == hostname }.empty?
         when "file"
           return success unless $assets.select { |a| a[:file] == file }.empty?
         when "mac_address"
-          unless $assets.select { |a| a[:mac_address] == mac_address }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:mac_address] == mac_address }.empty?
         when "netbios"
-          unless $assets.select { |a| a[:netbios] == netbios }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:netbios] == netbios }.empty?
         when "ec2"
           return success unless $assets.select { |a| a[:ec2] == ec2 }.empty?
         when "fqdn"
           return success unless $assets.select { |a| a[:fqdn] == fqdn }.empty?
         when "external_id"
-          unless $assets.select { |a| a[:external_id] == external_id }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:external_id] == external_id }.empty?
         when "database"
-          unless $assets.select { |a| a[:database] == database }.empty?
-            return success
-          end
+          return success unless $assets.select { |a| a[:database] == database }.empty?
         when "url"
           return success unless $assets.select { |a| a[:url] == url }.empty?
         else
@@ -52,48 +42,28 @@ module Kenna
         end
 
         tmpassets << { file: file.to_s } unless file.nil? || file.empty?
-        unless ip_address.nil? || ip_address.empty?
-          tmpassets << { ip_address: ip_address }
-        end
-        unless mac_address.nil? || mac_address.empty?
-          tmpassets << { mac_address: mac_address }
-        end
-        unless hostname.nil? || hostname.empty?
-          tmpassets << { hostname: hostname }
-        end
+        tmpassets << { ip_address: ip_address } unless ip_address.nil? || ip_address.empty?
+        tmpassets << { mac_address: mac_address } unless mac_address.nil? || mac_address.empty?
+        tmpassets << { hostname: hostname } unless hostname.nil? || hostname.empty?
         tmpassets << { ec2: ec2.to_s } unless ec2.nil? || ec2.empty?
-        unless netbios.nil? || netbios.empty?
-          tmpassets << { netbios: netbios.to_s }
-        end
+        tmpassets << { netbios: netbios.to_s } unless netbios.nil? || netbios.empty?
         tmpassets << { url: url.to_s } unless url.nil? || url.empty?
         tmpassets << { fqdn: fqdn.to_s } unless fqdn.nil? || fqdn.empty?
-        unless external_id.nil? || external_id.empty?
-          tmpassets << { external_id: external_id.to_s }
-        end
-        unless database.nil? || database.empty?
-          tmpassets << { database: database.to_s }
-        end
-        unless application.nil? || application.empty?
-          tmpassets << { application: application.to_s }
-        end
+        tmpassets << { external_id: external_id.to_s } unless external_id.nil? || external_id.empty?
+        tmpassets << { database: database.to_s } unless database.nil? || database.empty?
+        tmpassets << { application: application.to_s } unless application.nil? || application.empty?
         tmpassets << { tags: tags } unless tags.nil? || tags.empty?
         tmpassets << { owner: owner.to_s } unless owner.nil? || owner.empty?
         tmpassets << { os: os.to_s } unless os.nil? || os.empty?
-        unless os_version.nil? || os_version.to_s.empty?
-          tmpassets << { os_version: os_version.to_s }
-        end
-        unless priority.nil? || priority.to_s.empty?
-          tmpassets << { priority: priority }
-        end
+        tmpassets << { os_version: os_version.to_s } unless os_version.nil? || os_version.to_s.empty?
+        tmpassets << { priority: priority } unless priority.nil? || priority.to_s.empty?
         tmpassets << { vulns: [] }
 
-        if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
-          success = false
-        end
+        success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
         $assets << tmpassets.reduce(&:merge) if success
 
-        return success
+        success
       end
 
       def create_asset_vuln(hostname, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
@@ -102,25 +72,25 @@ module Kenna
         # find the asset
         case $map_locator
         when "ip_address"
-          asset = $assets.select { |a| a[:ip_address] == ip_address }.first
+          asset = $assets.find { |a| a[:ip_address] == ip_address }
         when "hostname"
-          asset = $assets.select { |a| a[:hostname] == hostname }.first
+          asset = $assets.find { |a| a[:hostname] == hostname }
         when "file"
-          asset = $assets.select { |a| a[:file] == file }.first
+          asset = $assets.find { |a| a[:file] == file }
         when "mac_address"
-          asset = $assets.select { |a| a[:mac_address] == mac_address }.first
+          asset = $assets.find { |a| a[:mac_address] == mac_address }
         when "netbios"
-          asset = $assets.select { |a| a[:netbios] == netbios }.first
+          asset = $assets.find { |a| a[:netbios] == netbios }
         when "url"
-          asset = $assets.select { |a| a[:url] == url }.first
+          asset = $assets.find { |a| a[:url] == url }
         when "ec2"
-          asset = $assets.select { |a| a[:ec2] == ec2 }.first
+          asset = $assets.find { |a| a[:ec2] == ec2 }
         when "fqdn"
-          asset = $assets.select { |a| a[:fqdn] == fqdn }.first
+          asset = $assets.find { |a| a[:fqdn] == fqdn }
         when "external_id"
-          asset = $assets.select { |a| a[:external_id] == external_id }.first
+          asset = $assets.find { |a| a[:external_id] == external_id }
         when "database"
-          asset = $assets.select { |a| a[:database] == database }.first
+          asset = $assets.find { |a| a[:database] == database }
         else
           "Error: main locator not provided" if @debug
         end
@@ -133,9 +103,7 @@ module Kenna
         assetvulns << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s }
         assetvulns << { details: details.to_s } unless details.nil?
         assetvulns << { created_at: created.to_s } unless created.nil?
-        unless scanner_score.nil? || scanner_score.zero?
-          assetvulns << { scanner_score: scanner_score }
-        end
+        assetvulns << { scanner_score: scanner_score } unless scanner_score.nil? || scanner_score.zero?
         assetvulns << { last_fixed_on: last_fixed.to_s } unless last_fixed.nil?
         assetvulns << { last_seen_at: last_seen.to_s } unless last_seen.nil?
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
@@ -148,22 +116,12 @@ module Kenna
       def create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)
         vuln_def = []
         vuln_def << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s }
-        unless cve_id.nil? || cve_id.empty?
-          vuln_def << { cve_identifiers: cve_id.to_s }
-        end
-        unless wasc_id.nil? || wasc_id.empty?
-          vuln_def << { wasc_identifiers: wasc_id.to_s }
-        end
-        unless cwe_id.nil? || cwe_id.empty?
-          vuln_def << { cwe_identifiers: cwe_id.to_s }
-        end
+        vuln_def << { cve_identifiers: cve_id.to_s } unless cve_id.nil? || cve_id.empty?
+        vuln_def << { wasc_identifiers: wasc_id.to_s } unless wasc_id.nil? || wasc_id.empty?
+        vuln_def << { cwe_identifiers: cwe_id.to_s } unless cwe_id.nil? || cwe_id.empty?
         vuln_def << { name: name.to_s } unless name.nil? || name.empty?
-        unless description.nil? || description.empty?
-          vuln_def << { description: description.to_s }
-        end
-        unless solution.nil? || solution.empty?
-          vuln_def << { solution: solution.to_s }
-        end
+        vuln_def << { description: description.to_s } unless description.nil? || description.empty?
+        vuln_def << { solution: solution.to_s } unless solution.nil? || solution.empty?
 
         $vuln_defs << vuln_def.reduce(&:merge)
       end

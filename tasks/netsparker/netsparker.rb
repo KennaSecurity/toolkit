@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     class Netsparker < Kenna::Toolkit::BaseTask
@@ -60,9 +62,7 @@ module Kenna
         # kenna_connector_id = @options[:kenna_connector_id]
 
         # create new timestamped folder for this script run
-        unless File.exist?(output_directory.to_s)
-          FileUtils.mkdir_p(output_directory.to_s)
-        end
+        FileUtils.mkdir_p(output_directory.to_s) unless File.exist?(output_directory.to_s)
 
         # grab the list of websites. Note that this is net new to dbro's script and
         # untested. Update when it's been tested!
@@ -110,7 +110,7 @@ module Kenna
           response = RestClient::Request.execute(
             method: :get,
             url: "#{scan_post_url} + #{scan_id}",
-            headers: { 'Accept' => 'application/xml', 'Authorization' => "Basic #{@netsparker_token}" }
+            headers: { "Accept" => "application/xml", "Authorization" => "Basic #{@netsparker_token}" }
           )
         rescue StandardError => e
           print_error e.message
@@ -133,7 +133,7 @@ module Kenna
             response = RestClient::Request.execute(
               method: :get,
               url: website_list_url.to_s,
-              headers: { 'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}" }
+              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
             )
 
             # convert to JSON
@@ -171,7 +171,7 @@ module Kenna
             response = RestClient::Request.execute(
               method: :get,
               url: scan_list_url.to_s,
-              headers: { 'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}" }
+              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
             )
 
             # convert to JSON

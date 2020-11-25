@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     class AssetUploadTag < Kenna::Toolkit::BaseTask
@@ -66,7 +68,7 @@ module Kenna
         # Variables we'll need later
         @debug = true
         @post_url = "https://#{@options[:kenna_api_host]}/assets"
-        @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @token }
+        @headers = { "content-type" => "application/json", "X-Risk-Token" => @token }
 
         @tag_columns = []
 
@@ -116,17 +118,17 @@ module Kenna
 
           print_good ip_address.to_s
           json_data = {
-            'asset' => {
-              'primary_locator' => @primary_locator.to_s,
-              'ip_address' => ip_address.to_s,
-              'hostname' => hostname.to_s,
-              'database' => database.to_s,
-              'url' => url.to_s,
-              'mac_address' => mac_address.to_s,
-              'netbios' => netbios.to_s,
-              'fqdn' => fqdn.to_s,
-              'file' => file_name.to_s,
-              'application' => application_name.to_s
+            "asset" => {
+              "primary_locator" => @primary_locator.to_s,
+              "ip_address" => ip_address.to_s,
+              "hostname" => hostname.to_s,
+              "database" => database.to_s,
+              "url" => url.to_s,
+              "mac_address" => mac_address.to_s,
+              "netbios" => netbios.to_s,
+              "fqdn" => fqdn.to_s,
+              "file" => file_name.to_s,
+              "application" => application_name.to_s
             }
           }
 
@@ -210,8 +212,8 @@ module Kenna
 
           unless tag_string.empty?
             tag_update_json = {
-              'asset' => {
-                'tags' => tag_string.to_s
+              "asset" => {
+                "tags" => tag_string.to_s
               }
 
             } ## Push tags to assets
@@ -240,30 +242,30 @@ module Kenna
       end
 
       def set_field_mappings(csv_file) # rubocop:disable Naming/AccessorMethodName
-        CSV.parse(File.open(csv_file, 'r:iso-8859-1:utf-8', &:read), headers: true) do |row|
-          case row['Kenna Field']
-          when 'ip_address'
-            @ip_address_col = row['Customer Field']
-          when 'hostname'
-            @hostname_col = row['Customer Field']
-          when 'url'
-            @url_col = row['Customer Field']
-          when 'mac_address'
-            @mac_address_col = row['Customer Field']
-          when 'database'
-            @database_col = row['Customer Field']
-          when 'netbios'
-            @netbios_col = row['Customer Field']
-          when 'fqdn'
-            @fqdn_col = row['Customer Field']
-          when 'file_name'
-            @file_name_col = row['Customer Field']
-          when 'application'
-            @application_col = row['Customer Field']
+        CSV.parse(File.open(csv_file, "r:iso-8859-1:utf-8", &:read), headers: true) do |row|
+          case row["Kenna Field"]
+          when "ip_address"
+            @ip_address_col = row["Customer Field"]
+          when "hostname"
+            @hostname_col = row["Customer Field"]
+          when "url"
+            @url_col = row["Customer Field"]
+          when "mac_address"
+            @mac_address_col = row["Customer Field"]
+          when "database"
+            @database_col = row["Customer Field"]
+          when "netbios"
+            @netbios_col = row["Customer Field"]
+          when "fqdn"
+            @fqdn_col = row["Customer Field"]
+          when "file_name"
+            @file_name_col = row["Customer Field"]
+          when "application"
+            @application_col = row["Customer Field"]
           end
         end
 
-        print_good 'Finished with field mapping'
+        print_good "Finished with field mapping"
       end
 
       def set_tag_mapping(csv_file) # rubocop:disable Naming/AccessorMethodName

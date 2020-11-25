@@ -1,4 +1,5 @@
-# rubocop:disable Metrics/ClassLength
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module Data
@@ -14,7 +15,7 @@ module Kenna
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore
             ###
-            orig_vuln_id = (specific_details['scanner_identifier']).to_s.downcase.gsub(" ", "_").gsub("-", "_")
+            orig_vuln_id = (specific_details["scanner_identifier"]).to_s.downcase.tr(" ", "_").tr("-", "_")
 
             # orig_description = specific_details["description"]
             # orig_recommendation = specific_details["recommendation"]
@@ -26,7 +27,7 @@ module Kenna
               map[:matches].each do |match|
                 next unless match[:source] == orig_source
 
-                next unless match[:vuln_id] =~ orig_vuln_id
+                next unless match[:vuln_id]&.match?(orig_vuln_id)
 
                 out = {
                   scanner_type: orig_source,
@@ -57,7 +58,7 @@ module Kenna
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
-                source: orig_source,
+                source: orig_source
               }.stringify_keys.merge(specific_details)
             end
 
@@ -88,7 +89,7 @@ module Kenna
             stats
           end
 
-          def self._mapping_data # rubocop:disable Metrics/MethodLength
+          def self._mapping_data
             [
               {
                 name: "Application Content Security Policy Issue",
@@ -137,7 +138,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^x_frame_options_incorrect$/
-                  },
+                  }
                 ]
               },
               {
@@ -175,7 +176,7 @@ module Kenna
                   {
                     source: "Expanse",
                     vuln_id: /^detected_webserver$/
-                  },
+                  }
                   # {
                   #  source: "Expanse",
                   #  vuln_id: /^web_servers?$/
@@ -192,7 +193,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^no_standard_browser_policy$/
-                  },
+                  }
                 ]
               },
               {
@@ -217,7 +218,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^outdated_browser$/
-                  },
+                  }
                 ]
               },
               {
@@ -531,7 +532,7 @@ module Kenna
                   {
                     source: "Bitsight",
                     vuln_id: /^mobile_application_security$/
-                  },
+                  }
                 ]
               },
               {
@@ -560,7 +561,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^non_malware_events_last_month$/
-                  },
+                  }
                 ]
               },
               {
@@ -660,7 +661,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^ssh_weak_protocl$/
-                  },
+                  }
                 ]
               },
               {
@@ -697,7 +698,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^spf_record_missing$/
-                  },
+                  }
                 ]
               },
               {
@@ -845,7 +846,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^tor_node_events_last_month$/
-                  },
+                  }
                 ]
               },
               {
@@ -972,7 +973,7 @@ module Kenna
                   {
                     source: "SecurityScorecard",
                     vuln_id: /^ddos_protection$/
-                  },
+                  }
                 ]
               }
             ]
@@ -982,4 +983,3 @@ module Kenna
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
