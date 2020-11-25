@@ -55,7 +55,9 @@ module Kenna
         # and making sure we don't already have it
 
         if dup_check
-          return nil unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
+          unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
+            return nil
+          end
         end
 
         # create default values
@@ -145,7 +147,9 @@ module Kenna
 
         # Default values & type conversions... just make it work
         finding_hash["triage_state"] = "new" unless finding_hash["triage_state"]
-        finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless finding_hash["last_seen_at"]
+        unless finding_hash["last_seen_at"]
+          finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d")
+        end
 
         # add it in
         a["findings"] = [] unless a["findings"]
@@ -178,12 +182,16 @@ module Kenna
         end
 
         # SAnity check to make sure we are pushing data into the correct asset
-        return false unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+        return false unless a
+
+        # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
-        vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
+        unless vuln_hash["last_seen_at"]
+          vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d")
+        end
 
         # add it in
         a["vulns"] = [] unless a["vulns"]
@@ -213,7 +221,9 @@ module Kenna
       def create_kdi_vuln_def(vuln_def)
         kdi_initialize unless @vuln_defs
 
-        return unless @vuln_defs.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
+        unless @vuln_defs.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
+          return
+        end
 
         @vuln_defs << vuln_def
 

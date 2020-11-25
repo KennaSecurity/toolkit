@@ -155,7 +155,9 @@ module Kenna
               )
 
               connector_check_json = JSON.parse(connector_check_response)['connector']
-              print_good "#{connector_check_json['name']} connector running!" if connector_check_json["running"]
+              if connector_check_json["running"]
+                print_good "#{connector_check_json['name']} connector running!"
+              end
 
               # check our value to see if we need to keep going
               running = connector_check_json["running"]
@@ -229,7 +231,9 @@ module Kenna
             )
 
             connector_check_json = JSON.parse(connector_check_response)['connector']
-            print_good "#{connector_check_json['name']} connector running!" if connector_check_json["running"]
+            if connector_check_json["running"]
+              print_good "#{connector_check_json['name']} connector running!"
+            end
 
             # check our value to see if we need to keep going
             running = connector_check_json["running"]

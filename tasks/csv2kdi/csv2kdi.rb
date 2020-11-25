@@ -93,7 +93,7 @@ module Kenna
         $assets = []
         $vuln_defs = []
         $mapping_array = []
-        $date_format_in = ''
+        $Date_Format_In = ''
         # meta = $basedir/@meta_file
 
         CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", 'r:iso-8859-1:utf-8', &:read), headers: @has_header.eql?('true') ? true : false) do |row|
@@ -101,7 +101,7 @@ module Kenna
           $mapping_array.compact
         end
         # headers =
-        $date_format_in = $mapping_array.assoc('date_format').last.to_s
+        $Date_Format_In = $mapping_array.assoc('date_format').last.to_s
         $map_locator = $mapping_array.assoc('locator').last.to_s
         map_file = $mapping_array.assoc('file').last.to_s
         map_ip_address = $mapping_array.assoc('ip_address').last.to_s
@@ -144,14 +144,15 @@ module Kenna
           status_map_string = $mapping_array.assoc('status_map').last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
-        end # Added for ASSET ONLY Run
+        end
+        # Added for ASSET ONLY Run
 
         # Configure Date format
         ###########################
         # CUSTOMIZE Date format
         ###########################
-        # date_format_in = "%m/%d/%Y %H:%M"
-        date_format_KDI = "%Y-%m-%d-%H:%M:%S"
+        # Date_Format_In = "%m/%d/%Y %H:%M"
+        Date_Format_KDI = "%Y-%m-%d-%H:%M:%S"
 
         CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:bom|utf-8', &:read), headers: @has_header) do |row|
           ##################
@@ -160,7 +161,8 @@ module Kenna
           # Asset settings #
           ##################
 
-          locator = row[$map_locator.to_s] # field used to compare for dupes
+          # locator = row[$map_locator.to_s] # field used to compare for dupes
+          # ^ Commented Out 11/25/2020 Since Not Used - JG.
           file = row[map_file.to_s] # (string) path to affected file
           ip_address = row[map_ip_address.to_s] # (string) ip_address of internal facing asset
           mac_address = row[map_mac_address.to_s] # (mac format-regex) MAC address asset
@@ -175,7 +177,7 @@ module Kenna
           application = row[map_application.to_s] # (string) ID/app Name
 
           # Added for ASSET ONLY Run
-          if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false) then hostname += ".#{@domain_suffix}" end
+          hostname += ".#{@domain_suffix}" if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false)
 
           #########################
           # Asset Metadata fields #
@@ -245,23 +247,24 @@ module Kenna
             name = row[map_name.to_s] # (string) Name/title of Vuln
             description = row[map_description.to_s] # (string) Description
             solution = row[map_solution.to_s] # (string) Solution
-          end # Added for ASSET ONLY Run
+          end
+          # Added for ASSET ONLY Run
 
           # #call the methods that will build the json now##
 
           status = "open" if status.nil? || status.empty?
           # Convert the dates
-          created = Time.strptime(created, $date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
-          last_fixed = Time.strptime(last_fixed, $date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
+          created = Time.strptime(created, $Date_Format_In).strftime(Date_Format_KDI) unless created.nil? || created.empty?
+          last_fixed = Time.strptime(last_fixed, $Date_Format_In).strftime(Date_Format_KDI) unless last_fixed.nil? || last_fixed.empty?
 
           last_seen = if last_seen.nil? || last_seen.empty?
                         # last_seen = "2019-03-01-14:00:00"
-                        Time.now.strftime(date_format_KDI)
+                        Time.now.strftime(Date_Format_KDI)
                       else
-                        Time.strptime(last_seen, $date_format_in).strftime(date_format_KDI)
+                        Time.strptime(last_seen, $Date_Format_In).strftime(Date_Format_KDI)
                       end
 
-          closed = Time.strptime(closed, $date_format_in).strftime(date_format_KDI) unless closed.nil?
+          closed = Time.strptime(closed, $Date_Format_In).strftime(Date_Format_KDI) unless closed.nil?
 
           ### CREATE THE ASSET
           done = create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)

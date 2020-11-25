@@ -187,7 +187,9 @@ module Kenna
                   max_results: 10,
                 }
 
-                query_criteria[:next_token] = next_token if next_token.is_a? String
+                if next_token.is_a? String
+                  query_criteria[:next_token] = next_token
+                end
 
                 resp = client.list_findings(query_criteria)
                 finding_ids.concat resp.finding_ids

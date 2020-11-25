@@ -36,17 +36,17 @@ module Kenna
               required: false,
               default: nil,
               description: "If set, we'll try to upload to this connector" },
-            { name: "projectName_strip_colon",
+            { name: "ProjectName_Strip_Colon",
               type: "boolean",
               required: false,
               default: false,
               description: "strip colon and following data from Project Name - used as application identifier" },
-            { name: "packageManager_strip_colon",
+            { name: "PackageManager_strip_colon",
               type: "boolean",
               required: false,
               default: false,
-              description: "strip colon and following data from packageManager - used in asset file locator" },
-            { name: "package_strip_colon",
+              description: "strip colon and following data from PackageManager - used in asset file locator" },
+            { name: "Package_Strip_Colon",
               type: "boolean",
               required: false,
               default: false,
@@ -70,12 +70,13 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
 
-        output_directory = @options[:output_directory]
+        # output_directory = @options[:output_directory]
+        # Not Used - Commented Out - 11/25/2020 - JG
         include_license = @options[:include_license]
 
-        projectName_strip_colon = @options[:projectName_strip_colon]
-        packageManager_strip_colon = @options[:packageManager_strip_colon]
-        package_strip_colon = @options[:package_strip_colon]
+        ProjectName_Strip_Colon = @options[:ProjectName_Strip_Colon]
+        PackageManager_strip_colon = @options[:PackageManager_strip_colon]
+        Package_Strip_Colon = @options[:Package_Strip_Colon]
 
         org_json = snyk_get_orgs(snyk_api_token)
         projects = []
@@ -133,38 +134,33 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            if projectName_strip_colon && !application.rindex(':').nil?
-              application = application.slice(0..(application.rindex(':') - 1))
-            end
+            application = application.slice(0..(application.rindex(':') - 1)) if ProjectName_Strip_Colon && !application.rindex(':').nil?
 
-            packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
+            PackageManager = issue.fetch("PackageManager") if issue.key?("PackageManager")
             package = issue.fetch("package")
-            if project.key?("targetFile")
-              targetFile = project.fetch("targetFile")
+            if project.key?("TargetFile")
+              TargetFile = project.fetch("TargetFile")
             else
-              print_debug = "using strip colon params if set"
-              if !packageManager.nil? && !packageManager.empty?
-                if packageManager_strip_colon && !packageManager.rindex(':').nil?
-                  packageManager = packageManager.slice(0..(packageManager.rindex(':') - 1))
-                end
+              # print_debug = "using strip colon params if set"
+              # Not Used - Commented Out 11/25/2020 - JG 
+              if !PackageManager.nil? && !PackageManager.empty?
+                PackageManager = PackageManager.slice(0..(PackageManager.rindex(':') - 1)) if PackageManager_strip_colon && !PackageManager.rindex(':').nil?
               end
               if !package.nil? && !package.empty?
-                if package_strip_colon && !package.rindex(':').nil?
-                  package = package.slice(0..(package.rindex(':') - 1))
-                end
+                package = package.slice(0..(package.rindex(':') - 1)) if Package_Strip_Colon && !package.rindex(':').nil?
               end
-              targetFile = packageManager.to_s unless packageManager.nil?
-              targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
-              targetFile = "#{targetFile}#{package}"
+              TargetFile = PackageManager.to_s unless PackageManager.nil?
+              TargetFile = "#{TargetFile}/" if !PackageManager.nil? && !package.nil?
+              TargetFile = "#{TargetFile}#{package}"
             end
 
             tags = []
             tags << project.fetch("source") if project.key?("source")
-            tags << packageManager if !packageManager.nil? && !packageManager.empty?
+            tags << PackageManager if !PackageManager.nil? && !PackageManager.empty?
 
             asset = {
 
-              "file" => targetFile,
+              "file" => TargetFile,
               "application" => application,
               "tags" => tags
 

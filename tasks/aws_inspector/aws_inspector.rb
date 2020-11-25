@@ -131,7 +131,9 @@ module Kenna
       def create_asset_vuln(fqdn, cve_id)
         # check to make sure it doesnt exist
         asset = @assets.select { |a| a[:fqdn] == fqdn }.first
-        return unless asset[:vulns].select { |v| v[:scanner_identifier] == cve_id }.empty?
+        unless asset[:vulns].select { |v| v[:scanner_identifier] == cve_id }.empty?
+          return
+        end
 
         asset[:vulns] << {
           scanner_identifier: cve_id.to_s,
@@ -143,7 +145,9 @@ module Kenna
       end
 
       def create_vuln_def(cve_id)
-        return unless @vuln_defs.select { |a| a[:cve_identifiers] == cve_id }.empty?
+        unless @vuln_defs.select { |a| a[:cve_identifiers] == cve_id }.empty?
+          return
+        end
 
         @vuln_defs << {
           scanner_identifier: cve_id.to_s,

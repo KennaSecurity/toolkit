@@ -89,7 +89,9 @@ module Kenna
           end
 
           issue_json.each do |issue_obj|
-            os = issue_obj["node_os"] unless issue_obj["node_os"].nil? || issue_obj["node_os"].empty?
+            unless issue_obj["node_os"].nil? || issue_obj["node_os"].empty?
+              os = issue_obj["node_os"]
+            end
             tags = []
 
             unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
@@ -104,7 +106,9 @@ module Kenna
             unless issue_obj["node_vendor"].nil? || issue_obj["node_vendor"].empty?
               tags << "Vendor:#{issue_obj['node_vendor']}"
             end
-            tags << "Zone:#{issue_obj['zone']}" unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
+            unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
+              tags << "Zone:#{issue_obj['zone']}"
+            end
 
             host_identifier = issue_obj.fetch("node_id")
 
@@ -117,7 +121,9 @@ module Kenna
             if external_id_key && !issue_obj[external_id_key].nil? && !issue_obj[external_id_key].empty?
               external_id = issue_obj[external_id_key]
             end
-            hostname = issue_obj["node_label"] unless issue_obj["node_label"].nil? || issue_obj["node_label"].empty?
+            unless issue_obj["node_label"].nil? || issue_obj["node_label"].empty?
+              hostname = issue_obj["node_label"]
+            end
 
             asset = {
 
@@ -148,8 +154,12 @@ module Kenna
             cve = nil
             cwe = nil
 
-            cve = issue_obj.fetch("cve") unless issue_obj.fetch("cve").nil? || issue_obj.fetch("cve").empty?
-            cwe = issue_obj.fetch("cwe_id") unless issue_obj.fetch("cwe_id").nil? || issue_obj.fetch("cwe_id").empty?
+            unless issue_obj.fetch("cve").nil? || issue_obj.fetch("cve").empty?
+              cve = issue_obj.fetch("cve")
+            end
+            unless issue_obj.fetch("cwe_id").nil? || issue_obj.fetch("cwe_id").empty?
+              cwe = issue_obj.fetch("cwe_id")
+            end
             if cwe == "[unclassified]" || !cve.nil?
               cwe = nil
             else

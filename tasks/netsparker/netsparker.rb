@@ -60,7 +60,9 @@ module Kenna
         # kenna_connector_id = @options[:kenna_connector_id]
 
         # create new timestamped folder for this script run
-        FileUtils.mkdir_p(output_directory.to_s) unless File.exist?(output_directory.to_s)
+        unless File.exist?(output_directory.to_s)
+          FileUtils.mkdir_p(output_directory.to_s)
+        end
 
         # grab the list of websites. Note that this is net new to dbro's script and
         # untested. Update when it's been tested!

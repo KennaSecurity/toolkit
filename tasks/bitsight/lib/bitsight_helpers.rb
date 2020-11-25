@@ -147,7 +147,9 @@ module Kenna
             finding["details"]["vulnerabilities"].each do |v|
               cve_id = v["name"]
               print_debug "Got CVE: #{cve_id}"
-              print_error "ERROR! Unknown vulnerability!" unless cve_id =~ /cve-/i
+              unless cve_id =~ /cve-/i
+                print_error "ERROR! Unknown vulnerability!"
+              end
               create_cve_vuln(cve_id, finding, asset_attributes)
             end
 
@@ -201,7 +203,9 @@ module Kenna
         }
 
         # set the port if it's available
-        vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i if finding["details"]
+        if finding["details"]
+          vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i
+        end
 
         # def create_kdi_asset_vuln(asset_id, asset_locator, args)
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
@@ -238,14 +242,20 @@ module Kenna
         }
 
         # set the port if it's available
-        vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i if finding["details"]
+        if finding["details"]
+          vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i
+        end
 
         ###
         ### Set Scores based on what was available in the CVD
         ###
-        vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
+        if cvd["scanner_score"]
+          vuln_attributes["scanner_score"] = cvd["scanner_score"]
+        end
 
-        vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
+        if cvd["override_score"]
+          vuln_attributes["override_score"] = cvd["override_score"]
+        end
 
         # def create_kdi_asset_vuln(asset_id, asset_locator, args)
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)

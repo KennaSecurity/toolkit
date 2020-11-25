@@ -96,9 +96,13 @@ module Kenna
             }
 
             ### Set Scores based on what was available in the CVD
-            vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
+            if cvd["scanner_score"]
+              vuln_attributes["scanner_score"] = cvd["scanner_score"]
+            end
 
-            vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
+            if cvd["override_score"]
+              vuln_attributes["override_score"] = cvd["override_score"]
+            end
 
             # Create the vuln
             create_kdi_asset_vuln(r["asset"], vuln_attributes)
@@ -165,9 +169,13 @@ module Kenna
               vuln_attributes = r["vuln"]
 
               ### Set Scores based on what was available in the CVD
-              vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
+              if cvd["scanner_score"]
+                vuln_attributes["scanner_score"] = cvd["scanner_score"]
+              end
 
-              vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
+              if cvd["override_score"]
+                vuln_attributes["override_score"] = cvd["override_score"]
+              end
 
               # Create the vuln
               create_kdi_asset_vuln(r["asset"], vuln_attributes)
@@ -210,7 +218,9 @@ module Kenna
                         temp = ["Expanse"] # always tag as 'Expanse'
 
                         # Handle legacy businessUnit tag
-                        temp << "businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
+                        if x.key?('businessUnit')
+                          temp << "businessUnit:#{x['businessUnit']['name']}"
+                        end
 
                         # Handle new businessUnits (plural) tag
                         if x.key?('businessUnits')

@@ -23,11 +23,13 @@ module Kenna
           create_kdi_vuln_def(vuln_def)
         end
 
-        def create_open_port_vuln(asset, service, _first_seen, _last_seen)
+        def create_open_port_vuln(asset, _service, _first_seen, _last_seen)
           port_number = sservice["port"] if sservice.is_a? Hash
           port_number = port_number.to_i
 
-          puts "DEBUG skipping unrecent #{sservice} port" unless sservice["recent"]
+          unless sservice["recent"]
+            puts "DEBUG skipping unrecent #{sservice} port"
+          end
 
           ###
           ### handle http ports differently ... todo, standardize this
@@ -110,7 +112,9 @@ module Kenna
               # Hostname
               begin
                 hostname = URI.parse(item["name"]).hostname
-                hostname = item["hosts"].first if !hostname && item["hosts"] && !item["hosts"].empty?
+                if !hostname && item["hosts"] && !item["hosts"].empty?
+                  hostname = item["hosts"].first
+                end
                 hostname ||= item["name"]
               rescue URI::InvalidURIError => e
                 hostname = nil
@@ -135,7 +139,9 @@ module Kenna
 
               create_kdi_asset(asset)
 
-              print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
+              if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
+                print_error "UKNOWN item: #{item}"
+              end
 
             when "IP_ADDRESS"
 
@@ -148,7 +154,9 @@ module Kenna
               asset["external_id"] = id.to_s if id
 
               # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
-              create_kdi_asset(asset) if item["asset"]["services"] && item["asset"]["services"].count.positive?
+              if item["asset"]["services"] && item["asset"]["services"].count.positive?
+                create_kdi_asset(asset)
+              end
 
             when "SSL_CERT"
 
@@ -162,7 +170,9 @@ module Kenna
               if item["asset"] && item["asset"]["subject"] && !hostname
                 hostname = item["asset"]["subject"]["common_name"]
               end
-              hostname = item["asset"]["issuer"]["common_name"] if item["asset"] && item["asset"]["issuer"] && !hostname
+              if item["asset"] && item["asset"]["issuer"] && !hostname
+                hostname = item["asset"]["issuer"]["common_name"]
+              end
               hostname ||= "unknown host, unable to get from the certificate"
 
               asset = {

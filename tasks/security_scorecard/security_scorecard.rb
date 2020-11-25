@@ -75,13 +75,19 @@ module Kenna
         # Converted Csv only
         asset_attributes["hostname"] = issue["hostname"] if issue["hostname"]
 
-        asset_attributes["hostname"] = issue["subdomain"] if issue["subdomain"] && !issue["hostname"]
+        if issue["subdomain"] && !issue["hostname"]
+          asset_attributes["hostname"] = issue["subdomain"]
+        end
 
-        asset_attributes["hostname"] = issue["common_name"] if issue["common_name"] && !issue["hostname"]
+        if issue["common_name"] && !issue["hostname"]
+          asset_attributes["hostname"] = issue["common_name"]
+        end
 
         ### End converted csv-only stuff
 
-        asset_attributes["ip_address"] = issue["ip_address"] if issue["ip_address"]
+        if issue["ip_address"]
+          asset_attributes["ip_address"] = issue["ip_address"]
+        end
 
         asset_attributes["url"] = issue["initial_url"] if issue["initial_url"]
 
@@ -110,7 +116,9 @@ module Kenna
         last_seen = issue["last_seen_time"]
 
         if issue["connection_attributes"]
-          port = issue["connection_attributes"]["dst_port"] if issue["connection_attributes"].is_a? Hash
+          if issue["connection_attributes"].is_a? Hash
+            port = issue["connection_attributes"]["dst_port"]
+          end
         elsif issue["port"]
           port = issue["port"]
         end

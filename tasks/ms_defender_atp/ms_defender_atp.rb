@@ -100,11 +100,21 @@ module Kenna
           # Construct tags
           tags = []
           tags << "MSDefenderAtp"
-          tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
-          tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
-          tags << "ATP Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
-          tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
-          tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
+          unless machine.fetch("riskScore").nil?
+            tags << "riskScore: #{machine.fetch('riskScore')}"
+          end
+          unless machine.fetch("exposureLevel").nil?
+            tags << "exposureLevel: #{machine.fetch('exposureLevel')}"
+          end
+          unless machine.fetch("agentVersion").nil?
+            tags << "ATP Agent Version: #{machine.fetch('agentVersion')}"
+          end
+          unless machine.fetch("rbacGroupName").nil?
+            tags << "rbacGroup: #{machine.fetch('rbacGroupName')}"
+          end
+          unless machine.fetch("machineTags").nil?
+            tags.concat(machine.fetch("machineTags"))
+          end
 
           # Add them to our asset hash
           asset.merge({ "tags" => tags })
@@ -131,14 +141,18 @@ module Kenna
         set_client_data(atp_tenant_id, atp_client_id, atp_client_secret, atp_api_host, atp_oath_host, file_cleanup)
         asset_next_link = nil
         asset_json_response = atp_get_machines
-        asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
+        if asset_json_response.key?("@odata.nextLink")
+          asset_next_link = asset_json_response.fetch("@odata.nextLink")
+        end
         build_assets(asset_json_response)
 
         until asset_next_link.nil?
           asset_json_response = atp_get_machines(asset_next_link)
           build_assets(asset_json_response)
           asset_next_link = nil
-          asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
+          if asset_json_response.key?("@odata.nextLink")
+            asset_next_link = asset_json_response.fetch("@odata.nextLink")
+          end
         end
 
         morevuln = true
@@ -192,7 +206,9 @@ module Kenna
                 print_debug "#{submit_count} about to upload file"
                 filename = "microsoft_atp_kdi_#{submit_count}.json"
                 connector_response_json = connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries)
-                print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
+                if !connector_response_json.nil? && connector_response_json.fetch("success")
+                  print_good "Success!"
+                end
                 asset_count = 0
                 clear_data_arrays
               end

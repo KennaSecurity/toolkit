@@ -176,7 +176,7 @@ module Kenna
           # payload: json_data,
           headers: @headers
         ).body
-      rescue Exception => e
+      rescue StandardError => e
         print_good e.message
         print_good e.backtrace.inspect
         @log_output << "\r#{e.message}"
@@ -190,7 +190,7 @@ module Kenna
           # payload: json_data,
           headers: @headers
         ).body
-      rescue Exception => e
+      rescue StandardError => e
         print_good e.message
         print_good e.backtrace.inspect
         @log_output << "\r#{e.message}"
@@ -218,7 +218,7 @@ module Kenna
             payload: json_data,
             headers: @headers
           )
-        rescue Exception => e
+        rescue StandardError => e
           print_error e.message
           print_error e.backtrace.inspect
         end
@@ -258,7 +258,7 @@ module Kenna
           print_error "Unable to create this user (email:#{email})"
           @log_output << "\r#{e.message}"
           @log_output << "\rUnable to create this user (email:#{email})"
-        rescue Exception => e
+        rescue StandardError => e
           print_error e.message
           print_error e.backtrace.inspect
           @log_output << "\r#{e.message}"
@@ -311,7 +311,7 @@ module Kenna
             print_error "Unable to update this user (id:#{uid} email:#{email})"
             @log_output << "\r#{e.message}"
             @log_output << "\rUnable to update this user (id:#{uid} email:#{email})"
-          rescue Exception => e
+          rescue StandardError => e
             print_error e.message
             print_error e.backtrace.inspect
             @log_output << "\r#{e.message}"
@@ -335,7 +335,7 @@ module Kenna
           print_error "Unable to delete this user (id:#{uid})"
           @log_output << "\r#{e.message}"
           @log_output << "\rUnable to delete this user (id:#{uid})"
-        rescue Exception => e
+        rescue StandardError => e
           print_error e.message
           print_error e.backtrace.inspect
           @log_output << "\r#{e.message}"
