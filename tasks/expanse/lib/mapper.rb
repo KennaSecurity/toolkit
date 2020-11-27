@@ -130,11 +130,13 @@ module Kenna
             # We are asking for a vuln id in our mapping, but note that wee
             # have adjusted the vuln id to be downcased & dashes replaced with
             # underscores in our mapping
-            unmapped = false
+            # unmapped = false
+            # This was not used,  so commented out. - JG 11/20/2020
 
             unless field_mapping_for_cloud_exposures[et.downcase.tr("-", "_")]
               print_error "WARNING! Skipping unmapped exposure type: #{et}!"
-              unmapped = true
+              # unmapped = true
+              # This was not used,  so commented out. - JG 11/20/2020
               next
             end
 

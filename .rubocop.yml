@@ -371,3 +371,17 @@ Performance/Squeeze:
 
 Performance/StringInclude:
   Enabled: true
+
+Style/Documentation:
+  Enabled: false
+
+
+GlobalVars:
+  AllowedVariables:
+    - $basedir
+    - $mapping_array
+    - $assets
+    - $vuln_defs 
+    - $Date_Format_In 
+    - $map_locator
+    - $skip_autoclose

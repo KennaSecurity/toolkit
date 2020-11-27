@@ -92,7 +92,7 @@ module Kenna
 
         # Print out the options so the user knows and logs what we're doing
         @options.each do |k, v|
-          if k =~ /key/ ||  k =~ /token/ || k =~ /secret/ # special case anything that has key in it
+          if k.includes("/key/") || k.includes("/token/") || k.includes("/secret/")
             print_good "Got option: #{k}: #{v[0]}*******#{v[-3..-1]}" if v
           else
             print_good "Got option: #{k}: #{v}"

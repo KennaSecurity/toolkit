@@ -61,7 +61,7 @@ module Kenna
         ###
         if issue["connection_attributes"]
           if issue["connection_attributes"].is_a? Hash
-            port = issue["connection_attributes"]["dst_port"]
+            # port = issue["connection_attributes"]["dst_port"]
             asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"] if issue["connection_attributes"]["dst_ip"]
             asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"] if issue["connection_attributes"]["dst_host"]
           else
@@ -119,7 +119,7 @@ module Kenna
         issue_type = issue["type"]
 
         # handle patching cadence differently, these will have CVEs
-        if issue_type =~ /patching_cadence/ || issue_type =~ /service_vuln/
+        if issue_type.includes("/patching_cadence/") || issue_type.includes("/service_vuln/")
 
           # puts "DEBUG CVE VULN: #{i["type"]} #{i['vulnerability_id']}"
           # puts "#{i}"
