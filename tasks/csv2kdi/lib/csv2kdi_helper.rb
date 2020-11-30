@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module Csv2kdihelper
       def generate_kdi_file
-        { skip_autoclose: ($skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+        { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
       end
 
       def create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
@@ -57,13 +59,11 @@ module Kenna
         tmpassets << { priority: priority } unless priority.nil? || priority.to_s.empty?
         tmpassets << { vulns: [] }
 
-        if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
-          success = false
-        end
+        success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
         $assets << tmpassets.reduce(&:merge) if success
 
-        return success
+        success
       end
 
       def create_asset_vuln(hostname, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
@@ -72,25 +72,25 @@ module Kenna
         # find the asset
         case $map_locator
         when "ip_address"
-          asset = $assets.select { |a| a[:ip_address] == ip_address }.first
+          asset = $assets.find { |a| a[:ip_address] == ip_address }
         when "hostname"
-          asset = $assets.select { |a| a[:hostname] == hostname }.first
+          asset = $assets.find { |a| a[:hostname] == hostname }
         when "file"
-          asset = $assets.select { |a| a[:file] == file }.first
+          asset = $assets.find { |a| a[:file] == file }
         when "mac_address"
-          asset = $assets.select { |a| a[:mac_address] == mac_address }.first
+          asset = $assets.find { |a| a[:mac_address] == mac_address }
         when "netbios"
-          asset = $assets.select { |a| a[:netbios] == netbios }.first
+          asset = $assets.find { |a| a[:netbios] == netbios }
         when "url"
-          asset = $assets.select { |a| a[:url] == url }.first
+          asset = $assets.find { |a| a[:url] == url }
         when "ec2"
-          asset = $assets.select { |a| a[:ec2] == ec2 }.first
+          asset = $assets.find { |a| a[:ec2] == ec2 }
         when "fqdn"
-          asset = $assets.select { |a| a[:fqdn] == fqdn }.first
+          asset = $assets.find { |a| a[:fqdn] == fqdn }
         when "external_id"
-          asset = $assets.select { |a| a[:external_id] == external_id }.first
+          asset = $assets.find { |a| a[:external_id] == external_id }
         when "database"
-          asset = $assets.select { |a| a[:database] == database }.first
+          asset = $assets.find { |a| a[:database] == database }
         else
           "Error: main locator not provided" if @debug
         end

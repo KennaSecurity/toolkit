@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     class Netsparker < Kenna::Toolkit::BaseTask
@@ -108,7 +110,7 @@ module Kenna
           response = RestClient::Request.execute(
             method: :get,
             url: "#{scan_post_url} + #{scan_id}",
-            headers: { 'Accept' => 'application/xml', 'Authorization' => "Basic #{@netsparker_token}" }
+            headers: { "Accept" => "application/xml", "Authorization" => "Basic #{@netsparker_token}" }
           )
         rescue StandardError => e
           print_error e.message
@@ -131,7 +133,7 @@ module Kenna
             response = RestClient::Request.execute(
               method: :get,
               url: website_list_url.to_s,
-              headers: { 'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}" }
+              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
             )
 
             # convert to JSON
@@ -169,7 +171,7 @@ module Kenna
             response = RestClient::Request.execute(
               method: :get,
               url: scan_list_url.to_s,
-              headers: { 'Accept' => 'application/json', 'Authorization' => "Basic #{@netsparker_token}" }
+              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
             )
 
             # convert to JSON

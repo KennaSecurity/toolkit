@@ -1,13 +1,15 @@
-require_relative '../../../lib/toolkit'
-require_relative '../../../spec/rspec_helper'
-require 'rspec'
+# frozen_string_literal: true
+
+require_relative "../../../lib/toolkit"
+require_relative "../../../spec/rspec_helper"
+require "rspec"
 
 describe "Kenna" do
   describe "Toolkit" do
     describe "SecurityScorecard" do
       describe "Client" do
         before do
-          @api_key = (ENV['SSC_API_KEY']).to_s
+          @api_key = (ENV["SSC_API_KEY"]).to_s
           @client = Kenna::Toolkit::Ssc::Client.new @api_key
         end
 

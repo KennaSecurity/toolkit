@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module BitsightHelpers
@@ -29,7 +31,7 @@ module Kenna
 
           # check for more
           endpoint = result["links"]["next"]
-          more_findings = endpoint && endpoint.length.positive?
+          more_findings = endpoint&.length&.positive?
 
           if more_findings && endpoint =~ /0.0.0.0/
             print_error "WARNING: endpoint is not well formed, doing a gsub on: #{endpoint}"
@@ -62,7 +64,7 @@ module Kenna
           result = JSON.parse(response.body)
           result.key? "disclaimer"
         rescue RestClient::Unauthorized => e
-          return false
+          false
         end
       end
 
@@ -85,7 +87,7 @@ module Kenna
       private
 
       def _add_finding_to_working_kdi(finding, options)
-        vuln_def_id = (finding['risk_vector_label']).to_s.gsub(" ", "_").gsub("-", "_").downcase.strip
+        vuln_def_id = (finding["risk_vector_label"]).to_s.tr(" ", "_").tr("-", "_").downcase.strip
         print_debug "Working on finding of type: #{vuln_def_id}"
 
         # get the grades labled as benign... Default: GOOD
@@ -126,7 +128,7 @@ module Kenna
             # grab the CVE
             cve_id = finding["vulnerability_name"]
 
-            if cve_id =~ /^CVE-/i
+            if /^CVE-/i.match?(cve_id)
               create_cve_vuln(cve_id, finding, asset_attributes)
             else
               print_error "ERROR! Unknown vulnerability: #{cve_id}!"
@@ -147,7 +149,7 @@ module Kenna
             finding["details"]["vulnerabilities"].each do |v|
               cve_id = v["name"]
               print_debug "Got CVE: #{cve_id}"
-              print_error "ERROR! Unknown vulnerability!" unless cve_id =~ /cve-/i
+              print_error "ERROR! Unknown vulnerability!" unless /cve-/i.match?(cve_id)
               create_cve_vuln(cve_id, finding, asset_attributes)
             end
 
@@ -201,7 +203,7 @@ module Kenna
         }
 
         # set the port if it's available
-        vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i if finding["details"]
+        vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
 
         # def create_kdi_asset_vuln(asset_id, asset_locator, args)
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
@@ -220,7 +222,7 @@ module Kenna
       ###
       def create_cwe_vuln(vuln_def_id, finding, asset_attributes)
         vd = {
-          "scanner_identifier" => vuln_def_id.to_s,
+          "scanner_identifier" => vuln_def_id.to_s
         }
 
         # get our mapped vuln
@@ -238,7 +240,7 @@ module Kenna
         }
 
         # set the port if it's available
-        vuln_attributes["port"] = (finding['details']['dest_port']).to_s.to_i if finding["details"]
+        vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
 
         ###
         ### Set Scores based on what was available in the CVD

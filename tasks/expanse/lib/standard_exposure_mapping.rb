@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # included by mapper
 
 module Kenna

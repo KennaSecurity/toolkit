@@ -1,5 +1,7 @@
-require_relative 'cloud_exposure_mapping'
-require_relative 'standard_exposure_mapping'
+# frozen_string_literal: true
+
+require_relative "cloud_exposure_mapping"
+require_relative "standard_exposure_mapping"
 
 module Kenna
   module Toolkit
@@ -86,7 +88,7 @@ module Kenna
 
             ### Setup basic vuln attributes
             vuln_attributes = {
-              "scanner_identifier" => (r['vuln_def']['scanner_identifier']).to_s,
+              "scanner_identifier" => (r["vuln_def"]["scanner_identifier"]).to_s,
               "created_at" => r["vuln"]["created_at"],
               "last_seen_at" => r["vuln"]["last_seen_at"],
               "scanner_type" => "Expanse",
@@ -114,11 +116,11 @@ module Kenna
           ### Get the list of exposure types
           ###
           if @options && @options[:cloud_exposure_types]
-            cloud_exposure_types = (@options[:cloud_exposure_types]).to_s.downcase.gsub('-', '_').split(',')
+            cloud_exposure_types = (@options[:cloud_exposure_types]).to_s.downcase.tr("-", "_").split(",")
           else
             cloud_exposure_counts = @client.cloud_exposure_counts
             puts "Got Cloud Exposure Counts: #{cloud_exposure_counts}"
-            cloud_exposure_types = cloud_exposure_counts.map { |x| (x['type']).to_s }
+            cloud_exposure_types = cloud_exposure_counts.map { |x| (x["type"]).to_s }
           end
 
           ###
@@ -130,7 +132,7 @@ module Kenna
             # underscores in our mapping
             unmapped = false
 
-            unless field_mapping_for_cloud_exposures[et.downcase.gsub("-", "_")]
+            unless field_mapping_for_cloud_exposures[et.downcase.tr("-", "_")]
               print_error "WARNING! Skipping unmapped exposure type: #{et}!"
               unmapped = true
               next
@@ -149,7 +151,7 @@ module Kenna
             # map fields for those expsures
             print "Mapping #{cloud_exposures.count} cloud exposures"
             result = cloud_exposures.map do |e|
-              map_exposure_fields(true, et.downcase.gsub("-", "_"), e)
+              map_exposure_fields(true, et.downcase.tr("-", "_"), e)
             end
             print_good "Mapped #{result.count} cloud exposures"
 
@@ -200,7 +202,7 @@ module Kenna
         ###
         def default_exposure_field_mapping(exposure_type)
           {
-            'asset' => [
+            "asset" => [
               { action: "copy", source: "parentDomain", target: "domain" },
               { action: "copy", source: "domain", target: "hostname" },
               { action: "copy", source: "ip", target: "ip_address" },
@@ -210,19 +212,19 @@ module Kenna
                         temp = ["Expanse"] # always tag as 'Expanse'
 
                         # Handle legacy businessUnit tag
-                        temp << "businessUnit:#{x['businessUnit']['name']}" if x.key?('businessUnit')
+                        temp << "businessUnit:#{x['businessUnit']['name']}" if x.key?("businessUnit")
 
                         # Handle new businessUnits (plural) tag
-                        if x.key?('businessUnits')
-                          x['businessUnits'].each do |bu|
-                            temp << bu.fetch('name')
+                        if x.key?("businessUnits")
+                          x["businessUnits"].each do |bu|
+                            temp << bu.fetch("name")
                           end
                         end
 
                         # Annotations are like tags, add each one
-                        if x.key?('annotations')
+                        if x.key?("annotations")
                           x["annotations"]["tags"].each do |at|
-                            temp << at.fetch('name')
+                            temp << at.fetch("name")
                           end
                         end
 
@@ -230,8 +232,8 @@ module Kenna
                         temp.flatten
                       } }
             ],
-            'vuln' => [
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.gsub("-", "_") } },
+            "vuln" => [
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.tr("-", "_") } },
               { action: "proc", target: "created_at", proc: ->(x) { x["firstObservation"]["scanned"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["lastObservation"]["scanned"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["port"] || x["portNumber"] || x["firstObservation"]["portNumber"]).to_i } },
@@ -239,9 +241,9 @@ module Kenna
               # { action: "proc", target: "scanner_score", proc: lambda{|x| map_exposure_severity(x["severity"]) } },
               { action: "data", target: "scanner_type", data: "Expanse" }
             ],
-            'vuln_def' => [
+            "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse" },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.gsub("-", "_") } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.tr("-", "_") } },
               { action: "data", target: "remediation", data: "Investigate this Exposure!" }
             ]
           }

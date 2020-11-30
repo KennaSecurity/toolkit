@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/snyk_helper"
 
 module Kenna
@@ -133,9 +135,7 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            if projectName_strip_colon && !application.rindex(':').nil?
-              application = application.slice(0..(application.rindex(':') - 1))
-            end
+            application = application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
 
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
@@ -144,14 +144,10 @@ module Kenna
             else
               print_debug = "using strip colon params if set"
               if !packageManager.nil? && !packageManager.empty?
-                if packageManager_strip_colon && !packageManager.rindex(':').nil?
-                  packageManager = packageManager.slice(0..(packageManager.rindex(':') - 1))
-                end
+                packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
               end
               if !package.nil? && !package.empty?
-                if package_strip_colon && !package.rindex(':').nil?
-                  package = package.slice(0..(package.rindex(':') - 1))
-                end
+                package = package.slice(0..(package.rindex(":") - 1)) if package_strip_colon && !package.rindex(":").nil?
               end
               targetFile = packageManager.to_s unless packageManager.nil?
               targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
@@ -225,9 +221,9 @@ module Kenna
             cves = nil
             cwes = nil
             unless identifiers.nil?
-              cve_array = identifiers['CVE'] unless identifiers['CVE'].nil? || identifiers['CVE'].length.zero?
-              cwe_array = identifiers['CWE'] unless identifiers['CWE'].nil? || identifiers['CVE'].length.zero?
-              cve_array.delete_if { |x| x.start_with?('RHBA', 'RHSA') } unless cve_array.nil? || cve_array.length.zero?
+              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
+              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CVE"].length.zero?
+              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
               cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
               cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
             end

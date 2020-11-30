@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/ms_defender_atp_helper"
 module Kenna
   module Toolkit
@@ -164,7 +166,7 @@ module Kenna
           vuln_json.each do |vuln|
             vuln_cve = vuln.fetch("cveId")
             scanner_id = vuln_cve
-            if vuln_cve.start_with?('CVE')
+            if vuln_cve.start_with?("CVE")
               vuln_cve = vuln_cve.strip
             else
               vuln_name = vuln_cve
@@ -172,9 +174,7 @@ module Kenna
             end
 
             machine_id = vuln.fetch("machineId")
-            unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
-              details = "fixingKbId = #{vuln.fetch('fixingKbId')}"
-            end
+            details = "fixingKbId = #{vuln.fetch('fixingKbId')}" unless vuln.fetch("fixingKbId").nil? || vuln.fetch("fixingKbId").empty?
 
             # end
             vuln_score = (vuln["cvssV3"] || vuln_severity[vuln.fetch("severity")] || 0).to_i
@@ -219,11 +219,9 @@ module Kenna
             vuln_def = {
               "scanner_identifier" => scanner_id,
               "scanner_type" => "MS Defender ATP",
-              "name" => vuln_name,
+              "name" => vuln_name
             }
-            if !vuln_cve.nil? && !vuln_cve.empty?
-              vuln_def.merge!(cve_identifiers: vuln_cve.to_s)
-            end
+            vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
 
             vuln_asset.compact!
             vuln.compact!
@@ -236,7 +234,7 @@ module Kenna
             unless worked
               print_debug "still can't find asset for #{machine_id}"
               asset = {
-                "external_id" => machine_id,
+                "external_id" => machine_id
               }
               create_kdi_asset(asset, false)
               create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")

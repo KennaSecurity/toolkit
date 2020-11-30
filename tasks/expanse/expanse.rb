@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 # expanse client
-require_relative 'lib/client'
+require_relative "lib/client"
 
 # cloud exposure field mappings
-require_relative 'lib/mapper'
+require_relative "lib/mapper"
 
 module Kenna
   module Toolkit

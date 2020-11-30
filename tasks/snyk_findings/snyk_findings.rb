@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/snyk_helper"
 
 module Kenna
@@ -132,16 +134,16 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application = application.slice(0..(application.index(':'))) if projectName_strip_colon
+            application = application.slice(0..(application.index(":"))) if projectName_strip_colon
 
             if project.key?("targetFile")
               targetFile = project.fetch("targetFile")
             else
               print_debug = "using strip colon params if set"
               packageManager = issue_obj.fetch("packageManager")
-              packageManager = packageManager.slice(0..(packageManager.index(':'))) if packageManager_strip_colon
+              packageManager = packageManager.slice(0..(packageManager.index(":"))) if packageManager_strip_colon
               package = issue_obj.fetch("package")
-              package = package.slice(0..(package.index(':'))) if package_strip_colon
+              package = package.slice(0..(package.index(":"))) if package_strip_colon
               targetFile = "#{packageManager}/#{package}"
             end
 
@@ -208,9 +210,9 @@ module Kenna
             cves = nil
             cwes = nil
             unless identifiers.nil?
-              cve_array = identifiers['CVE'] unless identifiers['CVE'].nil? || identifiers['CVE'].length.zero?
-              cwe_array = identifiers['CWE'] unless identifiers['CWE'].nil? || identifiers['CVE'].length.zero?
-              cve_array.delete_if { |x| x.start_with?('RHBA', 'RHSA') } unless cve_array.nil? || cve_array.length.zero?
+              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
+              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CVE"].length.zero?
+              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
               cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
               cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
             end

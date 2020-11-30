@@ -1,4 +1,6 @@
-require_relative 'lib/bitsight_helpers'
+# frozen_string_literal: true
+
+require_relative "lib/bitsight_helpers"
 
 module Kenna
   module Toolkit

@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 # cloud exposure field mapping
 # require_relative '../lib/mapper'
 # require_relative '../lib/client'
-require_relative '../../../lib/toolkit'
+require_relative "../../../lib/toolkit"
 
-require_relative '../../../spec/rspec_helper'
-require 'rspec'
+require_relative "../../../spec/rspec_helper"
+require "rspec"
 
 describe "Kenna" do
   describe "Toolkit" do
@@ -13,7 +15,7 @@ describe "Kenna" do
         include Kenna::Toolkit::Expanse::Mapper
 
         before do
-          @api_key = (ENV['EXPANSE_TEST_KEY']).to_s
+          @api_key = (ENV["EXPANSE_TEST_KEY"]).to_s
           @client = Kenna::Toolkit::Expanse::Client.new @api_key
         end
 
@@ -36,7 +38,7 @@ describe "Kenna" do
           max_pages = 1
           max_per_page = 1
           exposures = @client.exposures(max_pages, max_per_page)
-          raise unless exposures && exposures.first
+          raise unless exposures&.first
 
           e = exposures.first
 
@@ -49,7 +51,7 @@ describe "Kenna" do
           max_pages = 1
           max_per_page = 1
           cloud_exposures = @client.cloud_exposures(max_pages, max_per_page)
-          if cloud_exposures && cloud_exposures.count.positive?
+          if cloud_exposures&.count&.positive?
             expect(exposures.first["id"]).to be_a String
           else
             puts "ERROR? No cloud exposurs"

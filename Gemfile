@@ -19,9 +19,9 @@ gem "tty-pager"
 group :development, :test do
   gem "pry"
   gem "rspec"
-  gem "solargraph"
   gem "rubocop", "~> 0.82.0", require: false
   gem "rubocop-github"
   gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false
+  gem "solargraph"
 end
