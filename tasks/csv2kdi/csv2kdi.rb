@@ -146,7 +146,7 @@ module Kenna
           status_map_string = $mapping_array.assoc("status_map").last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
-        end # Added for ASSET ONLY Run
+        end
 
         # Configure Date format
         ###########################
@@ -162,7 +162,7 @@ module Kenna
           # Asset settings #
           ##################
 
-          locator = row[$map_locator.to_s] # field used to compare for dupes
+          # locator = row[$map_locator.to_s] # field used to compare for dupes
           file = row[map_file.to_s] # (string) path to affected file
           ip_address = row[map_ip_address.to_s] # (string) ip_address of internal facing asset
           mac_address = row[map_mac_address.to_s] # (mac format-regex) MAC address asset
@@ -203,7 +203,8 @@ module Kenna
           os_version = row[map_os_version.to_s] # (string) OS version
           unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
             priority = row[map_priority.to_s].to_i
-          end # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
+          end
+          # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
           if @assets_only == "false" # Added for ASSET ONLY Run
 
@@ -222,14 +223,14 @@ module Kenna
 
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
-            if score_map.nil? || score_map.empty? # (string) - Date vuln created
+            if score_map.nil? || score_map.empty?
               unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
                 scanner_score = row[map_scanner_score.to_s].to_i
-              end # (Integer) - scanner score
+              end
             else
               unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
                 scanner_score = score_map[row[map_scanner_score.to_s]].to_i
-              end # (Integer) - scanner score
+              end
             end
             last_fixed = row[map_last_fixed.to_s] # (string) - Last fixed date
             last_seen = row[map_last_seen.to_s]
@@ -241,7 +242,7 @@ module Kenna
             closed = row[map_closed.to_s] # (string) Date it was closed
             unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
               port = row[map_port.to_s].to_i
-            end # (Integer) Port if associated with vuln
+            end
 
             ############################
             # Vulnerability Definition #
@@ -255,7 +256,7 @@ module Kenna
             name = row[map_name.to_s] # (string) Name/title of Vuln
             description = row[map_description.to_s] # (string) Description
             solution = row[map_solution.to_s] # (string) Solution
-          end # Added for ASSET ONLY Run
+          end
 
           # #call the methods that will build the json now##
 

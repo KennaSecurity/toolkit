@@ -182,9 +182,8 @@ module Kenna
         # SAnity check to make sure we are pushing data into the correct asset
         unless a
           return false
-        end # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+        end
 
-        # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
         vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
