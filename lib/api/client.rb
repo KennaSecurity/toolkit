@@ -277,7 +277,7 @@ module Kenna
 
           begin
             results = RestClient.get endpoint, headers
-          rescue RestClient::Forbidden => e
+          rescue RestClient::Forbidden
             out.merge!({ status: "fail", message: "access denied", results: {} })
           end
 
@@ -285,7 +285,7 @@ module Kenna
 
           begin
             results = RestClient.post endpoint, body, headers
-          rescue RestClient::Forbidden => e
+          rescue RestClient::Forbidden
             out.merge!({ status: "fail", message: "access denied", results: {} })
           end
 

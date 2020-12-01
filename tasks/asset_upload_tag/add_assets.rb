@@ -73,9 +73,9 @@ module Kenna
         @tag_columns = []
 
         # Encoding characters
-        enc_colon = "%3A"
-        enc_dblquote = "%22"
-        enc_space = "%20"
+        # enc_colon = "%3A"
+        # enc_dblquote = "%22"
+        # enc_space = "%20"
 
         print_good "Path:#{$basedir}/#{@csv_file}"
 
@@ -99,7 +99,7 @@ module Kenna
         ## Iterate through CSV
         CSV.foreach(@csv_file, headers: true) do |row|
           # "Reading line #{$.}... "
-          current_line = $INPUT_LINE_NUMBER
+          # current_line = $INPUT_LINE_NUMBER
 
           # your csv column names should match these if you don't want to change the script
           next if row[@ip_address_col.to_s].nil?
@@ -192,7 +192,7 @@ module Kenna
             # Need to find the new asset ID
             # asset_id = query_post_return........
             asset_id = JSON.parse(query_post_return)["asset"]["id"]
-          rescue JSON::ParserError => e
+          rescue JSON::ParserError
             print_error "Failed to parse correctly"
             next
           rescue RestClient::UnprocessableEntity
