@@ -382,6 +382,6 @@ Style/GlobalVars:
     - $mapping_array
     - $assets
     - $vuln_defs 
-    - $Date_Format_In 
+    - $date_format_in 
     - $map_locator
     - $skip_autoclose

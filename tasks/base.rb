@@ -58,9 +58,7 @@ module Kenna
         # No missing arguments, so let's add in our default arguments now
         self.class.metadata[:options].each do |o|
           print_good "Setting #{o[:name].to_sym} to default value: #{o[:default]}" unless o[:default] == "" || !o[:default]
-          unless opts[o[:name].to_sym]
-            opts[o[:name].to_sym] = o[:default]
-          end # but still set it to whatever
+          opts[o[:name].to_sym] = o[:default] unless opts[o[:name].to_sym]
           # set empty string to nil so it's a little easier to check for that
           opts[o[:name].to_sym] = nil if opts[o[:name].to_sym] == ""
         end
