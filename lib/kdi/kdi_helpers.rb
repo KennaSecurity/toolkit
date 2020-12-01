@@ -180,9 +180,7 @@ module Kenna
         end
 
         # SAnity check to make sure we are pushing data into the correct asset
-        unless a
-          return false
-        end
+        return false unless a
 
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]

@@ -201,9 +201,7 @@ module Kenna
           owner = row[map_owner.to_s] # (string) Some string that identifies an owner of an asset
           os = row[map_os.to_s] # (string) Operating system of asset
           os_version = row[map_os_version.to_s] # (string) OS version
-          unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
-            priority = row[map_priority.to_s].to_i
-          end
+          priority = row[map_priority.to_s].to_i unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
           # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
           if @assets_only == "false" # Added for ASSET ONLY Run
@@ -224,13 +222,9 @@ module Kenna
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
             if score_map.nil? || score_map.empty?
-              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
-                scanner_score = row[map_scanner_score.to_s].to_i
-              end
+              scanner_score = row[map_scanner_score.to_s].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
             else
-              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
-                scanner_score = score_map[row[map_scanner_score.to_s]].to_i
-              end
+              scanner_score = score_map[row[map_scanner_score.to_s]].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
             end
             last_fixed = row[map_last_fixed.to_s] # (string) - Last fixed date
             last_seen = row[map_last_seen.to_s]
@@ -240,9 +234,7 @@ module Kenna
                        status_map[row[map_status.to_s]]
                      end
             closed = row[map_closed.to_s] # (string) Date it was closed
-            unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
-              port = row[map_port.to_s].to_i
-            end
+            port = row[map_port.to_s].to_i unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
 
             ############################
             # Vulnerability Definition #
