@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module MSDefenderAtpHelper
@@ -25,7 +27,7 @@ module Kenna
           @uploaded_files << filenum
           File.delete("#{output_dir}/#{filename}") if @file_cleanup
         end
-        return response_json
+        response_json
       end
 
       def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
@@ -48,7 +50,7 @@ module Kenna
               end
         print_debug "url = #{url}"
         begin
-          headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity' }
+          headers = { "Content-Type" => "application/json", "Accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
           response = http_get(url, headers, 1)
           if !response.code == 200
             response = nil
@@ -82,7 +84,7 @@ module Kenna
         # ComputerDnsName, LastSeen, HealthStatus, OsPlatform,
         print_debug "url = #{url}"
         begin
-          headers = { 'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Bearer #{@token}", 'accept-encoding' => 'identity' }
+          headers = { "content-type" => "application/json", "accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
           response = http_get(url, headers, 1)
           if !response.code == 200
             response = nil
@@ -106,7 +108,7 @@ module Kenna
       def atp_get_auth_token
         print_debug "Getting token"
         oauth_url = "#{@atp_oath_url}/#{@tenant_id}/oauth2/token"
-        headers = { 'content-type' => 'application/x-www-form-urlencoded' }
+        headers = { "content-type" => "application/x-www-form-urlencoded" }
         mypayload = {
           "resource" => @atp_query_api,
           "client_id" => @client_id.to_s,

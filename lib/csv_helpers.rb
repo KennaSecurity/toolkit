@@ -1,5 +1,7 @@
-require 'csv'
-require 'json'
+# frozen_string_literal: true
+
+require "csv"
+require "json"
 
 module Kenna
   module Toolkit

@@ -1,5 +1,7 @@
-require_relative 'lib/client'
-require_relative 'lib/riskiq_helpers'
+# frozen_string_literal: true
+
+require_relative "lib/client"
+require_relative "lib/riskiq_helpers"
 
 module Kenna
   module Toolkit

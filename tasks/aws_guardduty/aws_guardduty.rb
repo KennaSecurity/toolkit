@@ -1,4 +1,6 @@
-require 'aws-sdk-guardduty'
+# frozen_string_literal: true
+
+require "aws-sdk-guardduty"
 
 module Kenna
   module Toolkit
@@ -184,7 +186,7 @@ module Kenna
 
                 query_criteria = {
                   detector_id: did, # required
-                  max_results: 10,
+                  max_results: 10
                 }
 
                 query_criteria[:next_token] = next_token if next_token.is_a? String

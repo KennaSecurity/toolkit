@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module Helpers
@@ -58,7 +60,7 @@ module Kenna
       end
 
       def print_task_help(task_name)
-        task = TaskManager.tasks.select { |x| x.metadata[:id] == task_name }.first.new
+        task = TaskManager.tasks.find { |x| x.metadata[:id] == task_name }.new
         task.class.metadata[:options].each do |o|
           puts "- Task Option: #{o[:name]} (#{o[:type]}): #{o[:description]}"
           puts "               Required:(#{o[:required]}): Default: #{o[:default]}"
@@ -69,7 +71,7 @@ module Kenna
       ### Helper to read a file consistently
       ###
       def read_input_file(filename)
-        output = File.open(filename, "r").read.gsub!("\r", '')
+        output = File.open(filename, "r").read.delete!("\r")
         output.sanitize_unicode
       end
 
@@ -139,7 +141,7 @@ module Kenna
           print_error "Invalid Connector ID (#{connector_id}), unable to upload."
         end
 
-        return query_response_json
+        query_response_json
       end
     end
   end

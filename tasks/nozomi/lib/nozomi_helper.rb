@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module NozomiHelper
@@ -8,7 +10,7 @@ module Kenna
         key = Base64.encode64(auth_string)
 
         nozomi_query_api = "https://#{hostname}/api/open/query/do?query=node_cves|sort time asc&page=#{pagenum}&count=#{pagesize}"
-        headers = { 'content-type' => 'application/json', 'accept' => 'application/json', 'Authorization' => "Basic #{key}" }
+        headers = { "content-type" => "application/json", "accept" => "application/json", "Authorization" => "Basic #{key}" }
 
         response = http_get(nozomi_query_api, headers)
         return nil unless response

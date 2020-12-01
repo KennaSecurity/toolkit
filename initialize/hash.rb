@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Hash
   # https://stackoverflow.com/questions/9381553/ruby-merge-nested-hash
   def deep_merge(other)

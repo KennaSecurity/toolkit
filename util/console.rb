@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require_relative '../lib/toolkit'
-require 'pry'
+require_relative "../lib/toolkit"
+require "pry"
 
 alias print puts
 alias print_bad puts

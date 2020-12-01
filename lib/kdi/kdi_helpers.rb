@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     module KdiHelpers
@@ -94,9 +96,9 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
@@ -104,9 +106,9 @@ module Kenna
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
           a = if match_key.nil?
-                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
         end
 
@@ -131,16 +133,16 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
-          a = @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+          a = @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
         end
 
         # Default values & type conversions... just make it work
@@ -160,16 +162,16 @@ module Kenna
         # check to make sure it doesnt exists
 
         a = if match_key.nil?
-              @paged_assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+              @paged_assets.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @paged_assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+              @paged_assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         unless a
           a = if match_key.nil?
-                @assets.select { |asset| uniq(asset) == uniq(asset_hash) }.first
+                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.select { |asset| asset[match_key] == asset_hash.fetch(match_key) }.first
+                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
           if a
             @paged_assets << a
@@ -178,7 +180,9 @@ module Kenna
         end
 
         # SAnity check to make sure we are pushing data into the correct asset
-        return false unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+        unless a
+          return false
+        end # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
 
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
@@ -189,7 +193,7 @@ module Kenna
         a["vulns"] = [] unless a["vulns"]
         a["vulns"] << vuln_hash
 
-        return true
+        true
       end
 
       def clear_data_arrays

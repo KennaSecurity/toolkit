@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # rubocop:disable Naming/AccessorMethodName
 module Kenna
   module Api
@@ -114,9 +116,9 @@ module Kenna
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
         headers = {
-          'content-type' => 'application/json',
-          'X-Risk-Token' => @token,
-          'accept' => 'application/json'
+          "content-type" => "application/json",
+          "X-Risk-Token" => @token,
+          "accept" => "application/json"
         }
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
@@ -154,7 +156,7 @@ module Kenna
                 headers: headers
               )
 
-              connector_check_json = JSON.parse(connector_check_response)['connector']
+              connector_check_json = JSON.parse(connector_check_response)["connector"]
               print_good "#{connector_check_json['name']} connector running!" if connector_check_json["running"]
 
               # check our value to see if we need to keep going
@@ -186,7 +188,7 @@ module Kenna
         end
 
         print_good "Done!"
-        return query_response_json
+        query_response_json
       end
 
       def run_files_on_connector(connector_id, upload_ids, max_retries = 3)
@@ -194,9 +196,9 @@ module Kenna
         # puts "Uploading to: #{kenna_api_endpoint}"
 
         headers = {
-          'content-type' => 'application/json',
-          'X-Risk-Token' => @token,
-          'accept' => 'application/json'
+          "content-type" => "application/json",
+          "X-Risk-Token" => @token,
+          "accept" => "application/json"
         }
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
@@ -228,7 +230,7 @@ module Kenna
               headers: headers
             )
 
-            connector_check_json = JSON.parse(connector_check_response)['connector']
+            connector_check_json = JSON.parse(connector_check_response)["connector"]
             print_good "#{connector_check_json['name']} connector running!" if connector_check_json["running"]
 
             # check our value to see if we need to keep going
@@ -260,7 +262,7 @@ module Kenna
         end
 
         print_good "Done!"
-        return query_response_json
+        query_response_json
       end
 
       private

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Kenna
   module Toolkit
     class KennaApiTokenCheck < Kenna::Toolkit::BaseTask

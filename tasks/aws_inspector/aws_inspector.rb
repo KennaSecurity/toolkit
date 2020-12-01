@@ -1,4 +1,6 @@
-require 'aws-sdk-inspector'
+# frozen_string_literal: true
+
+require "aws-sdk-inspector"
 
 module Kenna
   module Toolkit
@@ -78,7 +80,7 @@ module Kenna
         get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
           # create an asset with our locators (regardless of whether we have vulns)
           fqdn = f[:asset_attributes][:hostname]
-          instance_id = f[:attributes].select { |a| a[:key] == "INSTANCE_ID" }.first[:value]
+          instance_id = f[:attributes].find { |a| a[:key] == "INSTANCE_ID" }[:value]
 
           # this function hackily handles dedupe
           print_good "Creating asset: #{fqdn}"
@@ -130,7 +132,7 @@ module Kenna
 
       def create_asset_vuln(fqdn, cve_id)
         # check to make sure it doesnt exist
-        asset = @assets.select { |a| a[:fqdn] == fqdn }.first
+        asset = @assets.find { |a| a[:fqdn] == fqdn }
         return unless asset[:vulns].select { |v| v[:scanner_identifier] == cve_id }.empty?
 
         asset[:vulns] << {

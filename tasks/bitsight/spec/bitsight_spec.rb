@@ -1,6 +1,8 @@
-require 'rspec'
+# frozen_string_literal: true
 
-require_relative '../../../lib/toolkit'
+require "rspec"
+
+require_relative "../../../lib/toolkit"
 
 describe "Kenna" do
   describe "Toolkit" do

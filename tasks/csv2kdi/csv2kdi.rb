@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/csv2kdi_helper"
 
 module Kenna
@@ -87,61 +89,61 @@ module Kenna
         @domain_suffix = @options[:domain_suffix]
 
         @debug = true
-        $map_locator = ''
+        $map_locator = ""
 
         # Global variables required between methods
         $assets = []
         $vuln_defs = []
         $mapping_array = []
-        $date_format_in = ''
+        $date_format_in = ""
         # meta = $basedir/@meta_file
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", 'r:iso-8859-1:utf-8', &:read), headers: @has_header.eql?('true') ? true : false) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", "r:iso-8859-1:utf-8", &:read), headers: @has_header.eql?("true") ? true : false) do |row|
           $mapping_array << Array[row[0], row[1]]
           $mapping_array.compact
         end
         # headers =
-        $date_format_in = $mapping_array.assoc('date_format').last.to_s
-        $map_locator = $mapping_array.assoc('locator').last.to_s
-        map_file = $mapping_array.assoc('file').last.to_s
-        map_ip_address = $mapping_array.assoc('ip_address').last.to_s
-        map_mac_address = $mapping_array.assoc('mac_address').last.to_s
-        map_hostname = $mapping_array.assoc('hostname').last.to_s
-        map_ec2 = $mapping_array.assoc('ec2').last.to_s
-        map_netbios = $mapping_array.assoc('netbios').last.to_s
-        map_url = $mapping_array.assoc('url').last.to_s
-        map_fqdn = $mapping_array.assoc('fqdn').last.to_s
-        map_external_id = $mapping_array.assoc('external_id').last.to_s
-        map_database = $mapping_array.assoc('database').last.to_s
-        map_application = $mapping_array.assoc('application').last.to_s
-        map_tags = $mapping_array.assoc('tags').last.to_s
-        map_tag_prefix = $mapping_array.assoc('tag_prefix').last.to_s
-        map_owner = $mapping_array.assoc('owner').last.to_s
-        map_os = $mapping_array.assoc('os').last.to_s
-        map_os_version = $mapping_array.assoc('os_version').last.to_s
-        map_priority = $mapping_array.assoc('priority').last.to_s
+        $date_format_in = $mapping_array.assoc("date_format").last.to_s
+        $map_locator = $mapping_array.assoc("locator").last.to_s
+        map_file = $mapping_array.assoc("file").last.to_s
+        map_ip_address = $mapping_array.assoc("ip_address").last.to_s
+        map_mac_address = $mapping_array.assoc("mac_address").last.to_s
+        map_hostname = $mapping_array.assoc("hostname").last.to_s
+        map_ec2 = $mapping_array.assoc("ec2").last.to_s
+        map_netbios = $mapping_array.assoc("netbios").last.to_s
+        map_url = $mapping_array.assoc("url").last.to_s
+        map_fqdn = $mapping_array.assoc("fqdn").last.to_s
+        map_external_id = $mapping_array.assoc("external_id").last.to_s
+        map_database = $mapping_array.assoc("database").last.to_s
+        map_application = $mapping_array.assoc("application").last.to_s
+        map_tags = $mapping_array.assoc("tags").last.to_s
+        map_tag_prefix = $mapping_array.assoc("tag_prefix").last.to_s
+        map_owner = $mapping_array.assoc("owner").last.to_s
+        map_os = $mapping_array.assoc("os").last.to_s
+        map_os_version = $mapping_array.assoc("os_version").last.to_s
+        map_priority = $mapping_array.assoc("priority").last.to_s
 
         if @assets_only == "false" # Added for ASSET ONLY Run
-          map_scanner_source = $mapping_array.assoc('scanner_source').last.to_s
-          map_scanner_type = $mapping_array.assoc('scanner_type').last.to_s
-          map_scanner_id = $mapping_array.assoc('scanner_id').last.to_s
+          map_scanner_source = $mapping_array.assoc("scanner_source").last.to_s
+          map_scanner_type = $mapping_array.assoc("scanner_type").last.to_s
+          map_scanner_id = $mapping_array.assoc("scanner_id").last.to_s
           map_scanner_id.encode!("utf-8")
-          map_details = $mapping_array.assoc('details').last.to_s
-          map_created = $mapping_array.assoc('created').last.to_s
-          map_scanner_score = $mapping_array.assoc('scanner_score').last.to_s
-          map_last_fixed = $mapping_array.assoc('last_fixed').last.to_s
-          map_last_seen = $mapping_array.assoc('last_seen').last.to_s
-          map_status = $mapping_array.assoc('status').last.to_s
-          map_closed = $mapping_array.assoc('closed').last.to_s
-          map_port = $mapping_array.assoc('port').last.to_s
-          map_cve_id = $mapping_array.assoc('cve_id').last.to_s
-          map_wasc_id = $mapping_array.assoc('wasc_id').last.to_s
-          map_cwe_id = $mapping_array.assoc('cwe_id').last.to_s
-          map_name = $mapping_array.assoc('name').last.to_s
-          map_description = $mapping_array.assoc('description').last.to_s
-          map_solution = $mapping_array.assoc('solution').last.to_s
-          score_map_string = $mapping_array.assoc('score_map').last.to_s
-          status_map_string = $mapping_array.assoc('status_map').last.to_s
+          map_details = $mapping_array.assoc("details").last.to_s
+          map_created = $mapping_array.assoc("created").last.to_s
+          map_scanner_score = $mapping_array.assoc("scanner_score").last.to_s
+          map_last_fixed = $mapping_array.assoc("last_fixed").last.to_s
+          map_last_seen = $mapping_array.assoc("last_seen").last.to_s
+          map_status = $mapping_array.assoc("status").last.to_s
+          map_closed = $mapping_array.assoc("closed").last.to_s
+          map_port = $mapping_array.assoc("port").last.to_s
+          map_cve_id = $mapping_array.assoc("cve_id").last.to_s
+          map_wasc_id = $mapping_array.assoc("wasc_id").last.to_s
+          map_cwe_id = $mapping_array.assoc("cwe_id").last.to_s
+          map_name = $mapping_array.assoc("name").last.to_s
+          map_description = $mapping_array.assoc("description").last.to_s
+          map_solution = $mapping_array.assoc("solution").last.to_s
+          score_map_string = $mapping_array.assoc("score_map").last.to_s
+          status_map_string = $mapping_array.assoc("status_map").last.to_s
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
         end # Added for ASSET ONLY Run
@@ -153,7 +155,7 @@ module Kenna
         # date_format_in = "%m/%d/%Y %H:%M"
         date_format_KDI = "%Y-%m-%d-%H:%M:%S"
 
-        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", 'r:bom|utf-8', &:read), headers: @has_header) do |row|
+        CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", "r:bom|utf-8", &:read), headers: @has_header) do |row|
           ##################
           #  CSV MAPPINGS  #
           ##################
@@ -175,13 +177,13 @@ module Kenna
           application = row[map_application.to_s] # (string) ID/app Name
 
           # Added for ASSET ONLY Run
-          if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false) then hostname += ".#{@domain_suffix}" end
+          hostname += ".#{@domain_suffix}" if !@domain_suffix.nil? && (@assets_only == "false" || @assets_only == false)
 
           #########################
           # Asset Metadata fields #
           #########################
-          tag_list = map_tags.split(',') # (string) list of strings that correspond to tags on an asset
-          prefix_list = map_tag_prefix.split(',')
+          tag_list = map_tags.split(",") # (string) list of strings that correspond to tags on an asset
+          prefix_list = map_tag_prefix.split(",")
           # puts tag_list
           tags = []
           count = 0
@@ -199,7 +201,9 @@ module Kenna
           owner = row[map_owner.to_s] # (string) Some string that identifies an owner of an asset
           os = row[map_os.to_s] # (string) Operating system of asset
           os_version = row[map_os_version.to_s] # (string) OS version
-          priority = row[map_priority.to_s].to_i unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty? # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
+          unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
+            priority = row[map_priority.to_s].to_i
+          end # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
           if @assets_only == "false" # Added for ASSET ONLY Run
 
@@ -219,9 +223,13 @@ module Kenna
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
             if score_map.nil? || score_map.empty? # (string) - Date vuln created
-              scanner_score = row[map_scanner_score.to_s].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty? # (Integer) - scanner score
+              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
+                scanner_score = row[map_scanner_score.to_s].to_i
+              end # (Integer) - scanner score
             else
-              scanner_score = score_map[row[map_scanner_score.to_s]].to_i unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty? # (Integer) - scanner score
+              unless row[map_scanner_score.to_s].nil? || row[map_scanner_score.to_s].empty?
+                scanner_score = score_map[row[map_scanner_score.to_s]].to_i
+              end # (Integer) - scanner score
             end
             last_fixed = row[map_last_fixed.to_s] # (string) - Last fixed date
             last_seen = row[map_last_seen.to_s]
@@ -231,7 +239,9 @@ module Kenna
                        status_map[row[map_status.to_s]]
                      end
             closed = row[map_closed.to_s] # (string) Date it was closed
-            port = row[map_port.to_s].to_i unless row[map_port.to_s].nil? || row[map_port.to_s].empty? # (Integer) Port if associated with vuln
+            unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
+              port = row[map_port.to_s].to_i
+            end # (Integer) Port if associated with vuln
 
             ############################
             # Vulnerability Definition #

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/nozomi_helper"
 
 module Kenna
@@ -92,18 +94,10 @@ module Kenna
             os = issue_obj["node_os"] unless issue_obj["node_os"].nil? || issue_obj["node_os"].empty?
             tags = []
 
-            unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
-              tags << "Appliance:#{issue_obj['appliance_host']}"
-            end
-            unless issue_obj["node_type"].nil? || issue_obj["node_type"].empty?
-              tags << "AssetType:#{issue_obj['node_type']}"
-            end
-            unless issue_obj["node_product_name"].nil? || issue_obj["node_product_name"].empty?
-              tags << "Product:#{issue_obj['node_product_name']}"
-            end
-            unless issue_obj["node_vendor"].nil? || issue_obj["node_vendor"].empty?
-              tags << "Vendor:#{issue_obj['node_vendor']}"
-            end
+            tags << "Appliance:#{issue_obj['appliance_host']}" unless issue_obj["appliance_host"].nil? || issue_obj["appliance_host"].empty?
+            tags << "AssetType:#{issue_obj['node_type']}" unless issue_obj["node_type"].nil? || issue_obj["node_type"].empty?
+            tags << "Product:#{issue_obj['node_product_name']}" unless issue_obj["node_product_name"].nil? || issue_obj["node_product_name"].empty?
+            tags << "Vendor:#{issue_obj['node_vendor']}" unless issue_obj["node_vendor"].nil? || issue_obj["node_vendor"].empty?
             tags << "Zone:#{issue_obj['zone']}" unless issue_obj["zone"].nil? || issue_obj["zone"].empty?
 
             host_identifier = issue_obj.fetch("node_id")
@@ -114,9 +108,7 @@ module Kenna
               mac_address = host_identifier
             end
 
-            if external_id_key && !issue_obj[external_id_key].nil? && !issue_obj[external_id_key].empty?
-              external_id = issue_obj[external_id_key]
-            end
+            external_id = issue_obj[external_id_key] if external_id_key && !issue_obj[external_id_key].nil? && !issue_obj[external_id_key].empty?
             hostname = issue_obj["node_label"] unless issue_obj["node_label"].nil? || issue_obj["node_label"].empty?
 
             asset = {
@@ -157,9 +149,9 @@ module Kenna
               vuln_name = issue_obj.fetch("cwe_name")
             end
 
-            if cve.start_with?('NN')
+            if cve.start_with?("NN")
               cve = description[/CVE-........../]
-              cve.slice! '.'
+              cve.slice! "."
             end
 
             # craft the vuln hash
