@@ -141,11 +141,11 @@ describe "Kenna" do
       end
 
       it "should translate api results into vali kdi" do
-        # guid = get_my_company(@key)
+        guid = get_my_company(@key)
 
-        # results = get_bitsight_findings_and_create_kdi(@key, guid, 100)
+        results = get_bitsight_findings_and_create_kdi(@key, guid, 100)
 
-        # kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+        kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
 
         expect(@assets).to be_a Array
         expect(@assets.first).to be_a Hash

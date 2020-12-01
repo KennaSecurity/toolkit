@@ -72,12 +72,12 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
 
-        # output_directory = @options[:output_directory]
+        output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
-        # projectName_strip_colon = @options[:projectName_strip_colon]
-        # packageManager_strip_colon = @options[:packageManager_strip_colon]
-        # package_strip_colon = @options[:package_strip_colon]
+        projectName_strip_colon = @options[:projectName_strip_colon]
+        packageManager_strip_colon = @options[:packageManager_strip_colon]
+        package_strip_colon = @options[:package_strip_colon]
 
         org_json = snyk_get_orgs(snyk_api_token)
         projects = []
@@ -128,13 +128,24 @@ module Kenna
             break
           end
 
-          # finding_severity = { "high" => 6, "medium" => 4, "low" => 1 }
+          finding_severity = { "high" => 6, "medium" => 4, "low" => 1 } # converter
           finding_json.each do |issue_obj|
             issue = issue_obj["issue"]
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
-            # application = project.fetch("name")
-            # application = application.slice(0..(application.index(":"))) if projectName_strip_colon
+            application = project.fetch("name")
+            application = application.slice(0..(application.index(":"))) if projectName_strip_colon
+
+            if project.key?("targetFile")
+              targetFile = project.fetch("targetFile")
+            else
+              print_debug = "using strip colon params if set"
+              packageManager = issue_obj.fetch("packageManager")
+              packageManager = packageManager.slice(0..(packageManager.index(":"))) if packageManager_strip_colon
+              package = issue_obj.fetch("package")
+              package = package.slice(0..(package.index(":"))) if package_strip_colon
+              targetFile = "#{packageManager}/#{package}"
+            end
 
             asset = {
 
@@ -143,6 +154,14 @@ module Kenna
               "tags" => [project.fetch("source"), project.fetch("packageManager")]
 
             }
+
+            scanner_score = ""
+            scanner_score = if issue.key?("cvssScore")
+                              issue.fetch("cvssScore").to_i
+                            else
+                              finding_severity.fetch(issue.fetch("severity"))
+                            end
+
             source = project.fetch("source") if issue.key?("source")
             fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")

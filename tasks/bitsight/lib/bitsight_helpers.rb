@@ -63,7 +63,7 @@ module Kenna
           ).execute
           result = JSON.parse(response.body)
           result.key? "disclaimer"
-        rescue RestClient::Unauthorized
+        rescue RestClient::Unauthorized => e
           false
         end
       end

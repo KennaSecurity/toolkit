@@ -65,9 +65,9 @@ module Kenna
                                                    })
 
             JSON.parse(response.body.to_s)
-          rescue JSON::ParserError
+          rescue JSON::ParserError => e
             nil
-          rescue RestClient::Unauthorized
+          rescue RestClient::Unauthorized => e
             nil
           end
         end
@@ -85,9 +85,9 @@ module Kenna
 
           begin
             JSON.parse(response.body)
-          rescue JSON::ParserError
+          rescue JSON::ParserError => e
             # do nothing
-          rescue RestClient::NotFound
+          rescue RestClient::NotFound => e
             puts "Error, unable to find resource"
           end
         end
@@ -123,18 +123,28 @@ module Kenna
 
           begin
             JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
-          rescue JSON::ParserError
+          rescue JSON::ParserError => e
             # do nothing
           end
         end
 
         #  "https://api.securityscorecard.io/reports/issues";     payload=''
-        def get_issues_report_for_domain(_domain)
+        def get_issues_report_for_domain(domain)
           ###
           ### Generate an issues report
           ###
           puts "DEBUG Generating issues report"
-          # endpoint = "#{@baseapi}/reports/issues"
+          endpoint = "#{@baseapi}/reports/issues"
+          response = RestClient::Request.execute({
+                                                   method: :post,
+                                                   payload: {
+                                                     "domain" => domain,
+                                                     "format" => "csv"
+                                                   },
+                                                   url: endpoint,
+                                                   headers: @headers
+                                                 })
+
           now = Time.now.utc
           puts "DEBUG #{now}"
 

@@ -61,7 +61,7 @@ module Kenna
         ###
         if issue["connection_attributes"]
           if issue["connection_attributes"].is_a? Hash
-            # port = issue["connection_attributes"]["dst_port"]
+            port = issue["connection_attributes"]["dst_port"]
             asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"] if issue["connection_attributes"]["dst_ip"]
             asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"] if issue["connection_attributes"]["dst_host"]
           else

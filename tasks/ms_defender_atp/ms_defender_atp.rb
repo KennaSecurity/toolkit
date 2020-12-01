@@ -85,8 +85,8 @@ module Kenna
           machine_id = machine.fetch("id")
 
           # Save these to persist on the vuln
-          # first_seen = machine.fetch("firstSeen")
-          # last_seen = machine.fetch("lastSeen")
+          first_seen = machine.fetch("firstSeen")
+          last_seen = machine.fetch("lastSeen")
 
           # Get the asset details & craft them into a hash
           asset = {
@@ -144,7 +144,7 @@ module Kenna
         end
 
         morevuln = true
-        # page = 0
+        page = 0
         asset_count = 0
         submit_count = 0
         asset_id = nil

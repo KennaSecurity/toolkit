@@ -114,7 +114,7 @@ module Kenna
                 hostname = URI.parse(item["name"]).hostname
                 hostname = item["hosts"].first if !hostname && item["hosts"] && !item["hosts"].empty?
                 hostname ||= item["name"]
-              rescue URI::InvalidURIError
+              rescue URI::InvalidURIError => e
                 hostname = nil
               end
 
