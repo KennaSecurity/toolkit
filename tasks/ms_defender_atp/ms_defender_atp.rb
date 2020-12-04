@@ -109,7 +109,7 @@ module Kenna
           tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
 
           # Add them to our asset hash
-          asset.merge!({ "tags" => tags })
+          asset["tags"] = tags
           create_kdi_asset(asset, false)
         end
       end
