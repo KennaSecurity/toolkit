@@ -142,7 +142,7 @@ module Kenna
             if project.key?("targetFile")
               targetFile = project.fetch("targetFile")
             else
-              # print_debug = "using strip colon params if set"
+              print_debug "using strip colon params if set"
               if !packageManager.nil? && !packageManager.empty?
                 packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
               end
