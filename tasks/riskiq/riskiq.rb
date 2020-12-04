@@ -102,20 +102,20 @@ module Kenna
 
         if @riq_create_cves # 156219
           print_good "Getting CVEs from footprint"
-          # result = client.search_global_inventory(client.cve_footprint_query, max_pages)
-          # output = convert_riq_output_to_kdi result
+          result = client.search_global_inventory(client.cve_footprint_query, max_pages)
+          convert_riq_output_to_kdi result
         end
 
         if @riq_create_open_ports # 156220
           print_good "Getting open ports from footprint... BETA feature!"
-          # result = client.search_global_inventory(client.open_port_query, max_pages)
-          # output = convert_riq_output_to_kdi result
+          result = client.search_global_inventory(client.open_port_query, max_pages)
+          convert_riq_output_to_kdi result
         end
 
         if @riq_create_ssl_misconfigs # 156221
           print_good "Getting ssl misconfigs from footprint... BETA feature!"
-          # result = client.search_global_inventory(client.ssl_cert_query, max_pages)
-          # output = convert_riq_output_to_kdi result
+          result = client.search_global_inventory(client.ssl_cert_query, max_pages)
+          convert_riq_output_to_kdi result
         end
 
         print_good "KDI Conversion complete!"
