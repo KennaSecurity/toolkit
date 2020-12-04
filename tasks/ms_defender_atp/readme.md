@@ -1,5 +1,7 @@
 ## Running Microsoft Defender ATP task 
 
+This toolkit brings in data from MS Defender ATP (https://securitycenter.windows.com/dashboard)
+
 To run this task you need the following information from Microsoft: 
 
 1. Tenant ID
