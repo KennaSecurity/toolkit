@@ -72,7 +72,7 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
 
-        output_directory = @options[:output_directory]
+        # output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
         projectName_strip_colon = @options[:projectName_strip_colon]
@@ -135,14 +135,14 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application = application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
+            application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
 
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
             if project.key?("targetFile")
               targetFile = project.fetch("targetFile")
             else
-              print_debug = "using strip colon params if set"
+              print_debug "using strip colon params if set"
               if !packageManager.nil? && !packageManager.empty?
                 packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
               end
@@ -166,7 +166,7 @@ module Kenna
 
             }
 
-            scanner_score = ""
+            # scanner_score = ""
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else

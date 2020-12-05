@@ -69,7 +69,7 @@ module Kenna
         def cloud_exposure_counts
           url = "https://expander.expanse.co/api/v1/summaries/cloud/counts"
           response_body = RestClient.get(url, @headers)
-          result = JSON.parse(response_body)["data"]
+          JSON.parse(response_body)["data"]
         end
 
         def cloud_exposures(max_pages = 100, limit_per_page = 10_000, limit_types = ["ftp-servers"])

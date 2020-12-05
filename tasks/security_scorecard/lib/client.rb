@@ -65,9 +65,9 @@ module Kenna
                                                    })
 
             JSON.parse(response.body.to_s)
-          rescue JSON::ParserError => e
+          rescue JSON::ParserError
             nil
-          rescue RestClient::Unauthorized => e
+          rescue RestClient::Unauthorized
             nil
           end
         end
@@ -85,9 +85,9 @@ module Kenna
 
           begin
             JSON.parse(response.body)
-          rescue JSON::ParserError => e
+          rescue JSON::ParserError
             # do nothing
-          rescue RestClient::NotFound => e
+          rescue RestClient::NotFound
             puts "Error, unable to find resource"
           end
         end
@@ -123,7 +123,7 @@ module Kenna
 
           begin
             JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
-          rescue JSON::ParserError => e
+          rescue JSON::ParserError
             # do nothing
           end
         end
@@ -135,16 +135,15 @@ module Kenna
           ###
           puts "DEBUG Generating issues report"
           endpoint = "#{@baseapi}/reports/issues"
-          response = RestClient::Request.execute({
-                                                   method: :post,
-                                                   payload: {
-                                                     "domain" => domain,
-                                                     "format" => "csv"
-                                                   },
-                                                   url: endpoint,
-                                                   headers: @headers
-                                                 })
-
+          RestClient::Request.execute({
+                                        method: :post,
+                                        payload: {
+                                          "domain" => domain,
+                                          "format" => "csv"
+                                        },
+                                        url: endpoint,
+                                        headers: @headers
+                                      })
           now = Time.now.utc
           puts "DEBUG #{now}"
 

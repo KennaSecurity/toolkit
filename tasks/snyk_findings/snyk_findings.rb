@@ -72,7 +72,7 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
 
-        output_directory = @options[:output_directory]
+        # output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
         projectName_strip_colon = @options[:projectName_strip_colon]
@@ -128,40 +128,42 @@ module Kenna
             break
           end
 
-          finding_severity = { "high" => 6, "medium" => 4, "low" => 1 } # converter
+          finding_severity = { "high" => 6, "medium" => 4, "low" => 1 }
           finding_json.each do |issue_obj|
             issue = issue_obj["issue"]
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
             application = application.slice(0..(application.index(":"))) if projectName_strip_colon
-
+            packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
+            package = issue.fetch("package")
             if project.key?("targetFile")
               targetFile = project.fetch("targetFile")
             else
-              print_debug = "using strip colon params if set"
-              packageManager = issue_obj.fetch("packageManager")
-              packageManager = packageManager.slice(0..(packageManager.index(":"))) if packageManager_strip_colon
-              package = issue_obj.fetch("package")
-              package = package.slice(0..(package.index(":"))) if package_strip_colon
-              targetFile = "#{packageManager}/#{package}"
+              print_debug "using strip colon params if set"
+              if !packageManager.nil? && !packageManager.empty?
+                packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
+              end
+              if !package.nil? && !package.empty?
+                package = package.slice(0..(package.rindex(":") - 1)) if package_strip_colon && !package.rindex(":").nil?
+              end
+              targetFile = packageManager.to_s unless packageManager.nil?
+              targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
+              targetFile = "#{targetFile}#{package}"
             end
 
             asset = {
 
-              "file" => project.fetch("targetFile"),
-              "application" => project.fetch("name"),
-              "tags" => [project.fetch("source"), project.fetch("packageManager")]
+              "file" => targetFile,
+              "application" => application,
+              "tags" => [project.fetch("source"), packageManager]
 
             }
-
-            scanner_score = ""
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else
                               finding_severity.fetch(issue.fetch("severity"))
                             end
-
             source = project.fetch("source") if issue.key?("source")
             fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")

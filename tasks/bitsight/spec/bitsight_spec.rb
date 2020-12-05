@@ -39,9 +39,9 @@ describe "Kenna" do
       end
 
       it "should create kdi from a finding" do
-        # guid = get_my_company(@key)
+        guid = get_my_company(@key)
 
-        # results = create_kdi_from_bitsight_findings_for_company(@key, guid)
+        create_kdi_from_bitsight_findings_for_company(@key, guid)
 
         example_finding = { "temporary_id" => "A9Jq47BBje22e285780fa57ee47542e7d4d91877e3",
                             "affects_rating" => true,
@@ -141,11 +141,11 @@ describe "Kenna" do
       end
 
       it "should translate api results into vali kdi" do
-        guid = get_my_company(@key)
+        # guid = get_my_company(@key)
 
-        results = get_bitsight_findings_and_create_kdi(@key, guid, 100)
+        # results = get_bitsight_findings_and_create_kdi(@key, guid, 100)
 
-        kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
+        # kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
 
         expect(@assets).to be_a Array
         expect(@assets.first).to be_a Hash

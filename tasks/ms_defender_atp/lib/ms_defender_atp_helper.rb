@@ -64,7 +64,7 @@ module Kenna
 
         begin
           json = JSON.parse(response.body)
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           print_error "Unable to process response!"
         end
 
@@ -98,7 +98,7 @@ module Kenna
 
         begin
           json = JSON.parse(response.body)
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           print_error "Unable to process response!"
         end
 
@@ -121,7 +121,7 @@ module Kenna
 
         begin
           json = JSON.parse(response.body)
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           print_error "Unable to process response!"
         end
 
