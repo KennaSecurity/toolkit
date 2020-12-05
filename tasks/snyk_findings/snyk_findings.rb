@@ -134,7 +134,7 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application.slice(0..(application.index(":"))) if projectName_strip_colon
+            application = application.slice(0..(application.index(":"))) if projectName_strip_colon
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
             if project.key?("targetFile")
@@ -154,12 +154,11 @@ module Kenna
 
             asset = {
 
-              "file" => project.fetch("targetFile"),
-              "application" => project.fetch("name"),
-              "tags" => [project.fetch("source"), project.fetch("packageManager")]
+              "file" => targetFile,
+              "application" => application,
+              "tags" => [project.fetch("source"), packageManager]
 
             }
-            
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else
