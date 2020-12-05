@@ -135,7 +135,7 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application = application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
+            application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
 
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
