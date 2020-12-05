@@ -129,22 +129,21 @@ module Kenna
         end
 
         #  "https://api.securityscorecard.io/reports/issues";     payload=''
-        def get_issues_report_for_domain(_domain)
+        def get_issues_report_for_domain(domain)
           ###
           ### Generate an issues report
           ###
           puts "DEBUG Generating issues report"
           endpoint = "#{@baseapi}/reports/issues"
-                    endpoint = "#{@baseapi}/reports/issues"
           RestClient::Request.execute({
-                                         method: :post,
-                                         payload: {
-                                           "domain" => _domain,
-                                           "format" => "csv"
-                                         },
-                                         url: endpoint,
-                                         headers: @headers
-                                       })
+                                        method: :post,
+                                        payload: {
+                                          "domain" => domain,
+                                          "format" => "csv"
+                                        },
+                                        url: endpoint,
+                                        headers: @headers
+                                      })
           now = Time.now.utc
           puts "DEBUG #{now}"
 
