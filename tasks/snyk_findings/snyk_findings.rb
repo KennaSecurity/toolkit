@@ -75,9 +75,9 @@ module Kenna
         # output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
-        # projectName_strip_colon = @options[:projectName_strip_colon]
-        # packageManager_strip_colon = @options[:packageManager_strip_colon]
-        # package_strip_colon = @options[:package_strip_colon]
+        projectName_strip_colon = @options[:projectName_strip_colon]
+        packageManager_strip_colon = @options[:packageManager_strip_colon]
+        package_strip_colon = @options[:package_strip_colon]
 
         org_json = snyk_get_orgs(snyk_api_token)
         projects = []
@@ -128,13 +128,29 @@ module Kenna
             break
           end
 
-          # finding_severity = { "high" => 6, "medium" => 4, "low" => 1 }
+          finding_severity = { "high" => 6, "medium" => 4, "low" => 1 }
           finding_json.each do |issue_obj|
             issue = issue_obj["issue"]
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
-            # application = project.fetch("name")
-            # application = application.slice(0..(application.index(":"))) if projectName_strip_colon
+            application = project.fetch("name")
+            application = application.slice(0..(application.index(":"))) if projectName_strip_colon
+            packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
+            package = issue.fetch("package")
+            if project.key?("targetFile")
+              targetFile = project.fetch("targetFile")
+            else
+              print_debug "using strip colon params if set"
+              if !packageManager.nil? && !packageManager.empty?
+                packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
+              end
+              if !package.nil? && !package.empty?
+                package = package.slice(0..(package.rindex(":") - 1)) if package_strip_colon && !package.rindex(":").nil?
+              end
+              targetFile = packageManager.to_s unless packageManager.nil?
+              targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
+              targetFile = "#{targetFile}#{package}"
+            end
 
             asset = {
 
@@ -143,6 +159,12 @@ module Kenna
               "tags" => [project.fetch("source"), project.fetch("packageManager")]
 
             }
+            
+            scanner_score = if issue.key?("cvssScore")
+                              issue.fetch("cvssScore").to_i
+                            else
+                              finding_severity.fetch(issue.fetch("severity"))
+                            end
             source = project.fetch("source") if issue.key?("source")
             fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")
