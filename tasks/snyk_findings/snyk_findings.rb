@@ -134,7 +134,7 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application = application.slice(0..(application.index(":"))) if projectName_strip_colon
+            application.slice(0..(application.index(":"))) if projectName_strip_colon
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
             if project.key?("targetFile")
