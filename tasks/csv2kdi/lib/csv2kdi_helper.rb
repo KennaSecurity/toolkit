@@ -4,7 +4,7 @@ module Kenna
   module Toolkit
     module Csv2kdihelper
       def generate_kdi_file
-        { skip_autoclose: ($skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+        { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
       end
 
       def create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
@@ -15,28 +15,28 @@ module Kenna
         # comment out the entire block if you want all deduplicaton to happen in Kenna
 
         case $map_locator
-        when 'ip_address'
+        when "ip_address"
           return success unless $assets.select { |a| a[:ip_address] == ip_address }.empty?
-        when 'hostname'
+        when "hostname"
           return success unless $assets.select { |a| a[:hostname] == hostname }.empty?
-        when 'file'
+        when "file"
           return success unless $assets.select { |a| a[:file] == file }.empty?
-        when 'mac_address'
+        when "mac_address"
           return success unless $assets.select { |a| a[:mac_address] == mac_address }.empty?
-        when 'netbios'
+        when "netbios"
           return success unless $assets.select { |a| a[:netbios] == netbios }.empty?
-        when 'ec2'
+        when "ec2"
           return success unless $assets.select { |a| a[:ec2] == ec2 }.empty?
-        when 'fqdn'
+        when "fqdn"
           return success unless $assets.select { |a| a[:fqdn] == fqdn }.empty?
-        when 'external_id'
+        when "external_id"
           return success unless $assets.select { |a| a[:external_id] == external_id }.empty?
-        when 'database'
+        when "database"
           return success unless $assets.select { |a| a[:database] == database }.empty?
-        when 'url'
+        when "url"
           return success unless $assets.select { |a| a[:url] == url }.empty?
         else
-          puts 'Error: main locator not provided' if @debug
+          puts "Error: main locator not provided" if @debug
           success = false
 
         end
@@ -60,9 +60,7 @@ module Kenna
         tmpassets << { vulns: [] }
         tmpassets << { findings: [] }
 
-        if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
-          success = false
-        end
+        success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
         $assets << tmpassets.reduce(&:merge) if success
 
@@ -74,28 +72,28 @@ module Kenna
 
         # find the asset
         case $map_locator
-        when 'ip_address'
+        when "ip_address"
           asset = $assets.find { |a| a[:ip_address] == ip_address }
-        when 'hostname'
+        when "hostname"
           asset = $assets.find { |a| a[:hostname] == hostname }
-        when 'file'
+        when "file"
           asset = $assets.find { |a| a[:file] == file }
-        when 'mac_address'
+        when "mac_address"
           asset = $assets.find { |a| a[:mac_address] == mac_address }
-        when 'netbios'
+        when "netbios"
           asset = $assets.find { |a| a[:netbios] == netbios }
-        when 'url'
+        when "url"
           asset = $assets.find { |a| a[:url] == url }
-        when 'ec2'
+        when "ec2"
           asset = $assets.find { |a| a[:ec2] == ec2 }
-        when 'fqdn'
+        when "fqdn"
           asset = $assets.find { |a| a[:fqdn] == fqdn }
-        when 'external_id'
+        when "external_id"
           asset = $assets.find { |a| a[:external_id] == external_id }
-        when 'database'
+        when "database"
           asset = $assets.find { |a| a[:database] == database }
         else
-          'Error: main locator not provided' if @debug
+          "Error: main locator not provided" if @debug
         end
 
         puts "Unknown asset, can't associate a vuln!" unless asset
@@ -122,14 +120,14 @@ module Kenna
 
         # find the asset
         case $map_locator
-        when 'file'
-          asset = $assets.select { |a| a[:file] == file }.first
-        when 'url'
-          asset = $assets.select { |a| a[:url] == url }.first
-        when 'external_id'
-          asset = $assets.select { |a| a[:external_id] == external_id }.first
+        when "file"
+          asset = $assets.find { |a| a[:file] == file }
+        when "url"
+          asset = $assets.find { |a| a[:url] == url }
+        when "external_id"
+          asset = $assets.find { |a| a[:external_id] == external_id }
         else
-          'Error: main locator not provided' if @debug
+          "Error: main locator not provided" if @debug
         end
 
         put "Unknown asset, can't associate a vuln!" unless asset
