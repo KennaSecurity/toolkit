@@ -33,6 +33,11 @@ module Kenna
               required: false,
               default: "false",
               description: "If vuln not in scan, do you want to close vulns?" },
+            { name: "appsec_findings",
+              type: "string",
+              required: false,
+              default: "false",
+              description: "Field to populate findings appsec model" },
             { name: "assets_only",
               type: "string",
               required: false,
@@ -79,6 +84,7 @@ module Kenna
         @has_header = @options[:has_header]
         @meta_file = @options[:meta_file]
         $skip_autoclose = @options[:auto_close]
+        @appsec_findings = @options[:appsec_findings]
         @assets_only = @options[:assets_only]
         @domain_suffix = @options[:domain_suffix]
         @kenna_api_host = @options[:kenna_api_host]
@@ -96,7 +102,6 @@ module Kenna
         $vuln_defs = []
         $mapping_array = []
         $date_format_in = ""
-        # meta = $basedir/@meta_file
 
         CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@meta_file}", "r:iso-8859-1:utf-8", &:read), headers: @has_header.eql?("true") ? true : false) do |row|
           $mapping_array << Array[row[0], row[1]]
@@ -128,7 +133,10 @@ module Kenna
           map_scanner_type = $mapping_array.assoc("scanner_type").last.to_s
           map_scanner_id = $mapping_array.assoc("scanner_id").last.to_s
           map_scanner_id.encode!("utf-8")
+
+          map_additional_fields = $mapping_array.assoc("additional_fields").last.to_s
           map_details = $mapping_array.assoc("details").last.to_s
+
           map_created = $mapping_array.assoc("created").last.to_s
           map_scanner_score = $mapping_array.assoc("scanner_score").last.to_s
           map_last_fixed = $mapping_array.assoc("last_fixed").last.to_s
@@ -154,15 +162,16 @@ module Kenna
         ###########################
         # date_format_in = "%m/%d/%Y %H:%M"
         date_format_KDI = "%Y-%m-%d-%H:%M:%S"
-
+        kdi_entry_total = 0
+        kdi_subfiles_out = 0
+        @uploaded_files = []
         CSV.parse(File.open("#{$basedir}/#{@input_directory}/#{@csv_in}", "r:bom|utf-8", &:read), headers: @has_header) do |row|
           ##################
           #  CSV MAPPINGS  #
           ##################
           # Asset settings #
           ##################
-
-          # locator = row[$map_locator.to_s] # field used to compare for dupes
+          kdi_entry_total += 1
           file = row[map_file.to_s] # (string) path to affected file
           ip_address = row[map_ip_address.to_s] # (string) ip_address of internal facing asset
           mac_address = row[map_mac_address.to_s] # (mac format-regex) MAC address asset
@@ -184,7 +193,6 @@ module Kenna
           #########################
           tag_list = map_tags.split(",") # (string) list of strings that correspond to tags on an asset
           prefix_list = map_tag_prefix.split(",")
-          # puts tag_list
           tags = []
           count = 0
           tag_list.each do |col|
@@ -204,7 +212,7 @@ module Kenna
           priority = row[map_priority.to_s].to_i unless row[map_priority.to_s].nil? || row[map_priority.to_s].empty?
           # (Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
-          if @assets_only == "false" # Added for ASSET ONLY Run
+          if @assets_only == "false"
 
             #########################
             # Vulnerability Section #
@@ -233,6 +241,7 @@ module Kenna
                      else
                        status_map[row[map_status.to_s]]
                      end
+
             closed = row[map_closed.to_s] # (string) Date it was closed
             port = row[map_port.to_s].to_i unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
 
@@ -251,8 +260,14 @@ module Kenna
           end
 
           # #call the methods that will build the json now##
+          if status.nil? || status.empty?
+            status = if @appsec_findings == "false"
+                       "open"
+                     else
+                       "new"
+                     end
+          end
 
-          status = "open" if status.nil? || status.empty?
           # Convert the dates
           created = Time.strptime(created, $date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
           last_fixed = Time.strptime(last_fixed, $date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
@@ -266,6 +281,24 @@ module Kenna
 
           closed = Time.strptime(closed, $date_format_in).strftime(date_format_KDI) unless closed.nil?
 
+          if @appsec_findings == "true"
+            additional_fields_list = map_additional_fields.split(",") unless map_additional_fields.nil?
+            additional_fields = nil
+            if !additional_fields_list.nil? && !additional_fields_list.empty?
+              additional_fields_list.each do |col|
+                col = col.gsub(/\A['"]+|['"]+\Z/, "")
+                if !row[col].nil? && !row[col].empty?
+                  if additional_fields.nil?
+                    additional_fields = { col => row[col] }
+                  else
+                    additional_fields.merge!({ col => row[col] })
+                  end
+                end
+              end
+            end
+            additional_fields.compact if !additional_fields.nil? && !additional_fields.empty?
+          end
+
           ### CREATE THE ASSET
           done = create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
           # puts "create assset = #{done}"
@@ -274,34 +307,55 @@ module Kenna
           ### ASSOCIATE THE ASSET TO THE VULN
 
           if @assets_only == "false" # Added for ASSET ONLY Run
-
-            create_asset_vuln(hostname, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
-                              last_seen, status, closed, port)
-
-            # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
+            if @appsec_findings == "false"
+              create_asset_vuln(hostname, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
+                                last_seen, status, closed, port)
+            else
+              ### ASSOCIATE THE ASSET TO THE findings/vuln
+              create_asset_findings(file, url, external_id, scanner_type, scanner_id, additional_fields, created, scanner_score,
+                                    last_seen, status, closed)
+            end
+            # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN/finding
             create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)
+          end
+
+          if kdi_entry_total > 9999
+            kdi_output = generate_kdi_file
+            output_dir = "#{$basedir}/#{@options[:output_directory]}"
+            filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
+            write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+            print_good "Output ##{kdi_subfiles_out} is available at: #{output_dir}/#{filename}"
+
+            ### Uploading & staging to be run if we're all configured
+            if @kenna_connector_id && @kenna_api_host && @kenna_api_key
+              # print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
+              response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", run_now = false
+
+              filenum = response_json.fetch("data_file")
+              @uploaded_files << filenum
+              end
+            kdi_entry_total = 0
+            $assets = []
+            $vuln_defs = []
+            print_good "Now I am going to go process some more of your fat CSV input"
           end
         end
 
-        # puts JSON.pretty_generate kdi_output
-
-        # f = File.new('#{$basedir}/#{kdi_out}', 'w')
-        # f.write(JSON.pretty_generate kdi_output)
-        # f.close
-        # print_good "Output is available at: #{$basedir}/#{kdi_out}"
-        ### Write KDI format
-        # kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
         kdi_output = generate_kdi_file
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        filename = "kdiout#{@kenna_connector_id}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
+        filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        print_good "Output is available at: #{output_dir}/#{filename}"
+        print_good "Output ##{kdi_subfiles_out} is available at: #{output_dir}/#{filename}"
 
-        ### Finish by uploading if we're all configured
+        ### Uploading & running if we're all configured
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-        upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
+        # print_good "Attempting to upload file to connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
+        response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", run_now = false
+        filenum = response_json.fetch("data_file")
+        @uploaded_files << filenum
+        print_good "Attempting to ingest staged files by running connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
+        run_files_on_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files
       end
     end
   end

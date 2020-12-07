@@ -58,6 +58,7 @@ module Kenna
         tmpassets << { os_version: os_version.to_s } unless os_version.nil? || os_version.to_s.empty?
         tmpassets << { priority: priority } unless priority.nil? || priority.to_s.empty?
         tmpassets << { vulns: [] }
+        tmpassets << { findings: [] }
 
         success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
@@ -109,8 +110,40 @@ module Kenna
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
         assetvulns << { port: port } unless port.nil?
         assetvulns << { status: status.to_s }
+        puts assetvulns.reduce(&:merge)
 
         asset[:vulns] << assetvulns.reduce(&:merge)
+      end
+
+      def create_asset_findings(file, url, external_id, scanner_type, scanner_id, additional_fields,
+                                created, scanner_score, last_seen, status, due_date)
+
+        # find the asset
+        case $map_locator
+        when "file"
+          asset = $assets.find { |a| a[:file] == file }
+        when "url"
+          asset = $assets.find { |a| a[:url] == url }
+        when "external_id"
+          asset = $assets.find { |a| a[:external_id] == external_id }
+        else
+          "Error: main locator not provided" if @debug
+        end
+
+        put "Unknown asset, can't associate a vuln!" unless asset
+        return unless asset
+
+        # associate the asset
+        assetfindings = []
+        assetfindings << { scanner_type: scanner_type.to_s, scanner_identifier: scanner_id.to_s }
+        assetfindings << { additional_fields: additional_fields } unless additional_fields.nil?
+        assetfindings << { created_at: created.to_s } unless created.nil?
+        assetfindings << { severity: scanner_score } unless scanner_score.nil? || scanner_score.zero?
+        assetfindings << { last_seen_at: last_seen.to_s } unless last_seen.nil?
+        assetfindings << { due_date: due_date } unless due_date.nil?
+        assetfindings << { triage_state: status.to_s }
+
+        asset[:findings] << assetfindings.reduce(&:merge)
       end
 
       def create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)
@@ -122,7 +155,6 @@ module Kenna
         vuln_def << { name: name.to_s } unless name.nil? || name.empty?
         vuln_def << { description: description.to_s } unless description.nil? || description.empty?
         vuln_def << { solution: solution.to_s } unless solution.nil? || solution.empty?
-
         $vuln_defs << vuln_def.reduce(&:merge)
       end
     end

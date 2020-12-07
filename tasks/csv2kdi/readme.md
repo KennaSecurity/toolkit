@@ -9,9 +9,12 @@ This script will transform csv files into json that can be consumed by the Kenna
 
 
 Meta Data file
+Sample file for this csv2kdi toolkit task:
+  https://github.com/KennaPublicSamples/toolkit/tree/master/tasks/csv2kdi/tk_meta.csv_in
+
 Notes show fields that are required to be mapped. Column can reference the column name if the source data file has headers or the column index if there are no headers.
 
-locator column is required and is used to deduplicate data in the script itself. Additional deduplication may occur in Kenna after the upload depend on the set locator preference order.
+Locator column is required and is used to deduplicate data in the script itself. Additional deduplication may occur in Kenna after the upload depend on the set locator preference order.
 
 ## Options
 
@@ -46,47 +49,56 @@ Example command
 docker run -it --rm  \
      -v ~/input:/opt/app/toolkit/input \
 	   -v ~/output:/opt/app/toolkit/output \
-	   toolkit:latest task=csv2kdi:csv_in=input.csv:meta_file=metafile.csv:kenna_connector_id=156373:kenna_api_key=APICODE-KEY
+	   toolkit:latest task=csv2kdi csv_in=input.csv \
+     meta_file=metafile.csv:kenna_connector_id=156373 \
+     kenna_api_key=APICODE-KEY
 
 	   ( Note: on -v option: Example above has the ~/input on host and /opt/app/toolkit/input resides in the container )
      ( Note - 2: The container will run as the default user starting it so therefore will need perms to write to the mounted output volume or change perms appropriately)
 
 Sample run output:
-dzq6k6@Kenna-Gerhart:/mnt/c/Users/toby/OneDrive/Documents/GitHub/toolkit$ docker run -it --rm \
-  -v ~/input:/opt/app/toolkit/input \
-	-v ~/output:/opt/app/toolkit/output \
-	toolkit:latest task=csv2kdi:csv_in=input.csv:meta_file=metafile.csv:kenna_connector_id=<ID>:kenna_api_key=<APIKEY>
+docker run -it --rm \
+ -v ~/input:/opt/app/toolkit/input -v ~/output:/opt/app/toolkit/output \
+ -t toolkit task=csv2kdi csv_in=findings1.csv meta_file=findings1_meta.csv \
+ appsec_findings=true kenna_connector_id=156842 kenna_api_key=fsw**********
 
 Running: Kenna::Toolkit::Csv2kdi
-[+] (20201024133027) Setting csv_in to default value: input.csv
-[+] (20201024133027) Setting has_header to default value: true
-[+] (20201024133027) Setting meta_file to default value: meta.csv
-[+] (20201024133027) Setting skip_autoclose to default value: false
-[+] (20201024133027) Setting assets_only to default value: false
-[+] (20201024133027) Setting input_directory to default value: input
-[+] (20201024133027) Setting output_directory to default value: output
-[+] (20201024133027) Setting kenna_api_host to default value: api.kennasecurity.com
-[+] (20201024133027) Got option: task: csv2kdi
-[+] (20201024133027) Got option: csv_in: input.csv
-[+] (20201024133027) Got option: meta_file: metafile.csv
-[+] (20201024133027) Got option: kenna_connector_id: 156373
-[+] (20201024133027) Got option: kenna_api_key: F*******whz
-[+] (20201024133027) Got option: has_header: true
-[+] (20201024133027) Got option: skip_autoclose: false
-[+] (20201024133027) Got option: assets_only: false
-[+] (20201024133027) Got option: domain_suffix:
-[+] (20201024133027) Got option: input_directory: input
-[+] (20201024133027) Got option: output_directory: output
-[+] (20201024133027) Got option: kenna_api_host: api.kennasecurity.com
-[+] (20201024133027)
-[+] (20201024133027) Launching the csv2kdi task!
-[+] (20201024133027)
-[+] (20201024133029) Output is available at: /opt/app/toolkit/output/kdiout156373_20201024133028.json
-[+] (20201024133029) Attempting to upload to Kenna API at api.kennasecurity.com
-[+] (20201024133029) Attempting to upload to Kenna API
-[+] (20201024133029) Kenna API host: api.kennasecurity.com
-[+] (20201024133029) Sending request
-[+] (20201024133031) Success!
-[+] (20201024133051) Kenna Data Importer-toolkit connector running!
-[+] (20201024133112) Kenna Data Importer-toolkit connector running!
-[+] (20201024133127) Done!
+[+] (20201205152645) Setting csv_in to default value: input.csv
+[+] (20201205152645) Setting has_header to default value: true
+[+] (20201205152645) Setting meta_file to default value: meta.csv
+[+] (20201205152645) Setting skip_autoclose to default value: false
+[+] (20201205152645) Setting appsec_findings to default value: false
+[+] (20201205152645) Setting assets_only to default value: false
+[+] (20201205152645) Setting input_directory to default value: input
+[+] (20201205152645) Setting output_directory to default value: output
+[+] (20201205152645) Setting kenna_api_host to default value: api.kennasecurity.com
+[+] (20201205152645) Got option: task: csv2kdi
+[+] (20201205152645) Got option: csv_in: findings1.csv
+[+] (20201205152645) Got option: meta_file: findings1_meta.csv
+[+] (20201205152645) Got option: appsec_findings: true
+[+] (20201205152645) Got option: kenna_connector_id: 156842
+[+] (20201205152645) Got option: kenna_api_key: f*******nj1
+[+] (20201205152645) Got option: has_header: true
+[+] (20201205152645) Got option: skip_autoclose: false
+[+] (20201205152645) Got option: assets_only: false
+[+] (20201205152645) Got option: domain_suffix:
+[+] (20201205152645) Got option: input_directory: input
+[+] (20201205152645) Got option: output_directory: output
+[+] (20201205152645) Got option: kenna_api_host: api.kennasecurity.com
+[+] (20201205152645)
+[+] (20201205152645) Launching the csv2kdi task!
+[+] (20201205152645)
+[+] (20201205152658) Output #1 is available at: /opt/app/toolkit/output/kdiout156842_1_20201205152656.json
+[+] (20201205152658) Attempting to upload to Kenna API
+[+] (20201205152658) Kenna API host: api.kennasecurity.com
+[+] (20201205152658) Sending request
+[+] (20201205152702) Success!
+[+] (20201205152950) Done!
+[+] (20201205152950) Attempting to ingest staged files by running connector_id 156842 at Kenna API at api.kennasecurity.com
+[+] (20201205152950) Attempting to upload to Kenna API
+[+] (20201205152950) Kenna API host: api.kennasecurity.com
+[+] (20201205152950) Sending request
+[+] (20201205152951) Success!
+[+] (20201205153011) Kenna Data Importer connector running!
+[+] (20201205153032) Kenna Data Importer connector running!
+[+] (20201205172509) Done!

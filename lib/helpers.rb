@@ -79,10 +79,10 @@ module Kenna
         if File.exist?("#{$basedir}/tasks/#{task_name}/readme.md")
           readme = File.open("#{$basedir}/tasks/#{task_name}/readme.md").read
           readme_header = "\n \n \n \n# ***********************************************\n"
-          readme_header << "#     Displaying readme.md for #{task_name} \n"
-          readme_header << "# ***********************************************\n"
-          readme_header << "\n "
-          readme_header << "\n "
+          +readme_header << "#     Displaying readme.md for #{task_name} \n "
+          +readme_header << "\n# ***********************************************\n"
+          +readme_header << "\n "
+          +readme_header << "\n "
           readme = readme_header + readme
           pager = TTY::Pager.new
           pager.page(readme.to_s)
