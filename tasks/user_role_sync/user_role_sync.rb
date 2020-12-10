@@ -49,6 +49,11 @@ module Kenna
               required: false,
               default: false,
               description: "Optional parameter to remove users not in data file from Kenna system" },
+            { name: "role_exclusions",
+              type: "string",
+              required: false,
+              default: "",
+              description: "Optional parameter. Comma-delimited list of role IDs to exclude from updates." },
             { name: "debug",
               type: "boolean",
               required: false,
@@ -61,7 +66,7 @@ module Kenna
       def run(options)
         super
 
-        print_good "#{metadata[:name]} got arguments: #{@options}"
+        # print_good "#{metadata[:name]} got arguments: #{@options}"
 
         # debug flag
         @debug = @options[:debug]
@@ -75,6 +80,7 @@ module Kenna
         @lastname_col = @options[:lastname_column]
         @role_col = @options[:role_column]
         @remove_users = @options[:remove_users]
+        @role_exclusions = @options[:role_exclusions]
 
         # Variables we'll need later
         @role_post_url = "https://#{@api_host}/roles"
@@ -110,6 +116,15 @@ module Kenna
         print_good @role_list if @debug
         print_good @user_list if @debug
 
+        # Checking to ensure all exclusions are integers
+        # @role_exclusions.split(",").all? {|i| true if Integer(i) rescue false }
+
+        print_good "Excluding the following Kenna Roles:"
+        @role_exclusions.split(",").map do |role_id|
+          role = @role_list["roles"].detect {|r| r["id"] == role_id.to_i}
+          print_good "\t#{role["id"]} \t-- \t#{role["name"]}"
+        end
+
         # Iterate through CSV
         # CSV.foreach(@csv_file, :headers => true) do |row|
         # Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
@@ -126,6 +141,7 @@ module Kenna
             print_good @user_file_list if @debug
             print_good "------" if @debug
 
+            print_good "------"
             print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
             @log_output << "\rEmail:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
 
@@ -269,12 +285,13 @@ module Kenna
       def update_user(uid, fname, lname, email, role_name)
         user = @user_list["users"].find { |r1| r1["email"] == email.downcase }
 
-        # binding.pry
-
         # Check for Admin users
         if user["role"] == "administrator"
           print_good "User #{email} is Administrator and will not be updated."
           @log_output << "\rUser #{email} is Administrator and will not be updated."
+        elsif @role_exclusions.include? user["role_id"].to_s
+          print_good "User #{email} has role of \"#{user["role"]}\" is on exclusion list and will not be updated."
+          @log_output << "\rUser #{email} has role of \"#{user["role"]}\" is on exclusion list and will not be updated."
         else
 
           json_data = {
@@ -353,15 +370,24 @@ module Kenna
         # binding.pry
         # print_good "in remove_users"
 
-        curr_users_array = field_values(@user_list["users"], "id", "email")
+        curr_users_array = field_values(@user_list["users"], "id", "email", "role_id", "role")
 
-        curr_users_array.each do |id, email|
+        curr_users_array.each do |id, email, role_id, role_name|
           # binding.pry
           next if @user_file_list.include? email
 
-          print_good "Deleting #{email} with ID: #{id}"
-          @log_output << "\rDeleting #{email} with ID: #{id}"
-          delete_user(id.to_s)
+          # Check for Admin users
+          if role_name == "administrator"
+            print_good "User #{email} is Administrator and will not be removed."
+            @log_output << "\rUser #{email} is Administrator and will not be removed."
+          elsif @role_exclusions.include? role_id.to_s
+            print_good "User #{email} has role of \"#{role_name}\" is on exclusion list and will not be removed."
+            @log_output << "\rUser #{email} has role of \"#{role_name}\" is on exclusion list and will not be removed."
+          else
+            print_good "Deleting #{email} with ID: #{id} and ROLE: \"#{role_name}\""
+            @log_output << "\rDeleting #{email} with ID: #{id} and ROLE: \"#{role_name}\""
+            delete_user(id.to_s)
+          end
         end
       end
     end
