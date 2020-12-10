@@ -121,8 +121,8 @@ module Kenna
 
         print_good "Excluding the following Kenna Roles:"
         @role_exclusions.split(",").map do |role_id|
-          role = @role_list["roles"].detect {|r| r["id"] == role_id.to_i}
-          print_good "\t#{role["id"]} \t-- \t#{role["name"]}"
+          role = @role_list["roles"].detect { |r| r["id"] == role_id.to_i }
+          print_good "\t#{role['id']} \t-- \t#{role['name']}"
         end
 
         # Iterate through CSV
@@ -290,8 +290,8 @@ module Kenna
           print_good "User #{email} is Administrator and will not be updated."
           @log_output << "\rUser #{email} is Administrator and will not be updated."
         elsif @role_exclusions.include? user["role_id"].to_s
-          print_good "User #{email} has role of \"#{user["role"]}\" is on exclusion list and will not be updated."
-          @log_output << "\rUser #{email} has role of \"#{user["role"]}\" is on exclusion list and will not be updated."
+          print_good "User #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
+          @log_output << "\rUser #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
         else
 
           json_data = {
