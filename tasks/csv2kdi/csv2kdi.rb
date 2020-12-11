@@ -329,7 +329,7 @@ module Kenna
             ### Uploading & staging to be run if we're all configured
             if @kenna_connector_id && @kenna_api_host && @kenna_api_key
               # print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-              response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", run_now = false
+              response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
 
               filenum = response_json.fetch("data_file")
               @uploaded_files << filenum
@@ -351,7 +351,7 @@ module Kenna
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
         # print_good "Attempting to upload file to connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
-        response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", run_now = false
+        response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
         filenum = response_json.fetch("data_file")
         @uploaded_files << filenum
         print_good "Attempting to ingest staged files by running connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
