@@ -1,10 +1,10 @@
 FROM registry.access.redhat.com/ubi8/ruby-26
 USER root
 
-RUN REPO_LIST="ubi-8-baseos,ubi-8-appstream,ubi-8-codeready-builder"
-RUN yum update -y
-RUN yum install python3 ruby ruby-devel ruby-irb ruby-libs rubygems rubygems-devel rubygem-bundler -y
-RUN yum -y clean all
+# RUN REPO_LIST="ubi-8-baseos,ubi-8-appstream,ubi-8-codeready-builder"
+# RUN yum update -y
+# RUN yum install ruby ruby-devel ruby-irb ruby-libs rubygems rubygems-devel rubygem-bundler -y
+# RUN yum -y clean all
 
 # Removing NodeJS from base image since it isnt needed. (JG 10/25/2020)
 RUN yum remove -y nodejs 
@@ -26,7 +26,7 @@ ADD . "/opt/app/toolkit/"
 
 # Run Bundle Install
 WORKDIR "/opt/app/toolkit/"
-RUN bundle install
+RUN bundle install --without development test
 
 # Set Entrypoint
 ENTRYPOINT ["./scripts/entrypoint.sh"]
