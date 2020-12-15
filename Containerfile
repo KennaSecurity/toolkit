@@ -1,5 +1,4 @@
 FROM registry.access.redhat.com/ubi8/ruby-26
-LABEL maintainer="ops@kennasecurity.com"
 USER root
 
 RUN REPO_LIST="ubi-8-baseos,ubi-8-appstream,ubi-8-codeready-builder"
