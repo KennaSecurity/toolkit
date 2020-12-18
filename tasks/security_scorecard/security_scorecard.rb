@@ -8,7 +8,6 @@ module Kenna
         {
           id: "security_scorecard",
           name: "Security Scorecard",
-          maintainers: ["jcran"],
           description: "This task connects to the Security Scorecard API and pulls results into the Kenna Platform.",
           options: [
             { name: "ssc_api_key",
@@ -127,7 +126,7 @@ module Kenna
           vuln_attributes = {
             "scanner_identifier" => issue["vulnerability_id"] || issue["cve"],
             "scanner_type" => scanner_type,
-            "details" => JSON.pretty_generate(i),
+            "details" => JSON.pretty_generate(issue),
             "created_at" => first_seen,
             "last_seen_at" => last_seen,
             "status" => "open"
@@ -174,7 +173,7 @@ module Kenna
           vuln_attributes = {
             "scanner_identifier" => issue_type,
             "scanner_type" => scanner_type,
-            "details" => JSON.pretty_generate(i),
+            "details" => JSON.pretty_generate(issue),
             "created_at" => first_seen,
             "last_seen_at" => last_seen,
             "status" => "open"
@@ -327,13 +326,14 @@ module Kenna
           print_good "Pulling data for portfolio: #{ssc_portfolio_id}"
           issues = client.get_issues_for_portfolio(ssc_portfolio_id, issue_types)
 
-          issues.each do |i|
+          issues.each do |issue|
             ###
             ### Get things in an acceptable format
             ###
-            asset_attributes = ssc_issue_to_kdi_asset_hash(i)
+            asset_attributes = ssc_issue_to_kdi_asset_hash(issue)
+            next if asset_attributes.nil?
 
-            vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
+            vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
 
             # THEN create it
             create_kdi_asset(asset_attributes)
