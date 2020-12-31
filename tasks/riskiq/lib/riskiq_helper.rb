@@ -108,7 +108,7 @@ module Kenna
         end
         query_string << "]}}"
       end
-      
+
       def cve_footprint_query
         query_string = ""
         query_string += "{"
