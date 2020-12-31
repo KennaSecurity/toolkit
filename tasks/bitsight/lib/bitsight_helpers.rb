@@ -213,12 +213,11 @@ module Kenna
           "scanner_identifier" => vuln_def_id.to_s
         }
 
-        if /cve-/i.match?(vuln_def_id) then
+        if /cve-/i.match?(vuln_def_id)
           vd.merge({ "cve_identifiers" => vuln_def_id.to_s })
         else
           vd.merge({ "name" => vuln_def_id.to_s })
         end
-
 
         create_kdi_vuln_def(vd)
       end
