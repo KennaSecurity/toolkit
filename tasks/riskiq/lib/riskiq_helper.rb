@@ -14,7 +14,7 @@ module Kenna
       @incremental_time = nil
       @port_last_seen = nil
 
-      def setClientData(api_key, api_secret,kenna_connector_id,kenna_api_host,kenna_api_key, output_directory, incremental_time, pull_incremental, port_last_seen)
+      def set_client_data(api_key, api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, incremental_time, pull_incremental, port_last_seen)
         @api_url = "https://api.riskiq.net/v1/"
         @pull_incremental = pull_incremental
         @kenna_connector_id = kenna_connector_id
@@ -24,7 +24,6 @@ module Kenna
         @uploaded_files = []
         @incremental_time = incremental_time
         @port_last_seen = port_last_seen
-
 
         raise "Bad key?" unless api_key && api_secret
 
@@ -38,7 +37,7 @@ module Kenna
 
       def connector_kickoff
         ### Finish by uploading if we're all configured
-        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key && @uploaded_files.size > 0
+        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key && @uploaded_files.size.positive?
 
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
         run_files_on_kenna_connector(@kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files)
@@ -47,108 +46,104 @@ module Kenna
       ##
       def ssl_cert_query
         query_string = ""
-        query_string+='{'
-        query_string << '  "filters": {'
-        query_string << '  "condition": "AND",'
-        query_string << '   "value": ['
-        query_string << '      {'
-        query_string << '        "name": "type",'
-        query_string << '        "operator": "EQ",'
-        query_string << '        "value": "SSL_CERT"'
-        query_string << '      },'
-        query_string << '      {' 
-        query_string << '        "name": "state",'
-        query_string << '        "operator": "IN",'
-        query_string << '        "value": ["Approved Inventory", "Candidate"] '
-        query_string << '      },'
-        query_string << '      {'
-        query_string << '        "name": "selfSigned",'
-        query_string << '        "operator": "EQ",'
-        query_string << '        "value": true'
-        query_string << '      }'
-        if @pull_incremental then
-          query_string << ',{' 
-          query_string << '    "name": "updatedAt",' 
-          query_string << '    "operator": "GTE",' 
-          query_string << "    \"value\": \"#{@incremental_time}\"" 
-          query_string << '  }'  
+        query_string += "{"
+        query_string << "  \"filters\": {"
+        query_string << "  \"condition\": \"AND\","
+        query_string << "   \"value\": ["
+        query_string << "      {"
+        query_string << "        \"name\": \"type\","
+        query_string << "        \"operator\": \"EQ\","
+        query_string << "        \"value\": \"SSL_CERT\""
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"state\","
+        query_string << "        \"operator\": \"IN\","
+        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"selfSigned\","
+        query_string << "        \"operator\": \"EQ\","
+        query_string << "        \"value\": true"
+        query_string << "      }"
+        if @pull_incremental
+          query_string << ",{"
+          query_string << "    \"name\": \"updatedAt\","
+          query_string << "    \"operator\": \"GTE\","
+          query_string << "    \"value\": \"#{@incremental_time}\""
+          query_string << "  }"
         end
-        query_string << ']}}'
-        return query_string
+        query_string << "]}}"
       end
 
       ##
       def open_port_query
         query_string = ""
-        query_string+= '{'
-        query_string << '  "filters": {'
-        query_string << '  "condition": "AND",'
-        query_string << '   "value": ['
-        query_string << '      {'
-        query_string << '        "name": "type",'
-        query_string << '        "operator": "EQ",'
-        query_string << '        "value": "IP_ADDRESS"'
-        query_string << '      },'
-        query_string << '      {' 
-        query_string << '        "name": "state",'
-        query_string << '        "operator": "IN",'
-        query_string << '        "value": ["Approved Inventory", "Candidate"] '
-        query_string << '      }'
-        if !@port_last_seen.nil? then
-          query_string << ',{' 
-          query_string << '    "name": "portLastSeen",' 
-          query_string << '    "operator": "EQ",' 
-          query_string << "    \"value\": \"#{@port_last_seen}\"" 
-          query_string << '  }'  
+        query_string += "{"
+        query_string << "  \"filters\": {"
+        query_string << "  \"condition\": \"AND\","
+        query_string << "   \"value\": ["
+        query_string << "      {"
+        query_string << "        \"name\": \"type\","
+        query_string << "        \"operator\": \"EQ\","
+        query_string << "        \"value\": \"IP_ADDRESS\""
+        query_string << "      },"
+        query_string << "      {" 
+        query_string << "        \"name\": \"state\","
+        query_string << "        \"operator\": \"IN\","
+        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "      }"
+        if !@port_last_seen.nil?
+          query_string << ",{"
+          query_string << "    \"name\": \"portLastSeen\","
+          query_string << "    \"operator\": \"EQ\","
+          query_string << "    \"value\": \"#{@port_last_seen}\""
+          query_string << "  }"
         end
-        if @pull_incremental then
-          query_string << ',{' 
-          query_string << '    "name": "updatedAt",' 
-          query_string << '    "operator": "GTE",' 
+        if @pull_incremental
+          query_string << ",{"
+          query_string << "    \"name\": \"updatedAt\","
+          query_string << "    \"operator\": \"GTE\","
           query_string << "    \"value\": \"#{@incremental_time}\""
-          query_string << '  }'  
+          query_string << "  }"
         end
-        query_string << ']}}'
-        return query_string
+        query_string << "]}}"
       end
+      
       ##
       def cve_footprint_query
         query_string = ""
-        query_string+= '{'
-        query_string+= '  "filters": {'
-        query_string+= '  "condition": "AND",'
-        query_string+= '   "value": ['
-        query_string+= '      {'
-        query_string << '        "name": "type",'
-        query_string << '        "operator": "EQ",'
-        query_string << '        "value": "PAGE"'
-        query_string << '      },'
-        query_string << '      {' 
-        query_string << '        "name": "state",'
-        query_string << '        "operator": "IN",'
-        query_string << '        "value": ["Approved Inventory", "Candidate"] '
-        query_string << '      },'
-        query_string << '      {'
-        query_string << '        "name": "cvssScore",'
-        query_string << '        "operator": "NOT_NULL",'
-        query_string << '        "value": true'
-        query_string << '      }'
-        if @pull_incremental then
-          query_string << ',{' 
-          query_string << '    "name": "updatedAt",' 
-          query_string << '    "operator": "GTE",' 
+        query_string += "{"
+        query_string << "  \"filters\": {"
+        query_string << "  \"condition\": \"AND\","
+        query_string << "   \"value\": ["
+        query_string << "      {"
+        query_string << "        \"name\": \"type\","
+        query_string << "        \"operator\": \"EQ\","
+        query_string << "        \"value\": \"PAGE\""
+        query_string << "      },"
+        query_string << "      {" 
+        query_string << "        \"name\": \"state\","
+        query_string << "        \"operator\": \"IN\","
+        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"cvssScore\","
+        query_string << "        \"operator\": \"NOT_NULL\","
+        query_string << "        \"value\": true"
+        query_string << "      }"
+        if @pull_incremental
+          query_string << ",{"
+          query_string << "    \"name\": \"updatedAt\","
+          query_string << "    \"operator\": \"GTE\","
           query_string << "    \"value\": \"#{@incremental_time}\""
-          query_string << '  }'  
+          query_string << "  }" 
         end
-        query_string << ']}}'
-        return query_string
-
+        query_string << "]}}"
       end
 
       def search_global_inventory(query, batch_page_size)
         # start with sensible defaults
         current_page = 0
-        totalPages = 0
         asset_count = 0
         max_pages = -1
         out = []
@@ -170,22 +165,20 @@ module Kenna
           end
 
           # prepare the next request
-          if max_pages == -1
-            max_pages = result["totalPages"].to_i-1
-          end
+          max_pages = result["totalPages"].to_i -1 if max_pages == -1
 
           rows = result["content"]
-          if rows.size > 0 then
+          if rows.size.positive?
             rows.lazy.each do |item|
-              if item["uuid"] != current_asset then
-                if asset_count == batch_page_size then
+              if item["uuid"] != current_asset
+                if asset_count == batch_page_size
                   convert_riq_output_to_kdi(out)
 
                   output_dir = "#{$basedir}/#{@output_directory}"
                   filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
 
                   # actually write it
-                  if @paged_assets.size>0 then
+                  if @paged_assets.size.positive?
                     write_file_stream output_dir, filename, false, @paged_assets, @vuln_defs
                     print_good "Output is available at: #{output_dir}/#{filename}"
                     break unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
@@ -198,10 +191,10 @@ module Kenna
                   end
                   asset_count = 0
                   clear_data_arrays
-                  out = []   
+                  out = []  
                 end
                 current_asset = item["uuid"]
-                asset_count+=1
+                asset_count += 1
               end
               out << item
             end
@@ -210,15 +203,14 @@ module Kenna
           result = nil
           response = nil
         end
-        if out.size > 0 then
+        if out.size.positive?
           convert_riq_output_to_kdi(out)
 
           output_dir = "#{$basedir}/#{@output_directory}"
           filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
 
-
           # actually write it
-          if @paged_assets.size>0 then 
+          if @paged_assets.size.positive?
             write_file_stream output_dir, filename, false, @paged_assets, @vuln_defs
             print_good "Output is available at: #{output_dir}/#{filename}"
 
@@ -235,6 +227,7 @@ module Kenna
         clear_data_arrays
         out = []
       end
+      
       def create_self_signed_cert_vuln(asset, cert, _first_seen, _last_seen)
         vuln = {
           "scanner_identifier" => "self_signed_certificate",
@@ -260,8 +253,6 @@ module Kenna
         port_number = service["port"] if service.is_a? Hash
         port_number = port_number.to_i
 
-        #puts "DEBUG skipping unrecent #{service} port" unless service["recent"]
-
         ###
         ### handle http ports differently ... todo, standardize this
         ###
@@ -281,7 +272,7 @@ module Kenna
           "status" => "open"
         }
 
-        #puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
+        # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
         create_paged_kdi_asset_vuln(asset, vuln, "ip_address")
 
         vd = {
@@ -299,7 +290,7 @@ module Kenna
         # just return empty array if we weren't handed anything
         return output unless data_items
 
-        #kdi_initialize
+        # kdi_initialize
 
         @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
 
@@ -366,8 +357,6 @@ module Kenna
             asset["hostname"] = hostname.to_s if hostname
             asset["ip_address"] = ip_address.to_s if ip_address
 
-            #create_kdi_asset(asset)
-
             print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
 
           when "IP_ADDRESS"
@@ -379,9 +368,6 @@ module Kenna
               "tags" => tags
             }
             asset["external_id"] = id.to_s if id
-
-            # Only create the asset if we have open services on it (otherwise it'll just be an empty asset)
-            #create_kdi_asset(asset,"ip_address") if item["asset"]["services"]&.count&.positive?
 
           when "SSL_CERT"
 
@@ -421,14 +407,9 @@ module Kenna
           ### Get the open port out of services
           ###
           if @riq_create_open_ports && item["asset"]["services"]
-            # if (item["asset"]["services"].count > 1200) && @riskiq_limit_spurious_ports
-            #   puts "TOO MANY OPEN PORTS on #{item['name']}, SKIPPING!"
-            #   next
-            # else
-              (item["asset"]["services"] || []).uniq.lazy.each do |serv|
-                create_open_port_vuln(asset, serv, first_seen, last_seen)
-              end
-            # end
+            (item["asset"]["services"] || []).uniq.lazy.each do |serv|
+              create_open_port_vuln(asset, serv, first_seen, last_seen)
+            end
           end
 
           ###
