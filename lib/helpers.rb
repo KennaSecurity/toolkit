@@ -114,8 +114,8 @@ module Kenna
 
         writer = JsonWriteStream.open(output_path)
         writer.write_object
-        writer.write_key_value('skip_autoclose', autoclose)
-        writer.write_array('assets')
+        writer.write_key_value("skip_autoclose", autoclose)
+        writer.write_array("assets")
         assets.lazy.each do |asset|
           writer.write_element(asset)
         end
