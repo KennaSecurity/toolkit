@@ -226,7 +226,7 @@ module Kenna
         clear_data_arrays
         out = []
       end
-      
+
       def create_self_signed_cert_vuln(asset, cert, _first_seen, _last_seen)
         vuln = {
           "scanner_identifier" => "self_signed_certificate",
