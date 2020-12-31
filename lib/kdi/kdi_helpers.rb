@@ -57,7 +57,7 @@ module Kenna
         # and making sure we don't already have it
 
         if dup_check
-          return nil unless @assets.select { |a| uniq(a) == uniq(asset_hash) }.empty?
+          return nil if @assets.lazy.select { |a| uniq(a) == uniq(asset_hash) }.any?
         end
 
         # create default values
@@ -96,9 +96,9 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+              @assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
+              @assets.lazy.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
@@ -106,9 +106,9 @@ module Kenna
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
           a = if match_key.nil?
-                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+                @assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
+                @assets.lazy.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
         end
 
@@ -133,16 +133,16 @@ module Kenna
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
-              @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+              @assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
+              @assets.lazy.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
           puts "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset asset_hash
-          a = @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+          a = @assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
         end
 
         # Default values & type conversions... just make it work
@@ -162,25 +162,28 @@ module Kenna
         # check to make sure it doesnt exists
 
         a = if match_key.nil?
-              @paged_assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+              @paged_assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
             else
-              @paged_assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
+              @paged_assets.lazy.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
             end
 
         unless a
           a = if match_key.nil?
-                @assets.find { |asset| uniq(asset) == uniq(asset_hash) }
+                @assets.lazy.find { |asset| uniq(asset) == uniq(asset_hash) }
               else
-                @assets.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
+                @assets.lazy.find { |asset| asset[match_key] == asset_hash.fetch(match_key) }
               end
           if a
             @paged_assets << a
             @assets.delete(a)
+          else
+            a = asset_hash
+            @paged_assets << a
           end
         end
 
         # SAnity check to make sure we are pushing data into the correct asset
-        return false unless a
+        #return false unless a
 
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
@@ -214,7 +217,7 @@ module Kenna
       def create_kdi_vuln_def(vuln_def)
         kdi_initialize unless @vuln_defs
 
-        return unless @vuln_defs.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.empty?
+        return if @vuln_defs.lazy.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.any?
 
         @vuln_defs << vuln_def
 
