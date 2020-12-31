@@ -101,7 +101,7 @@ module Kenna
         output_directory = @options[:output_directory]
 
         # create an api client
-        setClientData(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
+        set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
 
 
         if @riq_create_cves # 156219
