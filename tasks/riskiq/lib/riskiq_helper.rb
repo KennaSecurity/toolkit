@@ -87,12 +87,12 @@ module Kenna
         query_string << "        \"operator\": \"EQ\","
         query_string << "        \"value\": \"IP_ADDRESS\""
         query_string << "      },"
-        query_string << "      {" 
+        query_string << "      {"
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
         query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
         query_string << "      }"
-        if !@port_last_seen.nil?
+        unless @port_last_seen.nil?
           query_string << ",{"
           query_string << "    \"name\": \"portLastSeen\","
           query_string << "    \"operator\": \"EQ\","
@@ -109,7 +109,6 @@ module Kenna
         query_string << "]}}"
       end
       
-      ##
       def cve_footprint_query
         query_string = ""
         query_string += "{"
@@ -121,7 +120,7 @@ module Kenna
         query_string << "        \"operator\": \"EQ\","
         query_string << "        \"value\": \"PAGE\""
         query_string << "      },"
-        query_string << "      {" 
+        query_string << "      {"
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
         query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
@@ -136,7 +135,7 @@ module Kenna
           query_string << "    \"name\": \"updatedAt\","
           query_string << "    \"operator\": \"GTE\","
           query_string << "    \"value\": \"#{@incremental_time}\""
-          query_string << "  }" 
+          query_string << "  }"
         end
         query_string << "]}}"
       end
@@ -165,7 +164,7 @@ module Kenna
           end
 
           # prepare the next request
-          max_pages = result["totalPages"].to_i -1 if max_pages == -1
+          max_pages = result["totalPages"].to_i - 1 if max_pages == -1
 
           rows = result["content"]
           if rows.size.positive?
@@ -191,7 +190,7 @@ module Kenna
                   end
                   asset_count = 0
                   clear_data_arrays
-                  out = []  
+                  out = []
                 end
                 current_asset = item["uuid"]
                 asset_count += 1
@@ -388,20 +387,11 @@ module Kenna
               "tags" => tags
             }
             asset["external_id"] = id.to_s if id
-
             #  ... only create the asset if we have a self-signed cert
-            if item["asset"]["selfSigned"]
-              #create_kdi_asset(asset,"hostname")
-              create_self_signed_cert_vuln(asset, item, first_seen, last_seen)
-            end
-
+            create_self_signed_cert_vuln(asset, item, first_seen, last_seen) if item["asset"]["selfSigned"]
           else
             raise "Unknown / unmapped type: #{item['type']} #{item}"
           end
-
-          ###
-          ### Handle Vuln / Vuln DEF
-          ###
 
           ###
           ### Get the open port out of services
