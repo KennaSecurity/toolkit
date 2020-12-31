@@ -350,7 +350,6 @@ module Kenna
         ### Write KDI format
         kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        puts output_dir
         filename = "security_scorecard.kdi.json"
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
         print_good "Output is available at: #{output_dir}/#{filename}"
