@@ -103,18 +103,17 @@ module Kenna
         # create an api client
         set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
 
-
-        if @riq_create_cves # 156219
+        if @riq_create_cves 
           print_good "Getting CVEs from footprint"
           search_global_inventory(cve_footprint_query, @batch_page_size)
         end
 
-        if @riq_create_open_ports # 156220
+        if @riq_create_open_ports
           print_good "Getting open ports from footprint"
           search_global_inventory(open_port_query, @batch_page_size)
         end
 
-        if @riq_create_ssl_misconfigs # 156221
+        if @riq_create_ssl_misconfigs
           print_good "Getting ssl misconfigs from footprint"
           search_global_inventory(ssl_cert_query, @batch_page_size)
         end
