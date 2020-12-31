@@ -182,9 +182,6 @@ module Kenna
           end
         end
 
-        # SAnity check to make sure we are pushing data into the correct asset
-        #return false unless a
-
         vuln_hash["status"] = "open" unless vuln_hash["status"]
         vuln_hash["port"] = vuln_hash["port"].to_i if vuln_hash["port"]
         vuln_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless vuln_hash["last_seen_at"]
