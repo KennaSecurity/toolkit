@@ -103,7 +103,7 @@ module Kenna
         # create an api client
         set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
 
-        if @riq_create_cves 
+        if @riq_create_cves
           print_good "Getting CVEs from footprint"
           search_global_inventory(cve_footprint_query, @batch_page_size)
         end
