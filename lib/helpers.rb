@@ -106,6 +106,28 @@ module Kenna
         end
       end
 
+      def write_file_stream(directory, filename, autoclose, assets, vuln_defs)
+        FileUtils.mkdir_p directory
+
+        # create full output path
+        output_path = "#{directory}/#{filename}"
+
+        writer = JsonWriteStream.open(output_path)
+        writer.write_object
+        writer.write_key_value("skip_autoclose", autoclose)
+        writer.write_array("assets")
+        assets.lazy.each do |asset|
+          writer.write_element(asset)
+        end
+        writer.close_array
+        writer.write_array("vuln_defs")
+        vuln_defs.lazy.each do |vuln_def|
+          writer.write_element(vuln_def)
+        end
+        writer.close_array
+        writer.close
+      end
+
       def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids, max_retries = 3)
         # optionally upload the file if a connector ID has been specified
         return unless connector_id && api_host && api_token

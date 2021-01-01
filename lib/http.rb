@@ -23,6 +23,12 @@ module Kenna
           puts "Exception! #{e}"
         rescue RestClient::BadRequest => e
           puts "Exception! #{e}"
+        rescue RestClient::InternalServerError => e
+          puts "Exception! #{e}"
+        rescue RestClient::ServerBrokeConnection => e
+          puts "Exception! #{e}"
+        rescue RestClient::NotFound => e
+          puts "Exception! #{e}"
         rescue RestClient::Exception => e
           puts "Exception! #{e}"
           retries ||= 0
@@ -53,6 +59,12 @@ module Kenna
         rescue RestClient::UnprocessableEntity => e
           puts "Exception! #{e}"
         rescue RestClient::BadRequest => e
+          puts "Exception! #{e}"
+        rescue RestClient::InternalServerError => e
+          puts "Exception! #{e}"
+        rescue RestClient::ServerBrokeConnection => e
+          puts "Exception! #{e}"
+        rescue RestClient::NotFound => e
           puts "Exception! #{e}"
         rescue RestClient::Exception => e
           puts "Exception! #{e}"
