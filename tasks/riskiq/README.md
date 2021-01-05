@@ -14,7 +14,8 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
 
 API calls to RiskIQ use the "recent" parameter to limit data. Refer to the Recency section of the API page https://api.riskiq.net/api/globalinventory/ to view the time period used for the different record types. 
 
-Data can be further limited using the riskiq_pull_incremental flag and riskiq_incremental_time to set the timeframe desired.
+All data can be further limited for data updates using the riskiq_pull_incremental flag and riskiq_incremental_time to set the timeframe desired.
+Further and distinctly, port data can be limited by using the port_last_seen parameter when riskiq_create_open_ports is true. 
 
 Recommended Steps: 
 
@@ -36,6 +37,7 @@ Complete list of Options:
 | riskiq_create_cves| true | Create vulns for CVEs | n/a |
 | riskiq_create_ssl_misconfigs | true | Create vulns for SSL Miconfigurations | n/a |
 | riskiq_create_open_ports | true | Create vulns for open ports | n/a |
+| riskiq_port_last_seen | true | Limit ports returned with riskiq_create_open ports to n days | n/a |
 | riskiq_pull_incremental | false | Boolean for pulling incrementals | false |
 | riskiq_incremental_time | false | Use with pull incrementals - Example '14 days ago' | '2 days ago' |
 | batch_page_size | false | Number of assets for each file load to Kenna | 500 |
@@ -43,3 +45,9 @@ Complete list of Options:
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/riskiq |
+
+Example call: 
+
+    toolkit:latest task=riskiq riskiq_api_key=XXXXX riskiq_api_secret=xxxxx riskiq_create_open_ports=true riskiq_port_last_seen=14 
+    riskiq_create_cves=true riskiq_create_ssl_misconfigs=true riskiq_pull_incremental=false riskiq_incremental_time="7 days ago" 
+    batch_page_size=1000 kenna_api_key=xxxxxx kenna_connector_id=xxxxx 
