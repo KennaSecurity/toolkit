@@ -272,7 +272,11 @@ module Kenna
         }
 
         # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
-        create_paged_kdi_asset_vuln(asset, vuln, "ip_address")
+        if asset["ip_address"]
+          create_paged_kdi_asset_vuln(asset, vuln, "ip_address")
+        else
+          create_paged_kdi_asset_vuln(asset, vuln)
+        end
 
         vd = {
           "scanner_identifier" => scanner_identifier,
