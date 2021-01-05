@@ -24,5 +24,5 @@ group :development, :test do
   gem "rubocop-github"
   gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false
-  gem "solargraph"
+  # gem "solargraph" require: false
 end
