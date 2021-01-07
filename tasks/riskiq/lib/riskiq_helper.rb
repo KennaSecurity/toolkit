@@ -359,7 +359,7 @@ module Kenna
             asset["external_id"] = id.to_s if id
             asset["hostname"] = hostname.to_s if hostname
             if hostname.to_s.empty?
-            	asset["ip_address"] = ip_address.to_s if ip_address
+              asset["ip_address"] = ip_address.to_s if ip_address
             end
 
             print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
