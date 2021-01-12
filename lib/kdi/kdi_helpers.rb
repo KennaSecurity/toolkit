@@ -72,6 +72,31 @@ module Kenna
         asset_hash.compact
       end
 
+      def find_or_create_kdi_asset(asset_hash, match_key = nil)
+        uniq_asset_hash = uniq(asset_hash)
+        asset_hash_key = asset_hash.fetch(match_key)
+
+        # check to make sure it doesnt exist
+        a = if match_key.nil?
+              @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
+            else
+              @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
+            end
+
+        # SAnity check to make sure we are pushing data into the correct asset
+        unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+          puts "Unable to find asset #{asset_hash}, creating a new one... "
+          create_kdi_asset(asset_hash)
+          a = if match_key.nil?
+                @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
+              else
+                @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
+              end
+        end
+
+        return a
+      end
+
       # create an instance of a vulnerability in our
       # Args can have the following key value pairs:
       # A "*" indicates required
@@ -94,26 +119,7 @@ module Kenna
       def create_kdi_asset_vuln(asset_hash, vuln_hash, match_key = nil)
         kdi_initialize unless @assets
 
-        uniq_asset_hash = uniq(asset_hash)
-        asset_hash_key = asset_hash.fetch(match_key)
-
-        # check to make sure it doesnt exist
-        a = if match_key.nil?
-              @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-            else
-              @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
-            end
-
-        # SAnity check to make sure we are pushing data into the correct asset
-        unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-          puts "Unable to find asset #{asset_hash}, creating a new one... "
-          create_kdi_asset asset_hash
-          a = if match_key.nil?
-                @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-              else
-                @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
-              end
-        end
+        a = find_or_create_kdi_asset(asset_hash, match_key)
 
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
@@ -134,22 +140,7 @@ module Kenna
       def create_kdi_asset_finding(asset_hash, finding_hash, match_key = nil)
         kdi_initialize unless @assets
 
-        uniq_asset_hash = uniq(asset_hash)
-        asset_hash_key = asset_hash.fetch(match_key)
-
-        # check to make sure it doesnt exist
-        a = if match_key.nil?
-              @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-            else
-              @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
-            end
-
-        # SAnity check to make sure we are pushing data into the correct asset
-        unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-          puts "Unable to find asset #{asset_hash}, creating a new one... "
-          create_kdi_asset asset_hash
-          a = @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-        end
+        a = find_or_create_kdi_asset(asset_hash, match_key)
 
         # Default values & type conversions... just make it work
         finding_hash["triage_state"] = "new" unless finding_hash["triage_state"]
