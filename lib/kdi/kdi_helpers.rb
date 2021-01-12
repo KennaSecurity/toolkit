@@ -94,7 +94,7 @@ module Kenna
               end
         end
 
-        return a
+        a
       end
 
       # create an instance of a vulnerability in our
