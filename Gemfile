@@ -13,9 +13,9 @@ source "https://rubygems.org"
 gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
 gem "json"
+gem "json-write-stream"
 gem "rest-client"
 gem "tty-pager"
-gem "json-write-stream"
 
 group :development, :test do
   gem "pry"
