@@ -86,7 +86,7 @@ module Kenna
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
           puts "Unable to find asset #{asset_hash}, creating a new one... "
-          create_kdi_asset(asset_hash)
+          create_kdi_asset(asset_hash, false)
           a = if match_key.nil?
                 @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
               else
