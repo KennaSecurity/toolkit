@@ -218,8 +218,8 @@ module Kenna
                 { action: "proc",
                   target: "hostname",
                   proc: lambda { |x|
-                          puts "#{x["domain"]} asset named mapping"
-                          x["domain"]&.gsub("\*", "WILDCARD")
+                          puts "#{x['domain']} asset named mapping"
+                          x['domain']&.gsub("\*", "WILDCARD")
                         } }
               ]
             },
