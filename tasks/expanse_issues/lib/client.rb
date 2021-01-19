@@ -1,0 +1,65 @@
+# frozen_string_literal: true
+
+require "uri"
+require "csv"
+
+module Kenna
+  module Toolkit
+    module ExpanseIssues
+      class Client
+        def initialize(api_key)
+          url = "https://expander.qadium.com/api/v1/idtoken"
+          response = http_get(url, { Authorization: "Bearer #{api_key}" })
+          @token = JSON.parse(response.body)["token"]
+          @headers = { Authorization: "JWT #{@token}" }
+        end
+
+        def successfully_authenticated?
+          @token&.length&.positive?
+        end
+
+        def issue_types
+          url = "https://expander.expanse.co/api/v1/issues/issueTypes?includeArchived=false&sort=id"
+          response = http_get(url, @headers)
+          result = JSON.parse(response.body)
+          result["data"].map { |x| x["id"] }
+        end
+
+        def business_units
+          url = "https://expander.expanse.co/api/v1/issues/businessUnits"
+          response = http_get(url, @headers)
+          result = JSON.parse(response.body)
+          result["data"].map { |x| x["id"] }
+        end
+
+        def issues(max_pages, limit_per_page, issue_type, business_unit, priorities)
+          return nil unless successfully_authenticated?
+
+          out = []
+          # issue_types.lazy.each do |issue_type|
+          # start with sensible defaults
+          page = 0
+          url = "https://expander.expanse.co/api/v1/issues/issues?limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}"
+          url = "#{url}&priorities=#{priorities}" unless priorities.nil?
+
+          until url.nil? || (page > max_pages)
+
+            # bump our page up
+            page += 1
+            # get the listing
+            response = http_get(url, @headers)
+            result = JSON.parse(response.body)
+
+            # puts "DEBUG Got #{result["data"].count} cloud exposures"
+
+            out.concat(result["data"])
+            url = result["pagination"].fetch("next")
+          end
+          # end
+
+          out
+        end
+      end
+    end
+  end
+end
