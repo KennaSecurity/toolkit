@@ -27,12 +27,17 @@ module Kenna
               type: "string",
               required: false,
               default: "",
-              description: "Comma-separated list of issue types. If not set, all issues will be included" },
+              description: "Comma-separated list of issue types. If not set, all issue types will be included" },
             { name: "priorities",
               type: "string",
               required: false,
               default: "",
-              description: "Comma-separated list of priorities. If not set, all issues will be included" },
+              description: "Comma-separated list of priorities. If not set, all priorities will be included" },
+            { name: "tagNames",
+              type: "string",
+              required: false,
+              default: "",
+              description: "Comma-separated list of tag names. If not set, all tags will be included" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -68,6 +73,7 @@ module Kenna
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @issue_types = @options[:issue_types].split(",") if @options[:issue_types]
         @priorities =  @options[:priorities] if @options[:priorities]
+        @tags = @options[:tagNames] if @options[:tagNames]
         expanse_api_key = @options[:expanse_api_key]
 
         print @issue_types
@@ -98,7 +104,7 @@ module Kenna
         # have to initialize here, as much is done in helpers / loops
         kdi_initialize
 
-        create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities)
+        create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities, @tags)
 
         ####
         ### Finish by uploading if we're all configured
