@@ -40,7 +40,7 @@ module Kenna
           # start with sensible defaults
           page = 0
           url = "https://expander.expanse.co/api/v1/issues/issues?&activityStatus=Active&progressStatus=New,Investigating,InProgress&limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}"
-          url = "#{url}&priorities=#{priorities}" unless priorities.nil?
+          url = "#{url}&priority=#{priorities}" unless priorities.nil?
           url = "#{url}&tagName=#{tags}" unless tags.nil?
 
           until url.nil? || (page > max_pages)
