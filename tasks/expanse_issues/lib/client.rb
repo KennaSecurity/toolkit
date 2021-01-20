@@ -32,15 +32,16 @@ module Kenna
           result["data"].map { |x| x["id"] }
         end
 
-        def issues(max_pages, limit_per_page, issue_type, business_unit, priorities)
+        def issues(max_pages, limit_per_page, issue_type, business_unit, priorities, tags)
           return nil unless successfully_authenticated?
 
           out = []
           # issue_types.lazy.each do |issue_type|
           # start with sensible defaults
           page = 0
-          url = "https://expander.expanse.co/api/v1/issues/issues?limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}"
+          url = "https://expander.expanse.co/api/v1/issues/issues?&activityStatus=Active&progressStatus=New,Investigating,InProgress&limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}"
           url = "#{url}&priorities=#{priorities}" unless priorities.nil?
+          url = "#{url}&tagName=#{tags}" unless tags.nil?
 
           until url.nil? || (page > max_pages)
 

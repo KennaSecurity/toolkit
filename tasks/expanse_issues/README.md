@@ -5,7 +5,7 @@
 - [Retrieve an API token using the Expanse API key](https://expander.qadium.com/api/v1/idtoken/) 
 - [Get a list of Business Units](https://expander.expanse.co/api/v1/issues/businessUnits)
 - [Get a list of Issue Types](https://expander.expanse.co/api/v1/issues/issueTypes?includeArchived=false) excluding Archived Issue Types
-- [Get a list of Issues](https://expander.expanse.co/api/v1/issues/issues) for each Business Unit for each provided Issue type optionally filtered by priority
+- [Get a list of Issues](https://expander.expanse.co/api/v1/issues/issues?activityStatus=Active&progressStatus=New,Investigating,InProgress) for each Business Unit with set filters for activityStatus = Active and progressStatus = New, Investigating, or InProgress. Optionally filters can be added to further limit the result set by Issue type, priority and tag names.  
 - Output a json file in the Kenna Data Importer (KDI) format.
 - Post the file to Kenna if API Key and Connector ID are provided
 
@@ -34,7 +34,15 @@ Run the Expanse task following the guidelines on the main [toolkit help page](ht
 | expanse_api_token | api_key | true | Expanse API Token |
 | issue_types | string | false | Comma Separated list of desired Issue Types or ALL if not set |
 | priority | string | false | Comma Separated list of desired Priority levels or ALL if not set |
+| tagNames | string | false | Comma Separated list of desired tagNames or ALL if not set |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
+
+
+
+    Example command line syntax:
+    -t toolkit:latest task=expanse_issues expanse_api_key=xxx
+    issue_types="InsecureSignatureCertificate" kenna_api_key=xxx kenna_connector_id=157104 tagNames="confirmed,expanse identified,content attributed,registration_only,content validated"
+    priorities="Medium,High,Critical"

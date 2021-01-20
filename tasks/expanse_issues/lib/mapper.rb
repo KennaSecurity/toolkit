@@ -45,7 +45,7 @@ module Kenna
           out
         end
 
-        def create_kdi_from_issues(max_pages, max_per_page, issue_types, priorities)
+        def create_kdi_from_issues(max_pages, max_per_page, issue_types, priorities, tags)
           ###
           ### Get the list of business units
           ###
@@ -65,7 +65,7 @@ module Kenna
               end
 
               print_good "Working on issue type: #{it}!"
-              issues = @client.issues(max_pages, max_per_page, it, bu, priorities)
+              issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
               print_good "Got #{issues.count} issues of type #{it}"
 
               # skip if we don't have any
