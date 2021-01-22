@@ -74,7 +74,7 @@ module Kenna
 
       def find_or_create_kdi_asset(asset_hash, match_key = nil)
         uniq_asset_hash = uniq(asset_hash)
-        asset_hash_key = asset_hash.fetch(match_key) if asset_hash.key?(match_key)
+        asset_hash_key = asset_hash.fetch(match_key) unless match_key.nil?
 
         # check to make sure it doesnt exist
         a = if match_key.nil?
@@ -157,7 +157,7 @@ module Kenna
         kdi_initialize unless @paged_assets
 
         uniq_asset_hash = uniq(asset_hash)
-        asset_hash_key = asset_hash.fetch(match_key) if asset_hash.key?(match_key)
+        asset_hash_key = asset_hash.fetch(match_key) unless match_key.nil?
 
         # check to make sure it doesnt exists
         a = if match_key.nil?
