@@ -4,11 +4,12 @@ module Kenna
   module Toolkit
     module Helpers
       module Http
-        def http_get(url, headers, max_retries = 5)
+        def http_get(url, headers, max_retries = 5, verify_ssl = true)
           RestClient::Request.execute(
             method: :get,
             url: url,
-            headers: headers
+            headers: headers,
+            verify_ssl: verify_ssl
           )
         rescue RestClient::TooManyRequests => e
           puts "Exception! #{e}"
@@ -40,12 +41,13 @@ module Kenna
           end
         end
 
-        def http_post(url, headers, payload, max_retries = 5)
+        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
           RestClient::Request.execute(
             method: :post,
             url: url,
             payload: payload,
-            headers: headers
+            headers: headers,
+            verify_ssl: verify_ssl
           )
         rescue RestClient::TooManyRequests => e
           puts "Exception! #{e}"
