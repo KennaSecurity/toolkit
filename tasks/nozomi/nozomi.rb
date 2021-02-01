@@ -28,6 +28,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Nozomi Hostname" },
+            { name: "nozomi_node_types",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "List of Nozomi Node Types to include in query" },
             { name: "nozomi_page_size",
               type: "integer",
               required: false,
@@ -69,6 +74,7 @@ module Kenna
         nozomi_user = @options[:nozomi_user]
         nozomi_password = @options[:nozomi_password]
         nozomi_api_host = @options[:nozomi_api_host]
+        nozomi_node_types = @options[:nozomi_node_types].split(",") unless @options[:nozomi_node_types].nil?
         nozomi_page_size = @options[:nozomi_page_size]
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
@@ -81,14 +87,11 @@ module Kenna
 
           pagenum += 1
 
-          issue_json = nozomi_get_issues(nozomi_user, nozomi_password, nozomi_api_host, nozomi_page_size, pagenum)
+          issue_json = nozomi_get_issues(nozomi_user, nozomi_password, nozomi_api_host, nozomi_node_types, nozomi_page_size, pagenum)
 
           print_debug "issue json = #{issue_json}"
 
-          if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
-            morepages = false
-            break
-          end
+          morepages = false if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
 
           issue_json.each do |issue_obj|
             os = issue_obj["node_os"] unless issue_obj["node_os"].nil? || issue_obj["node_os"].empty?
@@ -180,7 +183,6 @@ module Kenna
             create_kdi_asset_vuln(asset, vuln)
             create_kdi_vuln_def(vuln_def)
           end
-          pagenum += 1
         end
 
         ### Write KDI format
