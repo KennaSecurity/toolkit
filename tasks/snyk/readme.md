@@ -43,5 +43,5 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
   docker run -it --rm \
   -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
   -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
-  -t toolkit:latest task=snyk:snyk_api_token=8535xxxjM3464:kenna_connector_id=156222
+  -t toolkit:latest task=snyk:snyk_api_token=8535xxxjM3464:kenna_connector_id=156xxx
 
