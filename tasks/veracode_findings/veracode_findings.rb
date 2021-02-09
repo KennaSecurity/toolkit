@@ -76,7 +76,7 @@ module Kenna
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
-        
+
         client.kdi_kickoff
       end
     end
