@@ -16,6 +16,7 @@ gem "json"
 gem "json-write-stream"
 gem "rest-client"
 gem "tty-pager"
+gem "httparty"
 
 group :development, :test do
   gem "pry"
