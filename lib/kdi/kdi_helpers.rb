@@ -7,6 +7,7 @@ module Kenna
         @assets = []
         @vuln_defs = []
         @paged_assets = []
+        @uploaded_files = []
       end
 
       def uniq(asset)
@@ -85,7 +86,7 @@ module Kenna
 
         # SAnity check to make sure we are pushing data into the correct asset
         unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
-          puts "Unable to find asset #{asset_hash}, creating a new one... "
+          print_debug "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset(asset_hash, false)
           a = if match_key.nil?
                 @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
@@ -192,7 +193,33 @@ module Kenna
         true
       end
 
+      def kdi_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
+        ### Write KDI format
+        write_file_stream output_dir, filename, false, @assets, @vuln_defs
+        print_good "Output is available at: #{filename}"
+
+        ### Finish by uploading if we're all configured
+        if kenna_connector_id && kenna_api_host && kenna_api_key
+          print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
+          response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
+          filenum = response_json.fetch("data_file")
+          @uploaded_files = [] if @uploaded_files.nil?
+          @uploaded_files << filenum
+        end
+        clear_data_arrays
+        response_json
+      end
+
+      def kdi_connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
+        ### Finish by uploading if we're all configured
+        return if @uploaded_files.nil?
+
+        print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
+        run_files_on_kenna_connector(kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files)
+      end
+
       def clear_data_arrays
+        @assets = [] unless @paged_assets.any?
         @paged_assets = []
         @vuln_defs = []
       end
