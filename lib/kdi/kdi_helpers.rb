@@ -193,9 +193,9 @@ module Kenna
         true
       end
 
-      def kdi_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
+      def kdi_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, skip_autoclose = false, max_retries = 3)
         ### Write KDI format
-        write_file_stream output_dir, filename, false, @assets, @vuln_defs
+        write_file_stream output_dir, filename, skip_autoclose, @assets, @vuln_defs
         print_good "Output is available at: #{filename}"
 
         ### Finish by uploading if we're all configured
@@ -219,7 +219,7 @@ module Kenna
       end
 
       def clear_data_arrays
-        @assets = [] unless @paged_assets.any?
+        @assets = [] if @paged_assets.nil? || @paged_assets.none?
         @paged_assets = []
         @vuln_defs = []
       end
