@@ -64,7 +64,7 @@ module Kenna
             out
           end
 
-          def self.get_mapping_stats
+          def self.df_mapping_stats
             stats = {}
             stats[:bitsight] = []
             stats[:expanse] = []
