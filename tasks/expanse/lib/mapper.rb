@@ -50,11 +50,6 @@ module Kenna
               end
             end
           end
-
-          ## always set our exposure type... this should save some typing in the mapping file...
-          # out["vuln"]["scanner_identifier"] = exposure_type.downcase.gsub("-","_")
-          # out["vuln_def"]["scanner_identifier"] = exposure_type.downcase.gsub("-","_")
-
           out
         end
 
@@ -116,7 +111,7 @@ module Kenna
           ### Get the list of exposure types
           ###
           if @options && @options[:cloud_exposure_types]
-            cloud_exposure_types = (@options[:cloud_exposure_types]).to_s.downcase.tr("-", "_").split(",")
+            cloud_exposure_types = @options[:cloud_exposure_types].split(",")
           else
             cloud_exposure_counts = @client.cloud_exposure_counts
             puts "Got Cloud Exposure Counts: #{cloud_exposure_counts}"
@@ -132,7 +127,7 @@ module Kenna
             # underscores in our mapping
             # unmapped = false
 
-            unless field_mapping_for_cloud_exposures[et.downcase.tr("-", "_")]
+            unless field_mapping_for_cloud_exposures[et]
               print_error "WARNING! Skipping unmapped exposure type: #{et}!"
               # unmapped = true
               next
@@ -151,7 +146,7 @@ module Kenna
             # map fields for those expsures
             print "Mapping #{cloud_exposures.count} cloud exposures"
             result = cloud_exposures.map do |e|
-              map_exposure_fields(true, et.downcase.tr("-", "_"), e)
+              map_exposure_fields(true, et, e)
             end
             print_good "Mapped #{result.count} cloud exposures"
 
@@ -233,7 +228,7 @@ module Kenna
                       } }
             ],
             "vuln" => [
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.tr("-", "_") } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type } },
               { action: "proc", target: "created_at", proc: ->(x) { x["firstObservation"]["scanned"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["lastObservation"]["scanned"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["port"] || x["portNumber"] || x["firstObservation"]["portNumber"]).to_i } },
@@ -243,7 +238,7 @@ module Kenna
             ],
             "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse" },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type.downcase.to_s.tr("-", "_") } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { exposure_type } },
               { action: "data", target: "remediation", data: "Investigate this Exposure!" }
             ]
           }

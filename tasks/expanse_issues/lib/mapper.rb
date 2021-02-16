@@ -9,6 +9,15 @@ module Kenna
         include Kenna::Toolkit::KdiHelpers
         include Kenna::Toolkit::ExpanseIssues::IssueMapping
 
+        def kdi_kickoff
+          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+        end
+
+        def snake_case(issue_type)
+          it = issue_type.gsub(/(.)([A-Z])/, '\1_\2')
+          it.downcase if !it.nil? || issue_type.downcase
+        end
+
         # this method does the actual mapping, as specified
         # in the field_mapping_by_type method
         def map_issue_fields(issue_type, issue)
@@ -21,7 +30,7 @@ module Kenna
           mapping_areas.each do |area, mapping|
             out[area] = {}
 
-            ## For each item in the mapping
+            ## For each item in the mappin
             mapping.each do |map_item|
               target = map_item[:target]
               map_action = map_item[:action]
@@ -59,6 +68,7 @@ module Kenna
           ###
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
+              # issue_type = snake_case(it)
               unless field_mapping_for_issue_types[it]
                 print_error "WARNING! Skipping unmapped issue type: #{it}!"
                 next
@@ -73,7 +83,6 @@ module Kenna
                 print_debug "No issues of type #{it} found!"
                 next
               end
-
               # map fields for those expsures
               print "Mapping #{issues.count} issues"
               result = issues.map do |i|
@@ -86,9 +95,6 @@ module Kenna
               result.each do |r|
                 # NORMALIZE
                 cvd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"])
-
-                create_kdi_asset(r["asset"])
-
                 ### Setup basic vuln attributes
                 vuln_attributes = r["vuln"]
 
@@ -107,19 +113,8 @@ module Kenna
             end
             if @assets.size.positive?
               filename = "expanse_kdi_#{bu}.json"
-              write_file_stream @output_dir, filename, false, @assets, @vuln_defs
-              print_good "Output is available at: #{@output_dir}/#{filename}"
-
-              next unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
-
-              print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-              response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{@output_dir}/#{filename}", false
-              filenum = response_json.fetch("data_file")
-              @uploaded_files << filenum
-              print_good "Success!" if !response_json.nil? && response_json.fetch("success")
+              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
             end
-            @assets = []
-            @vuln_defs = []
           end
         end
 

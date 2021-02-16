@@ -101,18 +101,14 @@ module Kenna
           max_per_page = 10_000
         end
 
-        # have to initialize here, as much is done in helpers / loops
-        kdi_initialize
-
         create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities, @tags)
 
         ####
         ### Finish by uploading if we're all configured
         ####
-        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key && @uploaded_files.size.positive?
+        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
-        run_files_on_kenna_connector(@kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files)
+        kdi_kickoff
       end
     end
   end
