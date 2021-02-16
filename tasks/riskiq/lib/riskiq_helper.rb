@@ -13,6 +13,7 @@ module Kenna
       @headers = nil
       @incremental_time = nil
       @port_last_seen = nil
+      @debug = nil
 
       def set_client_data(api_key, api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, incremental_time, pull_incremental, port_last_seen)
         @api_url = "https://api.riskiq.net/v1/"
@@ -24,6 +25,7 @@ module Kenna
         @uploaded_files = []
         @incremental_time = incremental_time
         @port_last_seen = port_last_seen
+        @debug = @options[:debug]
 
         raise "Bad key?" unless api_key && api_secret
 
@@ -36,11 +38,8 @@ module Kenna
       end
 
       def connector_kickoff
-        ### Finish by uploading if we're all configured
-        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key && @uploaded_files.size.positive?
-
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
-        run_files_on_kenna_connector(@kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files)
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       ##
@@ -58,12 +57,43 @@ module Kenna
         query_string << "      {"
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
-        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "        \"value\": #{@riq_inventory_states}"
         query_string << "      },"
         query_string << "      {"
         query_string << "        \"name\": \"selfSigned\","
         query_string << "        \"operator\": \"EQ\","
         query_string << "        \"value\": true"
+        query_string << "      }"
+        if @pull_incremental
+          query_string << ",{"
+          query_string << "    \"name\": \"updatedAt\","
+          query_string << "    \"operator\": \"GTE\","
+          query_string << "    \"value\": \"#{@incremental_time}\""
+          query_string << "  }"
+        end
+        query_string << "]}}"
+      end
+
+      def expired_ssl_cert_query(cert_expiration)
+        query_string = ""
+        query_string += "{"
+        query_string << "  \"filters\": {"
+        query_string << "  \"condition\": \"AND\","
+        query_string << "   \"value\": ["
+        query_string << "      {"
+        query_string << "        \"name\": \"type\","
+        query_string << "        \"operator\": \"EQ\","
+        query_string << "        \"value\": \"SSL_CERT\""
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"state\","
+        query_string << "        \"operator\": \"IN\","
+        query_string << "        \"value\": #{@riq_inventory_states}"
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"sslCertExpiration\","
+        query_string << "        \"operator\": \"IN\","
+        query_string << "        \"value\": #{cert_expiration}"
         query_string << "      }"
         if @pull_incremental
           query_string << ",{"
@@ -90,7 +120,7 @@ module Kenna
         query_string << "      {"
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
-        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "        \"value\": #{@riq_inventory_states}"
         query_string << "      }"
         unless @port_last_seen.nil?
           query_string << ",{"
@@ -123,7 +153,7 @@ module Kenna
         query_string << "      {"
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
-        query_string << "        \"value\": [\"Approved Inventory\", \"Candidate\"] "
+        query_string << "        \"value\": #{@riq_inventory_states}"
         query_string << "      },"
         query_string << "      {"
         query_string << "        \"name\": \"cvssScore\","
@@ -147,15 +177,14 @@ module Kenna
         max_pages = -1
         out = []
         current_asset = ""
-        puts query
+        print_debug query if @debug
         while current_page <= max_pages || max_pages == -1
-          puts "DEBUG Getting page: #{current_page} / #{max_pages}"
+          print_debug "DEBUG Getting page: #{current_page} / #{max_pages}" if @debug
 
           endpoint = "#{@api_url}globalinventory/search?page=#{current_page}&size=100&recent=true"
 
           response = http_post(endpoint, @headers, query)
-
-          break if response.nil?
+          return if response.nil?
 
           begin
             result = JSON.parse(response.body)
@@ -167,30 +196,20 @@ module Kenna
           max_pages = result["totalPages"].to_i - 1 if max_pages == -1
 
           rows = result["content"]
-          if rows.size.positive?
+          if !rows.nil? && rows.size.positive?
             rows.lazy.each do |item|
               if item["uuid"] != current_asset
-                if asset_count == batch_page_size
+                if asset_count >= batch_page_size
                   convert_riq_output_to_kdi(out)
 
                   output_dir = "#{$basedir}/#{@output_directory}"
                   filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
-
                   # actually write it
-                  if @paged_assets.size.positive?
-                    write_file_stream output_dir, filename, false, @paged_assets, @vuln_defs
-                    print_good "Output is available at: #{output_dir}/#{filename}"
-                    break unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
-
-                    print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-                    response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", false
-                    filenum = response_json.fetch("data_file")
-                    @uploaded_files << filenum
-                    print_good "Success!" if !response_json.nil? && response_json.fetch("success")
+                  if !@assets.nil? && @assets.size.positive?
+                    kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
+                    asset_count = 0
+                    out = []
                   end
-                  asset_count = 0
-                  clear_data_arrays
-                  out = []
                 end
                 current_asset = item["uuid"]
                 asset_count += 1
@@ -202,28 +221,19 @@ module Kenna
           result = nil
           response = nil
         end
-        if out.size.positive?
-          convert_riq_output_to_kdi(out)
 
-          output_dir = "#{$basedir}/#{@output_directory}"
-          filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
+        return unless !out.size.nil? && out.size.positive?
 
-          # actually write it
-          if @paged_assets.size.positive?
-            write_file_stream output_dir, filename, false, @paged_assets, @vuln_defs
-            print_good "Output is available at: #{output_dir}/#{filename}"
+        convert_riq_output_to_kdi(out)
 
-            return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
+        output_dir = "#{$basedir}/#{@output_directory}"
+        filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
 
-            print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-            response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", false
-            filenum = response_json.fetch("data_file")
-            @uploaded_files << filenum
-            print_good "Success!" if !response_json.nil? && response_json.fetch("success")
-          end
-        end
+        # write any leftover data
+        return unless !@assets.nil? && @assets.size.positive?
+
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
         asset_count = 0
-        clear_data_arrays
         out = []
       end
 
@@ -231,52 +241,28 @@ module Kenna
         vuln = {
           "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ",
-          "details" => JSON.pretty_generate(cert),
-          # "first_seen" => first_seen,
-          # "last_seen" => last_seen,
-          "status" => "open"
+          "details" => JSON.pretty_generate(cert)
         }
 
         vd = {
           "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ"
         }
-
-        create_paged_kdi_asset_vuln(asset, vuln, "hostname")
-
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
+        create_kdi_asset_vuln(asset, vuln, "hostname")
+
         create_kdi_vuln_def(vuln_def)
       end
 
-      def create_open_port_vuln(asset, service, _first_seen, _last_seen)
-        port_number = service["port"] if service.is_a? Hash
-        port_number = port_number.to_i
-
-        ###
-        ### handle http ports differently ... todo, standardize this
-        ###
-        scanner_identifier = if [80, 443, 8080].include?(port_number)
-                               "http_open_port"
-                             else
-                               "other_open_port"
-                             end
+      def create_expired_cert_vuln(asset, cert, expired)
+        scanner_identifier = ("expired_certificate" if expired) || "expiring_certificate"
 
         vuln = {
           "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ",
-          "details" => JSON.pretty_generate(service.except("banners", "webComponents", "scanMetadata")),
-          "port" => port_number,
-          # "first_seen" => first_seen,
-          # "last_seen" => last_seen,
-          "status" => "open"
+          "details" => JSON.pretty_generate(cert)
         }
-
-        # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
-        if asset["ip_address"]
-          create_paged_kdi_asset_vuln(asset, vuln, "ip_address")
-        else
-          create_paged_kdi_asset_vuln(asset, vuln)
-        end
 
         vd = {
           "scanner_identifier" => scanner_identifier,
@@ -284,6 +270,51 @@ module Kenna
         }
 
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
+        create_kdi_asset_vuln(asset, vuln, "hostname")
+
+        create_kdi_vuln_def(vuln_def)
+      end
+
+      def create_open_port_vuln(asset, service, _first_seen, _last_seen)
+        # print_debug "at start of create open port vuln" if @debug
+        port_number = service["port"] if service.is_a? Hash
+        port_number = port_number.to_i
+
+        ###
+        ### handle http ports differently ... todo, standardize this
+        ###
+        scanner_identifier = if [80, 443, 8080, 8443].include?(port_number)
+                               "http_open_port"
+                             else
+                               "other_open_port"
+                             end
+        scanner_score = if scanner_identifier == "http_open_port"
+                          0
+                        else
+                          3
+                        end
+        vuln = {
+          "scanner_identifier" => scanner_identifier,
+          "scanner_type" => "RiskIQ",
+          "details" => JSON.pretty_generate(service.except("banners", "webComponents", "scanMetadata")),
+          "port" => port_number,
+          "scanner_score" => scanner_score
+        }
+
+        # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
+        vd = {
+          "scanner_identifier" => scanner_identifier,
+          "scanner_type" => "RiskIQ"
+        }
+
+        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln.merge({ "scanner_score" => vuln_def.fetch("scanner_score") }) if vuln_def.key?("scanner_score")
+        if asset["ip_address"]
+          create_kdi_asset_vuln(asset, vuln, "ip_address")
+        else
+          create_kdi_asset_vuln(asset, vuln)
+        end
         create_kdi_vuln_def(vuln_def)
       end
 
@@ -297,25 +328,13 @@ module Kenna
 
         @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
 
-        print_debug "Working on on #{data_items.count} items"
+        # print_debug "Working on on #{data_items.count} items" if @debug
         data_items.lazy.each do |item|
           ###
           ### First handle dates (same across all assets)
           ###
           first_seen = Time.now.utc
           last_seen = Time.now.utc
-
-          # if item["lastSeen"]
-          #   last_seen = Date.iso8601("#{item["lastSeen"]}")
-          # else
-          #   last_seen = Date.iso8601("#{item["createdAt"]}","%s").to_s
-          # end
-
-          # if item["firstSeen"]
-          #   first_seen = Date.iso8601("#{item["firstSeen"]}","%s").to_s
-          # else
-          #   first_seen = Date.iso8601("#{item["createdAt"]}","%s").to_s
-          # end
 
           ###
           ### First handle tags (same across all assets)
@@ -333,6 +352,8 @@ module Kenna
           ###
           case item["type"]
           when "HOST", "PAGE"
+
+            print_debug "processing host or page" if @debug
 
             # Hostname
             begin
@@ -366,6 +387,8 @@ module Kenna
 
           when "IP_ADDRESS"
 
+            print_debug "processing ip address" if @debug
+
             asset = {
               "ip_address" => (item["name"]).to_s,
               # "first_seen" => "#{first_seen}",
@@ -376,13 +399,16 @@ module Kenna
 
           when "SSL_CERT"
 
+            print_debug "processing ssl cert" if @debug
+
             # grab the sha
             sha_name = item["name"]
 
             # grab a hostname
-            hostname = item["asset"]["subjectAlternativeNames"].first if item["asset"] && item["asset"]["subjectAlternativeNames"]
-            hostname = item["asset"]["subject"]["common_name"] if item["asset"] && item["asset"]["subject"] && !hostname
-            hostname = item["asset"]["issuer"]["common_name"] if item["asset"] && item["asset"]["issuer"] && !hostname
+            hostname = item["asset"]["subjectAlternativeNames"].first unless item["asset"]["subjectAlternativeNames"].nil?
+            hostname ||= item["asset"]["subject"]["common name"] if item["asset"].key("subject") && item["asset"]["subject"].key?("common name")
+            hostname ||= item["asset"]["issuer"]["common name"] if item["asset"].key?("issuer") && item["asset"]["issuer"].key?("common name")
+            hostname ||= item["asset"]["issuer"]["unit"] if item["asset"].key?("issuer") && item["asset"]["issuer"].key?("unit")
             hostname ||= "unknown host, unable to get from the certificate"
 
             asset = {
@@ -392,9 +418,17 @@ module Kenna
               # "last_seen" => "#{last_seen}",
               "tags" => tags
             }
-            asset["external_id"] = id.to_s if id
+            # asset["external_id"] = id.to_s if id
             #  ... only create the asset if we have a self-signed cert
             create_self_signed_cert_vuln(asset, item, first_seen, last_seen) if item["asset"]["selfSigned"]
+            if item["asset"].key?("notAfter")
+              expires = DateTime.strptime(item["asset"]["notAfter"].to_s, "%Q")
+              if DateTime.now > expires
+                create_expired_cert_vuln(asset, item, true)
+              elsif DateTime.now > expires.next_day(30)
+                create_expired_cert_vuln(asset, item, false)
+              end
+            end
           else
             raise "Unknown / unmapped type: #{item['type']} #{item}"
           end
@@ -415,6 +449,8 @@ module Kenna
 
           next unless item["asset"]["webComponents"]
 
+          # print_debug "heading into web component processing for cves" if @debug
+
           (item["asset"]["webComponents"] || []).lazy.each do |wc|
             # default to derived if no port specified
             derived_port = (item["asset"]["service"]).to_s.split(":").last
@@ -426,13 +462,19 @@ module Kenna
 
               # if you want to create open ports
               (wc["cves"] || []).uniq.lazy.each do |cve|
+                details = {
+                  "webComponentName" => wc.fetch("webComponentName"),
+                  "webComponentCategory" => wc.fetch("webComponentCategory"),
+                  "cves" => wc.fetch("cves")
+                }
                 vuln = {
                   "scanner_identifier" => (cve["name"]).to_s,
                   "scanner_type" => "RiskIQ",
                   "port" => port.to_i,
+                  "details" => JSON.pretty_generate(details)
                   # "first_seen" => first_seen,
                   # "last_seen" => last_seen,
-                  "status" => "open"
+                  # "status" => "open"
                 }
 
                 vuln_def = {
@@ -440,10 +482,9 @@ module Kenna
                   "scanner_type" => "RiskIQ",
                   "cve_identifiers" => (cve["name"]).to_s
                 }
+                create_kdi_asset_vuln(asset, vuln)
 
-                create_paged_kdi_asset_vuln(asset, vuln)
-
-                # vd = fm.get_canonical_vuln_details("RiskIQ", vuln_def)
+                # these don't need to be mapped
                 create_kdi_vuln_def(vuln_def)
               end
             end
