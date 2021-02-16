@@ -25,6 +25,13 @@ module Kenna
         rescue RestClient::BadRequest => e
           puts "Exception! #{e}"
         rescue RestClient::InternalServerError => e
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            sleep(15)
+            puts "Retrying!"
+            retry
+          end
           puts "Exception! #{e}"
         rescue RestClient::ServerBrokeConnection => e
           puts "Exception! #{e}"
