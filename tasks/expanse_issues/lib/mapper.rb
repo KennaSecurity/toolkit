@@ -174,7 +174,7 @@ module Kenna
                       } }
             ],
             "vuln" => [
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type.downcase } },
               { action: "proc", target: "created_at", proc: ->(x) { x["initialEvidence"]["timestamp"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["latestEvidence"]["timestamp"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["portNumber"] || x["initialEvidence"]["portNumber"]).to_i } },
@@ -184,7 +184,7 @@ module Kenna
             ],
             "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse" },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type.downcase } },
               { action: "data", target: "remediation", data: "Investigate this Issue!" }
             ]
           }
