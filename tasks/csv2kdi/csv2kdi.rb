@@ -171,7 +171,7 @@ module Kenna
           ##################
           # Asset settings #
           ##################
-          kdi_entry_total += 1
+          ## kdi_entry_total += 1
           file = row[map_file.to_s] # (string) path to affected file
           ip_address = row[map_ip_address.to_s] # (string) ip_address of internal facing asset
           mac_address = row[map_mac_address.to_s] # (mac format-regex) MAC address asset
@@ -307,6 +307,7 @@ module Kenna
           ### ASSOCIATE THE ASSET TO THE VULN
 
           if @assets_only == "false" # Added for ASSET ONLY Run
+            kdi_entry_total += 1
             if @appsec_findings == "false"
               create_asset_vuln(hostname, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
                                 last_seen, status, closed, port)
