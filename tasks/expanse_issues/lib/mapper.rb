@@ -69,10 +69,10 @@ module Kenna
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
               # issue_type = snake_case(it)
-              unless field_mapping_for_issue_types[it]
-                print_error "WARNING! Skipping unmapped issue type: #{it}!"
-                next
-              end
+              # unless field_mapping_for_issue_types[it]
+              #   print_error "WARNING! Skipping unmapped issue type: #{it}!"
+              #   next
+              # end
 
               print_good "Working on issue type: #{it}!"
               issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
@@ -94,7 +94,7 @@ module Kenna
               fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
               result.each do |r|
                 # NORMALIZE
-                cvd = fm.get_canonical_vuln_details("Expanse", r["vuln_def"])
+                cvd = fm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"])
                 ### Setup basic vuln attributes
                 vuln_attributes = r["vuln"]
 
@@ -102,6 +102,8 @@ module Kenna
                 vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
 
                 vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
+
+                vuln_attributes["vuln_def_name"] = cvd["name"] if cvd["name"]
 
                 # Create the vuln
                 create_kdi_asset_vuln(r["asset"], vuln_attributes)
@@ -113,7 +115,7 @@ module Kenna
             end
             if @assets.size.positive?
               filename = "expanse_kdi_#{bu}.json"
-              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
+              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
             end
           end
         end
@@ -174,17 +176,18 @@ module Kenna
                       } }
             ],
             "vuln" => [
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type.downcase } },
+              { action: "proc", target: "vuln_def_name", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
               { action: "proc", target: "created_at", proc: ->(x) { x["initialEvidence"]["timestamp"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["latestEvidence"]["timestamp"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["portNumber"] || x["initialEvidence"]["portNumber"]).to_i } },
               { action: "proc", target: "details", proc: ->(x) { JSON.pretty_generate(x) } },
               { action: "proc", target: "scanner_score", proc: ->(x) { map_issue_priority(x["priority"]) } },
-              { action: "data", target: "scanner_type", data: "Expanse" }
+              { action: "data", target: "scanner_type", data: "Expanse_issues" }
             ],
             "vuln_def" => [
-              { action: "data", target: "scanner_type", data: "Expanse" },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type.downcase } },
+              { action: "data", target: "scanner_type", data: "Expanse_issues" },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
               { action: "data", target: "remediation", data: "Investigate this Issue!" }
             ]
           }
