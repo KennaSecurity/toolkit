@@ -5,6 +5,7 @@ Dockerfile
 Containerfile
 .rubocop,yml
 rubocop_todo.ymp
+Gemfile.lock
 .gitignore
 .dockerignore
 /.github

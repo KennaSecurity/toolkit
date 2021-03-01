@@ -1,15 +1,8 @@
-FROM ruby:2.6
+FROM ruby:2.6.6
 USER root
 
-
-# Setup The Enviroment. 
+# Update the bas image.
 RUN apt-get update -y && apt-get upgrade -y 
-RUN mkdir -p /opt/app/toolkit/
-RUN gem install bundler
-ENV GEM_HOME=/opt/app/bundle/
-ENV BUNDLE_SILENCE_ROOT_WARNING=1 BUNDLE_APP_CONFIG="/opt/app/bundle/"
-ENV PATH "/opt/app/bundle"/bin:"$PATH"
-RUN mkdir -p "/opt/app/bundle/"
 
 # Copy Files To Container.
 ADD . "/opt/app/toolkit/"
