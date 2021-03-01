@@ -24,7 +24,7 @@ module Kenna
         puts "[ ] Example:                                                           "
         puts "[ ] task=example option1=true option2=abc                              "
         puts "[ ]                                                                    "
-        puts "[ ] THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,    "
+        puts "[ ] THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,    "
         puts "[ ] EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF "
         puts "[ } MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND              "
         puts "[ ] NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT        "
