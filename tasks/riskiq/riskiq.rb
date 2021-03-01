@@ -99,6 +99,7 @@ module Kenna
         @riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
         @riq_create_open_ports = @options[:riskiq_create_open_ports]
         output_directory = @options[:output_directory]
+        @riq_inventory_states = "[\"Candidate\", \"CONFIRMED\"]"
 
         # create an api client
         set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
@@ -114,13 +115,13 @@ module Kenna
         end
 
         if @riq_create_ssl_misconfigs
-          print_good "Getting ssl misconfigs from footprint"
+          print_good "Getting ssl information from footprint"
           search_global_inventory(ssl_cert_query, @batch_page_size)
+          search_global_inventory(expired_ssl_cert_query("[\"Expired\",\"Expires30\"]"), @batch_page_size)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
         connector_kickoff
       end
     end
