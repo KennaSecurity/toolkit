@@ -106,7 +106,7 @@ module Kenna
         end
       end
 
-      def write_file_stream(directory, filename, autoclose, assets, vuln_defs)
+      def write_file_stream(directory, filename, autoclose, assets, vuln_defs, version = 1)
         FileUtils.mkdir_p directory
 
         # create full output path
@@ -115,6 +115,7 @@ module Kenna
         writer = JsonWriteStream.open(output_path)
         writer.write_object
         writer.write_key_value("skip_autoclose", autoclose)
+        writer.write_key_value("version", version)
         writer.write_array("assets")
         assets.lazy.each do |asset|
           writer.write_element(asset)

@@ -193,9 +193,10 @@ module Kenna
         true
       end
 
-      def kdi_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, skip_autoclose = false, max_retries = 3)
+      def kdi_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, skip_autoclose = false, max_retries = 3, version = 1)
         ### Write KDI format
-        write_file_stream output_dir, filename, skip_autoclose, @assets, @vuln_defs
+        @paged_assets.any? ? (write_assets = @paged_assets) : (write_assets = @assets)
+        write_file_stream output_dir, filename, skip_autoclose, write_assets, @vuln_defs, version
         print_good "Output is available at: #{filename}"
 
         ### Finish by uploading if we're all configured
