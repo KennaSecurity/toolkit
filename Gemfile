@@ -21,7 +21,7 @@ gem "httparty"
 group :development, :test do
   gem "pry"
   gem "rspec"
-  gem "rubocop", "~> 0.82.0", require: false
+  gem "rubocop", "~> 1.6.1", require: false
   gem "rubocop-github"
   gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false
