@@ -10,7 +10,6 @@ module Kenna
 
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key
-          #print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
           response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
           filenum = response_json.fetch("data_file")
           @uploaded_files = [] if @uploaded_files.nil?
@@ -24,7 +23,6 @@ module Kenna
         ### Finish by uploading if we're all configured
         return unless kenna_connector_id && kenna_api_host && kenna_api_key
 
-        #print_good "Attempting to run Kenna Connector via #{kenna_api_host}"
         run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files, max_retries
       end
 
@@ -135,7 +133,6 @@ module Kenna
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
         assetvulns << { port: port } unless port.nil?
         assetvulns << { status: status.to_s }
-        #puts assetvulns.reduce(&:merge)
 
         asset[:vulns] << assetvulns.reduce(&:merge)
       end

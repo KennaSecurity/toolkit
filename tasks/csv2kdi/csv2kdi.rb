@@ -73,7 +73,7 @@ module Kenna
               required: false,
               default: nil,
               description: "Kenna API code to be used to ingest" },
-              { name: "batch_page_size",
+            { name: "batch_page_size",
               type: "integer",
               required: false,
               default: 500,
