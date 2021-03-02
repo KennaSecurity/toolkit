@@ -351,7 +351,6 @@ module Kenna
         ### Uploading & running if we're all configured
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        # print_good "Attempting to upload file to connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
         response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
         filenum = response_json.fetch("data_file")
         @uploaded_files << filenum
