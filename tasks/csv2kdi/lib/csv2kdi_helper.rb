@@ -3,28 +3,6 @@
 module Kenna
   module Toolkit
     module Csv2kdihelper
-      @uploaded_files = nil
-      @file_cleanup = nil
-
-      def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
-        ### Finish by uploading if we're all configured
-        if kenna_connector_id && kenna_api_host && kenna_api_key
-          response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
-          filenum = response_json.fetch("data_file")
-          @uploaded_files = [] if @uploaded_files.nil?
-          @uploaded_files << filenum
-          File.delete("#{output_dir}/#{filename}") if @file_cleanup
-        end
-        response_json
-      end
-
-      def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
-        ### Finish by uploading if we're all configured
-        return unless kenna_connector_id && kenna_api_host && kenna_api_key
-
-        run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files, max_retries
-      end
-
       def generate_kdi_file
         { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
       end
@@ -132,6 +110,7 @@ module Kenna
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
         assetvulns << { port: port } unless port.nil?
         assetvulns << { status: status.to_s }
+        puts assetvulns.reduce(&:merge)
 
         asset[:vulns] << assetvulns.reduce(&:merge)
       end

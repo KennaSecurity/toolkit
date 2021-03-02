@@ -18,37 +18,29 @@ Locator column is required and is used to deduplicate data in the script itself.
 
 ## Options
 
-- Task Option: csv_in (string): CSV to be converted to KDI JSON
-               Required:(false): Default: input.csv
-- Task Option: has_header (boolean): Does the input file have a header?
-               Required:(false): Default: true
-- Task Option: meta_file (string): File to map input to Kenna fields
-               Required:(false): Default: meta.csv
-- Task Option: skip_autoclose (string): If vuln not in scan, do you want to close vulns?
-               Required:(false): Default: false
-- Task Option: appsec_findings (string): Field to populate findings appsec model
-               Required:(false): Default: false
-- Task Option: assets_only (string): Field to indicate assets only - no vulns
-               Required:(false): Default: false
-- Task Option: domain_suffix (string): Optional domain suffix for hostnames
-               Required:(false): Default:
-- Task Option: input_directory (string): Where input files are found. Path is relative to /opt/app/toolkit/
-               Required:(false): Default: input
-- Task Option: output_directory (string): If set, will write a file upon completion. Path is relative to /opt/app/toolkit/
-               Required:(false): Default: output
-- Task Option: kenna_api_host (string): Host used for the API endpoint
-               Required:(false): Default: api.kennasecurity.com
-- Task Option: kenna_connector_id (integer): ID required for connector to ingest file converted
-               Required:(false): Default:
-- Task Option: kenna_api_key (string): Kenna API code to be used to ingest
-               Required:(false): Default:
-- Task Option: batch_page_size (integer): Number of assets and their vulns to batch to the connector
-               Required:(false): Default: 500
-- Task Option: file_cleanup (boolean): Use this parameter to clean up files after upload to Kenna
-               Required:(false): Default: false
-- Task Option: max_retries (integer): Use this parameter to change retries on connector actions
-               Required:(false): Default: 5
 
+- Task Option: csv_in (string)              | Required? false | CSV to be converted to KDI JSON
+               (default: "input.csv")
+- Task Option: has_header (string)          | Required? false | Does the input file have a header?
+               (default: "true")
+- Task Option: meta_file (string)           | Required? false | File to map input to Kenna fields
+               (default: "meta.csv")
+- Task Option: skip_autoclose (string)      | Required? false | If vuln not in scan, do you want to close vulns?
+               (default: "false")
+- Task Option: assets_only (string)         | Required? false | Field to indicate assets only - no vulns
+               (default: "false")
+- Task Option: domain_suffix (string)       | Required? false | Optional domain suffix for hostnames
+               (default: nil)
+- Task Option: input_directory (string)     | Required? false | Where input files are found. Path is relative to /opt/app/toolkit/
+               (default: "input")
+- Task Option: output_directory (string)    | Required? false | If set, will write a file upon completion. Path is relative to /opt/app/toolkit/
+               (default: "output")
+- Task Option: kenna_api_host (string)      | Required? false | Host used for the API endpoint
+               (default: "api.kennasecurity.com")
+- Task Option: kenna_connector_id (integer) | Required? false | ID required for connector to ingest file converted
+               (no default)
+- Task Option: kenna_api_key (string)       | Required? false | Kenna API code to be used to ingest (get from Kenna platform under "user" menu
+               (no default)
 
 Example command to get task help for csv2kdi:
 docker run -it --rm toolkit:latest task=csv2kdi:help
