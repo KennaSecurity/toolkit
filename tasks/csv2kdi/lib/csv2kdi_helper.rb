@@ -7,7 +7,6 @@ module Kenna
       @file_cleanup = nil
 
       def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
-
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key
           response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
