@@ -205,7 +205,7 @@ module Kenna
 
         # connector_endpoint = "#{connector_endpoint}#{upload_ids.join('&data_files[]=')}"
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run"
-        pload = Hash.new
+        pload = {}
         pload["data_files"] = upload_ids
 
         begin
