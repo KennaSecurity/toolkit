@@ -24,16 +24,16 @@ Linux
 
 ---
 
-The easiest way to get started is to use the pre-built image on Quay.
+The easiest way to get started is to use the pre-built image on Docker Hub.
 
 A first example that will pull the latest image, and print the list of tasks:
 
-    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit
+    docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit
 
 A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task to check your api key.
 In this case, the expanse task:
 
-    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
+    docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
 
 ## Building your own Image
 
@@ -175,4 +175,3 @@ If you need to use a proxy with this container the suggested implementation is t
 
 ![Lint Code Base](https://github.com/KennaPublicSamples/toolkit/workflows/Lint%20Code%20Base/badge.svg)
 ![Bundler Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bundler%20Audit/badge.svg)
-[![Docker Repository on Quay](https://quay.io/repository/kennasecurity/toolkit/status "Docker Repository on Quay")](https://quay.io/repository/kennasecurity/toolkit)
