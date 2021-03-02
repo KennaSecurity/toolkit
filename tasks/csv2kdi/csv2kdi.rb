@@ -346,7 +346,7 @@ module Kenna
 
             ### Uploading/staging to be run if we're all configured
             if @kenna_connector_id && @kenna_api_host && @kenna_api_key
-              connector_response_json = connector_upload("#{output_dir}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @max_retries)
+              connector_response_json = connector_upload(output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @max_retries)
               print_good "Successful Upload Staged for Ingestion!" if !connector_response_json.nil? && connector_response_json.fetch("success")
             end
             kdi_entry_total = 0
@@ -360,14 +360,14 @@ module Kenna
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        connector_response_json = connector_upload("#{output_dir}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @max_retries)
+        connector_response_json = connector_upload(output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @max_retries)
         print_good "Output #{kdi_subfiles_out} is available at: #{output_dir}/#{filename}" if !connector_response_json.nil? && connector_response_json.fetch("success")
 
         ### Uploading & running if we're all configured
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
         print_good "Now asking the following connector to start ingesting the staged files:  #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
-        
+
         connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key, @max_retries)
       end
     end
