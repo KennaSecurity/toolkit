@@ -26,7 +26,7 @@ module Kenna
       end
 
       def generate_kdi_file
-        { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+        { skip_autoclose: ($skip_autoclose.eql?("true") ? true : false), assets: @assets.uniq, vuln_defs: @vuln_defs.uniq }
       end
 
       def create_asset(file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
@@ -38,25 +38,25 @@ module Kenna
 
         case $map_locator
         when "ip_address"
-          return success unless $assets.select { |a| a[:ip_address] == ip_address }.empty?
+          return success unless @assets.select { |a| a[:ip_address] == ip_address }.empty?
         when "hostname"
-          return success unless $assets.select { |a| a[:hostname] == hostname }.empty?
+          return success unless @assets.select { |a| a[:hostname] == hostname }.empty?
         when "file"
-          return success unless $assets.select { |a| a[:file] == file }.empty?
+          return success unless @assets.select { |a| a[:file] == file }.empty?
         when "mac_address"
-          return success unless $assets.select { |a| a[:mac_address] == mac_address }.empty?
+          return success unless @assets.select { |a| a[:mac_address] == mac_address }.empty?
         when "netbios"
-          return success unless $assets.select { |a| a[:netbios] == netbios }.empty?
+          return success unless @assets.select { |a| a[:netbios] == netbios }.empty?
         when "ec2"
-          return success unless $assets.select { |a| a[:ec2] == ec2 }.empty?
+          return success unless @assets.select { |a| a[:ec2] == ec2 }.empty?
         when "fqdn"
-          return success unless $assets.select { |a| a[:fqdn] == fqdn }.empty?
+          return success unless @assets.select { |a| a[:fqdn] == fqdn }.empty?
         when "external_id"
-          return success unless $assets.select { |a| a[:external_id] == external_id }.empty?
+          return success unless @assets.select { |a| a[:external_id] == external_id }.empty?
         when "database"
-          return success unless $assets.select { |a| a[:database] == database }.empty?
+          return success unless @assets.select { |a| a[:database] == database }.empty?
         when "url"
-          return success unless $assets.select { |a| a[:url] == url }.empty?
+          return success unless @assets.select { |a| a[:url] == url }.empty?
         else
           puts "Error: main locator not provided" if @debug
           success = false
@@ -84,7 +84,7 @@ module Kenna
 
         success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
-        $assets << tmpassets.reduce(&:merge) if success
+        @assets << tmpassets.reduce(&:merge) if success
 
         success
       end
@@ -95,25 +95,25 @@ module Kenna
         # find the asset
         case $map_locator
         when "ip_address"
-          asset = $assets.find { |a| a[:ip_address] == ip_address }
+          asset = @assets.find { |a| a[:ip_address] == ip_address }
         when "hostname"
-          asset = $assets.find { |a| a[:hostname] == hostname }
+          asset = @assets.find { |a| a[:hostname] == hostname }
         when "file"
-          asset = $assets.find { |a| a[:file] == file }
+          asset = @assets.find { |a| a[:file] == file }
         when "mac_address"
-          asset = $assets.find { |a| a[:mac_address] == mac_address }
+          asset = @assets.find { |a| a[:mac_address] == mac_address }
         when "netbios"
-          asset = $assets.find { |a| a[:netbios] == netbios }
+          asset = @assets.find { |a| a[:netbios] == netbios }
         when "url"
-          asset = $assets.find { |a| a[:url] == url }
+          asset = @assets.find { |a| a[:url] == url }
         when "ec2"
-          asset = $assets.find { |a| a[:ec2] == ec2 }
+          asset = @assets.find { |a| a[:ec2] == ec2 }
         when "fqdn"
-          asset = $assets.find { |a| a[:fqdn] == fqdn }
+          asset = @assets.find { |a| a[:fqdn] == fqdn }
         when "external_id"
-          asset = $assets.find { |a| a[:external_id] == external_id }
+          asset = @assets.find { |a| a[:external_id] == external_id }
         when "database"
-          asset = $assets.find { |a| a[:database] == database }
+          asset = @assets.find { |a| a[:database] == database }
         else
           "Error: main locator not provided" if @debug
         end
@@ -142,11 +142,11 @@ module Kenna
         # find the asset
         case $map_locator
         when "file"
-          asset = $assets.find { |a| a[:file] == file }
+          asset = @assets.find { |a| a[:file] == file }
         when "url"
-          asset = $assets.find { |a| a[:url] == url }
+          asset = @assets.find { |a| a[:url] == url }
         when "external_id"
-          asset = $assets.find { |a| a[:external_id] == external_id }
+          asset = @assets.find { |a| a[:external_id] == external_id }
         else
           "Error: main locator not provided" if @debug
         end
@@ -176,7 +176,7 @@ module Kenna
         vuln_def << { name: name.to_s } unless name.nil? || name.empty?
         vuln_def << { description: description.to_s } unless description.nil? || description.empty?
         vuln_def << { solution: solution.to_s } unless solution.nil? || solution.empty?
-        $vuln_defs << vuln_def.reduce(&:merge)
+        @vuln_defs << vuln_def.reduce(&:merge)
       end
     end
   end
