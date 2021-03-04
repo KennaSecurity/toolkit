@@ -111,7 +111,6 @@ module Kenna
         @batch_page_size = @options[:batch_page_size].to_i
         @file_cleanup = @options[:file_cleanup]
         @max_retries = @options[:max_retries].to_i
-
         @debug = true
         $map_locator = ""
 
