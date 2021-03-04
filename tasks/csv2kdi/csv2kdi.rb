@@ -348,7 +348,6 @@ module Kenna
         filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
         kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @max_retries
         run_files_on_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files
-
       end
     end
   end
