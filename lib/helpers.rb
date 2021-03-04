@@ -24,7 +24,14 @@ module Kenna
         puts "[ ] Example:                                                           "
         puts "[ ] task=example option1=true option2=abc                              "
         puts "[ ]                                                                    "
-        puts "[ ] At this time, toolkit usage is strictly UNSUPPORTED.               "
+        puts "[ ] THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,    "
+        puts "[ ] EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF "
+        puts "[ } MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND              "
+        puts "[ ] NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT        "
+        puts "[ ] HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,       "
+        puts "[ ] WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, "
+        puts "[ ] OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER      "
+        puts "[ ] DEALINGS IN THE SOFTWARE.                                          "
         puts "[ ]                                                                    "
         puts "[ ]                                                                    "
         puts "[ ] Tasks:"
@@ -106,7 +113,7 @@ module Kenna
         end
       end
 
-      def write_file_stream(directory, filename, autoclose, assets, vuln_defs)
+      def write_file_stream(directory, filename, autoclose, assets, vuln_defs, version = 1)
         FileUtils.mkdir_p directory
 
         # create full output path
@@ -115,6 +122,7 @@ module Kenna
         writer = JsonWriteStream.open(output_path)
         writer.write_object
         writer.write_key_value("skip_autoclose", autoclose)
+        writer.write_key_value("version", version)
         writer.write_array("assets")
         assets.lazy.each do |asset|
           writer.write_element(asset)

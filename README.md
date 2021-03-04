@@ -3,7 +3,7 @@
 
 The Kenna toolkit is a set of functions for data and api manipulation around the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
 
-All the code samples in this GitHub repository are offered “as is” and include no warranty of any kind. Use them at your own risk. In no event will Kenna be liable to the end user or any other party for damages of any kind arising from the use of these samples.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # USAGE
 
@@ -24,16 +24,16 @@ Linux
 
 ---
 
-The easiest way to get started is to use the pre-built image on Quay.
+The easiest way to get started is to use the pre-built image on Docker Hub.
 
 A first example that will pull the latest image, and print the list of tasks:
 
-    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit
+    docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit
 
 A slightly more complicated example. Below is a one-liner that will pull the latest image, and execute a task to check your api key.
 In this case, the expanse task:
 
-    docker pull quay.io/kennasecurity/toolkit && docker run -it quay.io/kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
+    docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
 
 ## Building your own Image
 
@@ -175,4 +175,3 @@ If you need to use a proxy with this container the suggested implementation is t
 
 ![Lint Code Base](https://github.com/KennaPublicSamples/toolkit/workflows/Lint%20Code%20Base/badge.svg)
 ![Bundler Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bundler%20Audit/badge.svg)
-[![Docker Repository on Quay](https://quay.io/repository/kennasecurity/toolkit/status "Docker Repository on Quay")](https://quay.io/repository/kennasecurity/toolkit)

@@ -1,24 +1,8 @@
-FROM registry.access.redhat.com/ubi8/ruby-26
+FROM ruby:2.6.6
 USER root
 
-RUN REPO_LIST="ubi-8-baseos,ubi-8-appstream,ubi-8-codeready-builder"
-RUN yum update -y
-RUN yum -y clean all
-
-# Removing NodeJS from base image since it isnt needed. (JG 10/25/2020)
-RUN yum remove -y nodejs 
-
-RUN { echo 'install: --no-document'; echo 'update: --no-document'; } >> /etc/gemrc && \
-    /usr/bin/gem install bundler && rm -rf /root/.gem && \
-    rm -rfv /var/cache/*  /var/log/* /tmp/*
-
-# Setup The Enviroment. 
-RUN mkdir -p /opt/app/toolkit/
-RUN gem install bundler:2.0.2
-ENV GEM_HOME=/opt/app/bundle/
-ENV BUNDLE_SILENCE_ROOT_WARNING=1 BUNDLE_APP_CONFIG="/opt/app/bundle/"
-ENV PATH "/opt/app/bundle"/bin:"$PATH"
-RUN mkdir -p "/opt/app/bundle/"
+# Update the bas image.
+RUN apt-get update -y && apt-get upgrade -y 
 
 # Copy Files To Container.
 ADD . "/opt/app/toolkit/"

@@ -201,16 +201,20 @@ module Kenna
           "accept" => "application/json"
         }
 
-        connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
+        # connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
 
-        connector_endpoint = "#{connector_endpoint}#{upload_ids.join('&data_files[]=')}"
+        # connector_endpoint = "#{connector_endpoint}#{upload_ids.join('&data_files[]=')}"
+        connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run"
+        pload = {}
+        pload["data_files"] = upload_ids
 
         begin
           print_good "Sending request"
           query_response = RestClient::Request.execute(
             method: :post,
             url: connector_endpoint,
-            headers: headers
+            headers: headers,
+            payload: pload
           )
 
           query_response_json = JSON.parse(query_response.body)
