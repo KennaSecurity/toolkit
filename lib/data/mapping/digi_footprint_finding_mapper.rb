@@ -19,18 +19,22 @@ module Kenna
             # orig_description = specific_details["description"]
             # orig_recommendation = specific_details["recommendation"]
             out = {}
-
+            done = false
             # Do the mapping
             ###################
             _mapping_data.each do |map|
+              break if done
+
               map[:matches].each do |match|
+                break if done
+
                 next unless match[:source] == orig_source
 
                 next unless match[:vuln_id]&.match?(orig_vuln_id)
 
                 out = {
                   scanner_type: orig_source,
-                  scanner_identifier: orig_vuln_id.to_s,
+                  scanner_identifier: orig_vuln_id,
                   source: "#{orig_source} (Kenna Normalized)",
                   scanner_score: (map[:score] / 10).to_i,
                   override_score: (map[:score]).to_i,
@@ -48,16 +52,19 @@ module Kenna
                 # end
 
                 out = out.stringify_keys
+                done = true
               end
             end
-
             # we didnt map it, so just pass it back
             if out.empty?
               puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
-                source: orig_source
+                source: orig_source,
+                scanner_score: 8,
+                override_score: 80,
+                name: "Unmappable Vuln"
               }.stringify_keys.merge(specific_details)
             end
 
@@ -114,7 +121,7 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^x_xss_protection_incorrect$/ },
                   { source: "SecurityScorecard", vuln_id: /^x_content_type_options_incorrect$/ },
                   { source: "SecurityScorecard", vuln_id: /^x_frame_options_incorrect$/ },
-                  { source: "Expanse", vuln_id: /^missing\S+header$/ }
+                  { source: "Expanse_issues", vuln_id: /^missing\S+header$/ }
                 ]
               },
               {
@@ -125,7 +132,7 @@ module Kenna
                 recommendation: "Update the application's content.",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ },
-                  { source: "Expanse", vuln_id: /^exposeddirectorylisting$/ }
+                  { source: "Expanse_issues", vuln_id: /^exposeddirectorylisting$/ }
                 ]
               },
               {
@@ -162,7 +169,7 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^desktop_software$/ },
                   { source: "Bitsight", vuln_id: /^insecure_systems$/ },
                   { source: "SecurityScorecard", vuln_id: /^outdated_browser$/ },
-                  { source: "Expanse", vuln_id: /^adobeflash$/ }
+                  { source: "Expanse_issues", vuln_id: /^adobeflash$/ }
                 ]
               },
               {
@@ -172,7 +179,7 @@ module Kenna
                 description: "System was discovered by an attack feed.",
                 recommendation: "Check this application for signs of compromise",
                 matches: [
-                  { source: "Expanse", vuln_id: /^solarwindsorionplatform$/ }
+                  { source: "Expanse_issues", vuln_id: /^solarwindsorionplatform$/ }
                 ]
               },
               {
@@ -213,11 +220,11 @@ module Kenna
                   { source: "Expanse", vuln_id: /^detected_server_mysql$/ },
                   { source: "Expanse", vuln_id: /^ms_sql_servers?$/ },
                   { source: "Expanse", vuln_id: /^my_sql_servers?$/ },
-                  { source: "Expanse", vuln_id: /^mssqlserver?$/ },
-                  { source: "Expanse", vuln_id: /^mysqlserver?$/ },
                   { source: "Expanse", vuln_id: /^sharepoint_servers?$/ },
-                  { source: "Expanse", vuln_id: /^sharepointserver$/ },
-                  { source: "Expanse", vuln_id: /^datastorageandanalysis$/ },
+                  { source: "Expanse_issues", vuln_id: /^sharepointserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^datastorageandanalysis$/ },
+                  { source: "Expanse_issues", vuln_id: /^mssqlserver?$/ },
+                  { source: "Expanse_issues", vuln_id: /^mysqlserver?$/ },
                   { source: "RiskIQ", vuln_id: /^open_db_port_tcp$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_mysql$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_microsoft_sql$/ }
@@ -232,7 +239,7 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^development_system_detected$/ },
                   { source: "Expanse", vuln_id: /^development_environments?$/ },
-                  { source: "Expanse", vuln_id: /^developmentenvironment$/ }
+                  { source: "Expanse_issues", vuln_id: /^developmentenvironment$/ }
                 ]
               },
               {
@@ -263,7 +270,7 @@ module Kenna
                 recommendation: "See specifics for more detail about the DNSSEC misconfiguration.",
                 matches: [
                   { source: "Bitsight", vuln_id: /^dnssec$/ },
-                  { source: "Expanse", vuln_id: /^wildcarddnsrecord$/ }
+                  { source: "Expanse_issues", vuln_id: /^wildcarddnsrecord$/ }
                 ]
               },
               {
@@ -352,7 +359,7 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^internal_ip_address_advertisements?$/ },
                   { source: "SecurityScorecard", vuln_id: /^admin_subdomain$/ },
-                  { source: "Expanse", vuln_id: /^internalipaddressadvertisement$/ }
+                  { source: "Expanse_issues", vuln_id: /^internalipaddressadvertisement$/ }
                 ]
               },
               {
@@ -373,7 +380,7 @@ module Kenna
                 description: "The software does not properly prevent private data from being accessed non authorized actors",
                 recommendation: "Examine systems to which the credentials provided access for signs of compromise.",
                 matches: [
-                  { source: "Expanse", vuln_id: /^section889violation$/ }
+                  { source: "Expanse_issues", vuln_id: /^section889violation$/ }
                 ]
               },
               {
@@ -431,15 +438,7 @@ module Kenna
                 description: "A System was detected running a non-sensitive service.",
                 recommendation: "Verify this is expected and firewall the port if it is not.",
                 matches: [
-                  # {
-                  #  source: "Bitsight",
-                  #  vuln_id: /^http_open_port$/
-                  # },
                   { source: "Expanse", vuln_id: /^web_servers?$/ },
-                  # {
-                  #  source: "SecurityScorecard",
-                  #  vuln_id: /^http_open_port$/
-                  # },
                   { source: "RiskIQ", vuln_id: /^http_open_port$/ }
                 ]
               },
@@ -453,9 +452,14 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^open_ports$/ }, # correct place for this? # Open TCP Ports Observed
                   { source: "Expanse", vuln_id: /^.*_servers?$/ }, # literally match anyting coming from them in this vein
                   { source: "Expanse", vuln_id: /^detected_server_.*$/ },
-                  { source: "Expanse", vuln_id: /^insecuretelerikwebui$/ },
-                  { source: "Expanse", vuln_id: /insecure\S+webserver$/ },
-                  { source: "Expanse", vuln_id: /openssl$/ },
+                  { source: "Expanse", vuln_id: /^colocated_.*$/ },
+                  { source: "Expanse_issues", vuln_id: /openssl$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocated.*$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuretelerikwebui$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecure.*webserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^f5bigipaccesspolicymanager$/ },
+                  { source: "Expanse_issues", vuln_id: /^f5bigiptmui$/ },
+                  { source: "Expanse_issues", vuln_id: /^paloaltonetworkspanoramaadminloginpage$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_.*+$/ }, # NOTE: .. many matches here, may need to be split up
                   { source: "SecurityScorecard", vuln_id: /^exposed_ports$/ }, # correct place for this? # Open TCP Ports Observed
                   { source: "RiskIQ", vuln_id: /^other_open_port$/ }
@@ -507,12 +511,12 @@ module Kenna
                   { source: "Expanse", vuln_id: /^insecure_signature_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^wildcard_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^certificate_short_key$/ },
-                  { source: "Expanse", vuln_id: /^insecuretls$/ },
                   { source: "Expanse", vuln_id: /^certificate_long_expiration$/ },
-                  { source: "Expanse", vuln_id: /^shortkeycertificate$/ },
-                  { source: "Expanse", vuln_id: /^wildcardcertificate$/ },
-                  { source: "Expanse", vuln_id: /^insecuresignaturecertificate$/ },
-                  { source: "Expanse", vuln_id: /^longexpirationcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^shortkeycertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^wildcardcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuresignaturecertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^longexpirationcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuretls$/ },
                   { source: "Intrigue", vuln_id: /^weak_cipher_suite_detected$/ },
                   { source: "SecurityScorecard", vuln_id: /^ssl_weak_cipher$/ },
                   { source: "SecurityScorecard", vuln_id: /^tls_weak_cipher$/ },
@@ -545,7 +549,7 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^self_signed_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^certificate_self_signed$/ },
-                  { source: "Expanse", vuln_id: /^selfsignedcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^selfsignedcertificate$/ },
                   { source: "Intrigue", vuln_id: /^self_signed_certificate$/ },
                   { source: "RiskIQ", vuln_id: /^self_signed_certificate$/ },
                   { source: "SecurityScorecard", vuln_id: /^tlscert_self_signed$/ }
@@ -559,8 +563,8 @@ module Kenna
                 recommendation: "Replace this ceritificate",
                 matches: [
                   { source: "Expanse", vuln_id: /^certificate_expired_when_scanned$/ },
-                  { source: "Expanse", vuln_id: /^expiredwhenscannedcertificate$/ },
                   { source: "Expanse", vuln_id: /^expired_when_scanned_certificate_advertisements?$/ },
+                  { source: "Expanse_issues", vuln_id: /^expiredwhenscannedcertificate$/ },
                   { source: "SecurityScorecard", vuln_id: /^tlscert_expired$/ },
                   { source: "RiskIQ", vuln_id: /^expired_certificate$/ }
                 ]
@@ -572,7 +576,7 @@ module Kenna
                 description: "An expiring Ceritficate was Found",
                 recommendation: "Replace this ceritificate soon",
                 matches: [
-                  { source: "Expanse", vuln_id: /^expiringcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^expiringcertificate$/ },
                   { source: "RiskIQ", vuln_id: /^expiring_certificate$/ }
                 ]
               },
@@ -598,9 +602,9 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^unencrypted_logins?$/ },
                   { source: "Expanse", vuln_id: /^detected_server_unencrypted_ftp$/ },
-                  { source: "Expanse", vuln_id: /^unencryptedftpserver$/ },
                   { source: "Expanse", vuln_id: /^detected_server_unencrypted_logins$/ },
-                  { source: "Expanse", vuln_id: /^unencryptedlogin$/ }
+                  { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^unencryptedlogin$/ }
                 ]
               },
               {
@@ -677,7 +681,7 @@ module Kenna
                 description: "The product exposes sensitive information to an actor that is not explicitly authorized to have access to that information.",
                 recommendation: "Compartmentalize the system to have 'safe' areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.",
                 matches: [
-                  { source: "Expanse", vuln_id: /^defaultapachetomcatpage$/ }
+                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ }
                 ]
               },
               {
@@ -690,26 +694,24 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^benign_finding$/ },
                   { source: "Expanse", vuln_id: /^certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^healthy_certificate_advertisements?$/ },
-                  { source: "Expanse", vuln_id: /^domain_control_validated_certificate_advertisements?$/ },
-                  { source: "Expanse", vuln_id: /^domaincontrolvalidatedcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^domaincontrolvalidatedcertificate$/ },
                   { source: "Expanse", vuln_id: /^employee_satisfaction$/ },
                   { source: "Expanse", vuln_id: /^teleconferencing_and_collaboration$/ },
                   { source: "Expanse", vuln_id: /^marketing_site$/ },
-                  { source: "Expanse", vuln_id: /^colocated_.*$/ },
-                  { source: "Expanse", vuln_id: /^colocated.*$/ },
                   { source: "Expanse", vuln_id: /^vpn$/ },
-                  { source: "Expanse", vuln_id: /^embeddedsystem$/ },
-                  { source: "Expanse", vuln_id: /^grafana$/ },
-                  { source: "Expanse", vuln_id: /^kubernetes$/ },
-                  { source: "Expanse", vuln_id: /^panosdevice$/ },
-                  { source: "Expanse", vuln_id: /^teleconferencingandcollaboration$/ },
-                  { source: "Expanse", vuln_id: /^vmwareesxi$/ },
-                  { source: "Expanse", vuln_id: /^vpndevice$/ },
-                  { source: "Expanse", vuln_id: /^weblogin$/ },
-                  { source: "Expanse", vuln_id: /^defaultapachetomcatpage$/ },
-                  { source: "Expanse", vuln_id: /^networkingandsecurityinfrastructure$/ },
-                  { source: "Expanse", vuln_id: /^buildingcontrolsystem$/ },
-                  { source: "Expanse", vuln_id: /^(?!colocated).*(?<!sharepoint|seb|sql|ftp)server$/ },
+                  { source: "Expanse", vuln_id: /^domain_control_validated_certificate_advertisements?$/ },
+                  { source: "Expanse_issues", vuln_id: /^embeddedsystem$/ },
+                  { source: "Expanse_issues", vuln_id: /^grafana$/ },
+                  { source: "Expanse_issues", vuln_id: /^kubernetes$/ },
+                  { source: "Expanse_issues", vuln_id: /^panosdevice$/ },
+                  { source: "Expanse_issues", vuln_id: /^teleconferencingandcollaboration$/ },
+                  { source: "Expanse_issues", vuln_id: /^vmwareesxi$/ },
+                  { source: "Expanse_issues", vuln_id: /^vpndevice$/ },
+                  { source: "Expanse_issues", vuln_id: /^weblogin$/ },
+                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ },
+                  { source: "Expanse_issues", vuln_id: /^networkingandsecurityinfrastructure$/ },
+                  { source: "Expanse_issues", vuln_id: /^buildingcontrolsystem$/ },
+                  { source: "Expanse_issues", vuln_id: /(?!colocated).*(?<!sharepoint|seb|sql|ftp)server$/ },
                   { source: "SecurityScorecard", vuln_id: /^waf_detected$/ },
                   { source: "SecurityScorecard", vuln_id: /^benign_finding$/ },
                   { source: "SecurityScorecard", vuln_id: /^hosted_on_object_storage$/ },
