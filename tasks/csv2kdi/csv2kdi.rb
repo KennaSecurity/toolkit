@@ -72,7 +72,22 @@ module Kenna
               type: "string",
               required: false,
               default: nil,
-              description: "Kenna API code to be used to ingest" }
+              description: "Kenna API code to be used to ingest" },
+            { name: "batch_page_size",
+              type: "integer",
+              required: false,
+              default: 500,
+              description: "Number of assets and their vulns to batch to the connector" },
+            { name: "file_cleanup",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "Use this parameter to clean up files after upload to Kenna" },
+            { name: "max_retries",
+              type: "integer",
+              required: false,
+              default: 5,
+              description: "Use this parameter to change retries on connector actions" }
           ]
         }
       end
@@ -90,16 +105,19 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_connector_id = @options[:kenna_connector_id]
         @kenna_api_key = @options[:kenna_api_key]
-        @output_directory = @options[:output_directory]
+        @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @input_directory = @options[:input_directory]
         @domain_suffix = @options[:domain_suffix]
+        @batch_page_size = @options[:batch_page_size].to_i
+        @file_cleanup = @options[:file_cleanup]
+        @max_retries = @options[:max_retries].to_i
 
         @debug = true
         $map_locator = ""
 
         # Global variables required between methods
-        $assets = []
-        $vuln_defs = []
+        @assets = []
+        @vuln_defs = []
         $mapping_array = []
         $date_format_in = ""
 
@@ -320,41 +338,18 @@ module Kenna
             create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)
           end
 
-          if kdi_entry_total > 9999
-            kdi_output = generate_kdi_file
-            output_dir = "#{$basedir}/#{@options[:output_directory]}"
+          if kdi_entry_total > @batch_page_size
             filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
-            write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-            print_good "Output ##{kdi_subfiles_out} is available at: #{output_dir}/#{filename}"
-
-            ### Uploading & staging to be run if we're all configured
-            if @kenna_connector_id && @kenna_api_host && @kenna_api_key
-              # print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-              response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
-
-              filenum = response_json.fetch("data_file")
-              @uploaded_files << filenum
-              end
+            kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @max_retries
             kdi_entry_total = 0
-            $assets = []
-            $vuln_defs = []
             print_good "Now I am going to go process some more of your fat CSV input"
           end
         end
-
-        kdi_output = generate_kdi_file
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
         filename = "kdiout#{@kenna_connector_id}_#{kdi_subfiles_out += 1}_#{Time.now.strftime('%Y%m%d%H%M%S')}.json"
-        write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        print_good "Output ##{kdi_subfiles_out} is available at: #{output_dir}/#{filename}"
-
-        ### Uploading & running if we're all configured
-        return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
-
-        response_json = upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
-        filenum = response_json.fetch("data_file")
-        @uploaded_files << filenum
-        print_good "Attempting to ingest staged files by running connector_id #{@kenna_connector_id} at Kenna API at #{@kenna_api_host}"
+        puts filename
+        puts @output_dir 
+        kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @max_retries
+        
         run_files_on_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, @uploaded_files
       end
     end
