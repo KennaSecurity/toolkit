@@ -83,7 +83,6 @@ module Kenna
               #           else
               #             status = "open"
               #           end
-                  
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
@@ -106,7 +105,6 @@ module Kenna
                 "application" => app_name,
                 "tags" => tags
               }
-              
               asset.compact!
 
               # craft the vuln hash
