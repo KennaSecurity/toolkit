@@ -5,7 +5,7 @@ require_relative "../../../lib/kdi/kdi_helpers"
 
 module Kenna
   module Toolkit
-    module Veracode
+    module VeracodeAV
       class Client
         include HTTParty
         include KdiHelpers
@@ -43,7 +43,6 @@ module Kenna
               tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
               tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
-              # app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"] }
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
@@ -51,7 +50,6 @@ module Kenna
         end
 
         def issues(app_guid, app_name, tags, page_size)
-          # def issues(app_guid, app_name, page_size)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -77,12 +75,13 @@ module Kenna
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              # status = case finding["finding_status"]["status"]
-              #           when "CLOSED"
-              #             status = "closed"
-              #           else
-              #             status = "open"
-              #           end
+              status = case finding["finding_status"]["status"]
+                       when "CLOSED"
+                         "closed"
+                       else
+                         "open"
+                       end
+
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
@@ -105,19 +104,21 @@ module Kenna
                 "application" => app_name,
                 "tags" => tags
               }
+
               asset.compact!
 
               # craft the vuln hash
-              finding = {
+              vuln_attributes = {
                 "scanner_identifier" => finding_cat,
                 "scanner_type" => "veracode",
-                "severity" => scanner_score,
+                "scanner_score" => scanner_score,
+                "details" => JSON.pretty_generate(additional_information),
                 "created_at" => found_on,
                 "last_seen_at" => last_seen,
-                "additional_fields" => additional_information
+                "status" => status
               }
 
-              finding.compact!
+              vuln_attributes.compact!
 
               vuln_def = {
                 "scanner_identifier" => finding_cat,
@@ -129,7 +130,7 @@ module Kenna
               vuln_def.compact!
 
               # Create the KDI entries
-              create_kdi_asset_finding(asset, finding)
+              create_kdi_asset_vuln(asset, vuln_attributes) # DBRO
               create_kdi_vuln_def(vuln_def)
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
