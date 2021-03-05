@@ -39,10 +39,9 @@ module Kenna
             applications.lazy.each do |application|
               # grab tags
               tag_list = []
-              application["profile"]["tags"].split(",").each { |t| tag_list.push(t)} if application["profile"]["tags"]
+              application["profile"]["tags"].split(",").each { |t| tag_list.push(t) } if application["profile"]["tags"]
               tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
               tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
-              
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
@@ -64,26 +63,27 @@ module Kenna
             return if findings.nil?
 
             findings.lazy.each do |finding|
-
               # IF "STATIC" SCAN USE FILE, IF "DYNAMIC" USE URL
               file = nil
               url = nil
-              if finding["scan_type"] == "STATIC"
+              case finding["scan_type"]
+              when "STATIC"
                 file = finding["finding_details"]["file_name"]
-              elsif finding["scan_type"] == "DYNAMIC"
+              when "DYNAMIC"
                 url = finding["finding_details"]["url"]
               end
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              if finding["finding_status"]["status"] == "OPEN"
+              case finding["finding_status"]["status"]
+              when "OPEN"
                 status = "open"
-              elsif finding["finding_status"]["status"] == "CLOSED"
+              when "CLOSED"
                 status = "closed"
               else
                 status = "open"
               end
-                  
+
 
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
@@ -133,7 +133,7 @@ module Kenna
               vuln_def.compact!
 
               # Create the KDI entries
-              create_kdi_asset_vuln(asset, vuln_attributes) #DBRO
+              create_kdi_asset_vuln(asset, vuln_attributes) # DBRO
               create_kdi_vuln_def(vuln_def)
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
@@ -141,12 +141,12 @@ module Kenna
 
           # Fix for slashes in the app_name. Won't work for filenames
           if app_name.index("/")
-            fname = app_name.gsub("/","_") 
+            fname = app_name.gsub("/", "_")
           else
             fname = app_name
           end
 
-          fname = fname[0..175] #Limiting the size of the filename
+          fname = fname[0..175] # Limiting the size of the filename
 
           kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end

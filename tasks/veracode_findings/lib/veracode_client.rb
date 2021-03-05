@@ -70,17 +70,19 @@ module Kenna
               # IF "STATIC" SCAN USE FILE, IF "DYNAMIC" USE URL
               file = nil
               url = nil
-              if finding["scan_type"] == "STATIC"
+              case finding["scan_type"]
+              when "STATIC"
                 file = finding["finding_details"]["file_name"]
-              elsif finding["scan_type"] == "DYNAMIC"
+              when "DYNAMIC"
                 url = finding["finding_details"]["url"]
               end
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              if finding["finding_status"]["status"] == "OPEN"
+              case finding["finding_status"]["status"]
+              when "OPEN"
                 status = "open"
-              elsif finding["finding_status"]["status"] == "CLOSED"
+              when "CLOSED"
                 status = "closed"
               else
                 status = "open"
@@ -141,12 +143,12 @@ module Kenna
 
           # Fix for slashes in the app_name. Won't work for filenames
           if app_name.index("/")
-            fname = app_name.gsub("/","_") 
+            fname = app_name.gsub("/", "_")
           else
             fname = app_name
           end
 
-          fname = fname[0..175] #Limiting the size of the filename
+          fname = fname[0..175] # Limiting the size of the filename
 
           kdi_upload(@output_dir, "veracode_#{app_name}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
