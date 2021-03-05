@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require_relative "lib/veracode_client"
+require_relative "lib/veracode_av_client"
 
 module Kenna
   module Toolkit
-    class VeracodeFindings < Kenna::Toolkit::BaseTask
-      include Kenna::Toolkit::Veracode
+    class VeracodeAssetVulns < Kenna::Toolkit::BaseTask
+      include Kenna::Toolkit::VeracodeAV
 
       def self.metadata
         {
-          id: "veracode_findings",
-          name: "Veracode Findings",
-          description: "Pulls application findings from Veracode",
+          id: "veracode_asset_vulns",
+          name: "Veracode Asset Vulns",
+          description: "Pulls assets and vulns from Veracode",
           options: [
             { name: "veracode_id",
               type: "string",
@@ -65,7 +65,7 @@ module Kenna
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
 
-        client = Kenna::Toolkit::Veracode::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
+        client = Kenna::Toolkit::VeracodeAV::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
 
         app_list = client.applications(page_size)
 
@@ -74,7 +74,6 @@ module Kenna
           appname = application.fetch("name")
           tags = application.fetch("tags")
           client.issues(guid, appname, tags, page_size)
-          # client.issues(guid, appname, page_size)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
