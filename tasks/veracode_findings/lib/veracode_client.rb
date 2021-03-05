@@ -39,10 +39,9 @@ module Kenna
             applications.lazy.each do |application|
               # grab tags
               tag_list = []
-              application["profile"]["tags"].split(",").each { |t| tag_list.push(t)} if application["profile"]["tags"]
+              application["profile"]["tags"].split(",").each { |t| tag_list.push(t) } if application["profile"]["tags"]
               tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
               tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
-              
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
               # app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"] }
             end
@@ -52,7 +51,7 @@ module Kenna
         end
 
         def issues(app_guid, app_name, tags, page_size)
-        # def issues(app_guid, app_name, page_size)
+          # def issues(app_guid, app_name, page_size)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -66,7 +65,6 @@ module Kenna
             return if findings.nil?
 
             findings.lazy.each do |finding|
-
               # IF "STATIC" SCAN USE FILE, IF "DYNAMIC" USE URL
               file = nil
               url = nil
@@ -79,14 +77,12 @@ module Kenna
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              case finding["finding_status"]["status"]
-              when "OPEN"
-                status = "open"
-              when "CLOSED"
-                status = "closed"
-              else
-                status = "open"
-              end
+              status = case finding["finding_status"]["status"]
+                        when "CLOSED"
+                          status = "closed"
+                        else
+                          status = "open"
+                        end
                   
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
@@ -143,7 +139,7 @@ module Kenna
 
           # Fix for slashes in the app_name. Won't work for filenames
           if app_name.index("/")
-            fname = app_name.gsub("/", "_")
+            fname = app_name.tr("/", "_")
           else
             fname = app_name
           end

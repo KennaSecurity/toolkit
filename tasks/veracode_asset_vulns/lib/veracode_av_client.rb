@@ -76,13 +76,11 @@ module Kenna
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
               status = case finding["finding_status"]["status"]
-              when "OPEN"
-                "open"
-              when "CLOSED"
-                "closed"
-              else
-                "open"
-              end
+                        when "CLOSED"
+                          "closed"
+                        else
+                          "open"
+                        end
 
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
@@ -140,7 +138,7 @@ module Kenna
 
           # Fix for slashes in the app_name. Won't work for filenames
           if app_name.index("/")
-            fname = app_name.gsub("/", "_")
+            fname = app_name.tr("/", "_")
           else
             fname = app_name
           end
