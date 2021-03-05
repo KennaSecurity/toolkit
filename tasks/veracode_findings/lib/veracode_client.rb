@@ -77,12 +77,12 @@ module Kenna
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              status = case finding["finding_status"]["status"]
-                        when "CLOSED"
-                          status = "closed"
-                        else
-                          status = "open"
-                        end
+              # status = case finding["finding_status"]["status"]
+              #           when "CLOSED"
+              #             status = "closed"
+              #           else
+              #             status = "open"
+              #           end
                   
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
@@ -138,15 +138,15 @@ module Kenna
           end
 
           # Fix for slashes in the app_name. Won't work for filenames
-          if app_name.index("/")
-            fname = app_name.tr("/", "_")
-          else
-            fname = app_name
-          end
+          fname = if app_name.index("/")
+                    app_name.tr("/", "_")
+                  else
+                    app_name
+                  end
 
           fname = fname[0..175] # Limiting the size of the filename
 
-          kdi_upload(@output_dir, "veracode_#{app_name}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
 
         def kdi_kickoff
