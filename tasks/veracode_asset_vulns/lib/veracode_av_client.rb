@@ -75,15 +75,14 @@ module Kenna
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              case finding["finding_status"]["status"]
+              status = case finding["finding_status"]["status"]
               when "OPEN"
-                status = "open"
+                "open"
               when "CLOSED"
-                status = "closed"
+                "closed"
               else
-                status = "open"
+                "open"
               end
-
 
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
