@@ -104,7 +104,7 @@ module Kenna
         @riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
         @riq_create_open_ports = @options[:riskiq_create_open_ports]
         output_directory = @options[:output_directory]
-        @riq_inventory_states = @options[:riskiq_inventory_states].split(',')
+        @riq_inventory_states = @options[:riskiq_inventory_states].split(",")
 
         # create an api client
         set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])

@@ -55,7 +55,6 @@ module Kenna
           ###
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
-
               print_good "Working on issue type: #{it}!"
               issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
               print_good "Got #{issues.count} issues of type #{it}"

@@ -75,7 +75,7 @@ module Kenna
           return
         end
 
-        get_bitsight_findings_and_create_kdi( bitsight_create_benign_findings, benign_finding_grades )
+        get_bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades)
 
         ### Write KDI format
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"

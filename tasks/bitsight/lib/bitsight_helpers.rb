@@ -10,26 +10,21 @@ module Kenna
       def globals(bitsight_api_key)
         @headers = {
           "Authorization" => "Basic #{Base64.strict_encode64(bitsight_api_key)}",
-          accept: :json,
-          content_type: :json
+          "accept" => :json,
+          "content_type" => :json
         }
         @bitsight_api_key = bitsight_api_key
-        get_my_company
-
+        my_company
       end
 
-
-
-      def get_bitsight_findings_and_create_kdi( bitsight_create_benign_findings, bitsight_benign_finding_grades )
+      def get_bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades)
         limit = 100
         page_count = 0
 
         endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings?limit=#{limit}"
 
         while endpoint
-
-          response = http_get(endpoint, @headers )
-
+          response = http_get(endpoint, @headers)
           result = JSON.parse(response.body)
 
           # do the right thing with the findings here
@@ -41,19 +36,19 @@ module Kenna
           endpoint = result["links"]["next"]
 
           if page_count > 10
-            filename = "bitsight_kdi#{Time.now.strftime("%Y%m%dT%H%M")}.json"
+            filename = "bitsight_kdi#{Time.now.strftime('%Y%m%dT%H%M')}.json"
             kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
             page_count = 0
           end
-          page_count+=1
+          page_count += 1
         end
-        filename = "bitsight_kdi#{Time.now.strftime("%Y%m%dT%H%M")}.json"
+        filename = "bitsight_kdi#{Time.now.strftime('%Y%m%dT%H%M')}.json"
         kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
       end
 
-      def get_my_company
+      def my_company
         # First get my company
-        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", { accept: :json,content_type: :json})
+        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", { accept: :json, content_type: :json })
         portfolio = JSON.parse(response.body)
         @company_guid = portfolio["my_company"]["guid"]
       end
@@ -61,7 +56,7 @@ module Kenna
       def valid_bitsight_api_key?
         endpoint = "https://api.bitsighttech.com/"
 
-        response = http_get(endpoint, @headers )
+        response = http_get(endpoint, @headers)
 
         result = JSON.parse(response.body)
         result.key? "disclaimer"
@@ -209,7 +204,7 @@ module Kenna
           "scanner_type" => "Bitsight",
           "details" => JSON.pretty_generate(finding),
           "created_at" => finding["first_seen"],
-          "last_seen_at" => finding["last_seen"],
+          "last_seen_at" => finding["last_seen"]
         }
 
         # set the port if it's available

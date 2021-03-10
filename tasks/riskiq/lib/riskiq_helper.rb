@@ -193,7 +193,8 @@ module Kenna
           end
 
           # prepare the next request
-          return if result["totalPages"].to_i ==0
+          return if result["totalPages"].to_i.zero?
+
           max_pages = result["totalPages"].to_i - 1 if max_pages == -1
 
           rows = result["content"]
@@ -341,9 +342,9 @@ module Kenna
           ###
           ### First handle dates (same across all assets)
           ###
-          if item.key?("lastSeen") && !item["lastSeen"].nil? then
+          if item.key?("lastSeen") && !item["lastSeen"].nil?
             last_seen = DateTime.strptime(item["lastSeen"].to_s, "%Q")
-            if item.key?("firstSeen") && !item["firstSeen"].nil? then
+            if item.key?("firstSeen") && !item["firstSeen"].nil?
               first_seen = DateTime.strptime(item["firstSeen"].to_s, "%Q")
             else
               first_seen = last_seen
