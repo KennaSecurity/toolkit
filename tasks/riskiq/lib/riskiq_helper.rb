@@ -344,11 +344,11 @@ module Kenna
           ###
           if item.key?("lastSeen") && !item["lastSeen"].nil?
             last_seen = DateTime.strptime(item["lastSeen"].to_s, "%Q")
-            if item.key?("firstSeen") && !item["firstSeen"].nil?
-              first_seen = DateTime.strptime(item["firstSeen"].to_s, "%Q")
-            else
-              first_seen = last_seen
-            end
+            first_seen = if item.key?("firstSeen") && !item["firstSeen"].nil?
+                           DateTime.strptime(item["firstSeen"].to_s, "%Q")
+                         else
+                           last_seen
+                         end
           else
             last_seen = DateTime.strptime(DateTime.now.to_s, "%Q")
             first_seen = last_seen

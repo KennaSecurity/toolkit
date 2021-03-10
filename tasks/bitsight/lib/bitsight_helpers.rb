@@ -178,7 +178,6 @@ module Kenna
           "scanner_type" => "Bitsight"
         }
 
-
         vd["cve_identifiers"] = vuln_def_id if /^CVE-/i.match?(vuln_def_id)
         vd["name"] = vuln_def_id
         vd["scanner_identifier"] = vuln_def_id
