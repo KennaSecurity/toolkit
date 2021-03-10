@@ -9,7 +9,7 @@ module Kenna
           # Bitsight:
           #  - Domain Squatting - Findings for this risk vector cannot be queried via the API
 
-          def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "", override_score = true)
+          def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
             ###
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore
@@ -44,7 +44,7 @@ module Kenna
                 }
 
                 # if we're told to override the score, override it
-                out[:override_score] = map[:score].to_i if override_score
+                # out[:override_score] = map[:score].to_i if override_score
 
                 # only add in cwe_identifiers if we have a valid CWE
                 # if map[:cwe]
@@ -131,8 +131,7 @@ module Kenna
                 description: "An unsafe subresource was detected.",
                 recommendation: "Update the application's content.",
                 matches: [
-                  { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ },
-                  { source: "Expanse_issues", vuln_id: /^exposeddirectorylisting$/ }
+                  { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ }
                 ]
               },
               {
@@ -145,7 +144,18 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^server_software$/ },
                   { source: "Expanse", vuln_id: /^application_server_software$/ },
                   { source: "Expanse", vuln_id: /^server_software$/ },
-                  { source: "Expanse", vuln_id: /^detected_webserver$/ }
+                  { source: "Expanse", vuln_id: /^detected_webserver$/ },
+                  { source: "Expanse_issues, vuln_id: /^(?!apache|insecure).*webserver$/" }
+                ]
+              },
+              {
+                name: "Breach of Proper Protocol or Procedure",
+                score: 30,
+                # cwe: "xxx",
+                description: "The software does not properly prevent private data from being accessed non authorized actors",
+                recommendation: "Examine systems to which the credentials provided access for signs of compromise.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^section889violation$/ }
                 ]
               },
               {
@@ -173,13 +183,77 @@ module Kenna
                 ]
               },
               {
-                name: "Improper Neutralization of Input During Web Page Generation",
-                score: 70,
-                # cwe: "CWE-79",
-                description: "System was discovered by an attack feed.",
-                recommendation: "Check this application for signs of compromise",
+                name: "Colocated: Unencrypted Login",
+                score: 10,
+                # cwe: "xxx",
+                description: "A colocated system was identified using insecure login.",
+                recommendation: "Update the system.",
                 matches: [
-                  { source: "Expanse_issues", vuln_id: /^solarwindsorionplatform$/ }
+                  { source: "Expanse_issues", vuln_id: /^colocatedunencryptedftpserver$/ }
+                ]
+              },
+              {
+                name: "Colocated: Database Server Detected",
+                score: 20,
+                # cwe: "xxx",
+                description: "A database server was identified on a colocated system.",
+                recommendation: "Update the system.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^colocatedmongoserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedpostgresserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedredisserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocated.*sqlserver$/ }
+                ]
+              },
+              {
+                name: "Colocated: Deprecated Protocol Exposure",
+                score: 10,
+                # cwe: "xxx",
+                description: "A colocated server has a deprecated protocol.",
+                recommendation: "Update the system.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^colocatedpptpserver$/ }
+                ]
+              },
+              {
+                name: "Colocated: Exposure of Sensitive Information",
+                score: 10,
+                # cwe: "xxx",
+                description: "A colocated server has exposed sensitive information.",
+                recommendation: "Update the system.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^colocatedpop3server$/ }
+                ]
+              },
+              {
+                name: "Colocated: Exposure of Trusted Protocol",
+                score: 10,
+                # cwe: "xxx",
+                description: "A trusted protocol has been exposed colocated system.",
+                recommendation: "Update the system.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^colocatedimapserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedmulticastdnsserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatednetbiosnameserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedrdpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedrpcbindserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedsmbserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedsshserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedsipserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedvncserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedxmppserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedtelnetserver$/ }
+                ]
+              },
+              {
+                name: "Colocated: Network Misconfiguration",
+                score: 10,
+                # cwe: "xxx",
+                description: "A colocated server has misconfiguration.",
+                recommendation: "Update the system.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^colocatedntpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^colocatedsnmpserver$/ }
                 ]
               },
               {
@@ -211,23 +285,56 @@ module Kenna
                 ]
               },
               {
+                name: "Critical Exposure of Vulnerable Software",
+                score: 100,
+                # cwe: "CWE-xxx",
+                description: "Critical Exposure of Vulnerable Software.",
+                recommendation: "Verify this is expected",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^apachewebserver$/ }
+                ]
+              },
+              {
                 name: "Database Server Detected",
-                score: 60,
-                # cwe: "CWE-693",
-                description: "System was detected.",
+                score: 100,
+                # cwe: "CWE-xxx",
+                description: "Database System was detected.",
                 recommendation: "Verify this is expected:.",
                 matches: [
                   { source: "Expanse", vuln_id: /^detected_server_mysql$/ },
                   { source: "Expanse", vuln_id: /^ms_sql_servers?$/ },
                   { source: "Expanse", vuln_id: /^my_sql_servers?$/ },
                   { source: "Expanse", vuln_id: /^sharepoint_servers?$/ },
+                  { source: "Expanse_issues", vuln_id: /^elasticsearchserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^redisserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^mssqlserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^mysqlserver$/ }
+                ]
+              },
+              {
+                name: "Database Service Exposure",
+                score: 70,
+                # cwe: "CWE-693",
+                description: "Database System was detected.",
+                recommendation: "Verify this is expected:.",
+                matches: [
+                  { source: "RiskIQ", vuln_id: /^open_db_port_tcp$/ },
                   { source: "Expanse_issues", vuln_id: /^sharepointserver$/ },
                   { source: "Expanse_issues", vuln_id: /^datastorageandanalysis$/ },
-                  { source: "Expanse_issues", vuln_id: /^mssqlserver?$/ },
-                  { source: "Expanse_issues", vuln_id: /^mysqlserver?$/ },
-                  { source: "RiskIQ", vuln_id: /^open_db_port_tcp$/ },
+                  { source: "Expanse_issues", vuln_id: /^postgresserver$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_mysql$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_microsoft_sql$/ }
+                ]
+              },
+              {
+                name: "Deprecated Protocol Exposure",
+                score: 90,
+                # cwe: "CWE-xxx",
+                description: "Deprecated Protocol was detected.",
+                recommendation: "Verify this is expected:.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^pptpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuretls$/ }
                 ]
               },
               {
@@ -238,8 +345,7 @@ module Kenna
                 recommendation: "Verify this system should be exposed:.",
                 matches: [
                   { source: "Expanse", vuln_id: /^development_system_detected$/ },
-                  { source: "Expanse", vuln_id: /^development_environments?$/ },
-                  { source: "Expanse_issues", vuln_id: /^developmentenvironment$/ }
+                  { source: "Expanse", vuln_id: /^development_environments?$/ }
                 ]
               },
               {
@@ -253,16 +359,6 @@ module Kenna
                 ]
               },
               {
-                name: "Domain Squatting",
-                # cwe: "CWE-358",
-                score: 20,
-                description: "A domain typosquat was detected.",
-                recommendation: "Contact the registrar.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^typosquat$/ }
-                ]
-              },
-              {
                 name: "DNSSEC Misconfiguration",
                 # cwe: "CWE-298",
                 score: 20,
@@ -271,6 +367,16 @@ module Kenna
                 matches: [
                   { source: "Bitsight", vuln_id: /^dnssec$/ },
                   { source: "Expanse_issues", vuln_id: /^wildcarddnsrecord$/ }
+                ]
+              },
+              {
+                name: "Domain Squatting",
+                # cwe: "CWE-358",
+                score: 20,
+                description: "A domain typosquat was detected.",
+                recommendation: "Contact the registrar.",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^typosquat$/ }
                 ]
               },
               {
@@ -286,14 +392,28 @@ module Kenna
                 ]
               },
               {
-                name: "Social Network Accounts Leaking Data",
-                # cwe: "CWE-200",
-                score: 20,
-                description: "Leaked Company Emails Open to Spear-Phishing or other email-based interaction",
-                recommendation: "Best practice indicates you should disabld this access.",
+                name: "Expired Certificate",
+                score: 40,
+                # cwe: "CWE-506",
+                description: "An expired Ceritficate was Found",
+                recommendation: "Replace this ceritificate",
                 matches: [
-                  { source: "SecurityScorecard", vuln_id: /^social_network_issues$/ },
-                  { source: "SecurityScorecard", vuln_id: /^exposed_personal_information_info$/ }
+                  { source: "Expanse", vuln_id: /^certificate_expired_when_scanned$/ },
+                  { source: "Expanse", vuln_id: /^expired_when_scanned_certificate_advertisements?$/ },
+                  { source: "Expanse_issues", vuln_id: /^expiredwhenscannedcertificate$/ },
+                  { source: "SecurityScorecard", vuln_id: /^tlscert_expired$/ },
+                  { source: "RiskIQ", vuln_id: /^expired_certificate$/ }
+                ]
+              },
+              {
+                name: "Expiring Certificate",
+                score: 20,
+                # cwe: "CWE-506",
+                description: "An expiring Ceritficate was Found",
+                recommendation: "Replace this ceritificate soon",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^expiringcertificate$/ },
+                  { source: "RiskIQ", vuln_id: /^expiring_certificate$/ }
                 ]
               },
               {
@@ -304,6 +424,104 @@ module Kenna
                 recommendation: "Check the ACLs and adjust if needed.",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^object_storage_bucket_with_risky_acl$/ }
+                ]
+              },
+              {
+                name: "Exposure of Infrastructure Framework",
+                score: 90,
+                # cwe: "CWE-xxx",
+                description: "Exposure of Infrastructure Framework",
+                recommendation: "Replace this ceritificate soon",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^insecureapachewebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^microsoftowaserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^jenkinsserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^vmwareesxi$/ },
+                  { source: "Expanse_issues", vuln_id: /^sapnetweaverapplicationserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^vmwareworkspaceoneaccessserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^vncserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^kubernetes$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuredrupalwebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuremicrosoftiiswebserver$/ }
+                ]
+              },
+              {
+                name: "Exposure of Sensitive Data",
+                # cwe: "CWE-200",
+                score: 70,
+                description: "Exposure of sensitive data detected.",
+                recommendation: "Remediate exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^memcachedserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^exposeddirectorylisting$/ },
+                  { source: "Expanse_issues", vuln_id: /^internalipaddressadvertisement$/ }
+                ]
+              },
+              {
+                name: "Exposure of Sensitive Environment",
+                # cwe: "CWE-200",
+                score: 60,
+                description: "Sensitive Environment Exposed",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^weblogin$/ },
+                  { source: "Expanse_issues", vuln_id: /^embeddedsystem$/ },
+                  { source: "Expanse_issues", vuln_id: /^pop3server$/ },
+                  { source: "Expanse_issues", vuln_id: /^smtpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^developmentenvironment$/ },
+                  { source: "Expanse_issues", vuln_id: /^teleconferencingandcollaboration$/ },
+                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ }
+                ]
+              },
+              {
+                name: "Exposure of Sensitive log in",
+                # cwe: "CWE-319",
+                score: 50,
+                description: "An unencrypted login was detected.",
+                recommendation: "Ensure all logins happen over an encrypted channel.",
+                matches: [
+                  { source: "Expanse", vuln_id: /^unencrypted_logins?$/ },
+                  { source: "Expanse", vuln_id: /^detected_server_unencrypted_ftp$/ },
+                  { source: "Expanse", vuln_id: /^detected_server_unencrypted_logins$/ },
+                  { source: "Expanse_issues", vuln_id: /^grafana$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuretelerikwebui$/ },
+                  { source: "Expanse_issues", vuln_id: /^paloaltonetworkspanoramaadminloginpage$/ },
+                  { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^unencryptedlogin$/ }
+                ]
+              },
+              {
+                name: "Exposure of Trusted Protocol",
+                # cwe: "CWE-xxx",
+                score: 100,
+                description: "Trusted Protocol Exposed",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^telnetserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^smbserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^netbiosnameserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^rdpserver$/ }
+                ]
+              },
+              {
+                name: "Exposure of Trusted Service",
+                # cwe: "CWE-xxx",
+                score: 100,
+                description: "Trusted Service Exposed",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^rpcbindserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^nfsrpcbindserver$/ }
+                ]
+              },
+              {
+                name: "Exposure of Trusted Utility",
+                # cwe: "CWE-xxx",
+                score: 70,
+                description: "Trusted Utility Exposed",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^rsyncserver$/ }
                 ]
               },
               {
@@ -338,6 +556,16 @@ module Kenna
                 ]
               },
               {
+                name: "Improper Neutralization of Input During Web Page Generation",
+                score: 70,
+                # cwe: "CWE-79",
+                description: "System was discovered by an attack feed.",
+                recommendation: "Check this application for signs of compromise",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^solarwindsorionplatform$/ }
+                ]
+              },
+              {
                 name: "Insecure Cookie",
                 # cwe: "CWE-298",
                 score: 20,
@@ -351,6 +579,17 @@ module Kenna
                 ]
               },
               {
+                name: "Insecure Resource Request",
+                score: 40,
+                # cwe: "CWE-506",
+                description: "A resource was requested over an insecure protocol",
+                recommendation: "Transition the resource to an HTTPS request",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^domain_missing_https$/ },
+                  { source: "SecurityScorecard", vuln_id: /^redirect_chain_contains_http$/ }
+                ]
+              },
+              {
                 name: "Internal IP Address Exposure",
                 score: 10,
                 # cwe: "CWE-202",
@@ -358,8 +597,7 @@ module Kenna
                 recommendation: "Remove the entry from public DNS.",
                 matches: [
                   { source: "Expanse", vuln_id: /^internal_ip_address_advertisements?$/ },
-                  { source: "SecurityScorecard", vuln_id: /^admin_subdomain$/ },
-                  { source: "Expanse_issues", vuln_id: /^internalipaddressadvertisement$/ }
+                  { source: "SecurityScorecard", vuln_id: /^admin_subdomain$/ }
                 ]
               },
               {
@@ -373,16 +611,7 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^leaked_credentials_info$/ }
                 ]
               },
-              {
-                name: "Exposure of Private Information ('Privacy Violation')",
-                score: 70,
-                # cwe: "CWE-359",
-                description: "The software does not properly prevent private data from being accessed non authorized actors",
-                recommendation: "Examine systems to which the credentials provided access for signs of compromise.",
-                matches: [
-                  { source: "Expanse_issues", vuln_id: /^section889violation$/ }
-                ]
-              },
+
               {
                 name: "Mobile Application Security Misconfiguration",
                 # cwe: "CWE-693",
@@ -399,9 +628,6 @@ module Kenna
                 # cwe: "CWE-693",
                 description: "Some DNS servers perform their hierarchical lookups by means of recursion, and rather than limit the ability to make recursive requests to local or authorized clients, DNS servers referred to as Open Resolvers allow recursive DNS requests from any client. Open Resolvers (especially with the newer RFC specifications supporting extensions to the DNS system such as IPv6 and DNSSEC) require the ability to send DNS replies much larger than their respective requests, and an attacker can abuse this fact to amplify his or her available outgoing bandwidth and subsequently direct it at a target in a DNS Amplification Attack.",
                 recommendation: "Disable recursive queries on this DNS REsolver.",
-                references: [
-                  "https://blogs.infoblox.com/ipv6-coe/finding-and-fixing-open-dns-resolvers/"
-                ],
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^open_resolver$/ }
                 ]
@@ -417,18 +643,73 @@ module Kenna
                 ]
               },
               {
-                ####
-                #### individual tasks should not send anything that would map to this entry,
-                ####  instead it shoudl be a CVE
-                ####
-                name: "Vulnerability Detected (Patching Cadence *** INCORRECTLY MAPPED?)",
-                # cwe: nil,
-                score: 0,
-                description: "Vulnerability seen on network more than 60 days after CVE was published.",
-                recommendation: "Monitor CVE lists and vulnerability repositories for exploit code that may affect your infrastructure.",
+                name: "Network Misconfiguration",
+                score: 30,
+                # #cwe: "CWE-xxx",
+                description: "Network Misconfiguration detected.",
+                recommendation: "Remediate Network Misconfiguration.",
                 matches: [
-                  { source: "Bitsight", vuln_id: /^patching_cadence$/ },
-                  { source: "SecurityScorecard", vuln_id: /^patching_cadence_.*$/ }
+                  { source: "Expanse_issues", vuln_id: /^panosdevice$/ },
+                  { source: "Expanse_issues", vuln_id: /^openbgpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^wildcarddnsrecord$/ }
+                ]
+              },
+              {
+                name: "Network Misconfiguration: Internal Exposure",
+                score: 90,
+                # #cwe: "CWE-xxx",
+                description: "Network Misconfiguration detected.",
+                recommendation: "Remediate Network Misconfiguration.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^networkingandsecurityinfrastructure$/ },
+                  { source: "Expanse_issues", vuln_id: /^sipserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^snmpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^xmppserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^multicastdnsserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^upnpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^rtspserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^vncoverhttpserver$/ }
+                ]
+              },
+              {
+                name: "Network Misconfiguration: Transmission Exposure",
+                score: 70,
+                # #cwe: "CWE-xxx",
+                description: "Network Misconfiguration detected.",
+                recommendation: "Remediate Network Misconfiguration.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^rtspserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^vncoverhttpserver$/ }
+                ]
+              },
+              {
+                name: "Non-Security, Benign, or Informational Finding",
+                # cwe: "CWE-000",
+                score: 0,
+                description: "This is an informational finding.",
+                recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
+                matches: [
+                  { source: "Bitsight", vuln_id: /^benign_finding$/ },
+                  { source: "Expanse", vuln_id: /^certificate_advertisements?$/ },
+                  { source: "Expanse", vuln_id: /^healthy_certificate_advertisements?$/ },
+                  { source: "Expanse", vuln_id: /^employee_satisfaction$/ },
+                  { source: "Expanse", vuln_id: /^teleconferencing_and_collaboration$/ },
+                  { source: "Expanse", vuln_id: /^marketing_site$/ },
+                  { source: "Expanse", vuln_id: /^vpn$/ },
+                  { source: "Expanse", vuln_id: /^domain_control_validated_certificate_advertisements?$/ },
+                  { source: "Expanse_issues", vuln_id: /^vpndevice$/ },
+                  { source: "Expanse_issues", vuln_id: /^domaincontrolvalidatedcertificate$/ },
+                  { source: "Expanse_issues", vuln_id: /^ntpserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^waf_detected$/ },
+                  { source: "SecurityScorecard", vuln_id: /^benign_finding$/ },
+                  { source: "SecurityScorecard", vuln_id: /^hosted_on_object_storage$/ },
+                  { source: "SecurityScorecard", vuln_id: /^references_object_storage$/ },
+                  { source: "SecurityScorecard", vuln_id: /^load_balancers?$/ },
+                  { source: "Expanse", vuln_id: /^load_balancers?$/ },
+                  { source: "SecurityScorecard", vuln_id: /^dnssec_detected$/ },
+                  { source: "SecurityScorecard", vuln_id: /^tlscert_extended_validation$/ },
+                  { source: "SecurityScorecard", vuln_id: /^domain_uses_hsts_preloading$/ },
+                  { source: "SecurityScorecard", vuln_id: /^ddos_protection$/ }
                 ]
               },
               {
@@ -443,6 +724,43 @@ module Kenna
                 ]
               },
               {
+                name: "Permissive Cross-domain Policy with Untrusted Domains",
+                # cwe: "CWE-2942",
+                score: 0,
+                description: "A vulnerability was detected at the service or OS layer",
+                recommendation: "Investigate the vulnerability.",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_high$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_medium$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_low$/ }
+                ]
+              },
+              {
+                name: "Potential Exposure of Trusted Protocol",
+                # cwe: "CWE-xxx",
+                score: 70,
+                description: "Trusted Protocol Potentially Exposed",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^sshserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^imapserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^microsoftdnsserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^ajpserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^buildingcontrolsystem$/ }
+                ]
+              },
+              {
+                name: "Potentially Vulnurable Software Detected",
+                # cwe: "CWE-xxx",
+                score: 70,
+                description: "Potentially Vulnurable Software Detected",
+                recommendation: "Remediate Exposure",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^adobeflash$/ },
+                  { source: "Expanse_issues", vuln_id: /^wordpressserver$/ }
+                ]
+              },
+              {
                 name: "Sensitive Service Detected or Open Port Detected",
                 score: 60,
                 # #cwe: "CWE-693",
@@ -453,13 +771,9 @@ module Kenna
                   { source: "Expanse", vuln_id: /^.*_servers?$/ }, # literally match anyting coming from them in this vein
                   { source: "Expanse", vuln_id: /^detected_server_.*$/ },
                   { source: "Expanse", vuln_id: /^colocated_.*$/ },
-                  { source: "Expanse_issues", vuln_id: /openssl$/ },
-                  { source: "Expanse_issues", vuln_id: /^colocated.*$/ },
-                  { source: "Expanse_issues", vuln_id: /^insecuretelerikwebui$/ },
-                  { source: "Expanse_issues", vuln_id: /^insecure.*webserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^openssl$/ },
                   { source: "Expanse_issues", vuln_id: /^f5bigipaccesspolicymanager$/ },
                   { source: "Expanse_issues", vuln_id: /^f5bigiptmui$/ },
-                  { source: "Expanse_issues", vuln_id: /^paloaltonetworkspanoramaadminloginpage$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_.*+$/ }, # NOTE: .. many matches here, may need to be split up
                   { source: "SecurityScorecard", vuln_id: /^exposed_ports$/ }, # correct place for this? # Open TCP Ports Observed
                   { source: "RiskIQ", vuln_id: /^other_open_port$/ }
@@ -475,6 +789,17 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^ssh_weak_cipher$/ },
                   { source: "SecurityScorecard", vuln_id: /^ssh_weak_mac$/ },
                   { source: "SecurityScorecard", vuln_id: /^ssh_weak_protocl$/ }
+                ]
+              },
+              {
+                name: "Social Network Accounts Leaking Data",
+                # cwe: "CWE-200",
+                score: 20,
+                description: "Leaked Company Emails Open to Spear-Phishing or other email-based interaction",
+                recommendation: "Best practice indicates you should disabld this access.",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^social_network_issues$/ },
+                  { source: "SecurityScorecard", vuln_id: /^exposed_personal_information_info$/ }
                 ]
               },
               {
@@ -495,7 +820,7 @@ module Kenna
                 ]
               },
               {
-                name: "SSL/TLS Misconfiguration",
+                name: "SSL Certificate Misconfiguration",
                 # cwe: "CWE-326",
                 score: 40,
                 description: "This server has a configuration weakness with its SSL/TLS settings or certificate.",
@@ -512,11 +837,11 @@ module Kenna
                   { source: "Expanse", vuln_id: /^wildcard_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^certificate_short_key$/ },
                   { source: "Expanse", vuln_id: /^certificate_long_expiration$/ },
+                  { source: "Expanse_issues", vuln_id: /^selfsignedcertificate$/ },
                   { source: "Expanse_issues", vuln_id: /^shortkeycertificate$/ },
                   { source: "Expanse_issues", vuln_id: /^wildcardcertificate$/ },
                   { source: "Expanse_issues", vuln_id: /^insecuresignaturecertificate$/ },
                   { source: "Expanse_issues", vuln_id: /^longexpirationcertificate$/ },
-                  { source: "Expanse_issues", vuln_id: /^insecuretls$/ },
                   { source: "Intrigue", vuln_id: /^weak_cipher_suite_detected$/ },
                   { source: "SecurityScorecard", vuln_id: /^ssl_weak_cipher$/ },
                   { source: "SecurityScorecard", vuln_id: /^tls_weak_cipher$/ },
@@ -530,17 +855,6 @@ module Kenna
                 ]
               },
               {
-                name: "Insecure Resource Request",
-                score: 40,
-                # cwe: "CWE-506",
-                description: "A resource was requested over an insecure protocol",
-                recommendation: "Transition the resource to an HTTPS request",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^domain_missing_https$/ },
-                  { source: "SecurityScorecard", vuln_id: /^redirect_chain_contains_http$/ }
-                ]
-              },
-              {
                 name: "Self-Signed Certificate",
                 score: 40,
                 # cwe: "CWE-506",
@@ -549,35 +863,9 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^self_signed_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^certificate_self_signed$/ },
-                  { source: "Expanse_issues", vuln_id: /^selfsignedcertificate$/ },
                   { source: "Intrigue", vuln_id: /^self_signed_certificate$/ },
                   { source: "RiskIQ", vuln_id: /^self_signed_certificate$/ },
                   { source: "SecurityScorecard", vuln_id: /^tlscert_self_signed$/ }
-                ]
-              },
-              {
-                name: "Expired Certificate",
-                score: 40,
-                # cwe: "CWE-506",
-                description: "An expired Ceritficate was Found",
-                recommendation: "Replace this ceritificate",
-                matches: [
-                  { source: "Expanse", vuln_id: /^certificate_expired_when_scanned$/ },
-                  { source: "Expanse", vuln_id: /^expired_when_scanned_certificate_advertisements?$/ },
-                  { source: "Expanse_issues", vuln_id: /^expiredwhenscannedcertificate$/ },
-                  { source: "SecurityScorecard", vuln_id: /^tlscert_expired$/ },
-                  { source: "RiskIQ", vuln_id: /^expired_certificate$/ }
-                ]
-              },
-              {
-                name: "Expiring Certificate",
-                score: 20,
-                # cwe: "CWE-506",
-                description: "An expiring Ceritficate was Found",
-                recommendation: "Replace this ceritificate soon",
-                matches: [
-                  { source: "Expanse_issues", vuln_id: /^expiringcertificate$/ },
-                  { source: "RiskIQ", vuln_id: /^expiring_certificate$/ }
                 ]
               },
               {
@@ -591,31 +879,6 @@ module Kenna
                 recommendation: "Ensure the system has not been compromised.",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ }
-                ]
-              },
-              {
-                name: "Unencrypted Login",
-                # cwe: "CWE-319",
-                score: 50,
-                description: "An unencrypted login was detected.",
-                recommendation: "Ensure all logins happen over an encrypted channel.",
-                matches: [
-                  { source: "Expanse", vuln_id: /^unencrypted_logins?$/ },
-                  { source: "Expanse", vuln_id: /^detected_server_unencrypted_ftp$/ },
-                  { source: "Expanse", vuln_id: /^detected_server_unencrypted_logins$/ },
-                  { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^unencryptedlogin$/ }
-                ]
-              },
-              {
-                name: "Unsolicited Email Sent from System",
-                # cwe: "CWE-358",
-                score: 30,
-                description: "A system was identified on a spam blacklist.",
-                recommendation: "Ensure the system has not been compromised.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^uce$/ }, # Unsolicited Commercial Email
-                  { source: "SecurityScorecard", vuln_id: /^short_term_lending_site$/ } # Unsolicited Commercial Email
                 ]
               },
               {
@@ -636,6 +899,27 @@ module Kenna
                 recommendation: "Check the system for signs of compromise ",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^tor_node_events_last_month$/ }
+                ]
+              },
+              {
+                name: "Unencrypted Login",
+                # cwe: "CWE-xx",
+                score: 90,
+                description: "An unencrypted login was detected.",
+                recommendation: "Ensure all logins happen over an encrypted channel.",
+                matches: [
+                  { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ }
+                ]
+              },
+              {
+                name: "Unsolicited Email Sent from System",
+                # cwe: "CWE-358",
+                score: 30,
+                description: "A system was identified on a spam blacklist.",
+                recommendation: "Ensure the system has not been compromised.",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^uce$/ }, # Unsolicited Commercial Email
+                  { source: "SecurityScorecard", vuln_id: /^short_term_lending_site$/ } # Unsolicited Commercial Email
                 ]
               },
               {
@@ -663,65 +947,18 @@ module Kenna
                 ]
               },
               {
-                name: "Permissive Cross-domain Policy with Untrusted Domains",
-                # cwe: "CWE-2942",
+                ####
+                #### individual tasks should not send anything that would map to this entry,
+                ####  instead it shoudl be a CVE
+                ####
+                name: "Vulnerability Detected (Patching Cadence *** INCORRECTLY MAPPED?)",
+                # cwe: nil,
                 score: 0,
-                description: "A vulnerability was detected at the service or OS layer",
-                recommendation: "Investigate the vulnerability.",
+                description: "Vulnerability seen on network more than 60 days after CVE was published.",
+                recommendation: "Monitor CVE lists and vulnerability repositories for exploit code that may affect your infrastructure.",
                 matches: [
-                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_high$/ },
-                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_medium$/ },
-                  { source: "SecurityScorecard", vuln_id: /^service_vuln_host_low$/ }
-                ]
-              },
-              {
-                name: "Exposure of Sensitive Information to an Unauthorized Actor",
-                # cwe: "CWE-200",
-                score: 30,
-                description: "The product exposes sensitive information to an actor that is not explicitly authorized to have access to that information.",
-                recommendation: "Compartmentalize the system to have 'safe' areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.",
-                matches: [
-                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ }
-                ]
-              },
-              {
-                name: "Non-Security, Benign, or Informational Finding",
-                # cwe: "CWE-000",
-                score: 0,
-                description: "This is an informational finding.",
-                recommendation: "Update the certificate to include the hostname, or ensuure that clients access the host from the matched hostname.",
-                matches: [
-                  { source: "Bitsight", vuln_id: /^benign_finding$/ },
-                  { source: "Expanse", vuln_id: /^certificate_advertisements?$/ },
-                  { source: "Expanse", vuln_id: /^healthy_certificate_advertisements?$/ },
-                  { source: "Expanse_issues", vuln_id: /^domaincontrolvalidatedcertificate$/ },
-                  { source: "Expanse", vuln_id: /^employee_satisfaction$/ },
-                  { source: "Expanse", vuln_id: /^teleconferencing_and_collaboration$/ },
-                  { source: "Expanse", vuln_id: /^marketing_site$/ },
-                  { source: "Expanse", vuln_id: /^vpn$/ },
-                  { source: "Expanse", vuln_id: /^domain_control_validated_certificate_advertisements?$/ },
-                  { source: "Expanse_issues", vuln_id: /^embeddedsystem$/ },
-                  { source: "Expanse_issues", vuln_id: /^grafana$/ },
-                  { source: "Expanse_issues", vuln_id: /^kubernetes$/ },
-                  { source: "Expanse_issues", vuln_id: /^panosdevice$/ },
-                  { source: "Expanse_issues", vuln_id: /^teleconferencingandcollaboration$/ },
-                  { source: "Expanse_issues", vuln_id: /^vmwareesxi$/ },
-                  { source: "Expanse_issues", vuln_id: /^vpndevice$/ },
-                  { source: "Expanse_issues", vuln_id: /^weblogin$/ },
-                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ },
-                  { source: "Expanse_issues", vuln_id: /^networkingandsecurityinfrastructure$/ },
-                  { source: "Expanse_issues", vuln_id: /^buildingcontrolsystem$/ },
-                  { source: "Expanse_issues", vuln_id: /(?!colocated).*(?<!sharepoint|seb|sql|ftp)server$/ },
-                  { source: "SecurityScorecard", vuln_id: /^waf_detected$/ },
-                  { source: "SecurityScorecard", vuln_id: /^benign_finding$/ },
-                  { source: "SecurityScorecard", vuln_id: /^hosted_on_object_storage$/ },
-                  { source: "SecurityScorecard", vuln_id: /^references_object_storage$/ },
-                  { source: "SecurityScorecard", vuln_id: /^load_balancers?$/ },
-                  { source: "Expanse", vuln_id: /^load_balancers?$/ },
-                  { source: "SecurityScorecard", vuln_id: /^dnssec_detected$/ },
-                  { source: "SecurityScorecard", vuln_id: /^tlscert_extended_validation$/ },
-                  { source: "SecurityScorecard", vuln_id: /^domain_uses_hsts_preloading$/ },
-                  { source: "SecurityScorecard", vuln_id: /^ddos_protection$/ }
+                  { source: "Bitsight", vuln_id: /^patching_cadence$/ },
+                  { source: "SecurityScorecard", vuln_id: /^patching_cadence_.*$/ }
                 ]
               }
             ]

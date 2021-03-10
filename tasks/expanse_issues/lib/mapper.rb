@@ -1,21 +1,13 @@
 # frozen_string_literal: true
 
-require_relative "issue_mapping"
-
 module Kenna
   module Toolkit
     module ExpanseIssues
       module Mapper
         include Kenna::Toolkit::KdiHelpers
-        include Kenna::Toolkit::ExpanseIssues::IssueMapping
 
         def kdi_kickoff
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
-        end
-
-        def snake_case(issue_type)
-          it = issue_type.gsub(/(.)([A-Z])/, '\1_\2')
-          it.downcase if !it.nil? || issue_type.downcase
         end
 
         # this method does the actual mapping, as specified
@@ -46,11 +38,6 @@ module Kenna
               end
             end
           end
-
-          ## always set our exposure type... this should save some typing in the mapping file...
-          # out["vuln"]["scanner_identifier"] = exposure_type.downcase.gsub("-","_")
-          # out["vuln_def"]["scanner_identifier"] = exposure_type.downcase.gsub("-","_")
-
           out
         end
 
@@ -68,12 +55,6 @@ module Kenna
           ###
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
-              # issue_type = snake_case(it)
-              # unless field_mapping_for_issue_types[it]
-              #   print_error "WARNING! Skipping unmapped issue type: #{it}!"
-              #   next
-              # end
-
               print_good "Working on issue type: #{it}!"
               issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
               print_good "Got #{issues.count} issues of type #{it}"
@@ -105,7 +86,6 @@ module Kenna
 
                 vuln_attributes["vuln_def_name"] = cvd["name"] if cvd["name"]
 
-                # Create the vuln
                 create_kdi_asset_vuln(r["asset"], vuln_attributes)
 
                 # Create the vuln def
@@ -154,13 +134,10 @@ module Kenna
                 proc: lambda { |x|
                         temp = ["Expanse"] # always tag as 'Expanse'
 
-                        # Handle legacy businessUnit tag
-                        temp << "businessUnit:#{x['businessUnit']['name']}" if x.key?("businessUnit")
-
                         # Handle new businessUnits (plural) tag
                         if x.key?("businessUnits")
                           x["businessUnits"].each do |bu|
-                            temp << bu.fetch("name")
+                            temp << "businessUnit:#{bu.fetch('name')}"
                           end
                         end
 
@@ -187,7 +164,7 @@ module Kenna
             ],
             "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse_issues" },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "name", proc: ->(_x) { issue_type } },
               { action: "data", target: "remediation", data: "Investigate this Issue!" }
             ]
           }

@@ -10,7 +10,6 @@ module Kenna
   module Toolkit
     class ExpanseIssuesTask < Kenna::Toolkit::BaseTask
       include Kenna::Toolkit::ExpanseIssues::Mapper
-      include Kenna::Toolkit::ExpanseIssues::IssueMapping
 
       def self.metadata
         {

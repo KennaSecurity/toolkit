@@ -193,6 +193,8 @@ module Kenna
           end
 
           # prepare the next request
+          return if result["totalPages"].to_i.zero?
+
           max_pages = result["totalPages"].to_i - 1 if max_pages == -1
 
           rows = result["content"]
@@ -206,7 +208,7 @@ module Kenna
                   filename = "riskiq-#{Time.now.utc.strftime('%s')}-#{rand(100_000)}.kdi.json"
                   # actually write it
                   if !@assets.nil? && @assets.size.positive?
-                    kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
+                    kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
                     asset_count = 0
                     out = []
                   end
@@ -232,51 +234,57 @@ module Kenna
         # write any leftover data
         return unless !@assets.nil? && @assets.size.positive?
 
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         asset_count = 0
         out = []
       end
 
-      def create_self_signed_cert_vuln(asset, cert, _first_seen, _last_seen)
+      def create_self_signed_cert_vuln(asset, cert, first_seen, last_seen)
         vuln = {
           "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ",
-          "details" => JSON.pretty_generate(cert)
+          "details" => JSON.pretty_generate(cert),
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen
         }
 
         vd = {
-          "scanner_identifier" => "self_signed_certificate",
+          "name" => "self_signed_certificate",
           "scanner_type" => "RiskIQ"
         }
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
+        vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         create_kdi_asset_vuln(asset, vuln, "hostname")
 
         create_kdi_vuln_def(vuln_def)
       end
 
-      def create_expired_cert_vuln(asset, cert, expired)
+      def create_expired_cert_vuln(asset, cert, expired, first_seen, last_seen)
         scanner_identifier = ("expired_certificate" if expired) || "expiring_certificate"
 
         vuln = {
           "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ",
-          "details" => JSON.pretty_generate(cert)
+          "details" => JSON.pretty_generate(cert),
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen
         }
 
         vd = {
-          "scanner_identifier" => scanner_identifier,
+          "name" => scanner_identifier,
           "scanner_type" => "RiskIQ"
         }
 
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
+        vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         create_kdi_asset_vuln(asset, vuln, "hostname")
 
         create_kdi_vuln_def(vuln_def)
       end
 
-      def create_open_port_vuln(asset, service, _first_seen, _last_seen)
+      def create_open_port_vuln(asset, service, item, first_seen, last_seen)
         # print_debug "at start of create open port vuln" if @debug
         port_number = service["port"] if service.is_a? Hash
         port_number = port_number.to_i
@@ -289,27 +297,28 @@ module Kenna
                              else
                                "other_open_port"
                              end
-        scanner_score = if scanner_identifier == "http_open_port"
-                          0
-                        else
-                          3
-                        end
+
+        details = service.except("banners", "webComponents", "scanMetadata")
+        details["reputations"] = item.fetch("reputations") unless item["reputations"].nil?
         vuln = {
           "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ",
-          "details" => JSON.pretty_generate(service.except("banners", "webComponents", "scanMetadata")),
+          "details" => JSON.pretty_generate(details),
           "port" => port_number,
-          "scanner_score" => scanner_score
+          "created_at" => first_seen,
+          "last_seen_at" => last_seen
         }
 
         # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
         vd = {
-          "scanner_identifier" => scanner_identifier,
+          "name" => scanner_identifier,
           "scanner_type" => "RiskIQ"
         }
 
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+
         vuln.merge({ "scanner_score" => vuln_def.fetch("scanner_score") }) if vuln_def.key?("scanner_score")
+        vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         if asset["ip_address"]
           create_kdi_asset_vuln(asset, vuln, "ip_address")
         else
@@ -333,14 +342,23 @@ module Kenna
           ###
           ### First handle dates (same across all assets)
           ###
-          first_seen = Time.now.utc
-          last_seen = Time.now.utc
+          if item.key?("lastSeen") && !item["lastSeen"].nil?
+            last_seen = DateTime.strptime(item["lastSeen"].to_s, "%Q")
+            first_seen = if item.key?("firstSeen") && !item["firstSeen"].nil?
+                           DateTime.strptime(item["firstSeen"].to_s, "%Q")
+                         else
+                           last_seen
+                         end
+          else
+            last_seen = DateTime.strptime(DateTime.now.to_s, "%Q")
+            first_seen = last_seen
+          end
 
           ###
           ### First handle tags (same across all assets)
           ###
           tags = ["RiskIQ"]
-          tags.concat(item["tags"].map { |x| x["name"] }) if item["tags"]
+          # tags.concat(item["tags"].map { |x| x["name"] }) if item["tags"]
 
           ###
           ### Always set External ID
@@ -373,8 +391,6 @@ module Kenna
 
             # create base asset, then optional identifiers
             asset = {
-              # "first_seen" => "#{first_seen}",
-              # "last_seen" => "#{last_seen}",
               "tags" => tags
             }
             asset["external_id"] = id.to_s if id
@@ -391,8 +407,6 @@ module Kenna
 
             asset = {
               "ip_address" => (item["name"]).to_s,
-              # "first_seen" => "#{first_seen}",
-              # "last_seen" => "#{last_seen}",
               "tags" => tags
             }
             asset["external_id"] = id.to_s if id
@@ -414,19 +428,16 @@ module Kenna
             asset = {
               "hostname" => hostname.to_s,
               "external_id" => sha_name.to_s,
-              # "first_seen" => "#{first_seen}",
-              # "last_seen" => "#{last_seen}",
               "tags" => tags
             }
-            # asset["external_id"] = id.to_s if id
-            #  ... only create the asset if we have a self-signed cert
+
             create_self_signed_cert_vuln(asset, item, first_seen, last_seen) if item["asset"]["selfSigned"]
             if item["asset"].key?("notAfter")
               expires = DateTime.strptime(item["asset"]["notAfter"].to_s, "%Q")
               if DateTime.now > expires
-                create_expired_cert_vuln(asset, item, true)
+                create_expired_cert_vuln(asset, item, true, first_seen, last_seen)
               elsif DateTime.now > expires.next_day(30)
-                create_expired_cert_vuln(asset, item, false)
+                create_expired_cert_vuln(asset, item, false, first_seen, last_seen)
               end
             end
           else
@@ -438,7 +449,7 @@ module Kenna
           ###
           if @riq_create_open_ports && item["asset"]["services"]
             (item["asset"]["services"] || []).uniq.lazy.each do |serv|
-              create_open_port_vuln(asset, serv, first_seen, last_seen)
+              create_open_port_vuln(asset, serv, item, first_seen, last_seen)
             end
           end
 
@@ -471,16 +482,16 @@ module Kenna
                   "scanner_identifier" => (cve["name"]).to_s,
                   "scanner_type" => "RiskIQ",
                   "port" => port.to_i,
-                  "details" => JSON.pretty_generate(details)
-                  # "first_seen" => first_seen,
-                  # "last_seen" => last_seen,
-                  # "status" => "open"
+                  "details" => JSON.pretty_generate(details),
+                  "vuln_def_name" => cve["name"],
+                  "created_at" => first_seen,
+                  "last_seen_at" => last_seen
                 }
 
                 vuln_def = {
-                  "scanner_identifier" => (cve["name"]).to_s,
                   "scanner_type" => "RiskIQ",
-                  "cve_identifiers" => (cve["name"]).to_s
+                  "cve_identifiers" => (cve["name"]).to_s,
+                  "name" => cve["name"]
                 }
                 create_kdi_asset_vuln(asset, vuln)
 

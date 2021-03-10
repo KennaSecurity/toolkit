@@ -53,6 +53,11 @@ module Kenna
               required: false,
               default: nil,
               description: "Limit ports by number of days when last seen." },
+            { name: "riskiq_inventory_states",
+              type: "string",
+              required: false,
+              default: "Candidate,CONFIRMED",
+              description: "List of Inventory States." },
             { name: "batch_page_size",
               type: "integer",
               required: false,
@@ -99,7 +104,7 @@ module Kenna
         @riq_create_ssl_misconfigs = @options[:riskiq_create_ssl_misconfigs]
         @riq_create_open_ports = @options[:riskiq_create_open_ports]
         output_directory = @options[:output_directory]
-        @riq_inventory_states = "[\"Candidate\", \"CONFIRMED\"]"
+        @riq_inventory_states = @options[:riskiq_inventory_states].split(",")
 
         # create an api client
         set_client_data(riq_api_key, riq_api_secret, kenna_connector_id, kenna_api_host, kenna_api_key, output_directory, riq_incremental_time, riq_pull_incremental, @options[:riskiq_port_last_seen])
