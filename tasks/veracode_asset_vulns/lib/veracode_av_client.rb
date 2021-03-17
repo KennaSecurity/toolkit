@@ -39,7 +39,10 @@ module Kenna
             applications.lazy.each do |application|
               # grab tags
               tag_list = []
-              application["profile"]["tags"].split(",").each { |t| tag_list.push(t) } if application["profile"]["tags"]
+              if application["profile"]["tags"]
+                application["profile"]["tags"].split(",").each { |t| tag_list.push(t) }
+              end
+              # application["profile"]["tags"]&.split(",").each { |t| tag_list.push(t) } # if application["profile"]["tags"]
               tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
               tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
