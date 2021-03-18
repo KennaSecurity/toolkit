@@ -41,7 +41,7 @@ module Kenna
               tag_list = []
               application["profile"]["tags"]&.split(",")&.each { |t| tag_list.push(t) } # if application["profile"]["tags"]
               tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
-              tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
+              # tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
@@ -68,7 +68,8 @@ module Kenna
               url = nil
               case finding["scan_type"]
               when "STATIC"
-                file = finding["finding_details"]["file_name"]
+                # file = finding["finding_details"]["file_name"]
+                file = finding["finding_details"]["file_path"]
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
               end
