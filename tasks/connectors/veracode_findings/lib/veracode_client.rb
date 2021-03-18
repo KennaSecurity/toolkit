@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "httparty"
-require_relative "../../../lib/kdi/kdi_helpers"
+require_relative "../../../../lib/kdi/kdi_helpers"
 
 module Kenna
   module Toolkit
