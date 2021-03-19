@@ -119,7 +119,7 @@ module Kenna
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
           "accept" => "application/json",
-          'User-Agent' => 'Kenna Toolkit'
+          "User-Agent" => "Kenna Toolkit"
         }
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
