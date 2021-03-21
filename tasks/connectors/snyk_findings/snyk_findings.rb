@@ -253,7 +253,6 @@ module Kenna
         filename = "snyk_findings_kdi.json"
         kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
-
       end
     end
   end
