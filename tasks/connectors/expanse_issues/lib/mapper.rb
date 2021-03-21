@@ -107,7 +107,7 @@ module Kenna
             "Medium" => 6,
             "Low" => 3
           }
-          crits[sevword]
+          crits[sev_word]
         end
 
         ###
