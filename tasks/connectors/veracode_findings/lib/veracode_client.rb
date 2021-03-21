@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "httparty"
-require_relative "../../../lib/kdi/kdi_helpers"
+require_relative "../../../../lib/kdi/kdi_helpers"
 
 module Kenna
   module Toolkit
@@ -35,16 +35,25 @@ module Kenna
             response = http_get(url, hmac_auth_options(auth_path))
             result = JSON.parse(response.body)
             applications = result["_embedded"]["applications"]
+
             applications.lazy.each do |application|
-              app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"] }
+              # grab tags
+              tag_list = []
+              application["profile"]["tags"]&.split(",")&.each { |t| tag_list.push(t) } # if application["profile"]["tags"]
+              tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
+              tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
+              app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
+              # app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"] }
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
           app_list
         end
 
-        def issues(app_guid, app_name, page_size)
+        def issues(app_guid, app_name, tags, page_size)
+          # def issues(app_guid, app_name, page_size)
           print_debug "pulling issues for #{app_name}"
+          puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
@@ -52,9 +61,28 @@ module Kenna
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
             result = JSON.parse(response.body)
-            findings = result["_embedded"]["findings"]
+            findings = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
+            return if findings.nil?
+
             findings.lazy.each do |finding|
-              file = finding["finding_details"]["file_name"]
+              # IF "STATIC" SCAN USE FILE, IF "DYNAMIC" USE URL
+              file = nil
+              url = nil
+              case finding["scan_type"]
+              when "STATIC"
+                file = finding["finding_details"]["file_name"]
+              when "DYNAMIC"
+                url = finding["finding_details"]["url"]
+              end
+
+              # Pull Status from finding["finding_status"]["status"]
+              # Per docs this shoule be "OPEN" or "CLOSED"
+              # status = case finding["finding_status"]["status"]
+              #           when "CLOSED"
+              #             status = "closed"
+              #           else
+              #             status = "open"
+              #           end
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
@@ -72,9 +100,12 @@ module Kenna
 
               asset = {
 
+                "url" => url,
                 "file" => file,
-                "application" => app_name
+                "application" => app_name,
+                "tags" => tags
               }
+              asset.compact!
 
               # craft the vuln hash
               finding = {
@@ -103,7 +134,17 @@ module Kenna
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
-          kdi_upload(@output_dir, "veracode_#{app_name}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+
+          # Fix for slashes in the app_name. Won't work for filenames
+          fname = if app_name.index("/")
+                    app_name.tr("/", "_")
+                  else
+                    app_name
+                  end
+
+          fname = fname[0..175] # Limiting the size of the filename
+
+          kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
 
         def kdi_kickoff

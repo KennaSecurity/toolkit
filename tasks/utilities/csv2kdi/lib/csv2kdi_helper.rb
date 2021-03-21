@@ -151,7 +151,7 @@ module Kenna
           "Error: main locator not provided" if @debug
         end
 
-        put "Unknown asset, can't associate a vuln!" unless asset
+        puts "Unknown asset locator type (#{$map_locator}), can't associate a vuln! Are you sure you need 'findings'?" unless asset
         return unless asset
 
         # associate the asset
