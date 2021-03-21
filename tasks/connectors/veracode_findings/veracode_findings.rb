@@ -25,8 +25,8 @@ module Kenna
               description: "Veracode key" },
             { name: "veracode_page_size",
               type: "string",
-              required: true,
-              default: nil,
+              required: false,
+              default: 100,
               description: "Veracode page size" },
             { name: "kenna_api_key",
               type: "api_key",
@@ -74,7 +74,6 @@ module Kenna
           appname = application.fetch("name")
           tags = application.fetch("tags")
           client.issues(guid, appname, tags, page_size)
-          # client.issues(guid, appname, page_size)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
