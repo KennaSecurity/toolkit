@@ -89,7 +89,7 @@ module Kenna
                 create_kdi_asset_vuln(r["asset"], vuln_attributes)
 
                 # Create the vuln def
-                # print_debug "Creating vuln def from #{cvd}"
+                cvd.tap { |hs| hs.delete("scanner_identifier") }
                 create_kdi_vuln_def(cvd)
               end
             end
@@ -125,8 +125,8 @@ module Kenna
                 target: "hostname",
                 proc: lambda { |x|
                         temp = x["domain"]
+                        temp = x["assets"].first["displayName"] if temp.nil?
                         temp = temp.gsub("\*", "WILDCARD") unless temp.nil?
-                        temp = x["assets"].first["displayName"] unless x["domain"] || x["ip"]
                         temp
                       } },
               { action: "proc",
@@ -142,11 +142,11 @@ module Kenna
                         end
 
                         # Annotations are like tags, add each one
-                        if x.key?("annotations")
-                          x["annotations"]["tags"].each do |at|
-                            temp << at.fetch("name")
-                          end
-                        end
+                        # if x.key?("annotations")
+                        #   x["annotations"]["tags"].each do |at|
+                        #     temp << at.fetch("name")
+                        #   end
+                        # end
 
                         # flatten since we have an array of arrays
                         temp.flatten
@@ -165,6 +165,7 @@ module Kenna
             "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse_issues" },
               { action: "proc", target: "name", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
               { action: "data", target: "remediation", data: "Investigate this Issue!" }
             ]
           }

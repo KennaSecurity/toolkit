@@ -249,14 +249,14 @@ module Kenna
         }
 
         vd = {
-          "name" => "self_signed_certificate",
+          "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ"
         }
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         create_kdi_asset_vuln(asset, vuln, "hostname")
-
+        vuln_def.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(vuln_def)
       end
 
@@ -272,7 +272,7 @@ module Kenna
         }
 
         vd = {
-          "name" => scanner_identifier,
+          "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ"
         }
 
@@ -281,6 +281,7 @@ module Kenna
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         create_kdi_asset_vuln(asset, vuln, "hostname")
 
+        vuln_def.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(vuln_def)
       end
 
@@ -299,7 +300,7 @@ module Kenna
                              end
 
         details = service.except("banners", "webComponents", "scanMetadata")
-        details["reputations"] = item.fetch("reputations") unless item["reputations"].nil?
+        details["reputations"] = item["asset"]["reputations"] unless item["asset"]["reputations"].nil?
         vuln = {
           "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ",
@@ -311,19 +312,20 @@ module Kenna
 
         # puts "Creating assetn+vuln:\n#{asset}\n#{vuln}\n"
         vd = {
-          "name" => scanner_identifier,
+          "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ"
         }
 
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
 
-        vuln.merge({ "scanner_score" => vuln_def.fetch("scanner_score") }) if vuln_def.key?("scanner_score")
+        vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         if asset["ip_address"]
           create_kdi_asset_vuln(asset, vuln, "ip_address")
         else
           create_kdi_asset_vuln(asset, vuln)
         end
+        vuln_def.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(vuln_def)
       end
 
@@ -376,8 +378,7 @@ module Kenna
             # Hostname
             begin
               hostname = URI.parse(item["name"]).hostname
-              hostname = item["hosts"].first if !hostname && item["hosts"] && !item["hosts"].empty?
-              hostname ||= item["name"]
+              hostname ||= item["hosts"].first if !hostname && item["hosts"] && !item["hosts"].empty?
             rescue URI::InvalidURIError
               hostname = nil
             end
@@ -395,9 +396,7 @@ module Kenna
             }
             asset["external_id"] = id.to_s if id
             asset["hostname"] = hostname.to_s if hostname
-            if hostname.to_s.empty?
-              asset["ip_address"] = ip_address.to_s if ip_address
-            end
+            asset["ip_address"] = ip_address.to_s if ip_address
 
             print_error "UKNOWN item: #{item}" if hostname.to_s.empty? && ip_address.to_s.empty? && id.to_s.empty?
 
@@ -420,7 +419,7 @@ module Kenna
 
             # grab a hostname
             hostname = item["asset"]["subjectAlternativeNames"].first unless item["asset"]["subjectAlternativeNames"].nil?
-            hostname ||= item["asset"]["subject"]["common name"] if item["asset"].key("subject") && item["asset"]["subject"].key?("common name")
+            hostname ||= item["asset"]["subject"]["common name"] if item["asset"].key?("subject") && item["asset"]["subject"].key?("common name")
             hostname ||= item["asset"]["issuer"]["common name"] if item["asset"].key?("issuer") && item["asset"]["issuer"].key?("common name")
             hostname ||= item["asset"]["issuer"]["unit"] if item["asset"].key?("issuer") && item["asset"]["issuer"].key?("unit")
             hostname ||= "unknown host, unable to get from the certificate"
@@ -483,7 +482,7 @@ module Kenna
                   "scanner_type" => "RiskIQ",
                   "port" => port.to_i,
                   "details" => JSON.pretty_generate(details),
-                  "vuln_def_name" => cve["name"],
+                  "vuln_def_name" => (cve["name"]).to_s,
                   "created_at" => first_seen,
                   "last_seen_at" => last_seen
                 }
@@ -491,7 +490,7 @@ module Kenna
                 vuln_def = {
                   "scanner_type" => "RiskIQ",
                   "cve_identifiers" => (cve["name"]).to_s,
-                  "name" => cve["name"]
+                  "name" => (cve["name"]).to_s
                 }
                 create_kdi_asset_vuln(asset, vuln)
 

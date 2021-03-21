@@ -242,10 +242,13 @@ module Kenna
       def create_kdi_vuln_def(vuln_def)
         kdi_initialize unless @vuln_defs
 
-        return if @vuln_defs.lazy.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.any?
-
-        @vuln_defs << vuln_def
-
+        if !vuln_def["scanner_identifier"].nil?
+          @vuln_defs << vuln_def if @vuln_defs.lazy.select { |vd| vd["scanner_identifier"] == vuln_def["scanner_identifier"] }.none?
+          return
+        elsif !vuln_def["name"].nil?
+          @vuln_defs << vuln_def if @vuln_defs.lazy.select { |vd| vd["name"] == vuln_def["name"] }.none?
+          return
+        end
         true
       end
     end

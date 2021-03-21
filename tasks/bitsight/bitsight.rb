@@ -22,7 +22,7 @@ module Kenna
             { name: "bitsight_benign_finding_grades",
               type: "string",
               required: false,
-              default: "GOOD",
+              default: "GOOD, NEUTRAL",
               description: "Any bitsight findings with this grade will be considered benign (comma delimited list)" },
             { name: "bitsight_create_benign_findings",
               type: "boolean",

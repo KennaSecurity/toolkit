@@ -175,9 +175,6 @@ module Kenna
                 description: "A system was identified running an outdated browser or other client software.",
                 recommendation: "Update the system.",
                 matches: [
-                  { source: "Bitsight", vuln_id: /^mobile_software$/ },
-                  { source: "Bitsight", vuln_id: /^desktop_software$/ },
-                  { source: "Bitsight", vuln_id: /^insecure_systems$/ },
                   { source: "SecurityScorecard", vuln_id: /^outdated_browser$/ },
                   { source: "Expanse_issues", vuln_id: /^adobeflash$/ }
                 ]
@@ -301,6 +298,7 @@ module Kenna
                 description: "Database System was detected.",
                 recommendation: "Verify this is expected:.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^database_server_detected$/ },
                   { source: "Expanse", vuln_id: /^detected_server_mysql$/ },
                   { source: "Expanse", vuln_id: /^ms_sql_servers?$/ },
                   { source: "Expanse", vuln_id: /^my_sql_servers?$/ },
@@ -318,6 +316,7 @@ module Kenna
                 description: "Database System was detected.",
                 recommendation: "Verify this is expected:.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^database_service_exposure$/ },
                   { source: "RiskIQ", vuln_id: /^open_db_port_tcp$/ },
                   { source: "Expanse_issues", vuln_id: /^sharepointserver$/ },
                   { source: "Expanse_issues", vuln_id: /^datastorageandanalysis$/ },
@@ -333,6 +332,7 @@ module Kenna
                 description: "Deprecated Protocol was detected.",
                 recommendation: "Verify this is expected:.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^deprecated_protocol$/ },
                   { source: "Expanse_issues", vuln_id: /^pptpserver$/ },
                   { source: "Expanse_issues", vuln_id: /^insecuretls$/ }
                 ]
@@ -346,16 +346,6 @@ module Kenna
                 matches: [
                   { source: "Expanse", vuln_id: /^development_system_detected$/ },
                   { source: "Expanse", vuln_id: /^development_environments?$/ }
-                ]
-              },
-              {
-                name: "DKIM Misconfiguration",
-                # cwe: "CWE-358",
-                score: 20,
-                description: "A problem with this domain's DKIM configuration was discovered.",
-                recommendation: "Check the DKIM configuration:.",
-                matches: [
-                  { source: "Bitsight", vuln_id: /^dkim$/ }
                 ]
               },
               {
@@ -386,6 +376,8 @@ module Kenna
                 description: "This system was determined to be running software or services that are EOL.",
                 recommendation: "Investigate this software to determine if this is intended and if supported options exist.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^mobile_software$/ },
+                  { source: "Bitsight", vuln_id: /^desktop_software$/ },
                   { source: "SecurityScorecard", vuln_id: /^outdated_os$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_end_of_life$/ },
                   { source: "SecurityScorecard", vuln_id: /^service_end_of_service$/ }
@@ -433,6 +425,8 @@ module Kenna
                 description: "Exposure of Infrastructure Framework",
                 recommendation: "Replace this ceritificate soon",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^insecure_systems$/ },
+                  { source: "Bitsight", vuln_id: /^infrastructure_exposure$/ },
                   { source: "Expanse_issues", vuln_id: /^insecureapachewebserver$/ },
                   { source: "Expanse_issues", vuln_id: /^microsoftowaserver$/ },
                   { source: "Expanse_issues", vuln_id: /^jenkinsserver$/ },
@@ -452,6 +446,8 @@ module Kenna
                 description: "Exposure of sensitive data detected.",
                 recommendation: "Remediate exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^file_sharing$/ },
+                  { source: "Bitsight", vuln_id: /^sensitive_data_exposure$/ },
                   { source: "Expanse_issues", vuln_id: /^memcachedserver$/ },
                   { source: "Expanse_issues", vuln_id: /^exposeddirectorylisting$/ },
                   { source: "Expanse_issues", vuln_id: /^internalipaddressadvertisement$/ }
@@ -480,6 +476,7 @@ module Kenna
                 description: "An unencrypted login was detected.",
                 recommendation: "Ensure all logins happen over an encrypted channel.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^ftp_with_auth_tls_open_port?$/ },
                   { source: "Expanse", vuln_id: /^unencrypted_logins?$/ },
                   { source: "Expanse", vuln_id: /^detected_server_unencrypted_ftp$/ },
                   { source: "Expanse", vuln_id: /^detected_server_unencrypted_logins$/ },
@@ -497,6 +494,7 @@ module Kenna
                 description: "Trusted Protocol Exposed",
                 recommendation: "Remediate Exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^trusted_open_port$/ },
                   { source: "Expanse_issues", vuln_id: /^telnetserver$/ },
                   { source: "Expanse_issues", vuln_id: /^smbserver$/ },
                   { source: "Expanse_issues", vuln_id: /^netbiosnameserver$/ },
@@ -510,6 +508,7 @@ module Kenna
                 description: "Trusted Service Exposed",
                 recommendation: "Remediate Exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^trusted_open_service$/ },
                   { source: "Expanse_issues", vuln_id: /^rpcbindserver$/ },
                   { source: "Expanse_issues", vuln_id: /^nfsrpcbindserver$/ }
                 ]
@@ -521,6 +520,7 @@ module Kenna
                 description: "Trusted Utility Exposed",
                 recommendation: "Remediate Exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^trusted_open_utility$/ },
                   { source: "Expanse_issues", vuln_id: /^rsyncserver$/ }
                 ]
               },
@@ -615,7 +615,7 @@ module Kenna
               {
                 name: "Mobile Application Security Misconfiguration",
                 # cwe: "CWE-693",
-                score: 20,
+                score: 40,
                 description: "A problem with this application's configuration was discoverd .",
                 recommendation: "Fix it",
                 matches: [
@@ -644,11 +644,12 @@ module Kenna
               },
               {
                 name: "Network Misconfiguration",
-                score: 30,
+                score: 20,
                 # #cwe: "CWE-xxx",
                 description: "Network Misconfiguration detected.",
                 recommendation: "Remediate Network Misconfiguration.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^network_misconfig$/ },
                   { source: "Expanse_issues", vuln_id: /^panosdevice$/ },
                   { source: "Expanse_issues", vuln_id: /^openbgpserver$/ },
                   { source: "Expanse_issues", vuln_id: /^wildcarddnsrecord$/ }
@@ -661,6 +662,7 @@ module Kenna
                 description: "Network Misconfiguration detected.",
                 recommendation: "Remediate Network Misconfiguration.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^internal_network_exposure$/ },
                   { source: "Expanse_issues", vuln_id: /^networkingandsecurityinfrastructure$/ },
                   { source: "Expanse_issues", vuln_id: /^sipserver$/ },
                   { source: "Expanse_issues", vuln_id: /^snmpserver$/ },
@@ -678,6 +680,7 @@ module Kenna
                 description: "Network Misconfiguration detected.",
                 recommendation: "Remediate Network Misconfiguration.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^transmission_exposure$/ },
                   { source: "Expanse_issues", vuln_id: /^rtspserver$/ },
                   { source: "Expanse_issues", vuln_id: /^vncoverhttpserver$/ }
                 ]
@@ -720,6 +723,8 @@ module Kenna
                 recommendation: "Verify this is expected and firewall the port if it is not.",
                 matches: [
                   { source: "Expanse", vuln_id: /^web_servers?$/ },
+                  { source: "Bitsight", vuln_id: /^http_open_port$/ },
+                  { source: "Bitsight", vuln_id: /^non_sensitive_open_port$/ },
                   { source: "RiskIQ", vuln_id: /^http_open_port$/ }
                 ]
               },
@@ -736,12 +741,23 @@ module Kenna
                 ]
               },
               {
+                name: "Potential Email Security Violation",
+                # cwe: "CWE-358",
+                score: 30,
+                description: "A problem with this domain's DKIM configuration was discovered.",
+                recommendation: "Check the DKIM configuration:.",
+                matches: [
+                  { source: "Bitsight", vuln_id: /^dkim$/ }
+                ]
+              },
+              {
                 name: "Potential Exposure of Trusted Protocol",
                 # cwe: "CWE-xxx",
-                score: 70,
+                score: 60,
                 description: "Trusted Protocol Potentially Exposed",
                 recommendation: "Remediate Exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^potential_trusted_protocol$/ },
                   { source: "Expanse_issues", vuln_id: /^sshserver$/ },
                   { source: "Expanse_issues", vuln_id: /^imapserver$/ },
                   { source: "Expanse_issues", vuln_id: /^microsoftdnsserver$/ },
@@ -767,7 +783,7 @@ module Kenna
                 description: "A System was detected running a potentially sensitive service.",
                 recommendation: "Verify this is expected and firewall the port if it is not.",
                 matches: [
-                  { source: "Bitsight", vuln_id: /^open_ports$/ }, # correct place for this? # Open TCP Ports Observed
+                  { source: "Bitsight", vuln_id: /^other_open_port/ }, # correct place for this? # Open TCP Ports Observed
                   { source: "Expanse", vuln_id: /^.*_servers?$/ }, # literally match anyting coming from them in this vein
                   { source: "Expanse", vuln_id: /^detected_server_.*$/ },
                   { source: "Expanse", vuln_id: /^colocated_.*$/ },
@@ -882,16 +898,6 @@ module Kenna
                 ]
               },
               {
-                name: "System Running File-Sharing Software",
-                # cwe: "CWE-358",
-                score: 30,
-                description: "A system was identified on a file-sharing network.",
-                recommendation: "Ensure the system has not been compromised.",
-                matches: [
-                  { source: "Bitsight", vuln_id: /^file_sharing$/ }
-                ]
-              },
-              {
                 name: "Tor Exit Node Discoverd",
                 score: 10,
                 # cwe: "CWE-506",
@@ -908,6 +914,8 @@ module Kenna
                 description: "An unencrypted login was detected.",
                 recommendation: "Ensure all logins happen over an encrypted channel.",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^unecrypted_login$/ },
+                  { source: "Bitsight", vuln_id: /^ftp_without_auth_tls_open_port$/ },
                   { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ }
                 ]
               },

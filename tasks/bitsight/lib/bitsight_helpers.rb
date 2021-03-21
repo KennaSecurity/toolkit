@@ -92,6 +92,7 @@ module Kenna
 
             # grab the CVE
             cve_id = finding["vulnerability_name"]
+            cve_id ||= finding["details"]["vulnerability_name"] if finding["details"].key?("vulnerability_name")
 
             if /^CVE-/i.match?(cve_id)
               create_cve_vuln(cve_id, scanner_id, finding, asset_attributes)
@@ -161,7 +162,7 @@ module Kenna
 
         vuln_attributes = {
           "scanner_identifier" => scanner_id,
-          "vuln_def_name" => vuln_def_id,
+          "vuln_def_name" => vuln_def_id.upcase,
           "scanner_type" => "Bitsight",
           "details" => JSON.pretty_generate(finding),
           "created_at" => finding["first_seen"],
@@ -178,9 +179,9 @@ module Kenna
           "scanner_type" => "Bitsight"
         }
 
-        vd["cve_identifiers"] = vuln_def_id if /^CVE-/i.match?(vuln_def_id)
-        vd["name"] = vuln_def_id
-        vd["scanner_identifier"] = vuln_def_id
+        vd["cve_identifiers"] = vuln_def_id.upcase if /^CVE-/i.match?(vuln_def_id)
+        vd["name"] = vuln_def_id.upcase
+        # vd["scanner_identifier"] = vuln_def_id
         create_kdi_vuln_def(vd)
       end
 
@@ -188,8 +189,52 @@ module Kenna
       ### Helper to handle creating a cwe vuln
       ###
       def create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
+        # set the port if it's available
+        port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
+
+        # puts finding["details"]["diligence_annotations"]["message"] if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message") && finding["details"]["diligence_annotations"].fetch("message").match?(/^Detected service: /im)
+        detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
+        scanner_identifier = if vuln_def_id == "open_ports" && !port_number.nil?
+                               if %w[HTTP HTTPS].include?(detected_service) || [80, 443, 8080, 8443].include?(port_number)
+                                 "http_open_port"
+                               elsif [3306, 5432, 6379, 9200, 9300].include?(port_number)
+                                 "database_server_detected"
+                               elsif %w[Telnet SMTP].include?(detected_service) || [23, 25, 135, 136, 137, 138, 139, 445, 465, 587, 2323, 3389, 9002].include?(port_number)
+                                 "trusted_open_port"
+                               elsif [111].include?(port_number)
+                                 "trusted_open_service"
+                               elsif [1723].include?(port_number)
+                                 "deprecated_protocol"
+                               elsif [5800, 5900].include?(port_number)
+                                 "infrastructure_exposure"
+                               elsif %w[SIP].include?(detected_service) || [161, 1900, 5060, 5061, 5222, 5269, 5353].include?(port_number)
+                                 "internal_network_exposure"
+                               elsif %w[BGP DNS].include?(detected_service) || [22, 53, 110, 179].include?(port_number)
+                                 "potential_trusted_protocol"
+                               elsif [21].include?(port_number)
+                                 "unecrypted_login"
+                               elsif [1433, 1434].include?(port_number)
+                                 "database_service_exposure"
+                               elsif [112_11].include?(port_number)
+                                 "sensitive_data_exposure"
+                               elsif [22, 873].include?(port_number)
+                                 "trusted_open_utility"
+                               elsif [554].include?(port_number)
+                                 "transmission_exposure"
+                               elsif [179].include?(port_number)
+                                 "network_misconfig"
+                               elsif %w[XNPP NTP ISAKMP].include?(detected_service) || [123, 5222].include?(port_number)
+                                 "non_sensitive_open_port"
+                               elsif !detected_service.nil? && !detected_service.match?(/^HTTP/im)
+                                 "#{detected_service}_open_port"
+                               else
+                                 "other_open_port"
+                               end
+                             else
+                               vuln_def_id.to_s
+                             end
         vd = {
-          "scanner_identifier" => vuln_def_id.to_s
+          "scanner_identifier" => scanner_identifier
         }
 
         # get our mapped vuln
@@ -199,16 +244,13 @@ module Kenna
         # then create each vuln for this asset
         vuln_attributes = {
           "scanner_identifier" => scanner_id,
-          "vuln_def_name" => vuln_def_id,
           "scanner_type" => "Bitsight",
           "details" => JSON.pretty_generate(finding),
           "created_at" => finding["first_seen"],
           "last_seen_at" => finding["last_seen"]
         }
 
-        # set the port if it's available
-        vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
-
+        vuln_attributes["port"] = port_number unless port_number.nil?
         ###
         ### Set Scores based on what was available in the CVD
         ###
@@ -223,6 +265,7 @@ module Kenna
         ###
         ### Put them through our mapper
         ###
+        cvd.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(cvd)
       end
     end

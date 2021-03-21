@@ -18,26 +18,16 @@ module Kenna
               required: true,
               default: nil,
               description: "Snyk API Token" },
-            { name: "kenna_api_key",
-              type: "api_key",
+            { name: "retrieve_from",
+              type: "date",
               required: false,
-              default: nil,
-              description: "Kenna API Key" },
-            { name: "kenna_api_host",
-              type: "hostname",
-              required: false,
-              default: "api.kennasecurity.com",
-              description: "Kenna API Hostname" },
+              default: 90,
+              description: "default will be 90 days before today" },
             { name: "include_license",
               type: "boolean",
               required: false,
               default: false,
               description: "retrieve license issues." },
-            { name: "kenna_connector_id",
-              type: "integer",
-              required: false,
-              default: nil,
-              description: "If set, we'll try to upload to this connector" },
             { name: "projectName_strip_colon",
               type: "boolean",
               required: false,
@@ -53,6 +43,21 @@ module Kenna
               required: false,
               default: false,
               description: "strip colon and following data from package - used in asset file locator" },
+            { name: "kenna_connector_id",
+              type: "integer",
+              required: false,
+              default: nil,
+              description: "If set, we'll try to upload to this connector" },
+            { name: "kenna_api_key",
+              type: "api_key",
+              required: false,
+              default: nil,
+              description: "Kenna API Key" },
+            { name: "kenna_api_host",
+              type: "hostname",
+              required: false,
+              default: "api.kennasecurity.com",
+              description: "Kenna API Hostname" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -78,6 +83,9 @@ module Kenna
         projectName_strip_colon = @options[:projectName_strip_colon]
         packageManager_strip_colon = @options[:packageManager_strip_colon]
         package_strip_colon = @options[:package_strip_colon]
+        to_date = Date.today.strftime("%Y-%m-%d")
+        retrieve_from = @options[:retrieve_from]
+        from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
 
         org_json = snyk_get_orgs(snyk_api_token)
         projects = []
@@ -120,7 +128,7 @@ module Kenna
 
           pagenum += 1
 
-          vuln_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum)
+          vuln_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum, from_date, to_date)
 
           print_debug "issue json = #{vuln_json}"
 
@@ -250,17 +258,10 @@ module Kenna
         end
 
         ### Write KDI format
-        kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         filename = "snyk_kdi.json"
-        write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        print_good "Output is available at: #{output_dir}/#{filename}"
-
-        ### Finish by uploading if we're all configured
-        return unless kenna_connector_id && kenna_api_host && kenna_api_key
-
-        print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-        upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
+        kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
     end
   end
