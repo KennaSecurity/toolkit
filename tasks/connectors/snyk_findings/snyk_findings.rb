@@ -73,9 +73,9 @@ module Kenna
 
         snyk_api_token = @options[:snyk_api_token]
 
-        kenna_api_host = @options[:kenna_api_host]
-        kenna_api_key = @options[:kenna_api_key]
-        kenna_connector_id = @options[:kenna_connector_id]
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
 
         # output_directory = @options[:output_directory]
         include_license = @options[:include_license]
