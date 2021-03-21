@@ -101,16 +101,13 @@ module Kenna
         end
 
         def map_issue_priority(sev_word)
-          case sev_word
-          when "Critical"
-            10
-          when "High"
-            8
-          when "Medium"
-            6
-          when "Low"
-            3
-          end
+          crits = {
+            "Critical" => 10,
+            "High" => 8,
+            "Medium" => 6,
+            "Low" => 3
+          }
+          crits[sevword]
         end
 
         ###
