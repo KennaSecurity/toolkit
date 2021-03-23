@@ -1,0 +1,23 @@
+
+name: Blackduck
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: philips-labs/blackduck-scanner-action@v1
+      - name: 'blackduck'
+        uses: andrewmcodes/bundler-audit-action@main
+        env:
+          token: ${{ secrets.BLACKDUCK_TOKEN }}
+          projectName: Toolkit
+          versionPrefix: 1.0
+          url: https://blackduck.connectorlab.org
+          sourcePath: /
+          extraArgs: --detect.ruby.include.dev.dependencies=true
