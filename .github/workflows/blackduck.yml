@@ -14,14 +14,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          path: Code
       - uses: philips-labs/blackduck-scanner-action@v1
         with:
           token: ${{ secrets.BLACKDUCK_TOKEN }}
           projectName: Toolkit
           versionPrefix: 1.0
           url: ${{ secrets.BLACKDUCK_URL }}
-          sourcePath: /Code
-          extraArgs: --detect.ruby.include.dev.dependencies=false
+          sourcePath: /
+          # extraArgs: --detect.ruby.include.dev.dependencies=false
 
