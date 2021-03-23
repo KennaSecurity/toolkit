@@ -10,7 +10,7 @@ This script will transform csv files into json that can be consumed by the Kenna
 
 Meta Data file
 Sample file for this csv2kdi toolkit task:
-  https://github.com/KennaSecurity/toolkit/tree/master/tasks/utilities/csv2kdi/tk_meta.csv
+  https://github.com/KennaSecurity/toolkit/blob/master/tasks/utilities/csv2kdi/tk_meta.csv
 
 Notes show fields that are required to be mapped. Column can reference the column name if the source data file has headers or the column index if there are no headers.
 
