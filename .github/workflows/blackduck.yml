@@ -20,6 +20,6 @@ jobs:
           projectName: Toolkit
           versionPrefix: 1.0
           url: ${{ secrets.BLACKDUCK_URL }}
-          sourcePath: /
+          sourcePath: /home/runner/work/toolkit/toolkit/
           # extraArgs: --detect.ruby.include.dev.dependencies=false
 
