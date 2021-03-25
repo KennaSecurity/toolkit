@@ -20,11 +20,11 @@ module Kenna
               required: false,
               default: nil,
               description: "If filled, this will pull a one-off report for the domain. [DEFAULT]" },
-            { name: "ssc_portfolio_id",
+            { name: "ssc_portfolio_ids",
               type: "string",
               required: false,
               default: nil,
-              description: "If filled, this will pull a portfolio's issues." },
+              description: "Comma separated list of portfolio ids. if nil will pull all portfolios." },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -61,39 +61,34 @@ module Kenna
         if issue["connection_attributes"]
           if issue["connection_attributes"].is_a? Hash
             # port = issue["connection_attributes"]["dst_port"]
-            asset_attributes["ip_address"] = issue["connection_attributes"]["dst_ip"] if issue["connection_attributes"]["dst_ip"]
-            asset_attributes["hostname"] = issue["connection_attributes"]["dst_host"] if issue["connection_attributes"]["dst_host"]
+            ip_address = issue["connection_attributes"]["dst_ip"] if issue["connection_attributes"]["dst_ip"]
+            hostname = issue["connection_attributes"]["dst_host"] if issue["connection_attributes"]["dst_host"]
           else
             puts "UNKOWN FORMAT FOR ISSUE, SKIPPING: #{issue}"
             return nil
           end
         end
 
-        # Converted Csv only
-        asset_attributes["hostname"] = issue["hostname"] if issue["hostname"]
+        hostname ||= issue["hostname"] if issue["hostname"]
+        hostname ||= issue["subdomain"] if issue["subdomain"]
+        hostname ||= issue["common_name"] if issue["common_name"]
 
-        asset_attributes["hostname"] = issue["subdomain"] if issue["subdomain"] && !issue["hostname"]
+        ip_address ||= issue["ip_address"] if issue["ip_address"]
+        ip_address ||= issue["target"] if issue["target"]
 
-        asset_attributes["hostname"] = issue["common_name"] if issue["common_name"] && !issue["hostname"]
+        url = issue["initial_url"] if issue["initial_url"]
+        url ||= issue["url"] if issue["url"]
 
-        ### End converted csv-only stuff
+        ip_address = issue["src_ip"] if issue["src_ip"]
 
-        asset_attributes["ip_address"] = issue["ip_address"] if issue["ip_address"]
-
-        asset_attributes["url"] = issue["initial_url"] if issue["initial_url"]
-
-        asset_attributes["url"] = issue["url"] if issue["url"]
-
-        asset_attributes["fqdn"] = issue["domain"] if issue["domain"]
-
-        asset_attributes["ip_address"] = issue["src_ip"] if issue["src_ip"]
-
-        unless asset_attributes["ip_address"] ||
-               asset_attributes["hostname"] ||
-               asset_attributes["url"] ||
-               asset_attributes["domain"]
+        unless ip_address ||
+               hostname ||
+               url
           print_debug "UNMAPPED ASSET FOR FINDING: #{issue}"
         end
+        asset_attributes["ip_address"] = ip_address unless ip_address.nil? || ip_address.empty?
+        asset_attributes["hostname"] = hostname unless hostname.nil? || hostname.empty?
+        asset_attributes["url"] = url unless url.nil? || url.empty?
 
         asset_attributes
       end
@@ -125,6 +120,7 @@ module Kenna
 
           vuln_attributes = {
             "scanner_identifier" => issue["vulnerability_id"] || issue["cve"],
+            "vuln_def_name" => issue["vulnerability_id"] || issue["cve"],
             "scanner_type" => scanner_type,
             "details" => JSON.pretty_generate(issue),
             "created_at" => first_seen,
@@ -136,7 +132,7 @@ module Kenna
           # create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
           vuln_def_attributes = {
-            "scanner_identifier" => (issue["vulnerability_id"]).to_s,
+            "name" => (issue["vulnerability_id"]).to_s,
             "cve_identifiers" => (issue["vulnerability_id"]).to_s,
             "scanner_type" => scanner_type
           }
@@ -184,9 +180,9 @@ module Kenna
           ### Set Scores based on what was available in the CVD
           ###
           vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"] if vuln_def_attributes["scanner_score"]
-
+          vuln_attributes["vuln_def_name"] = vuln_def_attributes["name"] if vuln_def_attributes.key?("name")
           vuln_attributes["override_score"] = vuln_def_attributes["override_score"] if vuln_def_attributes["override_score"]
-
+          vuln_def_attributes.tap { |hs| hs.delete("scanner_identifier") }
         end
 
         [vuln_attributes, vuln_def_attributes]
@@ -194,49 +190,50 @@ module Kenna
 
       def ssc_csv_issue_to_hash(line)
         {
-          "issue_id" => (line[0]).to_s,
-          "factor_name" => (line[1]).to_s,
-          "issue_type_title" => (line[2]).to_s,
-          "type" => (line[3]).to_s, # to fit existing kdi generation
-          "issue_type_code" => (line[3]).to_s,
-          "issue_type_severity" => (line[4]).to_s,
-          "issue_recommendation" => (line[5]).to_s,
-          "first_seen_time" => Time.strptime((line[6]).to_s, "%m/%d/%Y"),
-          "last_seen_time" => Time.strptime((line[7]).to_s, "%m/%d/%Y"),
-          "ip_address" => (line[8]).to_s.split(",").first, # to fit existing kdi generation
-          "ip_addresses" => (line[8]).to_s,
-          "hostname" => (line[9]).to_s,
-          "subdomain" => (line[10]).to_s,
-          "port" => (line[11]).to_s.split(",").first, # to fit existing kdi generation
-          "ports" => (line[11]).to_s,
-          "status" => (line[12]).to_s,
-          "cve" => (line[13]).to_s,
-          "vulnerability_id" => (line[13]).to_s, # to fit existing kdi generation
-          "description" => (line[14]).to_s,
-          "time_since_published" => (line[15]).to_s,
-          "time_open_since_published" => (line[16]).to_s,
-          "cookie_name" => (line[17]).to_s,
-          "data" => (line[18]).to_s,
-          "common_name" => (line[19]).to_s,
-          "key_length" => (line[20]).to_s,
-          "using_rc4?" => (line[21]).to_s,
-          "issuer_organization_name" => (line[22]).to_s,
-          "provider" => (line[23]).to_s,
-          "detected_service" => (line[24]).to_s,
-          "product" => (line[25]).to_s,
-          "version" => (line[26]).to_s,
-          "platform" => (line[27]).to_s,
-          "browser" => (line[28]).to_s,
-          "destination_ips" => (line[29]).to_s,
-          "malware_family" => (line[30]).to_s,
-          "malware_type" => (line[31]).to_s,
-          "detection_method" => (line[32]).to_s,
-          "label" => (line[33]).to_s,
-          "initial_url" => (line[34]).to_s,
-          "final_url" => (line[35]).to_s,
-          "request_chain" => (line[36]).to_s,
-          "headers" => (line[37]).to_s,
-          "analysis" => (line[38]).to_s
+          "issue_id" => (line[0]).to_s, # issue id
+          "factor_name" => (line[1]).to_s, # factor name
+          "issue_type_title" => (line[2]).to_s, # issue type title
+          "type" => (line[3]).to_s, # issue type code
+          "issue_type_code" => (line[3]).to_s, # issue type code
+          "issue_type_severity" => (line[4]).to_s, # issue type severity
+          "issue_recommendation" => (line[5]).to_s, # issue type recommendation
+          "first_seen_time" => Time.strptime((line[6]).to_s, "%m/%d/%Y"), # first seen
+          "last_seen_time" => Time.strptime((line[7]).to_s, "%m/%d/%Y"), # last seen
+          "ip_address" => (line[8]).to_s.split(",").first, # to fit existing kdi generation / ip addresses
+          "ip_addresses" => (line[8]).to_s, # ip addresses
+          "hostname" => (line[9]).to_s, # Hostname
+          "subdomain" => (line[10]).to_s, # subdomain
+          "target" => (line[11]).to_s, # target
+          "port" => (line[12]).to_s.split(",").first, # to fit existing kdi generation / ports
+          "ports" => (line[12]).to_s, # ports
+          "status" => (line[13]).to_s, # status
+          "cve" => (line[14]).to_s, # cve
+          "vulnerability_id" => (line[14]).to_s, # to fit existing kdi generation / cve
+          "description" => (line[15]).to_s, # description
+          "time_since_published" => (line[16]).to_s, # time since published
+          "time_open_since_published" => (line[17]).to_s, # time open since published
+          "cookie_name" => (line[18]).to_s, # cookie name
+          "data" => (line[19]).to_s, # data
+          "common_name" => (line[20]).to_s, # common name
+          "key_length" => (line[21]).to_s, # key length
+          "using_rc4?" => (line[22]).to_s, # using rc4
+          "issuer_organization_name" => (line[23]).to_s,
+          "provider" => (line[24]).to_s,
+          "detected_service" => (line[25]).to_s,
+          "product" => (line[26]).to_s,
+          "version" => (line[27]).to_s,
+          "platform" => (line[28]).to_s,
+          "browser" => (line[29]).to_s,
+          "destination_ips" => (line[30]).to_s,
+          "malware_family" => (line[31]).to_s,
+          "malware_type" => (line[32]).to_s,
+          "detection_method" => (line[33]).to_s,
+          "label" => (line[34]).to_s,
+          "initial_url" => (line[35]).to_s,
+          "final_url" => (line[36]).to_s,
+          "request_chain" => (line[37]).to_s,
+          "headers" => (line[38]).to_s,
+          "analysis" => (line[39]).to_s
         }
       end
 
@@ -248,7 +245,8 @@ module Kenna
         kenna_connector_id = @options[:kenna_connector_id]
         ssc_api_key = @options[:ssc_api_key]
         ssc_domain = @options[:ssc_domain]
-        ssc_portfolio_id = @options[:ssc_portfolio_id]
+        ssc_portfolio_ids = @options[:ssc_portfolio_id]
+        output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
 
         client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
@@ -261,57 +259,17 @@ module Kenna
           return
         end
 
-        # use the first one !!!
-        unless ssc_portfolio_id
-          ssc_portfolio_id = client.get_portfolio["entries"].first["id"]
-          print_good "Using first portfolio since none was specified: #{ssc_portfolio_id}"
+        unless ssc_portfolio_ids
+          ssc_portfolio_ids = []
+          client.portfolios["entries"].each do |portfolio|
+            ssc_portfolio_ids << portfolio.fetch("id")
+          end
         end
 
         if ssc_domain
 
           # grab
           print_good "Pulling data for domain: #{ssc_domain}"
-          # process
-          issues = client.get_issues_report_for_domain(ssc_domain)
-
-          print_good "Processing data for: #{ssc_domain}"
-
-          if @options[:debug]
-            icount = 5000
-            print_debug "Only processing first #{icount} #{issue_types}... "
-            issues = issues.first(icount)
-          end
-
-          issues_count = issues.count
-          issues.each_with_index do |issue, index|
-            if index.zero?
-              # puts "HEADERS: #{issue}"
-              next
-            end
-
-            # print_debug "Processing issue: #{issue}"
-            print_good "Processing issue: #{index}/#{issues_count}: #{issue[0]}"
-            i = ssc_csv_issue_to_hash(issue)
-
-            ###
-            ### Get things in an acceptable format
-            ###
-            asset_attributes = ssc_issue_to_kdi_asset_hash(i)
-            # print asset_attributes
-            vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
-            # print vuln_attributes
-            # print vuln_def_attributes
-
-            # THEN create it
-            create_kdi_asset(asset_attributes)
-            # vuln
-            create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-            # vuln def entry
-            create_kdi_vuln_def(vuln_def_attributes)
-          end
-
-        elsif ssc_portfolio_id
-
           if @options[:debug]
             issue_types = %w[
               patching_cadence_high
@@ -323,10 +281,22 @@ module Kenna
             print_debug "Only getting #{issue_types}... "
           end
 
-          print_good "Pulling data for portfolio: #{ssc_portfolio_id}"
-          issues = client.get_issues_for_portfolio(ssc_portfolio_id, issue_types)
+          company_issues = []
+          issue_types ||= client.issue_types_list
 
-          issues.each do |issue|
+          issue_types.each do |type|
+            issues = client.issues_by_type_for_company(ssc_domain, type)["entries"]
+
+            if issues
+              puts "#{issues.count} issues of type #{type}"
+              company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
+            else
+              puts "Missing (or error) on #{type} issues"
+            end
+          end
+
+          company_issues&.flatten
+          company_issues.each do |issue|
             ###
             ### Get things in an acceptable format
             ###
@@ -335,30 +305,104 @@ module Kenna
 
             vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
 
-            # THEN create it
-            create_kdi_asset(asset_attributes)
-            # vuln
             create_kdi_asset_vuln(asset_attributes, vuln_attributes)
             # vuln def entry
             create_kdi_vuln_def(vuln_def_attributes)
           end
-        else
-          print_error "No Domain or Portfolio ID specified, unable to proceed!"
-          return
+
+          filename = "ssc_kdi_#{ssc_domain}.json"
+          kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.empty?
+          # # process
+          # issues = client.issues_report_for_domain(ssc_domain)
+
+          # print_good "Processing data for: #{ssc_domain}"
+
+          # if @options[:debug]
+          #   icount = 5000
+          #   print_debug "Only processing first #{icount} #{issue_types}... "
+          #   issues = issues.first(icount)
+          # end
+
+          # issues_count = issues.count
+          # issues.each_with_index do |issue, index|
+          #   if index.zero?
+          #     # puts "HEADERS: #{issue}"
+          #     next
+          #   end
+
+          #   # print_debug "Processing issue: #{issue}"
+          #   print_good "Processing issue: #{index}/#{issues_count}: #{issue[0]}"
+          #   i = ssc_csv_issue_to_hash(issue)
+
+          #   ###
+          #   ### Get things in an acceptable format
+          #   ###
+          #   asset_attributes = ssc_issue_to_kdi_asset_hash(i)
+          #   # print asset_attributes
+          #   vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
+
+          #   create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+          #   # vuln def entry
+          #   create_kdi_vuln_def(vuln_def_attributes)
+          # end
+          # filename = "ssc_kdi_#{ssc_domain}.json"
+          # kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil?
+
+        elsif ssc_portfolio_ids
+          ssc_portfolio_ids.each do |portfolio|
+            if @options[:debug]
+              issue_types = %w[
+                patching_cadence_high
+                patching_cadence_medium
+                patching_cadence_low
+                service_imap
+                csp_no_policy
+              ] # nil
+              print_debug "Only getting #{issue_types}... "
+            end
+
+            print_good "Pulling data for portfolio: #{portfolio}"
+            companies = client.companies_by_portfolio(portfolio)
+            companies["entries"].each do |company|
+              company_issues = []
+              issue_types ||= client.issue_types_list
+
+              issue_types.each do |type|
+                issues_by_type = client.issues_by_type_for_company(company["domain"], type)
+
+                issues = issues_by_type["entries"] unless issues_by_type.nil?
+
+                if issues
+                  puts "#{issues.count} issues of type #{type}"
+                  company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
+                else
+                  puts "Missing (or error) on #{type} issues"
+                end
+              end
+
+              company_issues&.flatten
+              company_issues.each do |issue|
+                ###
+                ### Get things in an acceptable format
+                ###
+                asset_attributes = ssc_issue_to_kdi_asset_hash(issue)
+                next if asset_attributes.nil?
+
+                vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
+
+                create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+                # vuln def entry
+                create_kdi_vuln_def(vuln_def_attributes)
+              end
+              filename = "ssc_kdi_#{company['domain']}.json"
+            end
+            kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
+          end
         end
 
-        ### Write KDI format
-        kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        filename = "security_scorecard.kdi.json"
-        write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        print_good "Output is available at: #{output_dir}/#{filename}"
-
-        ### Finish by uploading if we're all configured
         return unless kenna_connector_id && kenna_api_host && kenna_api_key
 
-        print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-        upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
+        kdi_connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key)
       end
     end
   end

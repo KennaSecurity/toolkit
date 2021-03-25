@@ -144,9 +144,7 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^server_software$/ },
                   { source: "Expanse", vuln_id: /^application_server_software$/ },
                   { source: "Expanse", vuln_id: /^server_software$/ },
-                  { source: "Expanse", vuln_id: /^detected_webserver$/ },
-                  { source: "Expanse_issues, vuln_id: /^(?!apache|insecure).*webserver$/" }
-                ]
+                  { source: "Expanse", vuln_id: /^detected_webserver$/ }                ]
               },
               {
                 name: "Breach of Proper Protocol or Procedure",
@@ -436,7 +434,11 @@ module Kenna
                   { source: "Expanse_issues", vuln_id: /^vncserver$/ },
                   { source: "Expanse_issues", vuln_id: /^kubernetes$/ },
                   { source: "Expanse_issues", vuln_id: /^insecuredrupalwebserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^insecuremicrosoftiiswebserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^insecuremicrosoftiiswebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuremicrosoftexchangeserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^insecuresipserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^(?!apache|insecure).*webserver$/ }
+
                 ]
               },
               {
@@ -466,7 +468,12 @@ module Kenna
                   { source: "Expanse_issues", vuln_id: /^smtpserver$/ },
                   { source: "Expanse_issues", vuln_id: /^developmentenvironment$/ },
                   { source: "Expanse_issues", vuln_id: /^teleconferencingandcollaboration$/ },
-                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ }
+                  { source: "Expanse_issues", vuln_id: /^defaultapachetomcatpage$/ },
+                  { source: "Expanse_issues", vuln_id: /^microsoftexchangeserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^nginxwebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^drupalwebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^tomcatwebserver$/ },
+                  { source: "Expanse_issues", vuln_id: /^hpeproliantserver$/ }
                 ]
               },
               {
