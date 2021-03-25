@@ -144,7 +144,8 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^server_software$/ },
                   { source: "Expanse", vuln_id: /^application_server_software$/ },
                   { source: "Expanse", vuln_id: /^server_software$/ },
-                  { source: "Expanse", vuln_id: /^detected_webserver$/ }                ]
+                  { source: "Expanse", vuln_id: /^detected_webserver$/ }
+                ]
               },
               {
                 name: "Breach of Proper Protocol or Procedure",
