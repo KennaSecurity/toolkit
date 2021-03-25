@@ -18,132 +18,80 @@ module Kenna
         end
 
         def successfully_authenticated?
-          json = get_portfolio
+          json = portfolios
           return true if json && json["entries"]
 
           false
         end
 
-        def get_issues_for_portfolio(portfolio_id, issue_types = nil)
-          out_issues = []
-          companies = get_companies_by_portfolio(portfolio_id)
-          puts "DEBUG Got #{companies.count} companies"
+        # def issues_for_portfolio(portfolio_id, issue_types = nil)
+        #   out_issues = []
+        #   companies = companies_by_portfolio(portfolio_id)
+        #   puts "DEBUG Got #{companies.count} companies"
 
-          if companies.count.positive?
+        #   if companies.count.positive?
 
-            companies["entries"].each do |c|
-              puts "Working on company #{c}"
+        #     companies["entries"].each do |c|
+        #       puts "Working on company #{c}"
 
-              # default to all issues
-              issue_types ||= get_issue_types
+        #       # default to all issues
+        #       issue_types ||= issue_types_list
 
-              issue_types.each do |it|
-                issues = get_issues_by_type_for_company(c["domain"], it)["entries"]
-                if issues
-                  puts "#{issues.count} issues of type #{it}"
-                  out_issues.concat(issues.map { |i| i.merge({ "type" => it }) })
-                else
-                  puts "Missing (or error) on #{it} issues"
-                end
-              end
-            end
-          else
-            out_issues = []
-          end
+        #       issue_types.each do |it|
+        #         issues = issues_by_type_for_company(c["domain"], it)["entries"]
+        #         if issues
+        #           puts "#{issues.count} issues of type #{it}"
+        #           out_issues.concat(issues.map { |i| i.merge({ "type" => it }) })
+        #         else
+        #           puts "Missing (or error) on #{it} issues"
+        #         end
+        #       end
+        #     end
+        #   else
+        #     out_issues = []
+        #   end
 
-          out_issues.flatten
-        end
+        #   out_issues.flatten
+        # end
 
-        def get_portfolio # rubocop:disable Naming/AccessorMethodName
+        def portfolios
           endpoint = "#{@baseapi}/portfolios"
 
-          begin
-            response = RestClient::Request.execute({
-                                                     method: :get,
-                                                     url: endpoint,
-                                                     headers: @headers
-                                                   })
+          response = http_get(endpoint, @headers)
 
-            JSON.parse(response.body.to_s)
-          rescue JSON::ParserError
-            nil
-          rescue RestClient::Unauthorized
-            nil
-          end
+          JSON.parse(response.body.to_s)
         end
 
-        def get_companies_by_portfolio(portfolio_id)
+        def companies_by_portfolio(portfolio_id)
           endpoint = "#{@baseapi}/portfolios/#{portfolio_id}/companies"
 
-          puts "Requesting #{endpoint}"
+          print_debug "Requesting #{endpoint}"
 
-          response = RestClient::Request.execute({
-                                                   method: :get,
-                                                   url: endpoint,
-                                                   headers: @headers
-                                                 })
-
-          begin
-            JSON.parse(response.body)
-          rescue JSON::ParserError
-            # do nothing
-          rescue RestClient::NotFound
-            puts "Error, unable to find resource"
-          end
+          response = http_get(endpoint, @headers)
+          JSON.parse(response.body)
         end
 
-        def get_issues_by_type_for_company(company_id, itype = "patching_cadence_low")
+        def issues_by_type_for_company(company_id, itype = "patching_cadence_low")
           endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
-
-          begin
-            response = RestClient::Request.execute({
-                                                     method: :get,
-                                                     url: endpoint,
-                                                     headers: @headers
-                                                   })
-
-            JSON.parse(response.body.to_s)
-          rescue RestClient::InternalServerError => e
-            puts "Error! 500 getting #{itype}: #{e}"
-            {}
-          rescue JSON::ParserError => e
-            puts "Error! Parsing #{itype}: #{e}"
-            {}
-          end
+          response = http_get(endpoint, @headers, 0)
+          JSON.parse(response.body.to_s) unless response.nil?
         end
 
-        def get_issue_types # rubocop:disable Naming/AccessorMethodName
+        def issue_types_list
           endpoint = "#{@baseapi}/metadata/issue-types"
 
-          response = RestClient::Request.execute({
-                                                   method: :get,
-                                                   url: endpoint,
-                                                   headers: @headers
-                                                 })
-
-          begin
-            JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] }
-          rescue JSON::ParserError
-            # do nothing
-          end
+          response = http_get(endpoint, @headers)
+          JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] unless x["severity"] == "info" || x["severity"] == "low" }.compact
         end
 
         #  "https://api.securityscorecard.io/reports/issues";     payload=''
-        def get_issues_report_for_domain(domain)
+        def issues_report_for_domain(domain)
           ###
           ### Generate an issues report
           ###
           puts "DEBUG Generating issues report"
           endpoint = "#{@baseapi}/reports/issues"
-          RestClient::Request.execute({
-                                        method: :post,
-                                        payload: {
-                                          "domain" => domain,
-                                          "format" => "csv"
-                                        },
-                                        url: endpoint,
-                                        headers: @headers
-                                      })
+          http_post(endpoint, @headers, { "domain" => domain, "format" => "csv" })
           now = Time.now.utc
           puts "DEBUG #{now}"
 
@@ -152,11 +100,7 @@ module Kenna
           ###
           puts "DEBUG getting list of recent reports"
           endpoint = "https://api.securityscorecard.io/reports/recent"
-          response = RestClient::Request.execute({
-                                                   method: :get,
-                                                   url: endpoint,
-                                                   headers: @headers
-                                                 })
+          response = http_get(endpoint, @headers)
 
           report_list = JSON.parse(response.body)["entries"]
 
@@ -185,11 +129,8 @@ module Kenna
             end
 
             puts "DEBUG Got download url: #{download_url}"
-            response = RestClient::Request.execute({
-                                                     method: :get,
-                                                     url: download_url,
-                                                     headers: @headers
-                                                   })
+            response = http_get(download_url, @headers)
+            puts response
 
             puts "DEBUG Returning parsed version"
             return CSV.parse(response.body)

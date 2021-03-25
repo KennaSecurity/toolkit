@@ -122,7 +122,7 @@ module Kenna
                 target: "hostname",
                 proc: lambda { |x|
                         temp = x["domain"]
-                        temp = x["assets"].first["displayName"] if temp.nil?
+                        temp = x["assets"].first["displayName"] if temp.nil? && x["assets"].first["assetType"].match?(/Domain/im)
                         temp = temp.gsub("\*", "WILDCARD") unless temp.nil?
                         temp
                       } },
