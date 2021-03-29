@@ -17,7 +17,7 @@ module Kenna
         my_company
       end
 
-      def get_bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades)
+      def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades)
         limit = 100
         page_count = 0
 
