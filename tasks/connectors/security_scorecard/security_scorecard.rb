@@ -285,9 +285,10 @@ module Kenna
           issue_types ||= client.issue_types_list
 
           issue_types.each do |type|
-            issues = client.issues_by_type_for_company(ssc_domain, type)["entries"]
+            issues = client.issues_by_type_for_company(ssc_domain, type)
 
             if issues
+              issues = issues["entries"]
               puts "#{issues.count} issues of type #{type}"
               company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
             else
@@ -312,41 +313,6 @@ module Kenna
 
           filename = "ssc_kdi_#{ssc_domain}.json"
           kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.empty?
-          # # process
-          # issues = client.issues_report_for_domain(ssc_domain)
-
-          # print_good "Processing data for: #{ssc_domain}"
-
-          # if @options[:debug]
-          #   icount = 5000
-          #   print_debug "Only processing first #{icount} #{issue_types}... "
-          #   issues = issues.first(icount)
-          # end
-
-          # issues_count = issues.count
-          # issues.each_with_index do |issue, index|
-          #   if index.zero?
-          #     # puts "HEADERS: #{issue}"
-          #     next
-          #   end
-
-          #   # print_debug "Processing issue: #{issue}"
-          #   print_good "Processing issue: #{index}/#{issues_count}: #{issue[0]}"
-          #   i = ssc_csv_issue_to_hash(issue)
-
-          #   ###
-          #   ### Get things in an acceptable format
-          #   ###
-          #   asset_attributes = ssc_issue_to_kdi_asset_hash(i)
-          #   # print asset_attributes
-          #   vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(i)
-
-          #   create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-          #   # vuln def entry
-          #   create_kdi_vuln_def(vuln_def_attributes)
-          # end
-          # filename = "ssc_kdi_#{ssc_domain}.json"
-          # kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil?
 
         elsif ssc_portfolio_ids
           ssc_portfolio_ids.each do |portfolio|

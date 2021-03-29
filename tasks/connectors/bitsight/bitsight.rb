@@ -11,7 +11,6 @@ module Kenna
         {
           id: "bitsight",
           name: "Bitsight",
-          maintainers: ["jcran"],
           description: "This task connects to the Bitsight API and pulls results into the Kenna Platform.",
           options: [
             { name: "bitsight_api_key",
@@ -75,7 +74,7 @@ module Kenna
           return
         end
 
-        get_bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades)
+        bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades)
 
         ### Write KDI format
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
