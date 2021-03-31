@@ -85,6 +85,7 @@ module Kenna
                hostname ||
                url
           print_debug "UNMAPPED ASSET FOR FINDING: #{issue}"
+          return nil
         end
         asset_attributes["ip_address"] = ip_address unless ip_address.nil? || ip_address.empty?
         asset_attributes["hostname"] = hostname unless hostname.nil? || hostname.empty?
@@ -174,7 +175,7 @@ module Kenna
             "last_seen_at" => last_seen,
             "status" => "open"
           }
-          vuln_attributes["port"] = port if port
+          vuln_attributes["port"] = port if port&.positive?
 
           ###
           ### Set Scores based on what was available in the CVD
