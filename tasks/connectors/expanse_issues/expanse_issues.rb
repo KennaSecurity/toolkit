@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 # expanse client
-require_relative "lib/client"
+require_relative "lib/expanse_issues_client"
 
 # cloud exposure field mappings
-require_relative "lib/mapper"
+require_relative "lib/expanse_issues_mapper"
 
 module Kenna
   module Toolkit
     class ExpanseIssuesTask < Kenna::Toolkit::BaseTask
-      include Kenna::Toolkit::ExpanseIssues::Mapper
+      include Kenna::Toolkit::ExpanseIssues::ExpanseIssuesMapper
 
       def self.metadata
         {
@@ -79,7 +79,7 @@ module Kenna
         print @priorities
 
         # create an api client
-        @client = Kenna::Toolkit::ExpanseIssues::Client.new(expanse_api_key)
+        @client = Kenna::Toolkit::ExpanseIssues::ExpanseIssuesClient.new(expanse_api_key)
 
         @assets = []
         @vuln_defs = []
