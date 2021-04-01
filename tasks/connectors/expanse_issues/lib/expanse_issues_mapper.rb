@@ -3,7 +3,7 @@
 module Kenna
   module Toolkit
     module ExpanseIssues
-      module Mapper
+      module ExpanseIssuesMapper
         include Kenna::Toolkit::KdiHelpers
 
         def kdi_kickoff

@@ -69,6 +69,8 @@ module Kenna
         vuln_def_id = (finding["risk_vector_label"]).to_s.tr(" ", "_").tr("-", "_").downcase.strip
         print_debug "Working on finding of type: #{vuln_def_id}"
 
+        return if create_benign_findings && finding["details"] && finding["details"]["grade"] && benign_finding_grades.include?(finding["details"]["grade"])
+
         # get the grades labled as benign... Default: GOOD
 
         finding["assets"].each do |a|
@@ -140,7 +142,7 @@ module Kenna
                 # then create it
                 create_cwe_vuln("benign_finding", scanner_id, finding, asset_attributes)
               else # otherwise skip!
-                print "Skipping benign finding: #{vuln_def_id}"
+                print_debug "Skipping benign finding: #{vuln_def_id}"
               end
 
             else # we are probably a negative finding, just create it
@@ -170,7 +172,7 @@ module Kenna
         }
 
         # set the port if it's available
-        vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
+        vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
 
         # def create_kdi_asset_vuln(asset_id, asset_locator, args)
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
@@ -190,7 +192,7 @@ module Kenna
       ###
       def create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
         # set the port if it's available
-        port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"]
+        port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
 
         # puts finding["details"]["diligence_annotations"]["message"] if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message") && finding["details"]["diligence_annotations"].fetch("message").match?(/^Detected service: /im)
         detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
@@ -255,11 +257,9 @@ module Kenna
         ### Set Scores based on what was available in the CVD
         ###
         vuln_attributes["vuln_def_name"] = cvd["name"] if cvd["name"]
-
         vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
-
         vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
-
+        vuln_attributes.compact!
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
         ###

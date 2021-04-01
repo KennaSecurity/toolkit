@@ -6,7 +6,7 @@ require "csv"
 module Kenna
   module Toolkit
     module ExpanseIssues
-      class Client
+      class ExpanseIssuesClient
         def initialize(api_key)
           url = "https://expander.qadium.com/api/v1/idtoken"
           response = http_get(url, { Authorization: "Bearer #{api_key}" })

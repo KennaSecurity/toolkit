@@ -255,6 +255,7 @@ module Kenna
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln.compact!
         create_kdi_asset_vuln(asset, vuln, "hostname")
         vuln_def.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(vuln_def)
@@ -279,6 +280,7 @@ module Kenna
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln.compact!
         create_kdi_asset_vuln(asset, vuln, "hostname")
 
         vuln_def.tap { |hs| hs.delete("scanner_identifier") }
@@ -289,6 +291,7 @@ module Kenna
         # print_debug "at start of create open port vuln" if @debug
         port_number = service["port"] if service.is_a? Hash
         port_number = port_number.to_i
+        return unless service.key?("latestPortState") && service["latestPortState"]&.fetch("portState") == "OPEN"
 
         ###
         ### handle http ports differently ... todo, standardize this
@@ -320,6 +323,7 @@ module Kenna
 
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln.compact!
         if asset["ip_address"]
           create_kdi_asset_vuln(asset, vuln, "ip_address")
         else
@@ -344,18 +348,8 @@ module Kenna
           ###
           ### First handle dates (same across all assets)
           ###
-          if item.key?("lastSeen") && !item["lastSeen"].nil?
-            last_seen = DateTime.strptime(item["lastSeen"].to_s, "%Q")
-            first_seen = if item.key?("firstSeen") && !item["firstSeen"].nil?
-                           DateTime.strptime(item["firstSeen"].to_s, "%Q")
-                         else
-                           last_seen
-                         end
-          else
-            last_seen = DateTime.strptime(DateTime.now.to_s, "%Q")
-            first_seen = last_seen
-          end
-
+          last_seen = DateTime.strptime(item["lastSeen"].to_s, "%Q") if item.key?("lastSeen") && !item["lastSeen"].nil?
+          first_seen = DateTime.strptime(item["firstSeen"].to_s, "%Q") if item.key?("firstSeen") && !item["firstSeen"].nil?
           ###
           ### First handle tags (same across all assets)
           ###
@@ -414,6 +408,8 @@ module Kenna
 
             print_debug "processing ssl cert" if @debug
 
+            puts item if first_seen.nil? || last_seen.nil?
+
             # grab the sha
             sha_name = item["name"]
 
@@ -430,13 +426,16 @@ module Kenna
               "tags" => tags
             }
 
-            create_self_signed_cert_vuln(asset, item, first_seen, last_seen) if item["asset"]["selfSigned"]
             if item["asset"].key?("notAfter")
               expires = DateTime.strptime(item["asset"]["notAfter"].to_s, "%Q")
-              if DateTime.now > expires
+              if DateTime.now >= expires && expires < last_seen # && last_seen > DateTime.now.next_day(-30)
+                puts "creating expirting cert expired = #{expires} and last_seen = #{last_seen} and #{expires < last_seen}"
                 create_expired_cert_vuln(asset, item, true, first_seen, last_seen)
-              elsif DateTime.now > expires.next_day(30)
+              elsif DateTime.now >= expires.next_day(30) # && last_seen > DateTime.now.next_day(-30)
+                puts "creating expirting cert expiring = #{expires} and last_seen = #{last_seen} and #{expires < last_seen}"
                 create_expired_cert_vuln(asset, item, false, first_seen, last_seen)
+              elsif item["asset"].key?("selfSigned") && item["asset"].fetch("selfSigned")
+                create_self_signed_cert_vuln(asset, item, first_seen, last_seen)
               end
             end
           else
@@ -486,7 +485,7 @@ module Kenna
                   "created_at" => first_seen,
                   "last_seen_at" => last_seen
                 }
-
+                vuln.compact!
                 vuln_def = {
                   "scanner_type" => "RiskIQ",
                   "cve_identifiers" => (cve["name"]).to_s,

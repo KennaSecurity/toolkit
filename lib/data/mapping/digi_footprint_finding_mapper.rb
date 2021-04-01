@@ -100,7 +100,7 @@ module Kenna
               {
                 name: "Application Content Security Policy Issue",
                 # cwe: "CWE-358",
-                score: 20,
+                score: 40,
                 description: "A problem with this application's content security policy was identified.",
                 recommendation: "Update the certificate to include the hostname, or ensure that clients access the host from the matched hostname.",
                 matches: [
@@ -122,16 +122,6 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^x_content_type_options_incorrect$/ },
                   { source: "SecurityScorecard", vuln_id: /^x_frame_options_incorrect$/ },
                   { source: "Expanse_issues", vuln_id: /^missing\S+header$/ }
-                ]
-              },
-              {
-                name: "Application Subresource Integrity",
-                # cwe: "CWE-358",
-                score: 20,
-                description: "An unsafe subresource was detected.",
-                recommendation: "Update the application's content.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ }
                 ]
               },
               {
@@ -165,17 +155,6 @@ module Kenna
                 recommendation: "Verify this is expected",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^no_standard_browser_policy$/ }
-                ]
-              },
-              {
-                name: "Client Software Outdated or Vulnerable",
-                score: 10,
-                # cwe: "CWE-693",
-                description: "A system was identified running an outdated browser or other client software.",
-                recommendation: "Update the system.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^outdated_browser$/ },
-                  { source: "Expanse_issues", vuln_id: /^adobeflash$/ }
                 ]
               },
               {
@@ -276,8 +255,7 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^attack_detected$/ },
                   { source: "SecurityScorecard", vuln_id: /^malware_1_day$/ },
                   { source: "SecurityScorecard", vuln_id: /^malware_30_day$/ },
-                  { source: "SecurityScorecard", vuln_id: /^malware_365_day$/ },
-                  { source: "SecurityScorecard", vuln_id: /^suspicious_traffic$/ }
+                  { source: "SecurityScorecard", vuln_id: /^malware_365_day$/ }
                 ]
               },
               {
@@ -333,7 +311,8 @@ module Kenna
                 matches: [
                   { source: "Bitsight", vuln_id: /^deprecated_protocol$/ },
                   { source: "Expanse_issues", vuln_id: /^pptpserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^insecuretls$/ }
+                  { source: "Expanse_issues", vuln_id: /^insecuretls$/ },
+                  { source: "SecurityScorecard", vuln_id: /^tls_weak_protocol$/ }
                 ]
               },
               {
@@ -356,30 +335,6 @@ module Kenna
                 matches: [
                   { source: "Bitsight", vuln_id: /^dnssec$/ },
                   { source: "Expanse_issues", vuln_id: /^wildcarddnsrecord$/ }
-                ]
-              },
-              {
-                name: "Domain Squatting",
-                # cwe: "CWE-358",
-                score: 20,
-                description: "A domain typosquat was detected.",
-                recommendation: "Contact the registrar.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^typosquat$/ }
-                ]
-              },
-              {
-                name: "End-of-Life (EOL) System or Software",
-                # cwe: nil,
-                score: 50,
-                description: "This system was determined to be running software or services that are EOL.",
-                recommendation: "Investigate this software to determine if this is intended and if supported options exist.",
-                matches: [
-                  { source: "Bitsight", vuln_id: /^mobile_software$/ },
-                  { source: "Bitsight", vuln_id: /^desktop_software$/ },
-                  { source: "SecurityScorecard", vuln_id: /^outdated_os$/ },
-                  { source: "SecurityScorecard", vuln_id: /^service_end_of_life$/ },
-                  { source: "SecurityScorecard", vuln_id: /^service_end_of_service$/ }
                 ]
               },
               {
@@ -474,7 +429,9 @@ module Kenna
                   { source: "Expanse_issues", vuln_id: /^nginxwebserver$/ },
                   { source: "Expanse_issues", vuln_id: /^drupalwebserver$/ },
                   { source: "Expanse_issues", vuln_id: /^tomcatwebserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^hpeproliantserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^hpeproliantserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^admin_subdomain$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_pop3$/ }
                 ]
               },
               {
@@ -506,7 +463,8 @@ module Kenna
                   { source: "Expanse_issues", vuln_id: /^telnetserver$/ },
                   { source: "Expanse_issues", vuln_id: /^smbserver$/ },
                   { source: "Expanse_issues", vuln_id: /^netbiosnameserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^rdpserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^rdpserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_smb$/ }
                 ]
               },
               {
@@ -518,7 +476,8 @@ module Kenna
                 matches: [
                   { source: "Bitsight", vuln_id: /^trusted_open_service$/ },
                   { source: "Expanse_issues", vuln_id: /^rpcbindserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^nfsrpcbindserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^nfsrpcbindserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_ftp$/ }
                 ]
               },
               {
@@ -588,7 +547,7 @@ module Kenna
               },
               {
                 name: "Insecure Resource Request",
-                score: 40,
+                score: 70,
                 # cwe: "CWE-506",
                 description: "A resource was requested over an insecure protocol",
                 recommendation: "Transition the resource to an HTTPS request",
@@ -604,8 +563,7 @@ module Kenna
                 description: "A dns record was found pointing to an internal system.",
                 recommendation: "Remove the entry from public DNS.",
                 matches: [
-                  { source: "Expanse", vuln_id: /^internal_ip_address_advertisements?$/ },
-                  { source: "SecurityScorecard", vuln_id: /^admin_subdomain$/ }
+                  { source: "Expanse", vuln_id: /^internal_ip_address_advertisements?$/ }
                 ]
               },
               {
@@ -615,8 +573,7 @@ module Kenna
                 description: "Credentials were found exposed.",
                 recommendation: "Revoke the credentials and/or prompt a reset. Examine systems to which the credentials provided access for signs of compromise.",
                 matches: [
-                  { source: "SecurityScorecard", vuln_id: /^leaked_credentials$/ },
-                  { source: "SecurityScorecard", vuln_id: /^leaked_credentials_info$/ }
+                  { source: "SecurityScorecard", vuln_id: /^leaked_credentials$/ }
                 ]
               },
 
@@ -690,7 +647,9 @@ module Kenna
                 matches: [
                   { source: "Bitsight", vuln_id: /^transmission_exposure$/ },
                   { source: "Expanse_issues", vuln_id: /^rtspserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^vncoverhttpserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^vncoverhttpserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^insecure_https_redirect_pattern$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_vnc$/ }
                 ]
               },
               {
@@ -720,7 +679,8 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^dnssec_detected$/ },
                   { source: "SecurityScorecard", vuln_id: /^tlscert_extended_validation$/ },
                   { source: "SecurityScorecard", vuln_id: /^domain_uses_hsts_preloading$/ },
-                  { source: "SecurityScorecard", vuln_id: /^ddos_protection$/ }
+                  { source: "SecurityScorecard", vuln_id: /^ddos_protection$/ },
+                  { source: "SecurityScorecard", vuln_id: /^typosquat$/ }
                 ]
               },
               {
@@ -755,7 +715,9 @@ module Kenna
                 description: "A problem with this domain's DKIM configuration was discovered.",
                 recommendation: "Check the DKIM configuration:.",
                 matches: [
-                  { source: "Bitsight", vuln_id: /^dkim$/ }
+                  { source: "Bitsight", vuln_id: /^dkim$/ },
+                  { source: "SecurityScorecard", vuln_id: /^uce$/ }, # Unsolicited Commercial Email
+                  { source: "SecurityScorecard", vuln_id: /^short_term_lending_site$/ } # Unsolicited Commercial Email
                 ]
               },
               {
@@ -770,7 +732,8 @@ module Kenna
                   { source: "Expanse_issues", vuln_id: /^imapserver$/ },
                   { source: "Expanse_issues", vuln_id: /^microsoftdnsserver$/ },
                   { source: "Expanse_issues", vuln_id: /^ajpserver$/ },
-                  { source: "Expanse_issues", vuln_id: /^buildingcontrolsystem$/ }
+                  { source: "Expanse_issues", vuln_id: /^buildingcontrolsystem$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_imap$/ }
                 ]
               },
               {
@@ -780,8 +743,14 @@ module Kenna
                 description: "Potentially Vulnurable Software Detected",
                 recommendation: "Remediate Exposure",
                 matches: [
+                  { source: "Bitsight", vuln_id: /^mobile_software$/ },
+                  { source: "Bitsight", vuln_id: /^desktop_software$/ },
                   { source: "Expanse_issues", vuln_id: /^adobeflash$/ },
-                  { source: "Expanse_issues", vuln_id: /^wordpressserver$/ }
+                  { source: "Expanse_issues", vuln_id: /^wordpressserver$/ },
+                  { source: "SecurityScorecard", vuln_id: /^outdated_browser$/ },
+                  { source: "SecurityScorecard", vuln_id: /^outdated_os$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_end_of_life$/ },
+                  { source: "SecurityScorecard", vuln_id: /^service_end_of_service$/ }
                 ]
               },
               {
@@ -823,7 +792,8 @@ module Kenna
                 recommendation: "Best practice indicates you should disabld this access.",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^social_network_issues$/ },
-                  { source: "SecurityScorecard", vuln_id: /^exposed_personal_information_info$/ }
+                  { source: "SecurityScorecard", vuln_id: /^exposed_personal_information_info$/ },
+                  { source: "SecurityScorecard", vuln_id: /^leaked_credentials_info$/ }
                 ]
               },
               {
@@ -839,7 +809,6 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^spf_record_malformed$/ },
                   { source: "SecurityScorecard", vuln_id: /^spf_record_softfail$/ },
                   { source: "SecurityScorecard", vuln_id: /^spf_record_wildcard$/ },
-                  { source: "SecurityScorecard", vuln_id: /^spf_record_missing$/ },
                   { source: "SecurityScorecard", vuln_id: /^spf_record_missing$/ }
                 ]
               },
@@ -874,8 +843,7 @@ module Kenna
                   { source: "SecurityScorecard", vuln_id: /^tlscert_weak_signature$/ },
                   { source: "SecurityScorecard", vuln_id: /^hsts_incorrect$/ },
                   { source: "SecurityScorecard", vuln_id: /^tls_ocsp_stapling$/ },
-                  { source: "SecurityScorecard", vuln_id: /^tlscert_excessive_expiration$/ },
-                  { source: "SecurityScorecard", vuln_id: /^insecure_https_redirect_pattern$/ }
+                  { source: "SecurityScorecard", vuln_id: /^tlscert_excessive_expiration$/ }
                 ]
               },
               {
@@ -895,7 +863,7 @@ module Kenna
               {
                 name: "Subresource Integrity Issues",
                 # cwe: "CWE-353",
-                score: 30,
+                score: 20,
                 description: "Subresource Integrity (SRI) is a security feature that enables browsers to verify that resources they fetch (for example, from a CDN) are delivered without unexpected manipulation. It works by allowing you to provide a cryptographic hash that a fetched resource must match.",
                 references: [
                   "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity"
@@ -903,6 +871,15 @@ module Kenna
                 recommendation: "Ensure the system has not been compromised.",
                 matches: [
                   { source: "SecurityScorecard", vuln_id: /^unsafe_sri$/ }
+                ]
+              },
+              {
+                name: "Suspicious Traffic Observed",
+                score: 70,
+                description: "Suspicious traffic observed and should be investigated.",
+                recommendation: "Ensure the system has not been compromised.",
+                matches: [
+                  { source: "SecurityScorecard", vuln_id: /^suspicious_traffic$/ }
                 ]
               },
               {
@@ -925,17 +902,6 @@ module Kenna
                   { source: "Bitsight", vuln_id: /^unecrypted_login$/ },
                   { source: "Bitsight", vuln_id: /^ftp_without_auth_tls_open_port$/ },
                   { source: "Expanse_issues", vuln_id: /^unencryptedftpserver$/ }
-                ]
-              },
-              {
-                name: "Unsolicited Email Sent from System",
-                # cwe: "CWE-358",
-                score: 30,
-                description: "A system was identified on a spam blacklist.",
-                recommendation: "Ensure the system has not been compromised.",
-                matches: [
-                  { source: "SecurityScorecard", vuln_id: /^uce$/ }, # Unsolicited Commercial Email
-                  { source: "SecurityScorecard", vuln_id: /^short_term_lending_site$/ } # Unsolicited Commercial Email
                 ]
               },
               {
