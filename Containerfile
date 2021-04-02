@@ -1,7 +1,7 @@
 FROM ruby:2.6.6
 USER root
 
-# Update the bas image.
+# Update the base image.
 RUN apt-get update -y && apt-get upgrade -y 
 
 # Copy Files To Container.
