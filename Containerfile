@@ -9,7 +9,7 @@ ADD . "/opt/app/toolkit/"
 
 # Run Bundle Install
 WORKDIR "/opt/app/toolkit/"
-RUN bundle install --without development test
+RUN bundle install
 
 # Set Entrypoint
 ENTRYPOINT ["./scripts/entrypoint.sh"]
