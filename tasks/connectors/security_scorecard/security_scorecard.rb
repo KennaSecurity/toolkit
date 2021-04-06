@@ -25,7 +25,7 @@ module Kenna
               type: "string",
               required: false,
               default: nil,
-              description: "If filled, this will pull a one-off report for the domain. [DEFAULT]" },
+              description: "Comma separated list of domains. If nil, it will pull by portfolio." },
             { name: "ssc_portfolio_ids",
               type: "string",
               required: false,
@@ -187,7 +187,7 @@ module Kenna
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
         ssc_api_key = @options[:ssc_api_key]
-        ssc_domain = @options[:ssc_domain]
+        ssc_domain = @options[:ssc_domain]&.split(",")
         ssc_portfolio_ids = @options[:ssc_portfolio_ids]&.split(",")
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
@@ -213,39 +213,40 @@ module Kenna
 
           # grab
           print_good "Pulling data for domain: #{ssc_domain}"
-          company_issues = []
-          issue_types = client.types_by_factors(ssc_domain)
-          issue_types.each do |type|
-            type_name = type["type"]
-            severity = type["severity"]
-            issues_by_type = client.issues_by_factors(type["detail_url"])
+          ssc_domain.each do |domain|
+            company_issues = []
+            issue_types = client.types_by_factors(domain)
+            issue_types.each do |type|
+              type_name = type["type"]
+              severity = type["severity"]
+              issues_by_type = client.issues_by_factors(type["detail_url"])
 
-            issues = issues_by_type["entries"] unless issues_by_type.nil?
+              issues = issues_by_type["entries"] unless issues_by_type.nil?
 
-            if issues
-              print_debug "#{issues.count} issues of type #{type_name}"
-              company_issues.concat(issues.map { |i| i.merge({ "type" => type_name, "severity" => severity }) })
-            else
-              puts "Missing (or error) on #{type_name} issues"
+              if issues
+                print_debug "#{issues.count} issues of type #{type_name}"
+                company_issues.concat(issues.map { |i| i.merge({ "type" => type_name, "severity" => severity }) })
+              else
+                puts "Missing (or error) on #{type_name} issues"
+              end
             end
+            company_issues&.flatten
+            company_issues.each do |issue|
+              ###
+              ### Get things in an acceptable format
+              ###
+              asset_attributes = ssc_issue_to_kdi_asset_hash(issue)
+              next if asset_attributes.nil?
+
+              vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
+
+              create_kdi_asset_vuln(asset_attributes, vuln_attributes)
+              # vuln def entry
+              create_kdi_vuln_def(vuln_def_attributes)
+            end
+            filename = "ssc_kdi_#{domain}.json"
+            kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
           end
-          company_issues&.flatten
-          company_issues.each do |issue|
-            ###
-            ### Get things in an acceptable format
-            ###
-            asset_attributes = ssc_issue_to_kdi_asset_hash(issue)
-            next if asset_attributes.nil?
-
-            vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
-
-            create_kdi_asset_vuln(asset_attributes, vuln_attributes)
-            # vuln def entry
-            create_kdi_vuln_def(vuln_def_attributes)
-          end
-          filename = "ssc_kdi_#{ssc_domain}.json"
-          kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
-
         elsif ssc_portfolio_ids
           ssc_portfolio_ids.each do |portfolio|
             print_good "Pulling data for portfolio: #{portfolio}"
