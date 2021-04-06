@@ -47,67 +47,30 @@ module Kenna
           JSON.parse(response.body.to_s) unless response.nil?
         end
 
+        def issues_by_factors(detail_url)
+          response = http_get(detail_url, @headers)
+          JSON.parse(response.body.to_s) unless response.nil?
+        end
+
+        def types_by_factors(company_id)
+          endpoint = "#{@baseapi}/companies/#{company_id}/factors"
+          response = http_get(endpoint, @headers)
+          factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
+          types = []
+          factors.each do |factor|
+            factor["issue_summary"]&.each do |detail|
+              types << detail
+            end
+          end
+          types
+        end
+
         def issue_types_list
           endpoint = "#{@baseapi}/metadata/issue-types"
 
           response = http_get(endpoint, @headers)
           JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] unless x["severity"] == "info" || x["severity"] == "low" }.compact
         end
-
-        # #  "https://api.securityscorecard.io/reports/issues";     payload=''
-        # def issues_report_for_domain(domain)
-        #   ###
-        #   ### Generate an issues report
-        #   ###
-        #   puts "DEBUG Generating issues report"
-        #   endpoint = "#{@baseapi}/reports/issues"
-        #   http_post(endpoint, @headers, { "domain" => domain, "format" => "csv" })
-        #   now = Time.now.utc
-        #   puts "DEBUG #{now}"
-
-        #   ###
-        #   ### Now get the list of recently generated reports
-        #   ###
-        #   puts "DEBUG getting list of recent reports"
-        #   endpoint = "https://api.securityscorecard.io/reports/recent"
-        #   response = http_get(endpoint, @headers)
-
-        #   report_list = JSON.parse(response.body)["entries"]
-
-        #   ###
-        #   ### Now wait for our report to be generated, and then get it
-        #   ###
-        #   latest_report_completed_at = now
-        #   tries = 0
-        #   max_retries = 10
-
-        #   while latest_report_completed_at <= now
-        #     puts "DEBUG Waiting for report to be generatd. Last report generated: #{latest_report_completed_at}"
-
-        #     last_report = report_list.max_by { |x| (x["completed_at"]).to_s }
-
-        #     download_url = last_report["download_url"]
-        #     latest_report_completed_at = Time.parse(last_report["completed_at"])
-        #     puts "DEBUG Latest report completed at: #{latest_report_completed_at}"
-
-        #     ### Max retries
-        #     if latest_report_completed_at == now && tries < max_retries
-        #       puts "DEBUG Waiting 10s for report generation"
-        #       sleep 10
-        #       tries += 1
-        #       next
-        #     end
-
-        #     puts "DEBUG Got download url: #{download_url}"
-        #     response = http_get(download_url, @headers)
-        #     puts response
-
-        #     puts "DEBUG Returning parsed version"
-        #     return CSV.parse(response.body)
-        #   end
-
-        #   nil
-        # end
       end
     end
   end

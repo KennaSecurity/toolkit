@@ -5,17 +5,24 @@ module Kenna
     module Data
       module Mapping
         class DigiFootprintFindingMapper
+          # at_exit do
+          #   write_file("#{$basedir}/#{@output_dir}", "missing_mappings_#{DateTime.now}.csv", @missing_mappings.to_s) unless @missing_mappings.nil?
+          # end
+
+          # def initialize(output_directory)
+          #   @output_dir = output_directory
+          #   @missing_mappings = []
+          # end
+
           # https://help.bitsighttech.com/hc/en-us/articles/360025011954-Diligence-Finding-Details#patching_cadence
           # Bitsight:
           #  - Domain Squatting - Findings for this risk vector cannot be queried via the API
-
           def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
             ###
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore
             ###
             orig_vuln_id = (specific_details["scanner_identifier"]).to_s.downcase.tr(" ", "_").tr("-", "_")
-
             # orig_description = specific_details["description"]
             # orig_recommendation = specific_details["recommendation"]
             out = {}
@@ -43,21 +50,15 @@ module Kenna
                   recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
                 }
 
-                # if we're told to override the score, override it
-                # out[:override_score] = map[:score].to_i if override_score
-
-                # only add in cwe_identifiers if we have a valid CWE
-                # if map[:cwe]
-                #  out[:cwe_identifiers] = "#{map[:cwe]}"
-                # end
-
                 out = out.stringify_keys
                 done = true
               end
             end
             # we didnt map it, so just pass it back
             if out.empty?
-              puts "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
+              print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
+              # @missing_mappings.nil? ? @missing_mappings = [[orig_vuln_id, orig_source]] : @missing_mappings.push([orig_vuln_id, orig_source])
+              # @missing_mappings&.uniq
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
@@ -67,7 +68,6 @@ module Kenna
                 name: "Unmappable Vuln"
               }.stringify_keys.merge(specific_details)
             end
-
             out
           end
 

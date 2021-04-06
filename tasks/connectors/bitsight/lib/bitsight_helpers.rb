@@ -76,7 +76,7 @@ module Kenna
         finding["assets"].each do |a|
           asset_name = a["asset"]
           default_tags = ["Bitsight"]
-          default_tags.concat ["bitsight_cat_#{a['category']}".downcase]
+          # default_tags.concat ["bitsight_cat_#{a['category']}".downcase]
           asset_attributes = if a["is_ip"] # TODO: ... keep severity  ]
                                {
                                  "ip_address" => asset_name,

@@ -4,6 +4,12 @@ require_relative "lib/client"
 module Kenna
   module Toolkit
     class SecurityScorecard < Kenna::Toolkit::BaseTask
+      def ip?(str)
+        IPAddr.new(str)
+      rescue IPAddr::Error
+        false
+      end
+
       def self.metadata
         {
           id: "security_scorecard",
@@ -72,14 +78,14 @@ module Kenna
         hostname ||= issue["hostname"] if issue["hostname"]
         hostname ||= issue["subdomain"] if issue["subdomain"]
         hostname ||= issue["common_name"] if issue["common_name"]
+        hostname ||= issue["target"] unless ip?(issue["target"])
 
         ip_address ||= issue["ip_address"] if issue["ip_address"]
-        ip_address ||= issue["target"] if issue["target"]
+        ip_address ||= issue["src_ip"] if issue["src_ip"]
+        ip_address ||= issue["target"] if issue["target"] && ip?(issue["target"])
 
-        url = issue["initial_url"] if issue["initial_url"]
-        url ||= issue["url"] if issue["url"]
-
-        ip_address = issue["src_ip"] if issue["src_ip"]
+        url = issue["initial_url"] if issue["initial_url"] && hostname.nil?
+        url ||= issue["url"] if issue["url"] && hostname.nil?
 
         unless ip_address ||
                hostname ||
@@ -108,16 +114,10 @@ module Kenna
           port = issue["port"]
         end
 
-        # puts JSON.pretty_generate(i)
-        # puts
-
         issue_type = issue["type"]
 
         # handle patching cadence differently, these will have CVEs
         if issue_type =~ /patching_cadence/ || issue_type =~ /service_vuln/
-
-          # puts "DEBUG CVE VULN: #{i["type"]} #{i['vulnerability_id']}"
-          # puts "#{i}"
 
           vuln_attributes = {
             "scanner_identifier" => issue["vulnerability_id"] || issue["cve"],
@@ -129,8 +129,6 @@ module Kenna
             "status" => "open"
           }
           vuln_attributes["port"] = port if port
-
-          # create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
           vuln_def_attributes = {
             "name" => (issue["vulnerability_id"]).to_s,
@@ -144,15 +142,11 @@ module Kenna
           ###
           # if we got a positive finding, make it benign
           ###
-          print_debug "Got: #{issue_type}: #{issue['issue_type_severity']}"
+          severity = issue["issue_type_severity"]
+          severity ||= issue["severity"]
+          print_debug "Got: #{issue_type}: #{severity}"
 
-          if issue["issue_type_severity"] == "POSITIVE"
-            issue_type = "benign_finding"
-            # elsif i["issue_type_severity"] == "INFO"
-            #  issue_type = "benign_finding"
-          end
-
-          # puts "DEBUG NON CVE VULN: #{issue_type}"
+          issue_type = "benign_finding" if %w[POSITIVE info].include? severity
 
           temp_vuln_def_attributes = {
             "scanner_identifier" => issue_type
@@ -161,19 +155,16 @@ module Kenna
           ###
           ### Put them through our mapper
           ###
+          # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(output_dir)
           fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
           vuln_def_attributes = fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
 
-          ###
-          ### Vuln
-          ###
           vuln_attributes = {
             "scanner_identifier" => issue_type,
             "scanner_type" => scanner_type,
             "details" => JSON.pretty_generate(issue),
             "created_at" => first_seen,
-            "last_seen_at" => last_seen,
-            "status" => "open"
+            "last_seen_at" => last_seen
           }
           vuln_attributes["port"] = port if port&.positive?
 
@@ -187,55 +178,6 @@ module Kenna
         end
 
         [vuln_attributes, vuln_def_attributes]
-      end
-
-      def ssc_csv_issue_to_hash(line)
-        {
-          "issue_id" => (line[0]).to_s, # issue id
-          "factor_name" => (line[1]).to_s, # factor name
-          "issue_type_title" => (line[2]).to_s, # issue type title
-          "type" => (line[3]).to_s, # issue type code
-          "issue_type_code" => (line[3]).to_s, # issue type code
-          "issue_type_severity" => (line[4]).to_s, # issue type severity
-          "issue_recommendation" => (line[5]).to_s, # issue type recommendation
-          "first_seen_time" => Time.strptime((line[6]).to_s, "%m/%d/%Y"), # first seen
-          "last_seen_time" => Time.strptime((line[7]).to_s, "%m/%d/%Y"), # last seen
-          "ip_address" => (line[8]).to_s.split(",").first, # to fit existing kdi generation / ip addresses
-          "ip_addresses" => (line[8]).to_s, # ip addresses
-          "hostname" => (line[9]).to_s, # Hostname
-          "subdomain" => (line[10]).to_s, # subdomain
-          "target" => (line[11]).to_s, # target
-          "port" => (line[12]).to_s.split(",").first, # to fit existing kdi generation / ports
-          "ports" => (line[12]).to_s, # ports
-          "status" => (line[13]).to_s, # status
-          "cve" => (line[14]).to_s, # cve
-          "vulnerability_id" => (line[14]).to_s, # to fit existing kdi generation / cve
-          "description" => (line[15]).to_s, # description
-          "time_since_published" => (line[16]).to_s, # time since published
-          "time_open_since_published" => (line[17]).to_s, # time open since published
-          "cookie_name" => (line[18]).to_s, # cookie name
-          "data" => (line[19]).to_s, # data
-          "common_name" => (line[20]).to_s, # common name
-          "key_length" => (line[21]).to_s, # key length
-          "using_rc4?" => (line[22]).to_s, # using rc4
-          "issuer_organization_name" => (line[23]).to_s,
-          "provider" => (line[24]).to_s,
-          "detected_service" => (line[25]).to_s,
-          "product" => (line[26]).to_s,
-          "version" => (line[27]).to_s,
-          "platform" => (line[28]).to_s,
-          "browser" => (line[29]).to_s,
-          "destination_ips" => (line[30]).to_s,
-          "malware_family" => (line[31]).to_s,
-          "malware_type" => (line[32]).to_s,
-          "detection_method" => (line[33]).to_s,
-          "label" => (line[34]).to_s,
-          "initial_url" => (line[35]).to_s,
-          "final_url" => (line[36]).to_s,
-          "request_chain" => (line[37]).to_s,
-          "headers" => (line[38]).to_s,
-          "analysis" => (line[39]).to_s
-        }
       end
 
       def run(options)
@@ -271,32 +213,22 @@ module Kenna
 
           # grab
           print_good "Pulling data for domain: #{ssc_domain}"
-          if @options[:debug]
-            issue_types = %w[
-              patching_cadence_high
-              patching_cadence_medium
-              patching_cadence_low
-              service_imap
-              csp_no_policy
-            ] # nil
-            print_debug "Only getting #{issue_types}... "
-          end
-
           company_issues = []
-          issue_types ||= client.issue_types_list
-
+          issue_types = client.types_by_factors(ssc_domain)
           issue_types.each do |type|
-            issues = client.issues_by_type_for_company(ssc_domain, type)
+            type_name = type["type"]
+            severity = type["severity"]
+            issues_by_type = client.issues_by_factors(type["detail_url"])
+
+            issues = issues_by_type["entries"] unless issues_by_type.nil?
 
             if issues
-              issues = issues["entries"]
-              puts "#{issues.count} issues of type #{type}"
-              company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
+              print_debug "#{issues.count} issues of type #{type_name}"
+              company_issues.concat(issues.map { |i| i.merge({ "type" => type_name, "severity" => severity }) })
             else
-              puts "Missing (or error) on #{type} issues"
+              puts "Missing (or error) on #{type_name} issues"
             end
           end
-
           company_issues&.flatten
           company_issues.each do |issue|
             ###
@@ -311,42 +243,54 @@ module Kenna
             # vuln def entry
             create_kdi_vuln_def(vuln_def_attributes)
           end
-
           filename = "ssc_kdi_#{ssc_domain}.json"
-          kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.empty?
+          kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
 
         elsif ssc_portfolio_ids
           ssc_portfolio_ids.each do |portfolio|
-            if @options[:debug]
-              issue_types = %w[
-                patching_cadence_high
-                patching_cadence_medium
-                patching_cadence_low
-                service_imap
-                csp_no_policy
-              ] # nil
-              print_debug "Only getting #{issue_types}... "
-            end
-
             print_good "Pulling data for portfolio: #{portfolio}"
             companies = client.companies_by_portfolio(portfolio)
             companies["entries"].each do |company|
               company_issues = []
-              issue_types ||= client.issue_types_list
+              if @options[:debug]
+                issue_types = %w[
+                  patching_cadence_high
+                  patching_cadence_medium
+                  patching_cadence_low
+                  service_imap
+                  csp_no_policy
+                ] # nil
+                print_debug "Only getting #{issue_types}... "
+                issue_types ||= client.issue_types_list
+                issue_types.each do |type|
+                  issues_by_type = client.issues_by_type_for_company(company["domain"], type)
 
-              issue_types.each do |type|
-                issues_by_type = client.issues_by_type_for_company(company["domain"], type)
+                  issues = issues_by_type["entries"] unless issues_by_type.nil?
 
-                issues = issues_by_type["entries"] unless issues_by_type.nil?
+                  if issues
+                    print_debug "#{issues.count} issues of type #{type}"
+                    company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
+                  else
+                    print_debug "Missing (or error) on #{type} issues"
+                  end
+                end
+              else
+                issue_types = client.types_by_factors(company["domain"])
+                issue_types.each do |type|
+                  type_name = type["type"]
+                  severity = type["severity"]
+                  issues_by_type = client.issues_by_factors(type["detail_url"])
 
-                if issues
-                  puts "#{issues.count} issues of type #{type}"
-                  company_issues.concat(issues.map { |i| i.merge({ "type" => type }) })
-                else
-                  puts "Missing (or error) on #{type} issues"
+                  issues = issues_by_type["entries"] unless issues_by_type.nil?
+
+                  if issues
+                    print_debug "#{issues.count} issues of type #{type_name}"
+                    company_issues.concat(issues.map { |i| i.merge({ "type" => type_name, "severity" => severity }) })
+                  else
+                    print_debug "Missing (or error) on #{type_name} issues"
+                  end
                 end
               end
-
               company_issues&.flatten
               company_issues.each do |issue|
                 ###
@@ -362,8 +306,8 @@ module Kenna
                 create_kdi_vuln_def(vuln_def_attributes)
               end
               filename = "ssc_kdi_#{company['domain']}.json"
+              kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
             end
-            kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
           end
         end
 
