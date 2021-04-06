@@ -188,7 +188,7 @@ module Kenna
         kenna_connector_id = @options[:kenna_connector_id]
         ssc_api_key = @options[:ssc_api_key]
         ssc_domain = @options[:ssc_domain]
-        ssc_portfolio_ids = @options[:ssc_portfolio_id]
+        ssc_portfolio_ids = @options[:ssc_portfolio_ids]&.split(",")
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
 
