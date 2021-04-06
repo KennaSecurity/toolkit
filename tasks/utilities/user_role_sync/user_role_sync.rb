@@ -37,7 +37,7 @@ module Kenna
             { name: "lastname_column",
               type: "string",
               required: false,
-              default: "Lastname",
+              default: "LastName",
               description: "Header for the CSV file column containing a last name" },
             { name: "role_column",
               type: "string",
@@ -80,12 +80,12 @@ module Kenna
         @lastname_col = @options[:lastname_column]
         @role_col = @options[:role_column]
         @remove_users = @options[:remove_users]
-        @role_exclusions = @options[:role_exclusions]
+        @role_exclusions = @options[:role_exclusions] # || ""
 
         # Variables we'll need later
         @role_post_url = "https://#{@api_host}/roles"
         @user_post_url = "https://#{@api_host}/users"
-        @headers = { "content-type" => "application/json", "X-Risk-Token" => @api_token }
+        @headers = { "content-type" => "application/json", "X-Risk-Token" => @api_token, "User-Agent" => "Kenna Toolkit - user_role_sync" }
         @role_found = false
         @role_list = ""
         @user_list = ""
@@ -118,11 +118,14 @@ module Kenna
 
         # Checking to ensure all exclusions are integers
         # @role_exclusions.split(",").all? {|i| true if Integer(i) rescue false }
-
-        print_good "Excluding the following Kenna Roles:"
-        @role_exclusions.split(",").map do |role_id|
-          role = @role_list["roles"].detect { |r| r["id"] == role_id.to_i }
-          print_good "\t#{role['id']} \t-- \t#{role['name']}"
+        if @role_exclusions.nil? || @role_exclusions == ""
+          print_good "No Kenna Roles Excluded."
+        else
+          print_good "Excluding the following Kenna Roles:"
+          @role_exclusions&.split(",")&.map do |role_id|
+            role = @role_list["roles"].detect { |r| r["id"] == role_id.to_i }
+            print_good "\t#{role['id']} \t-- \t#{role['name']}" if role
+          end
         end
 
         # Iterate through CSV
@@ -130,6 +133,8 @@ module Kenna
         # Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
         CSV.open(csv_file_path, "r:bom|utf-8", headers: true) do |csv|
           csv.each do |row|
+            # require 'pry'
+            # binding.pry
             email_address = row[@email_col].downcase
             first_name = row[@firstname_col]
             last_name = row[@lastname_col]
@@ -289,7 +294,7 @@ module Kenna
         if user["role"] == "administrator"
           print_good "User #{email} is Administrator and will not be updated."
           @log_output << "\rUser #{email} is Administrator and will not be updated."
-        elsif @role_exclusions.include? user["role_id"].to_s
+        elsif @role_exclusions&.include? user["role_id"].to_s
           print_good "User #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
           @log_output << "\rUser #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
         else
@@ -367,7 +372,6 @@ module Kenna
       end
 
       def remove_users
-        # binding.pry
         # print_good "in remove_users"
 
         curr_users_array = field_values(@user_list["users"], "id", "email", "role_id", "role")
