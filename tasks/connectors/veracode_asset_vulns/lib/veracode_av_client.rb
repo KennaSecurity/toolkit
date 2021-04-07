@@ -11,6 +11,7 @@ module Kenna
         include KdiHelpers
 
         APP_PATH = "/appsec/v1/applications"
+        CAT_PATH = "/appsec/v1/categories"
         FINDING_PATH = "/appsec/v2/applications"
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
@@ -23,6 +24,7 @@ module Kenna
           @kenna_api_host = kenna_api_host
           @kenna_connector_id = kenna_connector_id
           @kenna_api_key = kenna_api_key
+          @category_recommendations = []
         end
 
         def applications(page_size)
@@ -47,6 +49,25 @@ module Kenna
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
           app_list
+        end
+
+        def category_recommendations(page_size)
+          cat_request = "#{CAT_PATH}?size=#{page_size}"
+          url = "https://#{HOST}#{cat_request}"
+          cat_rec_list = []
+          until url.nil?
+            uri = URI.parse(url)
+            auth_path = "#{uri.path}?#{uri.query}"
+            response = http_get(url, hmac_auth_options(auth_path))
+            result = JSON.parse(response.body)
+            categories = result["_embedded"]["categories"]
+
+            categories.lazy.each do |category|
+              cat_rec_list << {"id" => category.fetch("id"), "recommendation" => category.fetch("recommendation")}
+            end
+            url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
+          end
+          @category_recommendations = cat_rec_list
         end
 
         def issues(app_guid, app_name, tags, page_size)
@@ -84,6 +105,7 @@ module Kenna
                        end
 
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
+              finding_rec = @category_recommendations.select {|r| r["id"]== finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
@@ -112,12 +134,16 @@ module Kenna
               vuln_attributes = {
                 "scanner_identifier" => finding_cat,
                 "scanner_type" => "veracode",
-                "scanner_score" => scanner_score,
+                "scanner_score" => scanner_score * 2,
+                "override_score" => scanner_score * 20,
                 "details" => JSON.pretty_generate(additional_information),
                 "created_at" => found_on,
                 "last_seen_at" => last_seen,
                 "status" => status
               }
+
+              # Temp Fix awaiting Solution Fix for KDI Connector
+              vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n#{vuln_attributes["details"]}"
 
               vuln_attributes.compact!
 
@@ -125,7 +151,8 @@ module Kenna
                 "scanner_identifier" => finding_cat,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
-                "name" => finding_cat
+                "name" => finding_cat,
+                "solution" => finding_rec
               }
 
               vuln_def.compact!
