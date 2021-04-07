@@ -63,7 +63,7 @@ module Kenna
             categories = result["_embedded"]["categories"]
 
             categories.lazy.each do |category|
-              cat_rec_list << {"id" => category.fetch("id"), "recommendation" => category.fetch("recommendation")}
+              cat_rec_list << { "id" => category.fetch("id"), "recommendation" => category.fetch("recommendation")}
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
@@ -105,7 +105,7 @@ module Kenna
                        end
 
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
-              finding_rec = @category_recommendations.select {|r| r["id"]== finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
+              finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
