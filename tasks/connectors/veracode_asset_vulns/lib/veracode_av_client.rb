@@ -143,7 +143,7 @@ module Kenna
               }
 
               # Temp Fix awaiting Solution Fix for KDI Connector
-              vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n#{vuln_attributes["details"]}"
+              vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n#{vuln_attributes['details']}"
 
               vuln_attributes.compact!
 
