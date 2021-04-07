@@ -63,7 +63,7 @@ module Kenna
             categories = result["_embedded"]["categories"]
 
             categories.lazy.each do |category|
-              cat_rec_list << { "id" => category.fetch("id"), "recommendation" => category.fetch("recommendation")}
+              cat_rec_list << { "id" => category.fetch("id"), "recommendation" => category.fetch("recommendation") }
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
