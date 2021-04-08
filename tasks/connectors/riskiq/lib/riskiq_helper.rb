@@ -60,6 +60,11 @@ module Kenna
         query_string << "        \"value\": #{@riq_inventory_states}"
         query_string << "      },"
         query_string << "      {"
+        query_string << "        \"name\": \"lastSeen\","
+        query_string << "        \"operator\": \"GTE\","
+        query_string << "        \"value\": \"90 days ago\""
+        query_string << "      },"
+        query_string << "      {"
         query_string << "        \"name\": \"selfSigned\","
         query_string << "        \"operator\": \"EQ\","
         query_string << "        \"value\": true"
@@ -89,6 +94,11 @@ module Kenna
         query_string << "        \"name\": \"state\","
         query_string << "        \"operator\": \"IN\","
         query_string << "        \"value\": #{@riq_inventory_states}"
+        query_string << "      },"
+        query_string << "      {"
+        query_string << "        \"name\": \"lastSeen\","
+        query_string << "        \"operator\": \"GTE\","
+        query_string << "        \"value\": \"90 days ago\""
         query_string << "      },"
         query_string << "      {"
         query_string << "        \"name\": \"sslCertExpiration\","
@@ -252,6 +262,7 @@ module Kenna
           "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ"
         }
+        asset["last_seen_at"] = last_seen
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
@@ -276,7 +287,7 @@ module Kenna
           "scanner_identifier" => scanner_identifier,
           "scanner_type" => "RiskIQ"
         }
-
+        asset["last_seen_at"] = last_seen
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")

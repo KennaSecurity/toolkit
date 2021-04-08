@@ -51,7 +51,7 @@ module Kenna
             { name: "riskiq_port_last_seen",
               type: "integer",
               required: false,
-              default: nil,
+              default: 14,
               description: "Limit ports by number of days when last seen." },
             { name: "riskiq_inventory_states",
               type: "string",

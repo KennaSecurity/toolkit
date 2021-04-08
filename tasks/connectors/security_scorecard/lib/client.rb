@@ -48,7 +48,10 @@ module Kenna
         end
 
         def issues_by_factors(detail_url)
-          response = http_get(detail_url, @headers)
+          to_date = DateTime.now.strftime("%FT%T.%2NZ")
+          from_date = (DateTime.now - 90).strftime("%FT%T.%2NZ")
+          final_url = "#{detail_url}?last_seen_time_from=#{from_date}&last_seen_time_to=#{to_date}"
+          response = http_get(final_url, @headers)
           JSON.parse(response.body.to_s) unless response.nil?
         end
 

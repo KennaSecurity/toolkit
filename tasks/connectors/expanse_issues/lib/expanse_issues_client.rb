@@ -39,7 +39,8 @@ module Kenna
           # issue_types.lazy.each do |issue_type|
           # start with sensible defaults
           page = 0
-          url = "https://expander.expanse.co/api/v1/issues/issues?&activityStatus=Active&progressStatus=New,Investigating,InProgress&limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}"
+          modified_after = (DateTime.now - 90).strftime("%FT%TZ")
+          url = "https://expander.expanse.co/api/v1/issues/issues?&activityStatus=Active&progressStatus=New,Investigating,InProgress&limit=#{limit_per_page}&issueTypeId=#{issue_type}&businessUnit=#{business_unit}&modifiedAfter=#{modified_after}"
           url = "#{url}&priority=#{priorities}" unless priorities.nil?
           url = "#{url}&tagName=#{tags}" unless tags.nil?
 
