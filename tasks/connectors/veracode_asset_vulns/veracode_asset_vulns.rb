@@ -67,6 +67,8 @@ module Kenna
 
         client = Kenna::Toolkit::VeracodeAV::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
 
+        client.category_recommendations(page_size)
+
         app_list = client.applications(page_size)
 
         app_list.each do |application|
