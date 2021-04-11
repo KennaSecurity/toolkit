@@ -55,9 +55,8 @@ module Kenna
           ###
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
-              print_good "Working on issue type: #{it}!"
               issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
-              print_good "Got #{issues.count} issues of type #{it}"
+              print_debug "Got #{issues.count} issues of type #{it}"
 
               # skip if we don't have any
               unless issues.count.positive? # skip empty
@@ -65,14 +64,13 @@ module Kenna
                 next
               end
               # map fields for those expsures
-              print "Mapping #{issues.count} issues"
               result = issues.map do |i|
                 map_issue_fields(it, i)
               end
-              print_good "Mapped #{result.count} issues"
+              print_debug "Mapped #{result.count} issues"
 
               # convert to KDI
-              fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
+              fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
               result.each do |r|
                 # NORMALIZE
                 cvd = fm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"])
