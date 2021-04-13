@@ -87,12 +87,15 @@ module Kenna
               # IF "STATIC" SCAN USE FILE, IF "DYNAMIC" USE URL
               file = nil
               url = nil
+              ext_id = nil
               case finding["scan_type"]
               when "STATIC"
                 # file = finding["finding_details"]["file_name"]
                 file = finding["finding_details"]["file_path"]
+                ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
+                ext_id = "[#{app_name}] - #{url}"
               end
 
               # Pull Status from finding["finding_status"]["status"]
@@ -124,6 +127,7 @@ module Kenna
 
                 "url" => url,
                 "file" => file,
+                "external_id" => ext_id,
                 "application" => app_name,
                 "tags" => tags
               }
@@ -143,7 +147,7 @@ module Kenna
               }
 
               # Temp Fix awaiting Solution Fix for KDI Connector
-              vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n#{vuln_attributes['details']}"
+              vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n===============\n\n#{vuln_attributes['details']}"
 
               vuln_attributes.compact!
 
