@@ -146,7 +146,7 @@ module Kenna
           severity ||= issue["severity"]
           print_debug "Got: #{issue_type}: #{severity}"
 
-          issue_type = "benign_finding" if %w[POSITIVE info].include? severity
+          # issue_type = "benign_finding" if %w[POSITIVE info].include? severity
 
           temp_vuln_def_attributes = {
             "scanner_identifier" => issue_type
@@ -155,8 +155,8 @@ module Kenna
           ###
           ### Put them through our mapper
           ###
-          # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(output_dir)
-          fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
+          fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
+          # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
           vuln_def_attributes = fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
 
           vuln_attributes = {
@@ -189,7 +189,7 @@ module Kenna
         ssc_api_key = @options[:ssc_api_key]
         ssc_domain = @options[:ssc_domain]&.split(",")
         ssc_portfolio_ids = @options[:ssc_portfolio_ids]&.split(",")
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
+        @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
 
         client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
@@ -245,7 +245,7 @@ module Kenna
               create_kdi_vuln_def(vuln_def_attributes)
             end
             filename = "ssc_kdi_#{domain}.json"
-            kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
+            kdi_upload @output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
           end
         elsif ssc_portfolio_ids
           ssc_portfolio_ids.each do |portfolio|
@@ -307,7 +307,7 @@ module Kenna
                 create_kdi_vuln_def(vuln_def_attributes)
               end
               filename = "ssc_kdi_#{company['domain']}.json"
-              kdi_upload output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
+              kdi_upload @output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, false, 3, 2 unless @assets.nil? || @assets.empty?
             end
           end
         end

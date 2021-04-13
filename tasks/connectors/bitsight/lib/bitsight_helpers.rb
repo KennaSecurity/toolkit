@@ -240,7 +240,7 @@ module Kenna
         }
 
         # get our mapped vuln
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
+        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
         cvd = fm.get_canonical_vuln_details("Bitsight", vd)
 
         # then create each vuln for this asset

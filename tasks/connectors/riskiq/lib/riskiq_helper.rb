@@ -352,7 +352,7 @@ module Kenna
 
         # kdi_initialize
 
-        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory)
 
         # print_debug "Working on on #{data_items.count} items" if @debug
         data_items.lazy.each do |item|
@@ -419,8 +419,6 @@ module Kenna
 
             print_debug "processing ssl cert" if @debug
 
-            puts item if first_seen.nil? || last_seen.nil?
-
             # grab the sha
             sha_name = item["name"]
 
@@ -439,18 +437,16 @@ module Kenna
 
             if item["asset"].key?("notAfter")
               expires = DateTime.strptime(item["asset"]["notAfter"].to_s, "%Q")
-              if DateTime.now >= expires && expires < last_seen # && last_seen > DateTime.now.next_day(-30)
-                puts "creating expirting cert expired = #{expires} and last_seen = #{last_seen} and #{expires < last_seen}"
+              if DateTime.now >= expires && expires < last_seen
                 create_expired_cert_vuln(asset, item, true, first_seen, last_seen)
-              elsif DateTime.now >= expires.next_day(30) # && last_seen > DateTime.now.next_day(-30)
-                puts "creating expirting cert expiring = #{expires} and last_seen = #{last_seen} and #{expires < last_seen}"
+              elsif DateTime.now >= expires.next_day(30)
                 create_expired_cert_vuln(asset, item, false, first_seen, last_seen)
               elsif item["asset"].key?("selfSigned") && item["asset"].fetch("selfSigned")
                 create_self_signed_cert_vuln(asset, item, first_seen, last_seen)
               end
             end
           else
-            raise "Unknown / unmapped type: #{item['type']} #{item}"
+            print_debug "Unknown / unmapped type: #{item['type']} #{item}"
           end
 
           ###

@@ -5,19 +5,12 @@ module Kenna
     module Data
       module Mapping
         class DigiFootprintFindingMapper
-          # at_exit do
-          #   write_file("#{$basedir}/#{@output_dir}", "missing_mappings_#{DateTime.now}.csv", @missing_mappings.to_s) unless @missing_mappings.nil?
-          # end
+          def initialize(output_directory)
+            @output_dir = output_directory
+            @missing_mappings = []
+          end
 
-          # def initialize(output_directory)
-          #   @output_dir = output_directory
-          #   @missing_mappings = []
-          # end
-
-          # https://help.bitsighttech.com/hc/en-us/articles/360025011954-Diligence-Finding-Details#patching_cadence
-          # Bitsight:
-          #  - Domain Squatting - Findings for this risk vector cannot be queried via the API
-          def self.get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
+          def get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
             ###
             ### Transform the identifier from the upstream source downcasing and
             ### then removing spaces and dashes in favor of an underscore
@@ -29,7 +22,7 @@ module Kenna
             done = false
             # Do the mapping
             ###################
-            _mapping_data.each do |map|
+            mapping_data.each do |map|
               break if done
 
               map[:matches].each do |match|
@@ -57,8 +50,11 @@ module Kenna
             # we didnt map it, so just pass it back
             if out.empty?
               print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
-              # @missing_mappings.nil? ? @missing_mappings = [[orig_vuln_id, orig_source]] : @missing_mappings.push([orig_vuln_id, orig_source])
-              # @missing_mappings&.uniq
+              @missing_mappings.nil? ? @missing_mappings = [[orig_vuln_id, orig_source]] : @missing_mappings.push([orig_vuln_id, orig_source])
+              puts "mm1 #{@missing_mappings}"
+              @missing_mappings&.uniq
+              puts "mm2 #{@missing_mappings}"
+              write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.to_s) unless @missing_mappings.nil?
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
@@ -71,7 +67,7 @@ module Kenna
             out
           end
 
-          def self.df_mapping_stats
+          def df_mapping_stats
             stats = {}
             stats[:bitsight] = []
             stats[:expanse] = []
@@ -95,7 +91,7 @@ module Kenna
             stats
           end
 
-          def self._mapping_data
+          def mapping_data
             [
               {
                 name: "Application Content Security Policy Issue",
