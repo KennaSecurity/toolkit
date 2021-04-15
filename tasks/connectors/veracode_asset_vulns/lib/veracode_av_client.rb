@@ -123,6 +123,10 @@ module Kenna
               additional_information.merge!(finding["finding_details"])
               additional_information.merge!(finding["finding_status"])
 
+              # Formatting a couple fields
+              additional_information["cwe"] = "#{cwe} - #{additional_information['cwe']['name']} - #{additional_information['cwe']['href']}"
+              additional_information["finding_category"] = "#{additional_information['finding_category']['id']} - #{additional_information['finding_category']['name']} - #{additional_information['finding_category']['href']}"
+
               asset = {
 
                 "url" => url,

@@ -11,6 +11,7 @@ module Kenna
         include KdiHelpers
 
         APP_PATH = "/appsec/v1/applications"
+        CAT_PATH = "/appsec/v1/categories"
         FINDING_PATH = "/appsec/v2/applications"
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
@@ -23,6 +24,7 @@ module Kenna
           @kenna_api_host = kenna_api_host
           @kenna_connector_id = kenna_connector_id
           @kenna_api_key = kenna_api_key
+          @category_recommendations = []
         end
 
         def applications(page_size)
@@ -50,6 +52,25 @@ module Kenna
           app_list
         end
 
+        def category_recommendations(page_size)
+          cat_request = "#{CAT_PATH}?size=#{page_size}"
+          url = "https://#{HOST}#{cat_request}"
+          cat_rec_list = []
+          until url.nil?
+            uri = URI.parse(url)
+            auth_path = "#{uri.path}?#{uri.query}"
+            response = http_get(url, hmac_auth_options(auth_path))
+            result = JSON.parse(response.body)
+            categories = result["_embedded"]["categories"]
+
+            categories.lazy.each do |category|
+              cat_rec_list << { "id" => category.fetch("id"), "recommendation" => category.fetch("recommendation") }
+            end
+            url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
+          end
+          @category_recommendations = cat_rec_list
+        end
+
         def issues(app_guid, app_name, tags, page_size)
           # def issues(app_guid, app_name, page_size)
           print_debug "pulling issues for #{app_name}"
@@ -71,19 +92,32 @@ module Kenna
               case finding["scan_type"]
               when "STATIC"
                 file = finding["finding_details"]["file_name"]
+                ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
+                ext_id = "[#{app_name}] - #{url}"
               end
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
-              # status = case finding["finding_status"]["status"]
-              #           when "CLOSED"
-              #             status = "closed"
-              #           else
-              #             status = "open"
-              #           end
+              status = case finding["finding_status"]["status"]
+                       when "CLOSED"
+                         # status = "closed"
+                         if finding["finding_status"]["resolution"] == "POTENTIAL_FALSE_POSITIVE"
+                           "false_positive"
+                         else
+                           "resolved"
+                         end
+                       else
+                         # status = "open"
+                         if finding["finding_status"]["new"]
+                           "new"
+                         else
+                           "in_progress"
+                         end
+                       end
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
+              finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
@@ -92,16 +126,22 @@ module Kenna
               additional_information = {
                 "issue_id" => finding.fetch("issue_id"),
                 "description" => finding.fetch("description"),
+                "recommendation" => finding_rec,
                 "violates_policy" => finding.fetch("violates_policy"),
                 "severity" => scanner_score
               }
               additional_information.merge!(finding["finding_details"])
               additional_information.merge!(finding["finding_status"])
 
+              # Formatting a couple fields
+              additional_information["cwe"] = "#{cwe} - #{additional_information['cwe']['name']} - #{additional_information['cwe']['href']}"
+              additional_information["finding_category"] = "#{additional_information['finding_category']['id']} - #{additional_information['finding_category']['name']} - #{additional_information['finding_category']['href']}"
+
               asset = {
 
                 "url" => url,
                 "file" => file,
+                "external_id" => ext_id,
                 "application" => app_name,
                 "tags" => tags
               }
@@ -111,7 +151,8 @@ module Kenna
               finding = {
                 "scanner_identifier" => finding_cat,
                 "scanner_type" => "veracode",
-                "severity" => scanner_score,
+                "severity" => scanner_score * 2,
+                "triage_state" => status,
                 "created_at" => found_on,
                 "last_seen_at" => last_seen,
                 "additional_fields" => additional_information
