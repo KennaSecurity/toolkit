@@ -20,8 +20,8 @@ module Kenna
       def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades)
         limit = 100
         page_count = 0
-
-        endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings?limit=#{limit}"
+        from_date = (DateTime.now - 90).strftime("%Y-%m-%d")
+        endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings?limit=#{limit}&last_seen_gte=#{from_date}"
 
         while endpoint
           response = http_get(endpoint, @headers)
