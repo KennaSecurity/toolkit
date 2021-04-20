@@ -306,6 +306,7 @@ module Kenna
                 recommendation: "Verify this is expected:.",
                 matches: [
                   { source: "Bitsight", vuln_id: /^deprecated_protocol$/ },
+                  { source: "Bitsight", vuln_id: /^ssl_configurations$/ },
                   { source: "Expanse_issues", vuln_id: /^pptpserver$/ },
                   { source: "Expanse_issues", vuln_id: /^insecuretls$/ },
                   { source: "SecurityScorecard", vuln_id: /^tls_weak_protocol$/ }
@@ -816,7 +817,6 @@ module Kenna
                 recommendation: "Correct the SSL configuration on the server. See specifics for more detail about the SSL/TLS misconfiguration",
                 matches: [
                   { source: "Bitsight", vuln_id: /^ssl_certificates$/ },
-                  { source: "Bitsight", vuln_id: /^ssl_configurations$/ },
                   { source: "Expanse", vuln_id: /^certificate_insecure_signature$/ },
                   { source: "Expanse", vuln_id: /^domain_control_certificate_advertisements?$/ },
                   { source: "Expanse", vuln_id: /^short_key_certificate_advertisements?$/ },
