@@ -90,7 +90,6 @@ module Kenna
         ip_address ||= issue["ip_address"] if issue["ip_address"]
         ip_address ||= issue["src_ip"] if issue["src_ip"]
         ip_address ||= issue["target"] if issue["target"] && ip?(issue["target"])
-        puts "hostname = #{hostname}"
         if !hostname.nil? && url?(hostname)
           url = hostname
           hostname = ""
