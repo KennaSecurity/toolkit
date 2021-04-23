@@ -10,6 +10,13 @@ module Kenna
         false
       end
 
+      def url?(str)
+        uri = URI(str)
+        return true if %w[http https].include?(uri.scheme) && !uri.host.nil?
+      rescue URI::InvalidURIError
+        false
+      end
+
       def self.metadata
         {
           id: "security_scorecard",
@@ -83,8 +90,11 @@ module Kenna
         ip_address ||= issue["ip_address"] if issue["ip_address"]
         ip_address ||= issue["src_ip"] if issue["src_ip"]
         ip_address ||= issue["target"] if issue["target"] && ip?(issue["target"])
-
-        url = issue["initial_url"] if issue["initial_url"] && hostname.nil?
+        if !hostname.nil? && url?(hostname)
+          url = hostname
+          hostname = ""
+        end
+        url ||= issue["initial_url"] if issue["initial_url"] && hostname.nil?
         url ||= issue["url"] if issue["url"] && hostname.nil?
 
         unless ip_address ||
