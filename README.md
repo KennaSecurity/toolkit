@@ -11,14 +11,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---
 
-MacOS/Windows
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop), or an orchestrator capable of running a standalone docker image.
-- 8GB RAM (this is relative, some tasks will require much less memory)
-
-Linux
-
-- [Podman](https://podman.io/)
+- A container tool capable of running a standalone docker image.
+  - [Podman](https://podman.io/)
+  - [Docker](https://www.docker.com)
+- 8GB RAM
+- Network Access
 
 ## Running The Latest Image
 
@@ -143,7 +140,7 @@ These are the current tasks available:
 - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
 - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
-- csv2kdi: This task converts a csv formatted file to the Kenna JSON & optionally pulls results into Kenna 
+- csv2kdi: This task converts a csv formatted file to the Kenna JSON & optionally pulls results into Kenna
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 - generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
