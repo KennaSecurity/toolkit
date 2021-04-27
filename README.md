@@ -11,7 +11,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---
 
-- A container cool capable of running a standalone docker image.
+- A container tool capable of running a standalone docker image.
   - [Podman](https://podman.io/)
   - [Docker](https://www.docker.com)
 - 8GB RAM
