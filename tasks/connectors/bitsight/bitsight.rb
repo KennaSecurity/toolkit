@@ -28,6 +28,11 @@ module Kenna
               required: false,
               default: true,
               description: "Create (informational) vulns for findings labeled benign" },
+            { name: "bitsight_company_guids",
+              type: "string",
+              required: false,
+              default: "",
+              description: "Comma separated list of company guids to use for data pull. If nil, script will pull for 'My Company' only" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -61,7 +66,7 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
         bitsight_api_key = @options[:bitsight_api_key]
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        # bitsight_company_guid = @options[:bitsight_company_guid]
+        company_guids = @options[:bitsight_company_guids].split(",") unless @options[:bitsight_company_guids].nil?
         bitsight_create_benign_findings = @options[:bitsight_create_benign_findings]
         benign_finding_grades = (@options[:bitsight_benign_finding_grades]).to_s.split(",")
 
@@ -74,7 +79,7 @@ module Kenna
           return
         end
 
-        bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades)
+        bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades, company_guids)
 
         ### Write KDI format
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"

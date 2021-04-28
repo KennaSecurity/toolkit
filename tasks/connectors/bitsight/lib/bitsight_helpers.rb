@@ -17,33 +17,35 @@ module Kenna
         my_company
       end
 
-      def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades)
+      def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades, company_guids)
         limit = 100
         page_count = 0
         from_date = (DateTime.now - 90).strftime("%Y-%m-%d")
-        endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings?limit=#{limit}&last_seen_gte=#{from_date}"
+        company_guids = [@company_guid] if company_guids.nil?
+        company_guids.lazy.each do |company_guid|
+          endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{company_guid}/findings?limit=#{limit}&last_seen_gte=#{from_date}"
+          while endpoint
+            response = http_get(endpoint, @headers)
+            result = JSON.parse(response.body)
 
-        while endpoint
-          response = http_get(endpoint, @headers)
-          result = JSON.parse(response.body)
+            # do the right thing with the findings here
+            result["results"].lazy.each do |finding|
+              add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades)
+            end
 
-          # do the right thing with the findings here
-          result["results"].lazy.each do |finding|
-            add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades)
+            # check for more
+            endpoint = result["links"]["next"]
+
+            if page_count > 10
+              filename = "bitsight_#{company_guid}.json"
+              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+              page_count = 0
+            end
+            page_count += 1
           end
-
-          # check for more
-          endpoint = result["links"]["next"]
-
-          if page_count > 10
-            filename = "bitsight_kdi#{Time.now.strftime('%Y%m%dT%H%M')}.json"
-            kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
-            page_count = 0
-          end
-          page_count += 1
+          filename = "bitsight_#{company_guid}.json"
+          kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
-        filename = "bitsight_kdi#{Time.now.strftime('%Y%m%dT%H%M')}.json"
-        kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
       end
 
       def my_company
@@ -69,9 +71,9 @@ module Kenna
         vuln_def_id = (finding["risk_vector_label"]).to_s.tr(" ", "_").tr("-", "_").downcase.strip
         print_debug "Working on finding of type: #{vuln_def_id}"
 
-        return if create_benign_findings && finding["details"] && finding["details"]["grade"] && benign_finding_grades.include?(finding["details"]["grade"])
+        finding_grade = finding["details"]["grade"] if finding["details"] && finding["details"]["grade"]
 
-        # get the grades labled as benign... Default: GOOD
+        return if !create_benign_findings && benign_finding_grades.include?(finding_grade)
 
         finding["assets"].each do |a|
           asset_name = a["asset"]
@@ -124,16 +126,16 @@ module Kenna
           ####
           #### NON-CVE CASE, just create the normal finding
           ####
-          elsif finding["details"] && finding["details"]["grade"]
+          elsif finding_grade
 
             ###
             ### Bitsight sometimes gives us stuff graded positively.
             ### check the options to determine what to do here.
             ###
-            print_debug "Got finding #{vuln_def_id} with grade: #{finding['details']['grade']}"
+            print_debug "Got finding #{vuln_def_id} with grade: #{finding_grade}"
 
             # if it is labeled as one of our types
-            if benign_finding_grades.include?(finding["details"]["grade"])
+            if benign_finding_grades.include?(finding_grade)
 
               print_debug "Adjusting to benign finding due to grade: #{vuln_def_id}"
 
