@@ -70,7 +70,7 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def issues(app_guid, app_name, tags, page_size)
+        def get_findings(app_guid, app_name, tags, page_size)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -79,6 +79,13 @@ module Kenna
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+
+            if response.nil?
+              puts "Unable to retrieve data for #{app_name}. Continuing..."
+              print_error "Unable to retrieve data for #{app_name}. Continuing..."
+              return
+            end
+
             result = JSON.parse(response.body)
             findings = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
             return if findings.nil?
@@ -171,6 +178,113 @@ module Kenna
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
+        end
+
+        def get_findings_sca(app_guid, app_name, tags, page_size)
+          print_debug "pulling SCA issues for #{app_name}"
+          puts "pulling SCA issues for #{app_name}" # DBRO
+          app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=SCA"
+          url = "https://#{HOST}#{app_request}"
+          until url.nil?
+            uri = URI.parse(url)
+            auth_path = "#{uri.path}?#{uri.query}"
+            response = http_get(url, hmac_auth_options(auth_path))
+
+            if response.nil?
+              puts "Unable to retrieve data for #{app_name}. Continuing..."
+              print_error "Unable to retrieve data for #{app_name}. Continuing..."
+              return
+            end
+
+            result = JSON.parse(response.body)
+            findings = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
+            return if findings.nil?
+
+            findings.lazy.each do |finding|
+              file = finding["finding_details"]["component_filename"]
+              ext_id = "[#{app_name}] - #{finding['finding_details']['component_path'].first.fetch('path')}"
+
+              # Pull Status from finding["finding_status"]["status"]
+              # Per docs this shoule be "OPEN" or "CLOSED"
+              status = case finding["finding_status"]["status"]
+                       when "CLOSED"
+                         "closed"
+                       else
+                         "open"
+                       end
+
+              # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
+              # finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
+              scanner_score = finding["finding_details"].fetch("severity")
+              cwe = finding["finding_details"]["cwe"].fetch("id") if finding["finding_details"]["cwe"]
+              cwe = "CWE-#{cwe}" if finding["finding_details"]["cwe"]
+              cve = finding["finding_details"]["cve"].fetch("name") if finding["finding_details"]["cve"]
+              found_on = finding["finding_status"].fetch("first_found_date")
+              last_seen = finding["finding_status"].fetch("last_seen_date")
+              description = finding.fetch("description") if finding["description"]
+              additional_information = {
+                "scan_type" => finding.fetch("scan_type"),
+                "description" => description,
+                "violates_policy" => finding.fetch("violates_policy"),
+                "severity" => scanner_score
+              }
+              additional_information.merge!(finding["finding_details"])
+              additional_information.merge!(finding["finding_status"])
+
+              # Formatting a couple fields
+              additional_information["cwe"] = "#{cwe} - #{additional_information['cwe']['name']} - #{additional_information['cwe']['href']}" if finding["finding_details"]["cwe"]
+              # additional_information["finding_category"] = "#{additional_information['finding_category']['id']} - #{additional_information['finding_category']['name']} - #{additional_information['finding_category']['href']}"
+
+              asset = {
+
+                "file" => file,
+                "external_id" => ext_id,
+                "application" => app_name,
+                "tags" => tags
+              }
+
+              asset.compact!
+
+              # craft the vuln hash
+              vuln_attributes = {
+                "scanner_identifier" => cve,
+                "scanner_type" => "veracode",
+                "scanner_score" => scanner_score * 2,
+                "override_score" => scanner_score * 20,
+                "details" => JSON.pretty_generate(additional_information),
+                "created_at" => found_on,
+                "last_seen_at" => last_seen,
+                "status" => status
+              }
+
+              # Temp Fix awaiting Solution Fix for KDI Connector
+              # vuln_attributes["details"] = "Recommendation:\n\n#{finding_rec}\n\n===============\n\n#{vuln_attributes['details']}"
+
+              vuln_attributes.compact!
+
+              vuln_def = {
+                "scanner_identifier" => cve,
+                "scanner_type" => "veracode",
+                "cwe_identifiers" => cwe,
+                "name" => cve,
+                "description" => description
+              }
+
+              vuln_def.compact!
+
+              # Create the KDI entries
+              create_kdi_asset_vuln(asset, vuln_attributes) # DBRO
+              create_kdi_vuln_def(vuln_def)
+            end
+            url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
+          end
+        end
+
+        def issues(app_guid, app_name, tags, page_size)
+          # Get Findings
+          get_findings(app_guid, app_name, tags, page_size)
+          # Get SCA Findings
+          get_findings_sca(app_guid, app_name, tags, page_size)
 
           # Fix for slashes in the app_name. Won't work for filenames
           fname = if app_name.index("/")
@@ -181,7 +295,11 @@ module Kenna
 
           fname = fname[0..175] # Limiting the size of the filename
 
-          kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          if @assets.nil? || @assets.empty?
+            print_good "No data for #{app_name}. Skipping Upload."
+          else
+            kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          end
         end
 
         def kdi_kickoff
