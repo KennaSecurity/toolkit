@@ -12,6 +12,7 @@
 | aws_guardduty | Beta | Kenna |
 | aws_inspector | Beta | Kenna |
 | bitsight | Beta | Kenna |
+| contrast | Beta | Contrast Security |
 | expanse | Beta | Kenna
 | ms_defender_atp | Beta | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
 | netsparker | Beta | Kenna |
