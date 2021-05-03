@@ -144,7 +144,6 @@ module Kenna
             identifiers = issue["identifiers"]
             application = project.fetch("name")
             application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
-
             packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
             package = issue.fetch("package")
             if project.key?("targetFile")
@@ -182,21 +181,38 @@ module Kenna
                             end
 
             source = project.fetch("source") if issue.key?("source")
+            url = issue.fetch("url") if issue.key?("url")
+            cvss = issue.fetch("cvssScore") if issue.key?("cvssScore")
+            title = issue.fetch("title") if issue.key?("title")
             fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")
             functions = issue.fetch("functions") if issue.key?("functions")
             isPatchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
+            publication_time = issue.fetch("publicationTime") if issue.key?("publicationTime")
             isUpgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
-            if issue.key?("references")
-              language = issue.fetch("language") if issue.key? "language",
-                                                               references = issue.fetch("references")
-            end
+            references = issue.fetch("references") if issue.key?("references")
+            language = issue.fetch("language") if issue.key?("language")
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
             version =  issue.fetch("version") if issue.key?("version")
             description = issue.fetch("description") if issue.key?("description")
+            cves = nil
+            cwes = nil
+            unless identifiers.nil?
+              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
+              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
+              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
+              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
+              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
+            end
+
+            identifiers_af = CGI.unescapeHTML(identifiers.to_s) if identifiers
 
             additional_fields = {
+              "url" => url,
+              "id" => issue.fetch("id"),
+              "title" => title,
+              "introducedDate" => issue_obj.fetch("introducedDate"),
               "source" => source,
               "fixedIn" => fixedIn,
               "from" => from,
@@ -206,9 +222,13 @@ module Kenna
               "language" => language,
               "references" => references,
               "semver" => semver,
+              "cvssScore" => cvss,
               "severity" => issue_severity,
+              "package" => package,
+              "packageManager" => packageManager,
               "version" => version,
-              "identifiers" => identifiers
+              "identifiers" => identifiers_af,
+              "publicationTime" => publication_time
             }
 
             additional_fields.compact!
@@ -226,16 +246,6 @@ module Kenna
 
             patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
-            cves = nil
-            cwes = nil
-            unless identifiers.nil?
-              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
-              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CVE"].length.zero?
-              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
-              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
-              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
-            end
-
             vuln_name = nil
             vuln_name = issue.fetch("title") unless issue.fetch("title").nil?
 
@@ -243,11 +253,11 @@ module Kenna
               "scanner_identifier" => issue.fetch("id"),
               "scanner_type" => "Snyk",
               "solution" => patches,
-              "cve_identifiers" => cves,
-              "cwe_identifiers" => cwes,
               "name" => vuln_name,
               "description" => description
             }
+            vuln_def["cve_identifiers"] = cves unless cves.nil?
+            vuln_def["cwe_identifiers"] = cwes if cves.nil? && !cwes.nil?
 
             vuln_def.compact!
 
