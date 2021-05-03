@@ -179,13 +179,11 @@ module Kenna
             fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")
             functions = issue.fetch("functions") if issue.key?("functions")
+            language = issue.fetch("language") if issue.key?("language")
             isPatchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
             publication_time = issue.fetch("publicationTime") if issue.key?("publicationTime")
             isUpgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
-            if issue.key?("references")
-              language = issue.fetch("language") if issue.key? "language",
-                                                               references = issue.fetch("references")
-            end
+            references = issue.fetch("references") if issue.key?("references")
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
             version =  issue.fetch("version") if issue.key?("version")
@@ -206,6 +204,7 @@ module Kenna
               "url" => url,
               "id" => issue.fetch("id"),
               "title" => title,
+              "introducedDate" => issue_obj.fetch("introducedDate"),
               "source" => source,
               "fixedIn" => fixedIn,
               "from" => from,
@@ -222,6 +221,7 @@ module Kenna
               "version" => version,
               "identifiers" => identifiers_af,
               "publicationTime" => publication_time
+
             }
 
             additional_fields.compact!
@@ -231,9 +231,11 @@ module Kenna
               "scanner_identifier" => issue.fetch("id"),
               "scanner_type" => "Snyk",
               "severity" => scanner_score,
-              "created_at" => issue_obj.fetch("introducedDate"),
+              "last_seen_at" => issue_obj.fetch("introducedDate"),
               "additional_fields" => additional_fields
             }
+
+            puts finding
 
             finding.compact!
 
