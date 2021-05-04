@@ -6,6 +6,7 @@ module Kenna
       @headers = nil
       @bitsight_api_key = nil
       @company_guid = nil
+      @companies = nil
 
       def globals(bitsight_api_key)
         @headers = {
@@ -23,6 +24,7 @@ module Kenna
         from_date = (DateTime.now - 90).strftime("%Y-%m-%d")
         company_guids = [@company_guid] if company_guids.nil?
         company_guids.lazy.each do |company_guid|
+          company = @companies.lazy.find { |comp| comp["guid"] == company_guid }
           endpoint = "https://api.bitsighttech.com/ratings/v1/companies/#{company_guid}/findings?limit=#{limit}&last_seen_gte=#{from_date}"
           while endpoint
             response = http_get(endpoint, @headers)
@@ -30,20 +32,20 @@ module Kenna
 
             # do the right thing with the findings here
             result["results"].lazy.each do |finding|
-              add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades)
+              add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades, company)
             end
 
             # check for more
             endpoint = result["links"]["next"]
 
             if page_count > 10
-              filename = "bitsight_#{company_guid}.json"
+              filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
               kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
               page_count = 0
             end
             page_count += 1
           end
-          filename = "bitsight_#{company_guid}.json"
+          filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}json"
           kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
       end
@@ -52,6 +54,7 @@ module Kenna
         # First get my company
         response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", { accept: :json, content_type: :json })
         portfolio = JSON.parse(response.body)
+        @companies = portfolio["companies"]
         @company_guid = portfolio["my_company"]["guid"]
       end
 
@@ -66,7 +69,7 @@ module Kenna
 
       private
 
-      def add_finding_to_working_kdi(finding, create_benign_findings, benign_finding_grades)
+      def add_finding_to_working_kdi(finding, create_benign_findings, benign_finding_grades, company)
         scanner_id = finding["risk_vector_label"]
         vuln_def_id = (finding["risk_vector_label"]).to_s.tr(" ", "_").tr("-", "_").downcase.strip
         print_debug "Working on finding of type: #{vuln_def_id}"
@@ -78,7 +81,7 @@ module Kenna
         finding["assets"].each do |a|
           asset_name = a["asset"]
           default_tags = ["Bitsight"]
-          # default_tags.concat ["bitsight_cat_#{a['category']}".downcase]
+          default_tags << "Bitsight Name: #{company['name']}"
           asset_attributes = if a["is_ip"] # TODO: ... keep severity  ]
                                {
                                  "ip_address" => asset_name,
@@ -163,12 +166,13 @@ module Kenna
       ###
       def create_cve_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
         # then create each vuln for this asset
-
+        details = "Full Finding Record\n\n#{JSON.pretty_generate(finding)}"
+        details = "Solutions\n\n#{JSON.pretty_generate(finding['details']['remediations'])}\n\n#{details}" if finding.key?("details") && finding["details"].key?("remediations")
         vuln_attributes = {
           "scanner_identifier" => scanner_id,
           "vuln_def_name" => vuln_def_id.upcase,
           "scanner_type" => "Bitsight",
-          "details" => JSON.pretty_generate(finding),
+          "details" => details,
           "created_at" => finding["first_seen"],
           "last_seen_at" => finding["last_seen"]
         }
@@ -185,7 +189,6 @@ module Kenna
 
         vd["cve_identifiers"] = vuln_def_id.upcase if /^CVE-/i.match?(vuln_def_id)
         vd["name"] = vuln_def_id.upcase
-        # vd["scanner_identifier"] = vuln_def_id
         create_kdi_vuln_def(vd)
       end
 
@@ -196,7 +199,6 @@ module Kenna
         # set the port if it's available
         port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
 
-        # puts finding["details"]["diligence_annotations"]["message"] if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message") && finding["details"]["diligence_annotations"].fetch("message").match?(/^Detected service: /im)
         detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
         scanner_identifier = if vuln_def_id == "open_ports" && !port_number.nil?
                                if %w[HTTP HTTPS].include?(detected_service) || [80, 443, 8080, 8443].include?(port_number)
@@ -244,12 +246,13 @@ module Kenna
         # get our mapped vuln
         fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
         cvd = fm.get_canonical_vuln_details("Bitsight", vd)
-
+        details = "Full Finding Record\n\n#{JSON.pretty_generate(finding)}"
+        details = "Solutions\n\n#{JSON.pretty_generate(finding['details']['remediations'])}\n\n#{details}" if finding.key?("details") && finding["details"].key?("remediations")
         # then create each vuln for this asset
         vuln_attributes = {
           "scanner_identifier" => scanner_id,
           "scanner_type" => "Bitsight",
-          "details" => JSON.pretty_generate(finding),
+          "details" => details,
           "created_at" => finding["first_seen"],
           "last_seen_at" => finding["last_seen"]
         }
