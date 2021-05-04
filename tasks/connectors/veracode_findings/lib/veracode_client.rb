@@ -317,8 +317,6 @@ module Kenna
 
           fname = fname[0..175] # Limiting the size of the filename
 
-          require 'pry-byebug'; binding.pry
-
           if @assets.nil? || @assets.empty?
             print_good "No data for #{app_name}. Skipping Upload."
           else
