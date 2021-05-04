@@ -153,7 +153,7 @@ module Kenna
               { action: "proc", target: "created_at", proc: ->(x) { x["initialEvidence"]["timestamp"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["latestEvidence"]["timestamp"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["portNumber"] || x["initialEvidence"]["portNumber"]).to_i } },
-              { action: "proc", target: "details", proc: ->(x) { JSON.pretty_generate(x) } },
+              { action: "proc", target: "details", proc: ->(x) { "Headline: #{x['headline']}\nHelpText: #{x['helpText']}\n\nFull Issue:\n #{JSON.pretty_generate(x)}" } },
               { action: "proc", target: "scanner_score", proc: ->(x) { map_issue_priority(x["priority"]) } },
               { action: "data", target: "scanner_type", data: "Expanse_issues" }
             ],
