@@ -127,6 +127,9 @@ module Kenna
                            "in_progress"
                          end
                        end
+
+              tags << "Scan Type: #{finding['scan_type']}" unless tags.include? "Scan Type: #{finding['scan_type']}"
+
               finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
@@ -231,12 +234,15 @@ module Kenna
                            "in_progress"
                          end
                        end
+
+              tags << "Scan Type: #{finding['scan_type']}" unless tags.include? "Scan Type: #{finding['scan_type']}"
+
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               # finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id") if finding["finding_details"]["cwe"]
               cwe = "CWE-#{cwe}" if finding["finding_details"]["cwe"]
-              cve = finding["finding_details"]["cve"].fetch("name") if finding["finding_details"]["cve"]
+              cve = finding["finding_details"]["cve"].fetch("name").strip if finding["finding_details"]["cve"]
               found_on = finding["finding_status"].fetch("first_found_date")
               description = finding.fetch("description") if finding["description"]
               last_seen = finding["finding_status"].fetch("last_seen_date")
@@ -279,9 +285,12 @@ module Kenna
                 "scanner_identifier" => cve,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
+                "cve_identifiers" => cve,
                 "name" => cve,
                 "description" => description
               }
+
+              vuln_def["cve_identifiers"] = nil unless cve.include? "CVE"
 
               vuln_def.compact!
 
@@ -307,6 +316,8 @@ module Kenna
                   end
 
           fname = fname[0..175] # Limiting the size of the filename
+
+          require 'pry-byebug'; binding.pry
 
           if @assets.nil? || @assets.empty?
             print_good "No data for #{app_name}. Skipping Upload."
