@@ -116,11 +116,12 @@ module Kenna
 
               tags << "Scan Type: #{finding['scan_type']}" unless tags.include? "Scan Type: #{finding['scan_type']}"
 
-              finding_cat = finding["finding_details"]["finding_category"].fetch("name")
+              # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
+              cwe_name = finding["finding_details"]["cwe"].fetch("name")
               found_on = finding["finding_status"].fetch("first_found_date")
               last_seen = finding["finding_status"].fetch("last_seen_date")
               additional_information = {
@@ -133,7 +134,7 @@ module Kenna
               additional_information.merge!(finding["finding_status"])
 
               # Formatting a couple fields
-              additional_information["cwe"] = "#{cwe} - #{additional_information['cwe']['name']} - #{additional_information['cwe']['href']}"
+              additional_information["cwe"] = "#{cwe} - #{cwe_name} - #{additional_information['cwe']['href']}"
               additional_information["finding_category"] = "#{additional_information['finding_category']['id']} - #{additional_information['finding_category']['name']} - #{additional_information['finding_category']['href']}"
 
               asset = {
@@ -149,7 +150,7 @@ module Kenna
 
               # craft the vuln hash
               vuln_attributes = {
-                "scanner_identifier" => finding_cat,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "scanner_score" => scanner_score * 2,
                 "override_score" => scanner_score * 20,
@@ -165,10 +166,10 @@ module Kenna
               vuln_attributes.compact!
 
               vuln_def = {
-                "scanner_identifier" => finding_cat,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
-                "name" => finding_cat,
+                "name" => cwe_name,
                 "solution" => finding_rec
               }
 
