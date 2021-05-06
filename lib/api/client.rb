@@ -166,6 +166,16 @@ module Kenna
           end
         rescue RestClient::Exceptions::OpenTimeout => e
           print_error "Timeout: #{e.message}..."
+          retries ||= 0
+          if retries < max_retries
+            print_error "Retrying in 60s..."
+            retries += 1
+            sleep(60)
+            retry
+          else
+            print_error "Max retries hit, failing with... #{e}"
+            return
+          end
         rescue RestClient::UnprocessableEntity => e
           print_error "Unprocessable Entity: #{e.message}..."
         rescue RestClient::BadRequest => e
