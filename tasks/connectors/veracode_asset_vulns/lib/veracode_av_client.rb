@@ -275,7 +275,10 @@ module Kenna
                 "description" => description
               }
 
+              # Clear out SRCCLR numbers from CVE list
               vuln_def["cve_identifiers"] = nil unless cve.include? "CVE"
+              # Clear CWE if CVE exists. CVE takes precedence
+              vuln_def["cwe_identifiers"] = nil unless cve.nil?
 
               vuln_def.compact!
 
