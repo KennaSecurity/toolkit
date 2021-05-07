@@ -10,13 +10,23 @@ module Kenna
         {
           id: "contrast",
           name: "Contrast",
-          description: "Extract vulnerability data from the Contrast platform",
+          description: "Extract vulnerability and library data from the Contrast platform",
           options: [
             { name: "contrast_host",
               type: "hostname",
               required: true,
               default: nil,
               description: "Your Contrast hostname (without protocol), e.g. app.contrastsecurity.com" },
+            { name: "contrast_use_https",
+              type: "boolean",
+              required: false,
+              default: true,
+              description: "Set to false if you would like to force an insecure HTTP connection" },
+            { name: "contrast_port",
+              type: "integer",
+              required: false,
+              default: nil,
+              description: "Your Contrast port (if on premise), e.g. 8080" },
             { name: "contrast_api_key",
               type: "api_key",
               required: true,
@@ -32,11 +42,6 @@ module Kenna
               required: true,
               default: nil,
               description: "Your Contrast Organization ID, as displayed in User Settings" },
-            { name: "contrast_use_https",
-              type: "boolean",
-              required: false,
-              default: true,
-              description: "Set to false if you would like to force an insecure HTTP connection" },
             { name: "contrast_application_tags",
               type: "string",
               required: false,
@@ -95,10 +100,11 @@ module Kenna
         super # opts -> @options
 
         contrast_host = @options[:contrast_host]
+        contrast_use_https = @options[:contrast_use_https]
+        contrast_port = @options[:contrast_port]
         contrast_api_key = @options[:contrast_api_key]
         contrast_auth_header = @options[:contrast_auth_token] #Do not rename this option, the use of token forces masking in the logs
         contrast_org_id = @options[:contrast_org_id]
-        contrast_use_https = @options[:contrast_use_https]
         contrast_application_tags = @options[:contrast_application_tags]
         contrast_environments = @options[:contrast_environments]
         contrast_environments.upcase! unless contrast_environments.nil?
@@ -108,7 +114,7 @@ module Kenna
         contrast_include_vulns = @options[:contrast_include_vulns]
         results = false;
 
-        @client = Kenna::Toolkit::Contrast::Client.new(contrast_host, contrast_api_key, contrast_auth_header, contrast_org_id, contrast_use_https)
+        @client = Kenna::Toolkit::Contrast::Client.new(contrast_host, contrast_port, contrast_api_key, contrast_auth_header, contrast_org_id, contrast_use_https)
 
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
@@ -196,7 +202,7 @@ module Kenna
 
           #Convert to an array of strings
           apps = apps.map { |f| f["app_id"] }
-          print(apps)
+
           libs = @client.get_vulnerable_libraries(apps)
 
           libs.each_with_index do |l,i|

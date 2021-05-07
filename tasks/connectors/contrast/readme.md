@@ -43,10 +43,11 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
 | contrast_host | true | Your Contrast hostname (without protocol), e.g. app.contrastsecurity.com | n/a |
+| contrast_use_https | false | Set to false if you would like to force an insecure HTTP connection | true |
+| contrast_port | false | Your Contrast port (if on premise), e.g. 8080 | null |
 | contrast_api_key | true | Your Contrast API Key, as displayed in User Settings | n/a |
 | contrast_auth_token | true | Your Contrast Authorization Header, which can be copied from User Settings | n/a |
 | contrast_org_id | true | Your Contrast Organization ID, as displayed in User Settings | n/a |
-| contrast_use_https | false | Set to false if you would like to force an insecure HTTP connection | true |
 | contrast_include_vulns | false | Controls whether Contrast Assess vulnerabilities are sent to Kenna | true |
 | contrast_application_tags | false | Filter vulnerabilities or libraries using a comma separated list of application tags |  |
 | contrast_environments | false | Filter vulnerabilities using a comma separated list of environments (DEVELOPMENT, QA or PRODUCTION). This applies to vulnerabilities only (not libraries).  |  |

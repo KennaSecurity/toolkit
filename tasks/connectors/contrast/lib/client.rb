@@ -6,9 +6,10 @@ module Kenna
   module Toolkit
     module Contrast
       class Client
-        def initialize(contrast_host, contrast_api_key, contrast_auth_header, contrast_org_id, contrast_use_https)
+        def initialize(contrast_host, contrast_port, contrast_api_key, contrast_auth_header, contrast_org_id, contrast_use_https)
           protocol = contrast_use_https ? "https://" : "http://"
-          @base_url = "#{protocol}#{contrast_host}/Contrast/api/ng/#{contrast_org_id}"
+          @base_url = "#{protocol}#{contrast_host}#{contrast_port.nil? ? "" : ":"}#{contrast_port}/Contrast/api/ng/#{contrast_org_id}"
+          print "Base URL is #{@base_url}"
           @headers = { "Authorization": "#{contrast_auth_header}", "API-Key": "#{contrast_api_key}", "Content-Type": "application/json" }
           @recs = Hash.new
           @tags = Hash.new
