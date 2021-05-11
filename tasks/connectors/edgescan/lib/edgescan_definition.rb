@@ -18,7 +18,7 @@ module Kenna
             "description" => data["description_src"],
             "solution" => data["remediation_src"],
             "cve_identifiers" => cves,
-            "cwe_identifiers" => cwes
+            "cwe_identifiers" => cves ? nil : cwes
           }.compact
         end
 
