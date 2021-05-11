@@ -38,3 +38,7 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
 | include_license | boolean | false | retrieve license issues? |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
+
+## Example Command Line:
+
+    toolkit:latest task=snyk_findings snyk_api_token=xxx kenna_api_key=xxx kenna_connector_id=11111 include_license=true
