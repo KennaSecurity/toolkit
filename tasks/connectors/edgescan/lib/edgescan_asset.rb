@@ -44,20 +44,12 @@ module Kenna
         # - Create Kenna assets based on Edgescan location specifiers
         # - Go through the vulnerabilites and if some of them don't have a matching Edgescan
         #   location specifier create Kenna assets for them
-        # - Go through the existing assets on Kenna and mark ones that are now redundant for deletion
-        def to_kenna_assets(existing_kenna_assets)
-          to_create = kenna_assets_to_create
-          to_remove = kenna_assets_to_remove(existing_kenna_assets, to_create)
-
-          to_create + to_remove
-        end
-
-        private
-
-        def kenna_assets_to_create
+        def to_kenna_assets
           location_specifiers_as_kenna_assets +
             vulnerabilities_without_location_specifiers_as_kenna_assets
         end
+
+        private
 
         def location_specifiers_as_kenna_assets
           location_specifiers.map(&:to_kenna_asset)
@@ -65,15 +57,6 @@ module Kenna
 
         def vulnerabilities_without_location_specifiers_as_kenna_assets
           vulnerabilities.reject(&:matching_location_specifier).map(&:to_corresponding_kenna_asset)
-        end
-
-        def kenna_assets_to_remove(existing_kenna_assets, to_create)
-          existing_ids = existing_kenna_assets.map { |asset| asset["external_id"] }
-          creating_ids = to_create.map { |asset| asset["external_id"] }
-
-          redundant_ids = existing_ids - creating_ids
-
-          redundant_ids.map { |id| { "external_id" => id, "application" => application_id } }
         end
       end
     end

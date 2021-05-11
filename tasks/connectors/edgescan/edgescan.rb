@@ -62,10 +62,8 @@ module Kenna
         kenna_api = Kenna::Toolkit::Edgescan::KennaApi.new(@options)
 
         edgescan_api.fetch_in_batches do |edgescan_assets, edgescan_definitions|
-          existing_kenna_assets = kenna_api.fetch_assets_with_edgescan_ids(edgescan_assets.map(&:id))
-
           edgescan_assets.each do |edgescan_asset|
-            kenna_api.add_assets(edgescan_asset, existing_kenna_assets[edgescan_asset.application_id] || [])
+            kenna_api.add_assets(edgescan_asset)
             kenna_api.add_vulnerabilities(edgescan_asset.vulnerabilities)
           end
 

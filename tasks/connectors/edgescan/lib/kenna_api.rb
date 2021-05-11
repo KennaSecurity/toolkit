@@ -18,8 +18,8 @@ module Kenna
         # Note: Edgescan and Kenna assets don't map one to one. A Kenna asset is more like an
         #       Edgescan location specifier. Because of that, one Edgescan asset usually gets turned
         #       into multiple Kenna assets.
-        def add_assets(edgescan_asset, existing_kenna_assets)
-          edgescan_asset.to_kenna_assets(existing_kenna_assets).each do |kenna_asset|
+        def add_assets(edgescan_asset)
+          edgescan_asset.to_kenna_assets.each do |kenna_asset|
             add_asset(kenna_asset)
           end
         end
@@ -53,16 +53,6 @@ module Kenna
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
 
-        # Fetches existing assets tagged with these Edgescan IDs from the Kenna API
-        def fetch_assets_with_edgescan_ids(edgescan_ids)
-          ids = edgescan_ids.map { |id| "'(ES#{id})'" }.join(",")
-          query = "?vulnerability[q]=application:(#{ids}) AND vulnerability_score:>0"
-
-          all_assets = []
-          get_in_pages("assets/search#{query}") { |page| all_assets += page["assets"] }
-          all_assets.group_by { |asset| asset["application"] }
-        end
-
         private
 
         # Adds Kenna asset into memory (if one with the same `external_id` doesn't exist already)
@@ -85,26 +75,6 @@ module Kenna
         # Gets current time in milliseconds
         def millis
           (Time.now.to_f * 1000).round
-        end
-
-        # Attempts to fetch all pages of a request to the Kenna API
-        def get_in_pages(url)
-          current = 1
-          total = 1
-
-          while current <= total
-            response = get("#{url}&page=#{current}")
-            yield(response)
-
-            current += 1
-            total = response["meta"]["pages"]
-          end
-        end
-
-        # Makes GET requests to the Kenna API
-        def get(url)
-          response = http_get("https://#{@kenna_api_host}/#{url}", { "X-Risk-Token": @kenna_api_key })
-          JSON.parse(response.body)
         end
       end
     end
