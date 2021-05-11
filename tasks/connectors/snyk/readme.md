@@ -40,8 +40,7 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
 
 
-  docker run -it --rm \
-  -v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
-  -v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
-  -t toolkit:latest task=snyk:snyk_api_token=8535xxxjM3464:kenna_connector_id=156xxx
+## Example Command Line:
+
+    toolkit:latest task=snyk snyk_api_token=xxx kenna_connector_id=156xxx kenna_api_key:xxx include_license=true
 
