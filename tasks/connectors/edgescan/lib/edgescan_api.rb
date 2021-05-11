@@ -7,7 +7,6 @@ module Kenna
         def initialize(options)
           @edgescan_token = options[:edgescan_token]
           @page_size = options[:edgescan_page_size].to_i
-          @sync_changes_since = options[:sync_changes_since]
         end
 
         # Fetches Edgescan assets and vulnerabilities in batches. Yields each batch.
@@ -43,10 +42,7 @@ module Kenna
         end
 
         def fetch_assets(offset, limit)
-          params = { o: offset, l: limit }
-          params[:c] = { updated_at_after: DateTime.strptime(@sync_changes_since, "%s").to_s } if @sync_changes_since
-
-          query("assets", params)
+          query("assets", { o: offset, l: limit })
         end
 
         def fetch_vulnerabilities(asset_ids)
