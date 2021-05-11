@@ -27,6 +27,7 @@ These are some quick examples:
 | ------------------ | -------- | ---------------------------------------------------------------------------- | ------------------------ |
 | edgescan_token     | true     | Edgescan token                                                               | none                     |
 | edgescan_page_size | false    | Number of records to bring back with each page request from Edgescan         | 100                      |
+| edgescan_api_host  | false    | Edgescan API hostname                                                        | live.edgescan.com        |
 | kenna_api_key      | true     | Kenna API key                                                                | none                     |
 | kenna_connector_id | true     | Kenna connnector ID                                                          | none                     |
 | kenna_api_host     | false    | Kenna API hostname                                                           | api.us.kennasecurity.com |

@@ -7,6 +7,7 @@ module Kenna
         def initialize(options)
           @edgescan_token = options[:edgescan_token]
           @page_size = options[:edgescan_page_size].to_i
+          @api_host = options[:edgescan_api_host]
         end
 
         # Fetches Edgescan assets and vulnerabilities in batches. Yields each batch.
@@ -59,10 +60,15 @@ module Kenna
         end
 
         def query(resource, query_payload, unwrap: true)
-          base = ENV["EDGESCAN_ENVIRONMENT"] == "local" ? "http://localhost:3000" : "https://live.edgescan.com"
-          response = http_post("#{base}/api/v1/#{resource}/query.json", { "X-API-TOKEN": @edgescan_token }, query_payload)
+          response = http_post("#{base_url}/api/v1/#{resource}/query.json", { "X-API-TOKEN": @edgescan_token }, query_payload)
           json = JSON.parse(response.body)
           unwrap ? json[resource] : json
+        end
+
+        def base_url
+          return "http://localhost:3000" if ENV["EDGESCAN_ENVIRONMENT"] == "local"
+
+          "https://#{@api_host}"
         end
       end
     end
