@@ -141,6 +141,7 @@ These are the current tasks available:
 - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
 - csv2kdi: This task converts a csv formatted file to the Kenna JSON & optionally pulls results into Kenna
+- edgescan: Pulls assets and vulnerabilitiies from Edgescan
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
 - generator: This task generates some demo data in KDI format
 - kenna_api_key_check: This task simply verifies a Kenna API token vs a given host
