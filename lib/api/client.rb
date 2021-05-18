@@ -13,6 +13,10 @@ module Kenna
         @base_url = "https://#{api_host}"
       end
 
+      class << self
+        attr_accessor :task_name
+      end
+
       def get_connectors
         _kenna_api_request(:get, "connectors")
       end
@@ -119,7 +123,7 @@ module Kenna
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
           "accept" => "application/json",
-          "User-Agent" => "Kenna Toolkit"
+          "User-Agent" => "Kenna Toolkit - #{self.class.task_name}"
         }
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
@@ -209,7 +213,8 @@ module Kenna
         headers = {
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
-          "accept" => "application/json"
+          "accept" => "application/json",
+          "User-Agent" => "Kenna Toolkit - #{self.class.task_name}"
         }
 
         # connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
