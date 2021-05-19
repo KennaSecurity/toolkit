@@ -86,6 +86,9 @@ module Kenna
           end
         end
 
+        # Save Task Name as a class variable for sending with API call in Client
+        Kenna::Api::Client.task_name = opts[:task_name]
+
         # if we made it here, we have the right arguments, and the right types!
         @options = opts
 
