@@ -42,7 +42,7 @@ module Kenna
               # grab tags
               tag_list = []
               application["profile"]["tags"]&.split(",")&.each { |t| tag_list.push(t) } # if application["profile"]["tags"]
-              tag_list.push(application["profile"]["business_unit"]["name"]) if application["profile"]["business_unit"]["name"]
+              tag_list.push("veracode_bu: #{application['profile']['business_unit']['name']}") if application["profile"]["business_unit"]["name"]
               # tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
             end
@@ -70,10 +70,10 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def get_findings(app_guid, app_name, tags, page_size)
-          print_debug "pulling issues for #{app_name}"
-          puts "pulling issues for #{app_name}" # DBRO
-          app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
+        def get_findings(app_guid, app_name, tags, page_size, scan_type)
+          print_debug "pulling #{scan_type} issues for #{app_name}"
+          puts "pulling #{scan_type} issues for #{app_name}" # DBRO
+          app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=#{scan_type}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
             uri = URI.parse(url)
@@ -98,7 +98,8 @@ module Kenna
               case finding["scan_type"]
               when "STATIC"
                 # file = finding["finding_details"]["file_name"]
-                file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
+                # file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
+                file = finding["finding_details"]["file_path"]
                 ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
@@ -114,7 +115,8 @@ module Kenna
                          "open"
                        end
 
-              tags << "Scan Type: #{finding['scan_type']}" unless tags.include? "Scan Type: #{finding['scan_type']}"
+              tags << "veracode_scan_type: #{finding['scan_type']}" unless tags.include? "veracode_scan_type: #{finding['scan_type']}"
+              tags << "veracode_app: #{app_name}" unless tags.include? "veracode_app: #{app_name}"
 
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
@@ -216,7 +218,8 @@ module Kenna
                          "open"
                        end
 
-              tags << "Scan Type: #{finding['scan_type']}" unless tags.include? "Scan Type: #{finding['scan_type']}"
+              tags << "veracode_scan_type: #{finding['scan_type']}" unless tags.include? "veracode_scan_type: #{finding['scan_type']}"
+              tags << "veracode_app: #{app_name}" unless tags.include? "veracode_app: #{app_name}"
 
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               # finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
@@ -291,11 +294,14 @@ module Kenna
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size)
-          # Get Findings
-          get_findings(app_guid, app_name, tags, page_size)
+        def issues(app_guid, app_name, tags, page_size, scan_types)
+          scan_types_array = scan_types.split(",")
+          # Get STATIC Findings
+          get_findings(app_guid, app_name, tags, page_size, "STATIC") if scan_types_array.include? "STATIC"
+          # Get DYNAMIC Findings
+          get_findings(app_guid, app_name, tags, page_size, "DYNAMIC") if scan_types_array.include? "DYNAMIC"
           # Get SCA Findings
-          get_findings_sca(app_guid, app_name, tags, page_size)
+          get_findings_sca(app_guid, app_name, tags, page_size) if scan_types_array.include? "SCA"
 
           # Fix for slashes in the app_name. Won't work for filenames
           fname = if app_name.index("/")
