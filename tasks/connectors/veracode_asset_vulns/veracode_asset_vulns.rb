@@ -28,6 +28,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Veracode page size" },
+            { name: "veracode_scan_types",
+              type: "string",
+              required: false,
+              default: "STATIC,DYNAMIC,SCA",
+              description: "Veracode scan types to include. Comma-delimited list of the three scan types." },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -58,6 +63,7 @@ module Kenna
 
         veracode_id = @options[:veracode_id]
         veracode_key = @options[:veracode_key]
+        veracode_scan_types = @options[:veracode_scan_types]
         page_size = @options[:veracode_page_size]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -75,7 +81,7 @@ module Kenna
           guid = application.fetch("guid")
           appname = application.fetch("name")
           tags = application.fetch("tags")
-          client.issues(guid, appname, tags, page_size)
+          client.issues(guid, appname, tags, page_size, veracode_scan_types)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
