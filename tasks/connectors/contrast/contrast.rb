@@ -1,5 +1,4 @@
 require_relative "lib/client"
-require "time"
 
 module Kenna
   module Toolkit
@@ -289,11 +288,11 @@ module Kenna
 
         if results == true
           ### Write KDI format
-          kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
           output_dir = "#{$basedir}/#{@options[:output_directory]}"
           filename = "generator.kdi.json"
-          write_file output_dir, filename, JSON.pretty_generate(kdi_output)
+          write_file_stream(output_dir, filename, false, @assets, @vuln_defs, version = 1)
           print_good "Output is available at: #{output_dir}/#{filename}"
+
 
           ### Finish by uploading if we're all configured
           return unless kenna_connector_id && kenna_api_host && kenna_api_key

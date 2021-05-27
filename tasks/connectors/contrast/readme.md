@@ -34,7 +34,6 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
     contrast_api_key=<your api key> \
     contrast_auth_token=<your auth header> \
     kenna_api_key=<your kenna api key> \
-    kenna_api_host=<your kenna api environment, e.g. xxx.kennasecurity.com> \
     kenna_connector_id=<your KDI connector id>
 ```
 
