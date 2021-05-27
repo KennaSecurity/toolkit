@@ -53,6 +53,11 @@ module Kenna
               required: false,
               default: nil,
               description: "If set, we'll try to upload to this connector" },
+            { name: "df_mapping_filename",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "If set, we'll try to upload to this connector" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -165,9 +170,9 @@ module Kenna
           ###
           ### Put them through our mapper
           ###
-          fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
+
           # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
-          vuln_def_attributes = fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
+          vuln_def_attributes = @fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
 
           vuln_attributes = {
             "scanner_identifier" => issue_type,
@@ -201,6 +206,7 @@ module Kenna
         ssc_portfolio_ids = @options[:ssc_portfolio_ids]&.split(",")
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
 
         client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
 
