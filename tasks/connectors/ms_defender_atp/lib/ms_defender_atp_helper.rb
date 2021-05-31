@@ -107,7 +107,7 @@ module Kenna
 
       def atp_get_auth_token
         print_debug "Getting token"
-        oauth_url = "#{@atp_oath_url}/#{@tenant_id}/oauth2/token"
+        oauth_url = "https://#{@atp_oath_url}/#{@tenant_id}/oauth2/token"
         headers = { "content-type" => "application/x-www-form-urlencoded" }
         mypayload = {
           "resource" => @atp_query_api,
@@ -115,7 +115,7 @@ module Kenna
           "client_secret" => @client_secret.to_s,
           "grant_type" => "client_credentials"
         }
-
+        print_debug "oauth_url = #{oauth_url}"
         response = http_post(oauth_url, headers, mypayload)
         return nil unless response
 
@@ -133,7 +133,7 @@ module Kenna
         @tenant_id = tenant_id
         @client_id = client_id
         @client_secret = secret
-        @atp_query_api = atp_query_api
+        @atp_query_api = "https://#{atp_query_api}"
         @file_cleanup = file_cleanup
       end
     end
