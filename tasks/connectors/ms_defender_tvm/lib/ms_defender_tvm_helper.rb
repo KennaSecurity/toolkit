@@ -106,7 +106,7 @@ module Kenna
 
       def tvm_get_auth_token
         print_debug "Getting token"
-        oauth_url = "#{@tvm_oath_url}/#{@tenant_id}/oauth2/token"
+        oauth_url = "https://#{@tvm_oath_url}/#{@tenant_id}/oauth2/token"
         print_debug oauth_url
         headers = { "content-type" => "application/x-www-form-urlencoded" }
         mypayload = {
@@ -115,6 +115,7 @@ module Kenna
           "client_secret" => @client_secret.to_s,
           "grant_type" => "client_credentials"
         }
+        print_debug "oauth_url = #{oauth_url}"
         response = http_post(oauth_url, headers, mypayload)
         return nil unless response
 
@@ -132,7 +133,7 @@ module Kenna
         @tenant_id = tenant_id
         @client_id = client_id
         @client_secret = secret
-        @tvm_query_api = tvm_query_api
+        @tvm_query_api = "https://#{tvm_query_api}"
         @file_cleanup = file_cleanup
       end
     end
