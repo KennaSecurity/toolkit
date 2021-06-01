@@ -1,22 +1,27 @@
 # Toolkit Connector Status Information
 
-## Release Certification Levels (Subject to change as they are still being developed)
+## Release Certification Levels
 
-- Beta - Confirmed operational with test data/accounts/keys
-- MVP - has been tested with real-world data
-- Prod - has been tested with 5+ customers or 100mil records
+- Pre-Release/Beta - Confirmed operational with test data/accounts/keys
+- Released - has been tested with real-world data
+- Certified - has been tested with 5+ customers or 100mil records
 
 
 | 3rd Party Product | Release Status | Maintained By |
 | --- | --- | --- |
-| aws_guardduty | Beta | Kenna |
-| aws_inspector | Beta | Kenna |
-| bitsight | Beta | Kenna |
-| expanse | Beta | Kenna
-| ms_defender_atp | Beta | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
+| aws_guardduty | Pre-Release/Beta | Kenna |
+| aws_inspector | Pre-Release/Beta | Kenna |
+| bitsight | Released | Kenna |
+| edgescan | Pre-Release/Beta | edgescan |
+| expanse | Pre-Released/Beta | Kenna |
+| expanse_issues | Released | Kenna | 
+| ms_defender_atp | Released | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
+| ms_defender_tvm | Pre-Released/Beta | Kenna and [MS Defender TVM](https://securitycenter.windows.com/) |
 | netsparker | Beta | Kenna |
-| nozomi | Beta | Kenna and [Nozomi](https://www.nozominetworks.com/) |
-| riskiq | Beta | Kenna |
-| security_scorecard | Beta | Kenna |
-| snyk | Beta | Kenna and [Snyk](https://snyk.io/) |
-| snyk_findings | Beta | Kenna and [Snyk](https://snyk.io/) |
+| nozomi | Released | Kenna and [Nozomi](https://www.nozominetworks.com/) |
+| riskiq | Released | Kenna |
+| security_scorecard | Released | Kenna |
+| snyk | Released| Kenna and [Snyk](https://snyk.io/) |
+| snyk_findings | Pre-Release | Kenna and [Snyk](https://snyk.io/) |
+| veracode_asset_vulns | Released | Kenna |
+| veracode_findings | Released | Kenna |
