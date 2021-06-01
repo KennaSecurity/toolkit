@@ -5,9 +5,13 @@ module Kenna
     module Data
       module Mapping
         class DigiFootprintFindingMapper
-          def initialize(output_directory)
+          def initialize(output_directory, input_directory = "", mapping_file = "")
             @output_dir = output_directory
             @missing_mappings = []
+            @input_directory = input_directory
+            @mapping_file = mapping_file
+            @map_data = nil
+            @map_data = (custom_mapping_data if input_directory && mapping_file && @map_data.nil?) || mapping_data
           end
 
           def get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
@@ -22,7 +26,7 @@ module Kenna
             done = false
             # Do the mapping
             ###################
-            mapping_data.each do |map|
+            @map_data.each do |map|
               break if done
 
               map[:matches].each do |match|
@@ -51,9 +55,7 @@ module Kenna
             if out.empty?
               print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
               @missing_mappings.nil? ? @missing_mappings = [[orig_vuln_id, orig_source]] : @missing_mappings.push([orig_vuln_id, orig_source])
-              puts "mm1 #{@missing_mappings}"
               @missing_mappings&.uniq
-              puts "mm2 #{@missing_mappings}"
               write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.to_s) unless @missing_mappings.nil?
               out = {
                 scanner_identifier: orig_vuln_id,
@@ -89,6 +91,36 @@ module Kenna
             stats.each { |k, v| puts "#{k} #{v.count}" }
 
             stats
+          end
+
+          def custom_mapping_data
+            data_mapping = []
+            csv_holder = []
+            CSV.parse(File.open("#{@input_directory}/#{@mapping_file}", "r:iso-8859-1:utf-8", &:read), headers: true) do |row|
+              csv_holder << row
+            end
+            some_rows = csv_holder.select { |row| row["type"] == "definition" }
+            some_rows.each do |row|
+              hash_row = {
+                name: row[1],
+                cwe: row[2],
+                score: row[3].to_i,
+                description: row[4],
+                recommendation: row[5]
+              }
+              hash_row[:matches] = []
+              data_mapping << hash_row
+            end
+            some_rows = csv_holder.select { |row| row["type"] == "match" }
+            some_rows.each do |row|
+              dm = data_mapping.lazy.find { |mdef| mdef[:name].to_s == row["name"] }
+              hash_match = {
+                source: row[2],
+                vuln_id: row[3]
+              }
+              dm[:matches] << hash_match
+            end
+            data_mapping
           end
 
           def mapping_data

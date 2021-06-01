@@ -12,7 +12,9 @@ module Kenna
         @headers = {
           "Authorization" => "Basic #{Base64.strict_encode64(bitsight_api_key)}",
           "accept" => :json,
-          "content_type" => :json
+          "content_type" => :json,
+          "X-BITSIGHT-CALLING-PLATFORM-VERSION" => "Kenna Security",
+          "X-BITSIGHT-CONNECTOR-NAME-VERSION" => "Kenna Toolkit Bitsight Connector V1"
         }
         @bitsight_api_key = bitsight_api_key
         my_company
