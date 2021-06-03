@@ -12,6 +12,7 @@ module Kenna
 
         APP_PATH = "/appsec/v1/applications"
         CAT_PATH = "/appsec/v1/categories"
+        CWE_PATH = "/appsec/v1/cwes"
         FINDING_PATH = "/appsec/v2/applications"
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
@@ -25,6 +26,7 @@ module Kenna
           @kenna_connector_id = kenna_connector_id
           @kenna_api_key = kenna_api_key
           @category_recommendations = []
+          @cwe_recommendations = []
         end
 
         def applications(page_size)
@@ -49,6 +51,26 @@ module Kenna
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
           app_list
+        end
+
+        def cwe_recommendations(page_size)
+          cwe_request = "#{CWE_PATH}?size=#{page_size}"
+          url = "https://#{HOST}#{cwe_request}"
+          cwe_rec_list = []
+          until url.nil?
+            uri = URI.parse(url)
+            auth_path = "#{uri.path}?#{uri.query}"
+            response = http_get(url, hmac_auth_options(auth_path))
+            result = JSON.parse(response.body)
+            cwes = result["_embedded"]["cwes"]
+
+            cwes.lazy.each do |cwe|
+              # cwe_rec_list << { "id" => cwe.fetch("id"), "severity" => cwe.fetch("severity"), "remediation_effort" => cwe.fetch("remediation_effort"), "recommendation" => cwe.fetch("recommendation") }
+              cwe_rec_list << { "id" => cwe.fetch("id"), "recommendation" => cwe.fetch("recommendation") }
+            end
+            url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
+          end
+          @cwe_recommendations = cwe_rec_list
         end
 
         def category_recommendations(page_size)
@@ -115,11 +137,13 @@ module Kenna
                          "open"
                        end
 
-              tags << "veracode_scan_type: #{finding['scan_type']}" unless tags.include? "veracode_scan_type: #{finding['scan_type']}"
-              tags << "veracode_app: #{app_name}" unless tags.include? "veracode_app: #{app_name}"
+              finding_tags = tags.dup
+              finding_tags << "veracode_scan_type: #{finding['scan_type']}" unless finding_tags.include? "veracode_scan_type: #{finding['scan_type']}"
+              finding_tags << "veracode_app: #{app_name}" unless finding_tags.include? "veracode_app: #{app_name}"
 
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
+              cwe_rec = @cwe_recommendations.select { |r| r["id"] == finding["finding_details"]["cwe"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
@@ -145,7 +169,7 @@ module Kenna
                 "file" => file,
                 "external_id" => ext_id,
                 "application" => app_name,
-                "tags" => tags
+                "tags" => finding_tags
               }
 
               asset.compact!
@@ -172,7 +196,7 @@ module Kenna
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "name" => cwe_name,
-                "solution" => finding_rec
+                "solution" => cwe_rec
               }
 
               vuln_def.compact!
@@ -206,7 +230,8 @@ module Kenna
             return if findings.nil?
 
             findings.lazy.each do |finding|
-              file = finding["finding_details"]["component_filename"]
+              # file = finding["finding_details"]["component_filename"]
+              file = finding["finding_details"]["component_path"].first.fetch("path")
               ext_id = "[#{app_name}] - #{finding['finding_details']['component_path'].first.fetch('path')}"
 
               # Pull Status from finding["finding_status"]["status"]
@@ -218,8 +243,11 @@ module Kenna
                          "open"
                        end
 
-              tags << "veracode_scan_type: #{finding['scan_type']}" unless tags.include? "veracode_scan_type: #{finding['scan_type']}"
-              tags << "veracode_app: #{app_name}" unless tags.include? "veracode_app: #{app_name}"
+              finding_tags = tags.dup
+              finding_tags << "veracode_scan_type: #{finding['scan_type']}" unless finding_tags.include? "veracode_scan_type: #{finding['scan_type']}"
+              finding_tags << "veracode_app: #{app_name}" unless finding_tags.include? "veracode_app: #{app_name}"
+              # tags << "veracode_scan_type: #{finding['scan_type']}" unless tags.include? "veracode_scan_type: #{finding['scan_type']}"
+              # tags << "veracode_app: #{app_name}" unless tags.include? "veracode_app: #{app_name}"
 
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               # finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
@@ -248,7 +276,7 @@ module Kenna
                 "file" => file,
                 "external_id" => ext_id,
                 "application" => app_name,
-                "tags" => tags
+                "tags" => finding_tags
               }
 
               asset.compact!

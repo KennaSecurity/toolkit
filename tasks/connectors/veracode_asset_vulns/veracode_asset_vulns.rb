@@ -72,8 +72,8 @@ module Kenna
         @filename = ".json"
 
         client = Kenna::Toolkit::VeracodeAV::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
-
-        client.category_recommendations(page_size)
+        client.category_recommendations(500)
+        client.cwe_recommendations(500)
 
         app_list = client.applications(page_size)
 
