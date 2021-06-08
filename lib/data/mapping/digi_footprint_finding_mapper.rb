@@ -11,7 +11,7 @@ module Kenna
             @input_directory = input_directory
             @mapping_file = mapping_file
             @map_data = nil
-            @map_data = (custom_mapping_data if input_directory && mapping_file && @map_data.nil?) || mapping_data
+            @map_data = (custom_mapping_data unless input_directory.nil? || mapping_file.nil?) || mapping_data
           end
 
           def get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
