@@ -41,7 +41,7 @@ module Kenna
           out
         end
 
-        def create_kdi_from_issues(max_pages, max_per_page, issue_types, priorities, tags)
+        def create_kdi_from_issues(max_pages, max_per_page, issue_types, priorities, tags, dfm)
           ###
           ### Get the list of business units
           ###
@@ -70,10 +70,9 @@ module Kenna
               print_debug "Mapped #{result.count} issues"
 
               # convert to KDI
-              fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
               result.each do |r|
                 # NORMALIZE
-                cvd = fm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"])
+                cvd = dfm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"])
                 ### Setup basic vuln attributes
                 vuln_attributes = r["vuln"]
 

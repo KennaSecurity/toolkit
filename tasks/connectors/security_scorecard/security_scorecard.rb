@@ -57,7 +57,7 @@ module Kenna
               type: "string",
               required: false,
               default: nil,
-              description: "If set, we'll try to upload to this connector" },
+              description: "If set, we'll use this external file for vuln mapping - use with input_directory" },
             { name: "output_directory",
               type: "filename",
               required: false,

@@ -246,7 +246,7 @@ module Kenna
         }
 
         # get our mapped vuln
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir)
+        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
         cvd = fm.get_canonical_vuln_details("Bitsight", vd)
         details = "Full Finding Record\n\n#{JSON.pretty_generate(finding)}"
         details = "Solutions\n\n#{JSON.pretty_generate(finding['details']['remediations'])}\n\n#{details}" if finding.key?("details") && finding["details"].key?("remediations")
