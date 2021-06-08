@@ -52,6 +52,11 @@ module Kenna
               required: false,
               default: nil,
               description: "If set, we'll try to upload to this connector" },
+            { name: "df_mapping_filename",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "If set, we'll use this external file for vuln mapping - use with input_directory" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -80,6 +85,7 @@ module Kenna
 
         # create an api client
         @client = Kenna::Toolkit::ExpanseIssues::ExpanseIssuesClient.new(expanse_api_key)
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
 
         @assets = []
         @vuln_defs = []
@@ -100,7 +106,7 @@ module Kenna
           max_per_page = 10_000
         end
 
-        create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities, @tags)
+        create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities, @tags, @fm)
 
         ####
         ### Finish by uploading if we're all configured

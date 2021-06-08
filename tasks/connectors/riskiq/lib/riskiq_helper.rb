@@ -183,16 +183,16 @@ module Kenna
       def search_global_inventory(query, batch_page_size)
         # start with sensible defaults
         current_page = 0
+        total_pages = 0
         asset_count = 0
-        max_pages = -1
         out = []
         current_asset = ""
         print_debug query if @debug
-        while current_page <= max_pages || max_pages == -1
-          print_debug "DEBUG Getting page: #{current_page} / #{max_pages}" if @debug
+        mark = "*"
+        while mark
+          print_debug "DEBUG Getting page #{current_page} of #{total_pages} with mark: #{mark}" if @debug
 
-          endpoint = "#{@api_url}globalinventory/search?page=#{current_page}&size=100&recent=true"
-
+          endpoint = "#{@api_url}globalinventory/search?size=100&recent=true&mark=#{mark}"
           response = http_post(endpoint, @headers, query)
           return if response.nil?
 
@@ -203,9 +203,12 @@ module Kenna
           end
 
           # prepare the next request
-          return if result["totalPages"].to_i.zero?
+          return if result["numberOfElements"].zero?
 
-          max_pages = result["totalPages"].to_i - 1 if max_pages == -1
+          mark = ""
+          mark = result["mark"]
+          total_pages = result["totalPages"]
+          mark = CGI.escape(mark)
 
           rows = result["content"]
           if !rows.nil? && rows.size.positive?
@@ -266,6 +269,7 @@ module Kenna
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln["override_score"] = vuln_def.fetch("override_score") if vuln_def.key?("override_score")
         vuln.compact!
         create_kdi_asset_vuln(asset, vuln, "hostname")
         vuln_def.tap { |hs| hs.delete("scanner_identifier") }
@@ -291,6 +295,7 @@ module Kenna
         vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln["override_score"] = vuln_def.fetch("override_score") if vuln_def.key?("override_score")
         vuln.compact!
         create_kdi_asset_vuln(asset, vuln, "hostname")
 
@@ -334,6 +339,7 @@ module Kenna
 
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
+        vuln["override_score"] = vuln_def.fetch("override_score") if vuln_def.key?("override_score")
         vuln.compact!
         if asset["ip_address"]
           create_kdi_asset_vuln(asset, vuln, "ip_address")
@@ -352,7 +358,7 @@ module Kenna
 
         # kdi_initialize
 
-        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory)
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
 
         # print_debug "Working on on #{data_items.count} items" if @debug
         data_items.lazy.each do |item|
