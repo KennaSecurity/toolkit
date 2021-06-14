@@ -12,6 +12,7 @@
 | aws_guardduty | Pre-Release/Beta | Kenna |
 | aws_inspector | Pre-Release/Beta | Kenna |
 | bitsight | Released | Kenna |
+| contrast | Beta | Contrast Security |
 | edgescan | Pre-Release/Beta | edgescan |
 | expanse | Pre-Released/Beta | Kenna |
 | expanse_issues | Released | Kenna | 

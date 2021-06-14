@@ -140,6 +140,7 @@ These are the current tasks available:
 - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
 - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
+- contrast: This task connects to the Contrast Security API and pulls results into the Kenna Platform.
 - csv2kdi: This task converts a csv formatted file to the Kenna JSON & optionally pulls results into Kenna
 - edgescan: Pulls assets and vulnerabilitiies from Edgescan
 - expanse: This task connects to the Expanse API and pulls results into the Kenna Platform.
