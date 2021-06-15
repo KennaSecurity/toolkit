@@ -45,6 +45,7 @@ module Kenna
               tag_list = []
               application["profile"]["tags"]&.split(",")&.each { |t| tag_list.push(t) } # if application["profile"]["tags"]
               tag_list.push("veracode_bu: #{application['profile']['business_unit']['name']}") if application["profile"]["business_unit"]["name"]
+              tag_list.push("veracode_bc: #{application['profile']['business_criticality']}") if application["profile"]["business_criticality"]
               # tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
               app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
             end
@@ -119,9 +120,9 @@ module Kenna
               ext_id = nil
               case finding["scan_type"]
               when "STATIC"
-                # file = finding["finding_details"]["file_name"]
+                file = finding["finding_details"]["file_name"]
                 # file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
-                file = finding["finding_details"]["file_path"]
+                # file = finding["finding_details"]["file_path"]
                 ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
@@ -231,9 +232,9 @@ module Kenna
             return if findings.nil?
 
             findings.lazy.each do |finding|
-              # file = finding["finding_details"]["component_filename"]
-              file = finding["finding_details"]["component_path"].first.fetch("path")
-              ext_id = "[#{app_name}] - #{finding['finding_details']['component_path'].first.fetch('path')}"
+              file = finding["finding_details"]["component_filename"]
+              # file = finding["finding_details"]["component_path"].first.fetch("path")
+              ext_id = "[#{app_name}] - #{file}"
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
