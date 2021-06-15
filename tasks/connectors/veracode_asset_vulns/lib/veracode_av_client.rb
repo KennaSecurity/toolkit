@@ -257,6 +257,7 @@ module Kenna
               cwe = finding["finding_details"]["cwe"].fetch("id") if finding["finding_details"]["cwe"]
               cwe = "CWE-#{cwe}" if finding["finding_details"]["cwe"]
               cve = finding["finding_details"]["cve"].fetch("name").strip if finding["finding_details"]["cve"]
+              cve_sol = finding["finding_details"]["cve"]["href"] if finding["finding_details"]["cve"]["href"]
               found_on = finding["finding_status"].fetch("first_found_date")
               last_seen = finding["finding_status"].fetch("last_seen_date")
               description = finding.fetch("description") if finding["description"]
@@ -306,7 +307,8 @@ module Kenna
                 "cwe_identifiers" => cwe,
                 "cve_identifiers" => cve,
                 "name" => cve,
-                "description" => description
+                "description" => description,
+                "solution" => cve_sol
               }
 
               # Clear out SRCCLR numbers from CVE list
