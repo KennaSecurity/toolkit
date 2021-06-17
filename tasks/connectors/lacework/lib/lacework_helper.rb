@@ -1,5 +1,7 @@
-require 'net/http'
-require 'uri'
+# frozen_string_literal: true
+
+require "net/http"
+require "uri"
 
 module Kenna
   module Toolkit
@@ -11,14 +13,14 @@ module Kenna
 
         request = Net::HTTP::Post.new(uri)
         request.content_type = "application/json"
-        request["X-Lw-Uaks"] = "#{api_secret}"
+        request["X-Lw-Uaks"] = api_secret.to_s
         request.body = JSON.dump({
-          "keyId" => "#{api_key}",
-          "expiryTime" => 9999
-        })
+                                   "keyId" => api_key.to_s,
+                                   "expiryTime" => 9999
+                                 })
 
         req_options = {
-          use_ssl: uri.scheme == "https",
+          use_ssl: uri.scheme == "https"
         }
 
         response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
@@ -43,10 +45,10 @@ module Kenna
         loop do
           attempts += 1
           response = `#{cmd}`
-          status = $?
+          status = $CHILD_STATUS
           break response if status.success?
 
-          STDERR.puts "#{cmd} failed (attempt #{attempts})."
+          warn "#{cmd} failed (attempt #{attempts})."
           raise StandardError, "Retries exhausted for #{cmd}" if attempts == MAX_ATTEMPTS
         end
       end
@@ -55,11 +57,11 @@ module Kenna
         host["packages"].map do |package|
           {
             "scanner_identifier": package["cve_link"].match(/CVE(.*)$/)[0],
-           "scanner_type": "Lacework",
-           "scanner_score": package["cvss_score"].to_i,
-           "last_seen_at": Time.now.utc,
-           "status": package["status"] == "Active" ? "open" : "closed",
-           "vuln_def_name": package["cve_link"].match(/CVE(.*)$/)[0]
+            "scanner_type": "Lacework",
+            "scanner_score": package["cvss_score"].to_i,
+            "last_seen_at": Time.now.utc,
+            "status": package["status"] == "Active" ? "open" : "closed",
+            "vuln_def_name": package["cve_link"].match(/CVE(.*)$/)[0]
           }
         end
       end

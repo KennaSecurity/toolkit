@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/lacework_helper"
 
 module Kenna
@@ -73,22 +75,19 @@ module Kenna
         puts "Generating Temporary Lacework API Token"
         temp_api_token = generate_temporary_lacework_api_token(lacework_account, lacework_api_key, lacework_api_secret)
 
-
         # Pull assets and vulns from Lacework
         puts "Pulling asset and vulnerability data from Lacework API"
 
         environment_cves = lacework_list_cves(lacework_account, temp_api_token)
 
         vulns_by_host = environment_cves["data"]
-                          .map{|cve| cve["cve_id"]}
-                          .flat_map{|cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token) }
-                          .each_with_object(Hash.new{|h, k| h[k] = [] }) do |host, hash|
-
-                            key = [host["host"]["tags"]["Hostname"],
-                                   host["host"]["machine_id"],
-                                   host["host"]["tags"]["InternalIp"]
-                                  ]
-                            hash[key] += vulns_for(host)
+                        .map { |cve| cve["cve_id"] }
+                        .flat_map { |cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token) }
+                        .each_with_object(Hash.new { |h, k| h[k] = [] }) do |host, hash|
+          key = [host["host"]["tags"]["Hostname"],
+                 host["host"]["machine_id"],
+                 host["host"]["tags"]["InternalIp"]]
+          hash[key] += vulns_for(host)
         end
 
         # Format KDI hash
@@ -99,7 +98,7 @@ module Kenna
             "hostname": host[0],
             "external_id": host[1],
             "ip_address": host[2],
-            "tags":[
+            "tags": [
               "lacework_kdi"
             ]
           }
@@ -124,7 +123,6 @@ module Kenna
             create_kdi_vuln_def(vuln_def_hash)
           end
         end
-
 
         # Write KDI format
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
