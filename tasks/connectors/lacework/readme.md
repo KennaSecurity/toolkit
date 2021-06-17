@@ -24,7 +24,7 @@ Running the Task:
   - From the Gear icon (Upper right corner) select API Keys
   - Copy the key using the copy button to the left of the obscured key
 - Retrieve the Kenna Connector ID
-  - If not already created, select the Add Connector button to create a connector of type Kenna Data Importer. Be sure to rename the connector using 'Snyk' in the name.
+  - If not already created, select the Add Connector button to create a connector of type Kenna Data Importer. Be sure to rename the connector using 'Lacework' in the name.
   - Click on the name of the connector and from the resulting page, copy the Connector ID.
 
 Run the Lacework task following the guidelines on the main [toolkit help page](https://github.com/KennaPublicSamples/toolkit#calling-a-specific-task) adding options as necessary

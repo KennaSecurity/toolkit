@@ -150,6 +150,7 @@ These are the current tasks available:
 - riskiq: This task connects to the RiskIQ API and pulls results into the Kenna Platform.
 - security_scorecard: This task connects to the Security Scorecard API and pulls results into the Kenna Platform.
 - snyk: Pulls assets and vulnerabilities from Snyk
+- lacework: Pulls assets and vulnerabilities from Lacework
 - upload_file: This task uploads a file to a specified connector
 - user_role_sync: This task creates users and assigns them to roles via the API
 
