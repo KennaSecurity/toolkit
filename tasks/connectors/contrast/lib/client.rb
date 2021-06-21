@@ -84,7 +84,6 @@ module Kenna
           end
 
           out
-
         end
 
         def get_application_ids(tags)
@@ -118,7 +117,7 @@ module Kenna
         end
 
         def get_trace_story(id)
-          begin
+          # begin
             url = "#{@base_url}/traces/#{id}/story"
 
             response = RestClient.get(url, @headers)

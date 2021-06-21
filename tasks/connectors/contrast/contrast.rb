@@ -297,7 +297,7 @@ module Kenna
 
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
           upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
-        else 
+        else
           print_good "Extract complete, nothing to upload"
         end
       end
@@ -313,38 +313,54 @@ module Kenna
           "tags" => tags
         }
 
-        asset
+        # asset
       end
 
       ## https://help.kennasecurity.com/hc/en-us/articles/360000862303-Asset-Prioritization-In-Kenna
       def map_importance_to_priority(importance)
-        case importance
-        when "CRITICAL"
-          "10"
-        when "HIGH"
-          "8"
-        when "MEDIUM"
-          "6"
-        when "LOW"
-          "4"
-        when "UNIMPORTANT"
-          "2"
-        end
+        IMPORTANCE = {
+          "CRITICAL"    =>  10,
+          "HIGH"        =>  8,
+          "MEDIUM"      =>  6,
+          "LOW"         =>  4,
+          "UNIMPORTANT" =>  2
+        }
+        IMPORTANCE[importance]
+        # case importance
+        # when "CRITICAL"
+        #   "10"
+        # when "HIGH"
+        #   "8"
+        # when "MEDIUM"
+        #   "6"
+        # when "LOW"
+        #   "4"
+        # when "UNIMPORTANT"
+        #   "2"
+        # end
       end
 
       def map_severity_to_scanner_score(severity)
-        case severity.upcase
-        when "CRITICAL"
-          10
-        when "HIGH"
-          8
-        when "MEDIUM"
-          6
-        when "LOW"
-          3
-        when "NOTE"
-          1
-        end
+        SEVERITY = {
+          "CRITICAL"  =>  10,
+          "HIGH"      =>  8,
+          "MEDIUM"    =>  6,
+          "LOW"       =>  3,
+          "NOTE"      =>  1
+        }
+        SEVERITY[severity.upcase]
+        # case severity.upcase
+        # when "CRITICAL"
+        #   10
+        # when "HIGH"
+        #   8
+        # when "MEDIUM"
+        #   6
+        # when "LOW"
+        #   3
+        # when "NOTE"
+        #   1
+        # end
       end
 
       def map_status_to_open_closed(status)
@@ -354,7 +370,7 @@ module Kenna
         when "REMEDIATED", "FIXED", "NOT A PROBLEM"
           "closed"
         end
-      end 
+      end
 
       def map_status_to_triage_state(status, sub_status = nil)
         case status.upcase
@@ -397,13 +413,16 @@ module Kenna
           description += "\n#{CGI.escapeHTML(c['body'])}" unless c["body"].nil?
 
           # Collapsed rules will have properties array
-          if !c["properties"].nil?
-            # c["properties"].each do |key, value|
-            c["properties"].each do |_key, value|
-              # print "P's #{key} is #{value}"
-              description += "\n#{value['name']}"
-            end
+          c["properties"]&.each do |_key, value|
+            # print "P's #{key} is #{value}"
+            description += "\n#{value['name']}"
           end
+          # if !c["properties"].nil?
+          #   c["properties"]&.each do |_key, value|
+          #     # print "P's #{key} is #{value}"
+          #     description += "\n#{value['name']}"
+          #   end
+          # end
         end
         description += "\n\nWhat's the risk?\n\n"
         description += force_wrap_text ? wrap(risk) : risk
@@ -414,6 +433,7 @@ module Kenna
       def format_solution(rec, force_wrap_text)
         solution = force_wrap_text ? wrap(rec["recommendation"]["text"]) : rec["recommendation"]["text"]
         solution += "\n\nOWASP: #{rec['owasp']}" unless rec["owasp"].nil?
+        solution
       end
 
       def wrap(str, width = 100)
