@@ -124,8 +124,6 @@ module Kenna
           JSON.parse response.body
         rescue RestClient::ExceptionWithResponse => e
           print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
-        rescue => e
-          print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
         end
       end
     end

@@ -279,8 +279,6 @@ module Kenna
             end
           rescue RestClient::ExceptionWithResponse => e
             print_error "Error processing #{l['file_name']}: #{e.message}"
-          rescue => e
-            print_error "Error processing #{l['file_name']}: #{e.message}"
           end
         end
 
@@ -311,7 +309,7 @@ module Kenna
           "application" => name,
           "tags" => tags
         }
-        # asset
+        return asset
       end
 
       ## https://help.kennasecurity.com/hc/en-us/articles/360000862303-Asset-Prioritization-In-Kenna
