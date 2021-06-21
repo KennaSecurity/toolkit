@@ -129,9 +129,7 @@ module Kenna
           # Loop through the vulnerabilities found
           vulns.each_with_index do |v, i|
             # if i % 10 == 0
-            if (i % 10).zero?
-              print "Processing #{i + 1}/#{vulns.count} vulnerabilities"
-            end
+            print "Processing #{i + 1}/#{vulns.count} vulnerabilities" if (i % 10).zero?
 
             asset = create_application(v["application"]["app_id"], v["application"]["name"], v["application"]["importance_description"], v["application"]["language"])
 
@@ -141,7 +139,7 @@ module Kenna
             story = @client.get_trace_story(id)
 
             if kenna_appsec_module == true
-              details = format_story(story, false) if !story.nil?
+              details = format_story(story, false) unless story.nil?
 
               additional_fields = {
                 "Overview": details,
@@ -161,7 +159,7 @@ module Kenna
               finding.compact!
             else
               # Need to force wrap the text as the UI doesn't wrap
-              details = format_story(story, true) if !story.nil?
+              details = format_story(story, true) unless story.nil?
 
               vuln = {
                 "scanner_identifier" => id,
@@ -207,16 +205,13 @@ module Kenna
 
           libs = @client.get_vulnerable_libraries(apps)
 
-          libs.each_with_index do |l,i|
+          libs.each_with_index do |l, i|
             begin
-              # if i % 10 == 0
-              if (i % 10).zero?
-                print "Processing #{i + 1}/#{libs.count} libraries"
-              end
-  
+              print "Processing #{i + 1}/#{libs.count} libraries" if (i % 10).zero?
+
               # For each application using this lib
               l["apps"].each do |a|
-  
+
                 # Check that this app is in our apps list (as libs can be used in multiple apps)
                 if apps.include? a["app_id"]
 
@@ -228,13 +223,13 @@ module Kenna
                     details = "The latest available version of this library is #{l['latest_version']}"
                     solution = "This library has #{l['total_vulnerabilities']} CVE(s), consider upgrading this library to a newer version"
                     cves = l["vulns"].map { |v| v["name"] }
-    
+
                     if kenna_appsec_module == true
                       additional_fields = {
                         "Overview": details,
                         "How to Fix": solution
                       }
-    
+
                       finding = {
                         "scanner_identifier" => id,
                         "scanner_type" => SCANNER,
@@ -296,7 +291,6 @@ module Kenna
           filename = "generator.kdi.json"
           write_file_stream(output_dir, filename, false, @assets, @vuln_defs, 1)
           print_good "Output is available at: #{output_dir}/#{filename}"
-
 
           ### Finish by uploading if we're all configured
           return unless kenna_connector_id && kenna_api_host && kenna_api_key

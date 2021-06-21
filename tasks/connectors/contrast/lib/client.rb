@@ -29,11 +29,6 @@ module Kenna
             response = RestClient.get(url, @headers)
             body = JSON.parse response.body
 
-            # do stuff with the data
-            out.concat(body["traces"])
-
-            print "Fetched #{out.length} of #{body['count']} vulnerabilities"
-
             # prepare the next request
             offset += limit
 
@@ -42,11 +37,16 @@ module Kenna
               more_results = false
               break
             end
+
+            # do stuff with the data
+            out.concat(body["traces"])
+
+            print "Fetched #{out.length} of #{body['count']} vulnerabilities"
+
           end
 
           out
         end
-
 
         def get_vulnerable_libraries(apps)
           print "Getting vulnerable libraries from the Contrast API"
@@ -67,22 +67,24 @@ module Kenna
             response = RestClient.post(url, payload.to_json, @headers)
             body = JSON.parse response.body
 
+            # prepare the next request
+            offset += limit
+
+            if response.nil? || response.empty? || body["libraries"].count.zero?
+              # morepages = false
+              more_results = false
+              break
+            end
+
             # do stuff with the data
             out.concat(body["libraries"])
 
             print "Fetched #{offset} libraries"
 
-            # prepare the next request
-            offset += limit
-
-            if response.nil? || response.empty? || body["libraries"].count == 0
-              # morepages = false
-              more_results = false
-              break
-            end
           end
 
           out
+
         end
 
         def get_application_ids(tags)
