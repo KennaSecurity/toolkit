@@ -118,13 +118,12 @@ module Kenna
 
         def get_trace_story(id)
           # begin
-            url = "#{@base_url}/traces/#{id}/story"
+          url = "#{@base_url}/traces/#{id}/story"
 
-            response = RestClient.get(url, @headers)
-            JSON.parse response.body
-          rescue => e
-            print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
-          end
+          response = RestClient.get(url, @headers)
+          JSON.parse response.body
+        rescue => e
+          print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
         end
       end
     end

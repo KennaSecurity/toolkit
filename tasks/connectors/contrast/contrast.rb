@@ -312,20 +312,19 @@ module Kenna
           "application" => name,
           "tags" => tags
         }
-
         # asset
       end
 
       ## https://help.kennasecurity.com/hc/en-us/articles/360000862303-Asset-Prioritization-In-Kenna
       def map_importance_to_priority(importance)
-        IMPORTANCE = {
+        importance_lookup = {
           "CRITICAL"    =>  10,
           "HIGH"        =>  8,
           "MEDIUM"      =>  6,
           "LOW"         =>  4,
           "UNIMPORTANT" =>  2
         }
-        IMPORTANCE[importance]
+        importance_lookup[importance]
         # case importance
         # when "CRITICAL"
         #   "10"
@@ -341,14 +340,14 @@ module Kenna
       end
 
       def map_severity_to_scanner_score(severity)
-        SEVERITY = {
+        severity_lookup = {
           "CRITICAL"  =>  10,
           "HIGH"      =>  8,
           "MEDIUM"    =>  6,
           "LOW"       =>  3,
           "NOTE"      =>  1
         }
-        SEVERITY[severity.upcase]
+        severity_lookup[severity.upcase]
         # case severity.upcase
         # when "CRITICAL"
         #   10
