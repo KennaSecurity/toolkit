@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
+require "json"
 
 module Kenna
   module Toolkit
@@ -8,11 +8,11 @@ module Kenna
       class Client
         def initialize(contrast_host, contrast_port, contrast_api_key, contrast_auth_header, contrast_org_id, contrast_use_https)
           protocol = contrast_use_https ? "https://" : "http://"
-          @base_url = "#{protocol}#{contrast_host}#{contrast_port.nil? ? "" : ":"}#{contrast_port}/Contrast/api/ng/#{contrast_org_id}"
+          @base_url = "#{protocol}#{contrast_host}#{contrast_port.nil? ? '' : ':'}#{contrast_port}/Contrast/api/ng/#{contrast_org_id}"
           print "Base URL is #{@base_url}"
-          @headers = { "Authorization": "#{contrast_auth_header}", "API-Key": "#{contrast_api_key}", "Content-Type": "application/json" }
-          @recs = Hash.new
-          @tags = Hash.new
+          @headers = { "Authorization": contrast_auth_header.to_s, "API-Key": contrast_api_key.to_s, "Content-Type": "application/json" }
+          @recs = {}
+          @tags = {}
         end
 
         def get_vulns(tags, environments, severities)
@@ -29,23 +29,24 @@ module Kenna
             response = RestClient.get(url, @headers)
             body = JSON.parse response.body
 
+            # prepare the next request
+            offset += limit
+
+            if response.nil? || response.empty? || offset > body["count"]
+              # morepages = false
+              more_results = false
+              break
+            end
+
             # do stuff with the data
             out.concat(body["traces"])
 
             print "Fetched #{out.length} of #{body['count']} vulnerabilities"
 
-            # prepare the next request
-            offset += limit
-
-            if response.nil? || response.empty? || offset > body["count"]
-              morepages = false
-              break
-            end
           end
 
           out
         end
-
 
         def get_vulnerable_libraries(apps)
           print "Getting vulnerable libraries from the Contrast API"
@@ -66,18 +67,20 @@ module Kenna
             response = RestClient.post(url, payload.to_json, @headers)
             body = JSON.parse response.body
 
+            # prepare the next request
+            offset += limit
+
+            if response.nil? || response.empty? || body["libraries"].count.zero?
+              # morepages = false
+              more_results = false
+              break
+            end
+
             # do stuff with the data
             out.concat(body["libraries"])
 
             print "Fetched #{offset} libraries"
 
-            # prepare the next request
-            offset += limit
-
-            if response.nil? || response.empty? || body["libraries"].count == 0
-              morepages = false
-              break
-            end
           end
 
           out
@@ -91,21 +94,20 @@ module Kenna
           temp["applications"]
         end
 
-
-        def get_application_tags(appId)
-          if @tags[appId].nil?
-            url = "#{@base_url}/tags/application/list/#{appId}"
+        def get_application_tags(app_id)
+          if @tags[app_id].nil?
+            url = "#{@base_url}/tags/application/list/#{app_id}"
 
             response = RestClient.get(url, @headers)
             temp = JSON.parse response.body
-            @tags[appId] = temp["tags"]
+            @tags[app_id] = temp["tags"]
           end
-          @tags[appId]
+          @tags[app_id]
         end
 
         def get_trace_recommendation(id, rule_name)
           if @recs[rule_name].nil?
-            #print "Getting recommendation for rule #{rule_name}"
+            # print "Getting recommendation for rule #{rule_name}"
             url = "#{@base_url}/traces/#{id}/recommendation"
             response = RestClient.get(url, @headers)
 
@@ -115,14 +117,13 @@ module Kenna
         end
 
         def get_trace_story(id)
-          begin
-            url = "#{@base_url}/traces/#{id}/story"
+          # begin
+          url = "#{@base_url}/traces/#{id}/story"
 
-            response = RestClient.get(url, @headers)
-            JSON.parse response.body
-          rescue => exception
-            print "Error fetching trace story for #{id}: #{exception} (unlicensed?)"
-          end
+          response = RestClient.get(url, @headers)
+          JSON.parse response.body
+        rescue RestClient::ExceptionWithResponse => e
+          print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
         end
       end
     end
