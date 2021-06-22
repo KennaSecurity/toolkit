@@ -211,7 +211,7 @@ module Kenna
             # For each application using this lib
             l["apps"].each do |a|
               # Check that this app is in our apps list (as libs can be used in multiple apps)
-              next if  !(apps.include? a["app_id"] && l["vulns"].count.positive?)
+              next unless  (apps.include? a["app_id"]) && (l["vulns"].count.positive?)
 
               # Make sure this library is vulnerable
               # if l["vulns"].count > 0
