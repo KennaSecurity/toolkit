@@ -211,70 +211,67 @@ module Kenna
             # For each application using this lib
             l["apps"].each do |a|
               # Check that this app is in our apps list (as libs can be used in multiple apps)
-              if apps.include? a["app_id"]
-
+              if apps.include? a["app_id"] && l["vulns"].count > 0
                 # Make sure this library is vulnerable
                 # if l["vulns"].count > 0
-                if l["vulns"].count.positive?
-                  asset = create_application(a["app_id"], a["name"], a["importance_description"], a["language"])
-                  id = l["file_name"]
-                  details = "The latest available version of this library is #{l['latest_version']}"
-                  solution = "This library has #{l['total_vulnerabilities']} CVE(s), consider upgrading this library to a newer version"
-                  cves = l["vulns"].map { |v| v["name"] }
+                asset = create_application(a["app_id"], a["name"], a["importance_description"], a["language"])
+                id = l["file_name"]
+                details = "The latest available version of this library is #{l['latest_version']}"
+                solution = "This library has #{l['total_vulnerabilities']} CVE(s), consider upgrading this library to a newer version"
+                cves = l["vulns"].map { |v| v["name"] }
 
-                  if kenna_appsec_module == true
-                    additional_fields = {
-                      "Overview": details,
-                      "How to Fix": solution
-                    }
+                if kenna_appsec_module == true
+                  additional_fields = {
+                    "Overview": details,
+                    "How to Fix": solution
+                  }
 
-                    finding = {
-                      "scanner_identifier" => id,
-                      "scanner_type" => SCANNER,
-                      "created_at" => Time.at(a["first_seen"].to_i / 1000).iso8601,
-                      "due_date" => nil,
-                      "last_seen_at" => (a["last_seen"]).zero? ? Time.at(a["first_seen"].to_i / 1000).iso8601 : Time.at(a["last_seen"].to_i / 1000).iso8601,
-                      "severity" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
-                      "scanner_score" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
-                      "triage_state" => a["app_library_status"].nil? ? nil : map_status_to_triage_state(a["app_library_status"]),
-                      "additional_fields" => additional_fields
-                    }
-                    finding.compact!
-                  else
-                    vuln = {
-                      "scanner_identifier" => id,
-                      "scanner_type" => SCANNER,
-                      "scanner_score" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
-                      "severity" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
-                      "created_at" => Time.at(a["first_seen"].to_i / 1000).iso8601,
-                      "last_seen_at" => (a["last_seen"]).zero? ? Time.at(a["first_seen"].to_i / 1000).iso8601 : Time.at(a["last_seen"].to_i / 1000).iso8601,
-                      "closed_at" => nil,
-                      "status" => "open",
-                      "details" => details
-                    }
-                    vuln.compact!
-                  end
-
-                  vuln_def = {
+                  finding = {
                     "scanner_identifier" => id,
                     "scanner_type" => SCANNER,
-                    "cve_identifiers" => cves.join(","),
-                    "name" => "The library #{l['file_name']} has #{l['total_vulnerabilities']} CVEs",
-                    "description" => "#{contrast_use_https ? 'https://' : 'http://'}#{contrast_host}/static/ng/index.html#/#{contrast_org_id}/libraries/java/#{l['hash']}",
-                    "solution" => solution
+                    "created_at" => Time.at(a["first_seen"].to_i / 1000).iso8601,
+                    "due_date" => nil,
+                    "last_seen_at" => (a["last_seen"]).zero? ? Time.at(a["first_seen"].to_i / 1000).iso8601 : Time.at(a["last_seen"].to_i / 1000).iso8601,
+                    "severity" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
+                    "scanner_score" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
+                    "triage_state" => a["app_library_status"].nil? ? nil : map_status_to_triage_state(a["app_library_status"]),
+                    "additional_fields" => additional_fields
                   }
-                  vuln_def.compact!
-
-                  # Create the KDI entries
-                  create_kdi_asset(asset)
-                  if kenna_appsec_module == true
-                    create_kdi_asset_finding(asset, finding)
-                  else
-                    create_kdi_asset_vuln(asset, vuln)
-                  end
-                  create_kdi_vuln_def(vuln_def)
-                  results = true
+                  finding.compact!
+                else
+                  vuln = {
+                    "scanner_identifier" => id,
+                    "scanner_type" => SCANNER,
+                    "scanner_score" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
+                    "severity" => ((l["vulns"].max_by { |v| v[:severity_value] })["severity_value"]).to_i, # Must be an integer
+                    "created_at" => Time.at(a["first_seen"].to_i / 1000).iso8601,
+                    "last_seen_at" => (a["last_seen"]).zero? ? Time.at(a["first_seen"].to_i / 1000).iso8601 : Time.at(a["last_seen"].to_i / 1000).iso8601,
+                    "closed_at" => nil,
+                    "status" => "open",
+                    "details" => details
+                  }
+                  vuln.compact!
                 end
+
+                vuln_def = {
+                  "scanner_identifier" => id,
+                  "scanner_type" => SCANNER,
+                  "cve_identifiers" => cves.join(","),
+                  "name" => "The library #{l['file_name']} has #{l['total_vulnerabilities']} CVEs",
+                  "description" => "#{contrast_use_https ? 'https://' : 'http://'}#{contrast_host}/static/ng/index.html#/#{contrast_org_id}/libraries/java/#{l['hash']}",
+                  "solution" => solution
+                }
+                vuln_def.compact!
+
+                # Create the KDI entries
+                create_kdi_asset(asset)
+                if kenna_appsec_module == true
+                  create_kdi_asset_finding(asset, finding)
+                else
+                  create_kdi_asset_vuln(asset, vuln)
+                end
+                create_kdi_vuln_def(vuln_def)
+                results = true
               end
             end
           rescue RestClient::ExceptionWithResponse => e
@@ -304,12 +301,11 @@ module Kenna
         tags.push(importance) unless importance.nil?
         tags.push(language)
 
-        asset = {
+        {
           "file" => name,
           "application" => name,
           "tags" => tags
         }
-        return asset
       end
 
       ## https://help.kennasecurity.com/hc/en-us/articles/360000862303-Asset-Prioritization-In-Kenna
