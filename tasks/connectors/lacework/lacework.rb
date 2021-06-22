@@ -77,17 +77,17 @@ module Kenna
 
         # Pull assets and vulns from Lacework
         puts "Pulling asset and vulnerability data from Lacework API"
-
         environment_cves = lacework_list_cves(lacework_account, temp_api_token)
 
-        vulns_by_host = environment_cves["data"]
-                        .map { |cve| cve["cve_id"] }
-                        .flat_map { |cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token) }
-                        .each_with_object(Hash.new { |h, k| h[k] = [] }) do |host, hash|
-          key = [host["host"]["tags"]["Hostname"],
-                 host["host"]["machine_id"],
-                 host["host"]["tags"]["InternalIp"]]
-          hash[key] += vulns_for(host)
+        cve_list = environment_cves["data"].map { |cve| cve["cve_id"] }.compact
+
+        affected_hosts = cve_list.flat_map { |cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token)["data"] }
+
+        vulns_by_host = affected_hosts.each_with_object(Hash.new { |h, k| h[k] = [] }) do |host, hash|
+           key = [host["host"]["tags"]["Hostname"],
+                  host["host"]["machine_id"],
+                  host["host"]["tags"]["InternalIp"]]
+           hash[key] += vulns_for(host)
         end
 
         # Format KDI hash
@@ -95,32 +95,34 @@ module Kenna
 
         vulns_by_host.each do |host, vulns|
           asset_hash = {
-            "hostname": host[0],
-            "external_id": host[1],
-            "ip_address": host[2],
-            "tags": [
+            hostname: host[0],
+            external_id: host[1],
+            ip_address: host[2],
+            tags: [
               "lacework_kdi"
             ]
           }
 
+          create_kdi_asset(asset_hash.stringify_keys)
+
           vulns.each do |vuln|
             vuln_hash = {
-              "scanner_identifier" => vuln[:scanner_identifier],
-              "scanner_type" => vuln[:scanner_type],
-              "scanner_score" => vuln[:scanner_score],
-              "last_seen_at" => vuln[:last_seen_at],
-              "status" => vuln[:status],
-              "vuln_def_name" => vuln[:vuln_def_name]
+              scanner_identifier: vuln[:scanner_identifier],
+              scanner_type: vuln[:scanner_type],
+              scanner_score: vuln[:scanner_score],
+              last_seen_at: vuln[:last_seen_at],
+              status: vuln[:status],
+              vuln_def_name: vuln[:vuln_def_name]
             }
 
             vuln_def_hash = {
-              "scanner_identifier" => vuln[:scanner_identifier],
-              "scanner_type" => vuln[:scanner_type],
-              "name" => vuln[:vuln_def_name]
+              scanner_identifier: vuln[:scanner_identifier],
+              scanner_type: vuln[:scanner_type],
+              name: vuln[:vuln_def_name]
             }
 
-            create_kdi_asset_vuln(asset_hash, vuln_hash)
-            create_kdi_vuln_def(vuln_def_hash)
+            create_kdi_asset_vuln(asset_hash.stringify_keys, vuln_hash.stringify_keys)
+            create_kdi_vuln_def(vuln_def_hash.stringify_keys)
           end
         end
 
