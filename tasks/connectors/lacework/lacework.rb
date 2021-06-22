@@ -84,10 +84,10 @@ module Kenna
         affected_hosts = cve_list.flat_map { |cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token)["data"] }
 
         vulns_by_host = affected_hosts.each_with_object(Hash.new { |h, k| h[k] = [] }) do |host, hash|
-           key = [host["host"]["tags"]["Hostname"],
-                  host["host"]["machine_id"],
-                  host["host"]["tags"]["InternalIp"]]
-           hash[key] += vulns_for(host)
+          key = [host["host"]["tags"]["Hostname"],
+                 host["host"]["machine_id"],
+                 host["host"]["tags"]["InternalIp"]]
+          hash[key] += vulns_for(host)
         end
 
         # Format KDI hash
