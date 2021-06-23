@@ -31,7 +31,7 @@ module Kenna
       end
 
       def lacework_list_hosts(account, cve_id, temp_api_token)
-        raw = call("curl -s 'https://#{account}.lacework.net/api/v1/external/vulnerabilities/host/cveId/#{cve_id}' -H 'Authorization: Bearer #{temp_api_token}'")
+        raw = call("curl -s 'https://#{account}.lacework.net/api/v1/external/vulnerabilities/host/cveId/#{cve_id}?status=Active' -H 'Authorization: Bearer #{temp_api_token}'")
         JSON.parse(raw)
       end
 
