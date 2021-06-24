@@ -35,6 +35,15 @@ module Kenna
           puts "Exception! #{e}"
         rescue RestClient::ServerBrokeConnection => e
           puts "Exception! #{e}"
+        rescue RestClient::ExceptionWithResponse => e
+          puts "Exception! #{e}"
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            puts "Retrying!"
+            sleep(15)
+            retry
+          end
         rescue RestClient::NotFound => e
           puts "Exception! #{e}"
         rescue RestClient::Exception => e
@@ -44,6 +53,15 @@ module Kenna
             retries += 1
             sleep(15)
             puts "Retrying!"
+            retry
+          end
+        rescue Errno::ECONNREFUSED => e
+          puts "Exception! #{e}"
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            puts "Retrying!"
+            sleep(15)
             retry
           end
         end
@@ -80,9 +98,27 @@ module Kenna
           end
         rescue RestClient::ServerBrokeConnection => e
           puts "Exception! #{e}"
+        rescue RestClient::ExceptionWithResponse => e
+          puts "Exception! #{e}"
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            puts "Retrying!"
+            sleep(15)
+            retry
+          end
         rescue RestClient::NotFound => e
           puts "Exception! #{e}"
         rescue RestClient::Exception => e
+          puts "Exception! #{e}"
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            puts "Retrying!"
+            sleep(15)
+            retry
+          end
+        rescue Errno::ECONNREFUSED => e
           puts "Exception! #{e}"
           retries ||= 0
           if retries < max_retries
