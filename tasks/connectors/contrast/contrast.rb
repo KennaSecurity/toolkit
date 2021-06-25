@@ -290,7 +290,7 @@ module Kenna
           return unless kenna_connector_id && kenna_api_host && kenna_api_key
 
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-          upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
+          upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", true
         else
           print_good "Extract complete, nothing to upload"
         end

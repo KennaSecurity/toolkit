@@ -1,4 +1,4 @@
-# Running Contrast Security Task 
+# Running Contrast Security Task
 
 This tasks extracts application vulnerability data from the Contrast API and uploads the file to Kenna.
 
@@ -15,24 +15,24 @@ The data extraction will be limited to applications which are licensed within th
 
 See the main Toolkit for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna directly.
 
-### Recommended Steps: 
+### Recommended Steps:
 
 1. Run with Contrast credentials only to ensure you are able to get data properly
 1. Review output for expected data
-1. Create Kenna Data Importer connector in Kenna (example name: Contrast KDI) 
-1. Manually run the connector with the json from step 1 
+1. Create Kenna Data Importer connector in Kenna (example name: Contrast KDI)
+1. Manually run the connector with the json from step 1
 1. Click on the name of the connector to get the connector id
 1. Run the task with Contrast credentials and Kenna Key/connector id
 
-### Example call: 
+### Example call:
 
-```bash 
+```bash
     docker run -it --rm toolkit:latest \
     task=contrast \
     contrast_host=<your host> \
     contrast_org_id=<your org> \
     contrast_api_key=<your api key> \
-    contrast_auth_token="<your auth header>" \
+    contrast_auth_token=<your auth header> \
     kenna_api_key=<your kenna api key> \
     kenna_connector_id=<your KDI connector id>
 ```
@@ -45,7 +45,7 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
 | contrast_use_https | false | Set to false if you would like to force an insecure HTTP connection | true |
 | contrast_port | false | Your Contrast port (if on premise), e.g. 8080 | null |
 | contrast_api_key | true | Your Contrast API Key, as displayed in User Settings | n/a |
-| contrast_auth_token | true | Your Contrast Authorization Header, which can be copied from User Settings. Please quote this value. | n/a |
+| contrast_auth_token | true | Your Contrast Authorization Header, which can be copied from User Settings. | n/a |
 | contrast_org_id | true | Your Contrast Organization ID, as displayed in User Settings | n/a |
 | contrast_include_vulns | false | Controls whether Contrast Assess vulnerabilities are sent to Kenna | true |
 | contrast_application_tags | false | Filter vulnerabilities or libraries using a comma separated list of application tags |  |
