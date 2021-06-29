@@ -10,9 +10,9 @@ args_array = ARGV.map { |arg| arg.split(":") }.flatten
 # Then split up this into a hash
 args = {}
 args_array.each do |arg|
-  arg_name, arg_value = arg.split(/(=.*)/)
-  arg_name = arg_name.to_sym
-  arg_value = arg_value.delete_prefix("=")
+  name_value = arg.split("=", 2)
+  arg_name = name_value[0].to_sym
+  arg_value = name_value[1]
 
   # handle a request for just "help" as a special case
   # if arg_name = "help"
