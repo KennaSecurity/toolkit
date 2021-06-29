@@ -10,13 +10,13 @@ module Kenna
           protocol = contrast_use_https ? "https://" : "http://"
           @base_url = "#{protocol}#{contrast_host}#{contrast_port.nil? ? '' : ':'}#{contrast_port}/Contrast/api/ng/#{contrast_org_id}"
           print "Base URL is #{@base_url}"
-          @headers = { "Authorization": contrast_auth_header.to_s, "API-Key": contrast_api_key.to_s, "Content-Type": "application/json" }
+          @headers = { "Authorization" => contrast_auth_header, "API-Key" => contrast_api_key, "Content-Type" => "application/json" }
           @recs = {}
           @tags = {}
         end
 
         def get_vulns(tags, environments, severities)
-          print "Getting vulnerabilities from the Contrast API"
+          print_debug "Getting vulnerabilities from the Contrast API"
 
           more_results = true
           offset = 0
@@ -25,8 +25,9 @@ module Kenna
 
           while more_results
             url = "#{@base_url}/orgtraces/filter?expand=application&offset=#{offset}&limit=#{limit}&applicationTags=#{tags}&environments=#{environments}&severities=#{severities}&licensedOnly=true"
-
-            response = RestClient.get(url, @headers)
+            puts @headers
+            puts url
+            response = http_get(url, @headers)
             body = JSON.parse response.body
 
             # prepare the next request
@@ -41,7 +42,7 @@ module Kenna
             # do stuff with the data
             out.concat(body["traces"])
 
-            print "Fetched #{out.length} of #{body['count']} vulnerabilities"
+            print_debug "Fetched #{out.length} of #{body['count']} vulnerabilities"
 
           end
 
@@ -49,7 +50,7 @@ module Kenna
         end
 
         def get_vulnerable_libraries(apps)
-          print "Getting vulnerable libraries from the Contrast API"
+          print_debug "Getting vulnerable libraries from the Contrast API"
 
           more_results = true
           offset = 0
@@ -64,7 +65,7 @@ module Kenna
           while more_results
             url = "#{@base_url}/libraries/filter?offset=#{offset}&limit=#{limit}&sort=score&expand=skip_links%2Capps%2Cvulns%2Cstatus%2Cusage_counts"
 
-            response = RestClient.post(url, payload.to_json, @headers)
+            response = http_post(url, @headers, payload.to_json)
             body = JSON.parse response.body
 
             # prepare the next request
@@ -79,7 +80,7 @@ module Kenna
             # do stuff with the data
             out.concat(body["libraries"])
 
-            print "Fetched #{offset} libraries"
+            print_debug "Fetched #{offset} libraries"
 
           end
 
@@ -87,9 +88,9 @@ module Kenna
         end
 
         def get_application_ids(tags)
-          print "Getting applications from the Contrast API"
+          print_debug "Getting applications from the Contrast API"
           url = "#{@base_url}/applications/filter/short?filterTags=#{tags}"
-          response = RestClient.get(url, @headers)
+          response = http_get(url, @headers)
           temp = JSON.parse response.body
           temp["applications"]
         end
@@ -98,7 +99,7 @@ module Kenna
           if @tags[app_id].nil?
             url = "#{@base_url}/tags/application/list/#{app_id}"
 
-            response = RestClient.get(url, @headers)
+            response = http_get(url, @headers)
             temp = JSON.parse response.body
             @tags[app_id] = temp["tags"]
           end
@@ -120,10 +121,10 @@ module Kenna
           # begin
           url = "#{@base_url}/traces/#{id}/story"
 
-          response = RestClient.get(url, @headers)
+          response = http_get(url, @headers)
           JSON.parse response.body
         rescue RestClient::ExceptionWithResponse => e
-          print "Error fetching trace story for #{id}: #{e} (unlicensed?)"
+          print_debug "Error fetching trace story for #{id}: #{e} (unlicensed?)"
         end
       end
     end
