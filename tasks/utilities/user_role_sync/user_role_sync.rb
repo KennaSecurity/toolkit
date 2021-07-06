@@ -82,10 +82,13 @@ module Kenna
         @remove_users = @options[:remove_users]
         @role_exclusions = @options[:role_exclusions] # || ""
 
+        api_client = Kenna::Api::Client.new(@api_token, @api_host)
+
         # Variables we'll need later
         @role_post_url = "https://#{@api_host}/roles"
         @user_post_url = "https://#{@api_host}/users"
-        @headers = { "content-type" => "application/json", "X-Risk-Token" => @api_token, "User-Agent" => "Kenna Toolkit - user_role_sync" }
+        @headers = api_client.get_http_headers
+
         @role_found = false
         @role_list = ""
         @user_list = ""
