@@ -5,7 +5,7 @@ module Kenna
   module Api
     class Client
       def version
-        0
+        "1.0.0"
       end
 
       def initialize(api_token, api_host)
@@ -15,6 +15,16 @@ module Kenna
 
       class << self
         attr_accessor :task_name
+      end
+
+      def get_http_headers
+        headers = {
+          "content-type" => "application/json",
+          "X-Risk-Token" => @token,
+          "accept" => "application/json",
+          "User-Agent" => "Toolkit.#{self.class.task_name}/#{version} (Cisco Secure)"
+        }
+        headers
       end
 
       def get_connectors
@@ -119,12 +129,7 @@ module Kenna
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
-        headers = {
-          "content-type" => "application/json",
-          "X-Risk-Token" => @token,
-          "accept" => "application/json",
-          "User-Agent" => "Toolkit.#{self.class.task_name}/1.0.#{version} (Kenna Security)"
-        }
+        headers = get_http_headers
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
 
@@ -210,12 +215,7 @@ module Kenna
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
 
-        headers = {
-          "content-type" => "application/json",
-          "X-Risk-Token" => @token,
-          "accept" => "application/json",
-          "User-Agent" => "Toolkit.#{self.class.task_name}/1.0.#{version} (Kenna Security)"
-        }
+        headers = get_http_headers
 
         # connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
 
