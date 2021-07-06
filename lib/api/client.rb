@@ -123,7 +123,7 @@ module Kenna
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
           "accept" => "application/json",
-          "User-Agent" => "Kenna Toolkit - #{self.class.task_name}"
+          "User-Agent" => "Toolkit.#{self.class.task_name}/1.0.#{version} (Kenna Security)"
         }
 
         connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
@@ -214,7 +214,7 @@ module Kenna
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
           "accept" => "application/json",
-          "User-Agent" => "Kenna Toolkit - #{self.class.task_name}"
+          "User-Agent" => "Toolkit.#{self.class.task_name}/1.0.#{version} (Kenna Security)"
         }
 
         # connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
