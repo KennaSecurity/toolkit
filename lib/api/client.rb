@@ -18,13 +18,12 @@ module Kenna
       end
 
       def get_http_headers
-        headers = {
+        {
           "content-type" => "application/json",
           "X-Risk-Token" => @token,
           "accept" => "application/json",
           "User-Agent" => "Toolkit.#{self.class.task_name}/#{version} (Cisco Secure)"
         }
-        headers
       end
 
       def get_connectors
