@@ -37,6 +37,11 @@ module Kenna
               required: false,
               default: "login.windows.net",
               description: "url for authentication" },
+            { name: "tvm_page_size",
+              type: "integer",
+              required: false,
+              default: 10_000,
+              description: "url to retrieve hosts and vulns" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -76,40 +81,6 @@ module Kenna
         }
       end
 
-      def build_assets(response_json)
-        machine_json = response_json["value"]
-
-        # break if machine_json.nil? || machine_json.empty?
-
-        machine_json.each do |machine|
-          machine_id = machine.fetch("id")
-
-          # Get the asset details & craft them into a hash
-          asset = {
-            "external_id" => machine_id,
-            "hostname" => machine.fetch("computerDnsName"),
-            "ip_address" => machine.fetch("lastIpAddress"),
-            "os" => machine.fetch("osPlatform"),
-            "os_version" => machine.fetch("osVersion"),
-            "first_seen" => machine.fetch("firstSeen"), # TODO: ... this doesnt exist on the asset today, but won't hurt here.
-            "last_seen" => machine.fetch("lastSeen") # TODO: ... this doesnt exist on the asset today
-          }
-
-          # Construct tags
-          tags = []
-          tags << "MSDefenderTvm"
-          tags << "riskScore: #{machine.fetch('riskScore')}" unless machine.fetch("riskScore").nil?
-          tags << "exposureLevel: #{machine.fetch('exposureLevel')}" unless machine.fetch("exposureLevel").nil?
-          tags << "TVM Agent Version: #{machine.fetch('agentVersion')}" unless machine.fetch("agentVersion").nil?
-          tags << "rbacGroup: #{machine.fetch('rbacGroupName')}" unless machine.fetch("rbacGroupName").nil?
-          tags.concat(machine.fetch("machineTags")) unless machine.fetch("machineTags").nil?
-
-          # Add them to our asset hash
-          asset["tags"] = tags
-          create_kdi_asset(asset, false)
-        end
-      end
-
       def run(opts)
         super # opts -> @options
 
@@ -118,29 +89,18 @@ module Kenna
         tvm_client_secret = @options[:tvm_client_secret]
         tvm_api_host = @options[:tvm_api_host]
         tvm_oath_host = @options[:tvm_oath_host]
-        file_cleanup = @options[:file_cleanup]
-        kenna_api_host = @options[:kenna_api_host]
-        kenna_api_key = @options[:kenna_api_key]
-        kenna_connector_id = @options[:kenna_connector_id]
+        tvm_page_size = @options[:tvm_page_size]
+        # file_cleanup = @options[:file_cleanup]
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
         batch_page_size = @options[:batch_page_size].to_i
         output_directory = @options[:output_directory]
-        max_retries = @options[:max_retries]
+        @max_retries = @options[:max_retries]
 
-        set_client_data(tvm_tenant_id, tvm_client_id, tvm_client_secret, tvm_api_host, tvm_oath_host, file_cleanup)
-        asset_next_link = nil
-        asset_json_response = tvm_get_machines
-        asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
-        build_assets(asset_json_response)
-
-        until asset_next_link.nil?
-          asset_json_response = tvm_get_machines(asset_next_link)
-          build_assets(asset_json_response)
-          asset_next_link = nil
-          asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")
-        end
+        set_client_data(tvm_tenant_id, tvm_client_id, tvm_client_secret, tvm_api_host, tvm_oath_host, tvm_page_size)
 
         morevuln = true
-        # page = 0
         asset_count = 0
         submit_count = 0
         asset_id = nil
@@ -170,6 +130,26 @@ module Kenna
             end
 
             machine_id = vuln.fetch("deviceId")
+            fqdn = vuln.fetch("deviceName")
+
+            # Get the asset details & craft them into a hash
+            asset = {
+              "external_id" => machine_id,
+              "fqdn" => fqdn,
+              "hostname" => fqdn.split(".")[0],
+              "os" => vuln.fetch("osPlatform"),
+              "os_version" => vuln.fetch("osVersion"),
+              "first_seen" => vuln.fetch("firstSeenTimestamp"),
+              "last_seen" => vuln.fetch("lastSeenTimestamp")
+            }
+
+            # Construct tags
+            tags = []
+            tags << "MSDefenderTvm"
+            tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
+
+            # Add them to our asset hash
+            asset["tags"] = tags
             vuln_score = (vuln_severity[vuln.fetch("vulnerabilitySeverityLevel")] || 0).to_i
 
             if asset_id.nil?
@@ -184,10 +164,8 @@ module Kenna
                 submit_count += 1
                 print_debug "#{submit_count} about to upload file"
                 filename = "microsoft_tvm_kdi_#{submit_count}.json"
-                connector_response_json = connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries)
-                print_good "Success!" if !connector_response_json.nil? && connector_response_json.fetch("success")
+                kdi_upload("#{$basedir}/#{output_directory}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3)
                 asset_count = 0
-                clear_data_arrays
               end
               asset_count += 1
               print_debug "asset count = #{asset_count}"
@@ -226,11 +204,7 @@ module Kenna
 
             details.compact!
 
-            vuln_asset = {
-              "external_id" => machine_id
-            }
-
-            vuln = {
+            vuln_object = {
               "scanner_identifier" => scanner_id,
               "scanner_type" => "MS Defender TVM",
               # scanner score should fallback using criticality (in case of missing cvss)
@@ -246,35 +220,23 @@ module Kenna
             }
             vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
 
-            vuln_asset.compact!
-            vuln.compact!
+            asset.compact!
+            vuln_object.compact!
             vuln_def.compact!
-
-            worked = create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-
-            unless worked
-              print_debug "still can't find asset for #{machine_id}"
-              asset = {
-                "external_id" => machine_id
-              }
-              create_kdi_asset(asset, false)
-              create_paged_kdi_asset_vuln(vuln_asset, vuln, "external_id")
-            end
+            create_kdi_asset_vuln(asset, vuln_object)
             create_kdi_vuln_def(vuln_def)
           end
-          if vuln_json_response.key?("@odata.nextLink")
-            vuln_next_link = vuln_json_response.fetch("@odata.nextLink")
-          else
-            morevuln = false
-          end
+          vuln_next_link = nil
+          vuln_next_link = vuln_json_response.fetch("@odata.nextLink") if vuln_json_response.key?("@odata.nextLink")
+          morevuln = false if vuln_next_link.nil?
 
         end
         print_debug "should be at the end of all the data and now making the final push to the server and running the connector"
         submit_count += 1
         print_debug "#{submit_count} about to run connector"
         filename = "microsoft_tvm_kdi_#{submit_count}.json"
-        connector_upload("#{$basedir}/#{output_directory}", filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries)
-        connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key, max_retries)
+        kdi_upload("#{$basedir}/#{output_directory}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3)
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
     end
   end

@@ -11,32 +11,8 @@ module Kenna
       @token = nil
       @uploaded_files = nil
       @file_cleanup = nil
-
-      def connector_upload(output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
-        ### Write KDI format
-        kdi_output = { skip_autoclose: false, assets: @paged_assets, vuln_defs: @vuln_defs }
-        write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-        print_good "Output is available at: #{filename}"
-
-        ### Finish by uploading if we're all configured
-        if kenna_connector_id && kenna_api_host && kenna_api_key
-          print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-          response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
-          filenum = response_json.fetch("data_file")
-          @uploaded_files = [] if @uploaded_files.nil?
-          @uploaded_files << filenum
-          File.delete("#{output_dir}/#{filename}") if @file_cleanup
-        end
-        response_json
-      end
-
-      def connector_kickoff(kenna_connector_id, kenna_api_host, kenna_api_key, max_retries = 3)
-        ### Finish by uploading if we're all configured
-        return unless kenna_connector_id && kenna_api_host && kenna_api_key
-
-        print_good "Attempting to run to Kenna Connector at #{kenna_api_host}"
-        run_files_on_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, @uploaded_files, max_retries
-      end
+      @batch_page_size = nil
+      @tvm_page_size = nil
 
       def tvm_get_machines(page_param = nil)
         print_debug "Getting machines"
@@ -76,11 +52,10 @@ module Kenna
         tvm_get_auth_token if @token.nil?
 
         url = if page_param.nil?
-                "#{@tvm_query_api}/api/machines/SoftwareVulnerabilitiesByMachine?pageSize=500"
+                "#{@tvm_query_api}/api/machines/SoftwareVulnerabilitiesByMachine?pageSize=#{@tvm_page_size}"
               else
                 page_param
               end
-        # ComputerDnsName, LastSeen, HealthStatus, OsPlatform,
         print_debug "url = #{url}"
         begin
           headers = { "content-type" => "application/json", "accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
@@ -128,13 +103,13 @@ module Kenna
         @token = json.fetch("access_token")
       end
 
-      def set_client_data(tenant_id, client_id, secret, tvm_query_api, tvm_oath_url, file_cleanup)
+      def set_client_data(tenant_id, client_id, secret, tvm_query_api, tvm_oath_url, tvm_page_size)
         @tvm_oath_url = tvm_oath_url
         @tenant_id = tenant_id
         @client_id = client_id
         @client_secret = secret
         @tvm_query_api = "https://#{tvm_query_api}"
-        @file_cleanup = file_cleanup
+        @tvm_page_size = tvm_page_size
       end
     end
   end
