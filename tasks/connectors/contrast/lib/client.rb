@@ -25,8 +25,6 @@ module Kenna
 
           while more_results
             url = "#{@base_url}/orgtraces/filter?expand=application&offset=#{offset}&limit=#{limit}&applicationTags=#{tags}&environments=#{environments}&severities=#{severities}&licensedOnly=true"
-            puts @headers
-            puts url
             response = http_get(url, @headers)
             body = JSON.parse response.body
 
