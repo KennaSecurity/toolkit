@@ -15,7 +15,6 @@ The data is batched by Application before being sent to Kenna.
 
 ## Command Line
 
-
 Complete list of Options:
 
 | Option | Required | Description | default |
@@ -28,5 +27,5 @@ Complete list of Options:
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/veracode |
 
-Example Run: 
+**Example Run:
 docker run -it --rm toolkit:latest task=veracode_asset_vulns veracode_id=x veracode_key=x veracode_page_size=n veracode_scan_type=SCA kenna_api_key=xxxxxx kenna_connector_id=xxxxx 
