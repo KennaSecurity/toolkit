@@ -25,14 +25,24 @@ module Kenna
               description: "Veracode key" },
             { name: "veracode_page_size",
               type: "string",
-              required: true,
-              default: nil,
+              required: false,
+              default: 500,
               description: "Veracode page size" },
             { name: "veracode_scan_types",
               type: "string",
               required: false,
-              default: "STATIC,DYNAMIC,SCA",
+              default: "STATIC,DYNAMIC,MANUAL,SCA",
               description: "Veracode scan types to include. Comma-delimited list of the three scan types." },
+            { name: "veracode_score_mapping",
+              type: "string",
+              required: false,
+              default: "1-20,2-40,3-60,4-80,5-100",
+              description: "Optional parameter to allow for custom score mapping." },
+            { name: "veracode_custom_field_filter",
+              type: "string",
+              required: false,
+              default: ",",
+              description: "Optional parameter to allow for filtering apps by a custom field. Comma-delimited 'name,value'. " },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -64,6 +74,7 @@ module Kenna
         veracode_id = @options[:veracode_id]
         veracode_key = @options[:veracode_key]
         veracode_scan_types = @options[:veracode_scan_types]
+        veracode_score_mapping = @options[:veracode_score_mapping]
         page_size = @options[:veracode_page_size]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -71,11 +82,20 @@ module Kenna
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
 
-        client = Kenna::Toolkit::VeracodeAV::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
+        if page_size > 500
+          puts "Maximum Veracode Page Size is 500.  Resetting to 500."
+          page_size = 500
+        end
+
+        custom_field_name = @options[:veracode_custom_field_filter].split(",")[0].to_s
+        custom_field_value = @options[:veracode_custom_field_filter].split(",")[1].to_s
+
+        client = Kenna::Toolkit::VeracodeAV::Client.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key, veracode_score_mapping)
         client.category_recommendations(500)
         client.cwe_recommendations(500)
 
-        app_list = client.applications(page_size)
+        app_list = client.applications(page_size, custom_field_name, custom_field_value)
+        # app_list = client.applications(page_size)
 
         app_list.each do |application|
           guid = application.fetch("guid")
