@@ -70,7 +70,6 @@ module Kenna
               if custom_field_filter_name.to_s.empty? && custom_field_filter_value.to_s.empty?
                 app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
               else
-                custom_field_lookup = []
                 custom_field_lookup = application["profile"]["custom_fields"]&.select { |custom_field| custom_field["name"] == custom_field_filter_name && custom_field["value"] == custom_field_filter_value }
                 app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list } if custom_field_lookup.to_a.empty?
               end
@@ -289,7 +288,6 @@ module Kenna
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
               # finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
               scanner_score = finding["finding_details"].fetch("severity")
-              issue_id = finding["issue_id"] if finding["issue_id"]
               cwe = finding["finding_details"]["cwe"].fetch("id") if finding["finding_details"]["cwe"]
               cwe = "CWE-#{cwe}" if finding["finding_details"]["cwe"]
               cve = finding["finding_details"]["cve"].fetch("name").strip if finding["finding_details"]["cve"]
