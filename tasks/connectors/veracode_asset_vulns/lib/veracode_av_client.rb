@@ -17,7 +17,7 @@ module Kenna
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
 
-        def initialize(id, key, output_dir, filename, kenna_api_host, kenna_connector_id, kenna_api_key)
+        def initialize(id, key, output_dir, filename, kenna_api_host, kenna_connector_id, kenna_api_key, veracode_score_mapping)
           @id = id
           @key = key
           @output_dir = output_dir
@@ -27,9 +27,29 @@ module Kenna
           @kenna_api_key = kenna_api_key
           @category_recommendations = []
           @cwe_recommendations = []
+          @score_map = build_score_map(veracode_score_mapping)
         end
 
-        def applications(page_size)
+        def build_score_map(mapping)
+          mapping.split(",").each do |score|
+            x = score.split("-")
+            unless (0..100).include?(x[1].to_i) && x[1] !~ /\D/
+              puts "ERROR: Invalid Score Mapping. Quitting process."
+              exit
+            end
+          end
+
+          score_map = {}
+
+          mapping.split(",").each do |score|
+            x = score.split("-")
+            score_map[x[0]] = x[1]
+          end
+
+          score_map
+        end
+
+        def applications(page_size, custom_field_filter_name = "", custom_field_filter_value = "")
           app_request = "#{APP_PATH}?size=#{page_size}"
           url = "https://#{HOST}#{app_request}"
           app_list = []
@@ -47,7 +67,12 @@ module Kenna
               tag_list.push("veracode_bu: #{application['profile']['business_unit']['name']}") if application["profile"]["business_unit"]["name"]
               tag_list.push("veracode_bc: #{application['profile']['business_criticality']}") if application["profile"]["business_criticality"]
               # tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
-              app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
+              if custom_field_filter_name.to_s.empty? && custom_field_filter_value.to_s.empty?
+                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
+              else
+                custom_field_lookup = application["profile"]["custom_fields"]&.select { |custom_field| custom_field["name"] == custom_field_filter_name && custom_field["value"] == custom_field_filter_value }
+                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list } if custom_field_lookup.to_a.empty?
+              end
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
@@ -111,6 +136,7 @@ module Kenna
 
             result = JSON.parse(response.body)
             findings = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
+
             return if findings.nil?
 
             findings.lazy.each do |finding|
@@ -123,6 +149,9 @@ module Kenna
                 file = finding["finding_details"]["file_name"]
                 # file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
                 # file = finding["finding_details"]["file_path"]
+                ext_id = "[#{app_name}] - #{file}"
+              when "MANUAL"
+                file = finding["finding_details"]["location"]
                 ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
@@ -147,6 +176,7 @@ module Kenna
               cwe_rec = @cwe_recommendations.select { |r| r["id"] == finding["finding_details"]["cwe"].fetch("id") }[0]["recommendation"]
               cwe_rec = "No CWE recommendation provided by Veracode. See category recommendation on Details tab." if cwe_rec == ""
               scanner_score = finding["finding_details"].fetch("severity")
+              issue_id = finding["issue_id"] if finding["issue_id"]
               cwe = finding["finding_details"]["cwe"].fetch("id")
               cwe = "CWE-#{cwe}"
               cwe_name = finding["finding_details"]["cwe"].fetch("name")
@@ -178,10 +208,13 @@ module Kenna
 
               # craft the vuln hash
               vuln_attributes = {
-                "scanner_identifier" => cwe,
+                "scanner_identifier" => issue_id,
+                "vuln_def_name" => cwe,
                 "scanner_type" => "veracode",
-                "scanner_score" => scanner_score * 2,
-                "override_score" => scanner_score * 20,
+                "scanner_score" => @score_map[scanner_score.to_s].to_i / 10,
+                "override_score" => @score_map[scanner_score.to_s].to_i,
+                # "scanner_score" => scanner_score * 2,
+                # "override_score" => scanner_score * 20,
                 "details" => JSON.pretty_generate(additional_information),
                 "created_at" => found_on,
                 "last_seen_at" => last_seen,
@@ -194,10 +227,10 @@ module Kenna
               vuln_attributes.compact!
 
               vuln_def = {
-                "scanner_identifier" => cwe,
+                # "scanner_identifier" => cwe,
+                "name" => cwe,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
-                "name" => cwe_name,
                 "solution" => cwe_rec
               }
 
@@ -229,6 +262,7 @@ module Kenna
 
             result = JSON.parse(response.body)
             findings = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
+
             return if findings.nil?
 
             findings.lazy.each do |finding|
@@ -287,9 +321,12 @@ module Kenna
               # craft the vuln hash
               vuln_attributes = {
                 "scanner_identifier" => cve,
+                "vuln_def_name" => cve,
                 "scanner_type" => "veracode",
-                "scanner_score" => scanner_score * 2,
-                "override_score" => scanner_score * 20,
+                "scanner_score" => @score_map[scanner_score.to_s].to_i / 10,
+                "override_score" => @score_map[scanner_score.to_s].to_i,
+                # "scanner_score" => scanner_score * 2,
+                # "override_score" => scanner_score * 20,
                 "details" => JSON.pretty_generate(additional_information),
                 "created_at" => found_on,
                 "last_seen_at" => last_seen,
@@ -302,11 +339,11 @@ module Kenna
               vuln_attributes.compact!
 
               vuln_def = {
-                "scanner_identifier" => cve,
+                # "scanner_identifier" => cve,
+                "name" => cve,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "cve_identifiers" => cve,
-                "name" => cve,
                 "description" => description,
                 "solution" => cve_solution
               }
@@ -332,6 +369,8 @@ module Kenna
           get_findings(app_guid, app_name, tags, page_size, "STATIC") if scan_types_array.include? "STATIC"
           # Get DYNAMIC Findings
           get_findings(app_guid, app_name, tags, page_size, "DYNAMIC") if scan_types_array.include? "DYNAMIC"
+          # Get MANUAL Findings
+          get_findings(app_guid, app_name, tags, page_size, "MANUAL") if scan_types_array.include? "MANUAL"
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size) if scan_types_array.include? "SCA"
 
@@ -347,7 +386,7 @@ module Kenna
           if @assets.nil? || @assets.empty?
             print_good "No data for #{app_name}. Skipping Upload."
           else
-            kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+            kdi_upload(@output_dir, "veracode_#{fname}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2)
           end
         end
 
