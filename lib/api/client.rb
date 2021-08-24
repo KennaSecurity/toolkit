@@ -125,7 +125,7 @@ module Kenna
         _kenna_api_request(:get, "dashboard_groups")
       end
 
-      def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3, debug=false)
+      def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3, debug = false)
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
         headers = get_http_headers
