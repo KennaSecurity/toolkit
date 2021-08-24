@@ -81,7 +81,7 @@ module Kenna
       # method below that will do both.
       # match_key allows for the duplicate asset check to be made by one particular key instead of
       # the entire hash which improves performance but would generally be used if providing more than one
-      # locator but knowing that "hostname", for example, was always provided.  
+      # locator but knowing that "hostname", for example, was always provided.
       def find_or_create_kdi_asset(asset_hash, match_key = nil)
         kdi_initialize unless @assets
         uniq_asset_hash = uniq(asset_hash)
