@@ -52,11 +52,10 @@ module Kenna
       #  vulns: * (If an asset contains no open vulns, this can be an empty array,
       #            but to avoid vulnerabilities from being closed, use the skip-autoclose flag) ]
       #  }
-      #
 
-      # Create a KDI Asset with the option to skip the check for a duplicate asset. 
+      # Create a KDI Asset with the option to skip the check for a duplicate asset.
       # This would be used if pulling from an asset repository where it is know that each asset being pulled
-      # in is unique. 
+      # in is unique.
 
       def create_kdi_asset(asset_hash, dup_check = true)
         kdi_initialize unless @assets
@@ -79,10 +78,10 @@ module Kenna
       end
 
       # Create a KDI Asset separate from creating a vuln or finding. Normally you would call the single
-      # method below that will do both. 
-      # match_key allows for the duplicate asset check to be made by one particular key instead of 
+      # method below that will do both.
+      # match_key allows for the duplicate asset check to be made by one particular key instead of
       # the entire hash which improves performance but would generally be used if providing more than one
-      # locator but knowing that "hostname", for example, was always provided. 
+      # locator but knowing that "hostname", for example, was always provided.
       
       def find_or_create_kdi_asset(asset_hash, match_key = nil)
         kdi_initialize unless @assets
@@ -97,7 +96,7 @@ module Kenna
             end
 
         # SAnity check to make sure we are pushing data into the correct asset
-        unless a # && asset[:vulns].select{|v| v[:scanner_identifier] == args[:scanner_identifier] }.empty?
+        unless a
           print_debug "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset(asset_hash, false)
           a = if match_key.nil?
