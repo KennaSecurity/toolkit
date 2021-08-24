@@ -30,26 +30,6 @@ module Kenna
               required: false,
               default: 90,
               description: "default will be 90 days before today" },
-            { name: "projectName_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from Project Name - used as application identifier" },
-            { name: "packageManager_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from packageManager - used in asset file locator" },
-            { name: "package_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from package - used in asset file locator" },
-            { name: "kenna_connector_id",
-              type: "integer",
-              required: false,
-              default: nil,
-              description: "If set, we'll try to upload to this connector" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -65,7 +45,6 @@ module Kenna
               required: false,
               default: "output/cobaltio",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
-
           ]
         }
       end
@@ -82,9 +61,6 @@ module Kenna
 
         # output_directory = @options[:output_directory]
 
-        projectName_strip_colon = @options[:projectName_strip_colon]
-        packageManager_strip_colon = @options[:packageManager_strip_colon]
-        package_strip_colon = @options[:package_strip_colon]
         to_date = Date.today.strftime("%Y-%m-%d")
         retrieve_from = @options[:retrieve_from]
         from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
