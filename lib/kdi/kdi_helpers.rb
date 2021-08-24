@@ -54,7 +54,7 @@ module Kenna
       #  }
 
       # Create a KDI Asset with the option to skip the check for a duplicate asset.
-      # This would be used if pulling from an asset repository where it is know that each asset being pulled
+      # This would be used if pulling from an asset repository where it is known that each asset being pulled
       # in is unique.
 
       def create_kdi_asset(asset_hash, dup_check = true)
