@@ -82,7 +82,7 @@ module Kenna
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
 
-        if page_size > 500
+        if page_size.to_i > 500
           puts "Maximum Veracode Page Size is 500.  Resetting to 500."
           page_size = 500
         end
@@ -95,7 +95,6 @@ module Kenna
         client.cwe_recommendations(500)
 
         app_list = client.applications(page_size, custom_field_name, custom_field_value)
-        # app_list = client.applications(page_size)
 
         app_list.each do |application|
           guid = application.fetch("guid")
