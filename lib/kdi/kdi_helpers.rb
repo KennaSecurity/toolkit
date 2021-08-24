@@ -22,7 +22,9 @@ module Kenna
           "fqdn": asset["fqdn"],
           "external_id": asset["external_id"],
           "database": asset["database"],
-          "application": asset["application"]
+          "application": asset["application"],
+          "image": asset["image_id"],
+          "container": asset["container_id"]
         }.compact
       end
 
@@ -51,11 +53,14 @@ module Kenna
       #            but to avoid vulnerabilities from being closed, use the skip-autoclose flag) ]
       #  }
       #
+
+      # Create a KDI Asset with the option to skip the check for a duplicate asset. 
+      # This would be used if pulling from an asset repository where it is know that each asset being pulled
+      # in is unique. 
+
       def create_kdi_asset(asset_hash, dup_check = true)
         kdi_initialize unless @assets
 
-        # if we already have it, skip ... do this by selecting based on our dedupe field
-        # and making sure we don't already have it
         uniq_asset_hash = uniq(asset_hash)
         if dup_check
           return nil if @assets.lazy.select { |a| uniq(a) == uniq_asset_hash }.any?
@@ -73,6 +78,12 @@ module Kenna
         asset_hash.compact
       end
 
+      # Create a KDI Asset separate from creating a vuln or finding. Normally you would call the single
+      # method below that will do both. 
+      # match_key allows for the duplicate asset check to be made by one particular key instead of 
+      # the entire hash which improves performance but would generally be used if providing more than one
+      # locator but knowing that "hostname", for example, was always provided. 
+      
       def find_or_create_kdi_asset(asset_hash, match_key = nil)
         kdi_initialize unless @assets
         uniq_asset_hash = uniq(asset_hash)

@@ -20,7 +20,6 @@ include Kenna::Toolkit::Helpers::Http
 
 # Shared libraries / mapping / data etc
 require_relative "data/mapping/digi_footprint_finding_mapper"
-require_relative "data/mapping/digi_footprint_port_mapper"
 
 # Task manager
 require_relative "task_manager"

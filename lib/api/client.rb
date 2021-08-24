@@ -125,7 +125,7 @@ module Kenna
         _kenna_api_request(:get, "dashboard_groups")
       end
 
-      def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3)
+      def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3, debug=false)
         kenna_api_endpoint = "#{@base_url}/connectors"
         # puts "Uploading to: #{kenna_api_endpoint}"
         headers = get_http_headers
@@ -147,7 +147,10 @@ module Kenna
           )
 
           query_response_json = JSON.parse(query_response.body)
-          print_good "Success!" if query_response_json.fetch("success")
+          if query_response_json.fetch("success")
+            print_good "Success!"
+            File.delete(filepath) unless debug
+          end
 
           running = true
 
@@ -155,7 +158,6 @@ module Kenna
 
             connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
             while running
-              # print_good "Waiting for 20 seconds... "
               sleep(20)
 
               # print_good "Checking on connector status..."
@@ -192,6 +194,7 @@ module Kenna
           print_error "Unauthorized: #{e.message}... #{e}"
         rescue RestClient::Exception, StandardError => e
           print_error "Unknown Exception: #{e}"
+          puts e.backtrace
           print_error "Are you sure you provided a valid connector id?"
 
           retries ||= 0

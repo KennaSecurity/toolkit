@@ -166,7 +166,8 @@ module Kenna
         # upload it
         if connector_id && connector_id != -1
           kenna = Kenna::Api::Client.new(api_token, api_host)
-          query_response_json = kenna.upload_to_connector(connector_id, filename, run_now, max_retries)
+          debug = (@options[:debug] if @options && @options[:debug]) || false
+          query_response_json = kenna.upload_to_connector(connector_id, filename, run_now, max_retries, debug)
         else
           print_error "Invalid Connector ID (#{connector_id}), unable to upload."
         end
