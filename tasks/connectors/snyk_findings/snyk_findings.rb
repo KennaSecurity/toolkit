@@ -235,8 +235,6 @@ module Kenna
               "additional_fields" => additional_fields
             }
 
-            puts finding
-
             finding.compact!
 
             patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
