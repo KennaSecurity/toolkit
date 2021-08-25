@@ -358,7 +358,7 @@ module Kenna
 
         # kdi_initialize
 
-        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory, @options[:input_directory], @options[:df_mapping_filename])
 
         # print_debug "Working on on #{data_items.count} items" if @debug
         data_items.lazy.each do |item|
