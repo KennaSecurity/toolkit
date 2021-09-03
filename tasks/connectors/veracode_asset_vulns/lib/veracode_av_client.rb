@@ -363,6 +363,58 @@ module Kenna
           end
         end
 
+        def find_missing_kenna_assets(application)
+          # encoding help
+          enc_open_paren = "%28"
+          enc_close_paren = "%29"
+          enc_ampersand = "%26"
+
+          application.gsub! "(", enc_open_paren.to_s
+          application.gsub! ")", enc_close_paren.to_s
+          application.gsub! "&", enc_ampersand.to_s
+
+          # Pull assets for application from Kenna
+          api_client = Kenna::Api::Client.new(@kenna_api_key, @kenna_api_host)
+          query = "application:\"#{application}\""
+
+          response = api_client.get_assets_with_query(query)
+
+          # Check for existence in the assets pulled from Veracode
+          # If not found add asset skeleton to current asset list.
+          response[:results]["assets"].each do |a|
+            if a["file"]
+              # Look for file in @assets
+              if @assets.none? { |new_assets| new_assets["file"] == a["file"] }
+
+                # Build and create asset w/no vulns.
+                asset = {
+                  "file" => a["file"],
+                  "external_id" => "[#{application}] - #{a['file']}",
+                  "application" => application
+                }
+
+                # craft the vuln hash
+                puts "Missing Asset - Creating FILE:#{a['file']}"
+                find_or_create_kdi_asset(asset)
+              end
+            elsif a["url"]
+              # Look for URL in @assets
+              if @assets.none? { |new_assets| new_assets["url"] == a["url"] }
+                # Build and create asset w/no vulns.
+                asset = {
+                  "url" => a["url"],
+                  "external_id" => "[#{application}] - #{a['url']}",
+                  "application" => application
+                }
+
+                # craft the vuln hash
+                puts "Missing Asset - Creating URL:#{a['url']}"
+                find_or_create_kdi_asset(asset)
+              end
+            end
+          end
+        end
+
         def issues(app_guid, app_name, tags, page_size, scan_types)
           scan_types_array = scan_types.split(",")
           # Get STATIC Findings
@@ -373,6 +425,8 @@ module Kenna
           get_findings(app_guid, app_name, tags, page_size, "MANUAL") if scan_types_array.include? "MANUAL"
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size) if scan_types_array.include? "SCA"
+
+          find_missing_kenna_assets(app_name)
 
           # Fix for slashes in the app_name. Won't work for filenames
           fname = if app_name.index("/")
