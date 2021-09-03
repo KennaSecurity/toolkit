@@ -51,6 +51,10 @@ module Kenna
         _kenna_api_request(:get, "assets")
       end
 
+      def get_assets_with_query(query)
+        _kenna_api_request(:get, "assets/search?q=#{query}&per_page=5000")
+      end
+
       def get_asset(asset_id)
         _kenna_api_request(:get, "assets/#{asset_id}")
       end
