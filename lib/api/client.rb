@@ -52,6 +52,7 @@ module Kenna
       end
 
       def get_assets_with_query(query)
+        query = URI.parse(CGI.escape(query)).to_s
         _kenna_api_request(:get, "assets/search?q=#{query}&per_page=5000")
       end
 
