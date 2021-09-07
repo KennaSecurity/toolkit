@@ -40,6 +40,11 @@ module Kenna
               required: false,
               default: "api.kennasecurity.com",
               description: "Kenna API Hostname" },
+            { name: "kenna_connector_id",
+              type: "integer",
+              required: true,
+              default: nil,
+              description: "If set, we'll try to upload to this connector" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -132,7 +137,8 @@ module Kenna
           finding.compact!
 
           # Create the KDI entries
-          create_kdi_asset_vuln(asset, finding)
+          #create_kdi_asset_vuln(asset, finding)
+          create_kdi_asset_finding(asset, finding)
           create_kdi_vuln_def(vuln_def)
         end
 
