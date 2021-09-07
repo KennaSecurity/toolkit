@@ -25,11 +25,6 @@ module Kenna
               required: true,
               default: nil,
               description: "Cobalt.io org token" },
-            { name: "retrieve_from",
-              type: "date",
-              required: false,
-              default: 90,
-              description: "default will be 90 days before today" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -65,10 +60,6 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
 
         # output_directory = @options[:output_directory]
-
-        to_date = Date.today.strftime("%Y-%m-%d")
-        retrieve_from = @options[:retrieve_from]
-        from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
 
         findings_json = cobalt_get_findings(cobalt_api_token, cobalt_org_token)
         print_debug "findings json = #{findings_json}"
