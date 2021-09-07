@@ -38,6 +38,7 @@ Run the Cobalt.io task following the guidelines on the main [toolkit help page](
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
+| kenna_appsec_module | boolean | false | Controls whether to use the newer Kenna AppSec module, set to `false` if you want to use the VM module |
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
 
 

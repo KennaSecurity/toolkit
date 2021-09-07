@@ -25,11 +25,6 @@ module Kenna
               required: true,
               default: nil,
               description: "Cobalt.io org token" },
-            { name: "retrieve_from",
-              type: "date",
-              required: false,
-              default: 90,
-              description: "default will be 90 days before today" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -40,6 +35,16 @@ module Kenna
               required: false,
               default: "api.kennasecurity.com",
               description: "Kenna API Hostname" },
+            { name: "kenna_connector_id",
+              type: "integer",
+              required: true,
+              default: nil,
+              description: "If set, we'll try to upload to this connector" },
+            { name: "kenna_appsec_module",
+              type: "boolean",
+              required: false,
+              default: true,
+              description: "Controls whether to use the newer Kenna AppSec module, set to false if you want to use the VM module (and group by CWE)" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -58,18 +63,16 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        @kenna_appsec_module = @options[:kenna_appsec_module]
 
         # output_directory = @options[:output_directory]
-
-        to_date = Date.today.strftime("%Y-%m-%d")
-        retrieve_from = @options[:retrieve_from]
-        from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
 
         findings_json = cobalt_get_findings(cobalt_api_token, cobalt_org_token)
         print_debug "findings json = #{findings_json}"
 
         severity_map = { "high" => 7, "medium" => 5, "low" => 3 } # converter
         state_map = { "need_fix" => "new", "wont_fix" => "risk_accepted", "valid_fix" => "resolved", "check_fix" => "in_progress", "carried_over" => "new" }
+        status_map = { "need_fix" => "open", "wont_fix" => "closed", "valid_fix" => "closed", "check_fix" => "open", "carried_over" => "open" }
         findings_json.each do |finding_obj|
           next if cobalt_exclude_finding(finding_obj)
 
@@ -97,43 +100,58 @@ module Kenna
             "solution" => solution,
           }
           vuln_def.compact!
-
-          impact = resource["impact"]
-          likelihood = resource["likelihood"]
-          proof_of_concept = resource.fetch("proof_of_concept") if resource.key?("proof_of_concept")
-          cobalt_state = resource["state"]
-          cobalt_url = links["ui"]["url"]
-
-          additional_fields = {
-            "impact" => impact,
-            "likelihood" => likelihood,
-            "proof_of_concept" => proof_of_concept,
-            "cobalt_state" => cobalt_state,
-            "cobalt_url" => cobalt_url,
-          }
-          additional_fields.compact!
+          create_kdi_vuln_def(vuln_def)
 
           scanner_identifier = resource["id"]
           created_at = cobalt_get_created(log)
           last_seen_at = created_at
           severity = severity_map.fetch(resource.fetch("severity"))
           triage_state = state_map.fetch(resource["state"])
+          vuln_status = status_map.fetch(resource["state"])
 
-          finding = {
-            "scanner_type" => SCANNER,
-            "scanner_identifier" => scanner_identifier,
-            "created_at" => created_at,
-            "last_seen_at" => last_seen_at,
-            "severity" => severity,
-            "vuln_def_name" => vuln_def_name,
-            "triage_state" => triage_state,
-            "additional_fields" => additional_fields,
-          }
-          finding.compact!
+          if @kenna_appsec_module == true
+            impact = resource["impact"]
+            likelihood = resource["likelihood"]
+            proof_of_concept = resource.fetch("proof_of_concept") if resource.key?("proof_of_concept")
+            cobalt_state = resource["state"]
+            cobalt_url = links["ui"]["url"]
 
-          # Create the KDI entries
-          create_kdi_asset_vuln(asset, finding)
-          create_kdi_vuln_def(vuln_def)
+            additional_fields = {
+              "impact" => impact,
+              "likelihood" => likelihood,
+              "proof_of_concept" => proof_of_concept,
+              "cobalt_state" => cobalt_state,
+              "cobalt_url" => cobalt_url,
+            }
+            additional_fields.compact!
+
+            finding = {
+              "scanner_type" => SCANNER,
+              "scanner_identifier" => scanner_identifier,
+              "created_at" => created_at,
+              "last_seen_at" => last_seen_at,
+              "severity" => severity,
+              "vuln_def_name" => vuln_def_name,
+              "triage_state" => triage_state,
+              "additional_fields" => additional_fields,
+            }
+            finding.compact!
+
+            create_kdi_asset_finding(asset, finding)
+          else
+            vuln = {
+              "scanner_type" => SCANNER,
+              "scanner_identifier" => scanner_identifier,
+              "scanner_score" => severity,
+              "created_at" => created_at,
+              "last_seen_at" => last_seen_at,
+              "status" => vuln_status,
+              "vuln_def_name" => vuln_def_name,
+            }
+            vuln.compact!
+
+            create_kdi_asset_vuln(asset, vuln)
+          end
         end
 
         ### Write KDI format
