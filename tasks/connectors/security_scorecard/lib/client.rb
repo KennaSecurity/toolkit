@@ -47,9 +47,9 @@ module Kenna
           JSON.parse(response.body.to_s) unless response.nil?
         end
 
-        def issues_by_factors(detail_url)
+        def issues_by_factors(detail_url, lookback)
           to_date = DateTime.now.strftime("%FT%T.%2NZ")
-          from_date = (DateTime.now - 90).strftime("%FT%T.%2NZ")
+          from_date = (DateTime.now - lookback.to_i).strftime("%FT%T.%2NZ")
           final_url = "#{detail_url}?last_seen_time_from=#{from_date}&last_seen_time_to=#{to_date}"
           response = http_get(final_url, @headers)
           JSON.parse(response.body.to_s) unless response.nil?
@@ -68,11 +68,11 @@ module Kenna
           types
         end
 
-        def issue_types_list
+        def issue_types_list(ssc_exclude_severity)
           endpoint = "#{@baseapi}/metadata/issue-types"
 
           response = http_get(endpoint, @headers)
-          JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] unless x["severity"] == "info" || x["severity"] == "low" }.compact
+          JSON.parse(response.body.to_s)["entries"].map { |x| x["key"] unless ssc_exclude_severity.include? x["severity"] }.compact
         end
       end
     end

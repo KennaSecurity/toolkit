@@ -20,10 +20,11 @@ module Kenna
         my_company
       end
 
-      def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades, company_guids)
+      def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades, company_guids, dfm, lookback)
         limit = 100
         page_count = 0
-        from_date = (DateTime.now - 90).strftime("%Y-%m-%d")
+        from_date = (DateTime.now - lookback.to_i).strftime("%Y-%m-%d")
+        puts from_date
         company_guids = [@company_guid] if company_guids.nil?
         company_guids.lazy.each do |company_guid|
           company = @companies.lazy.find { |comp| comp["guid"] == company_guid }
@@ -34,7 +35,7 @@ module Kenna
 
             # do the right thing with the findings here
             result["results"].lazy.each do |finding|
-              add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades, company)
+              add_finding_to_working_kdi(finding, bitsight_create_benign_findings, bitsight_benign_finding_grades, company, dfm)
             end
 
             # check for more
@@ -71,7 +72,7 @@ module Kenna
 
       private
 
-      def add_finding_to_working_kdi(finding, create_benign_findings, benign_finding_grades, company)
+      def add_finding_to_working_kdi(finding, create_benign_findings, benign_finding_grades, company, dfm)
         scanner_id = finding["risk_vector_label"]
         vuln_def_id = (finding["risk_vector_label"]).to_s.tr(" ", "_").tr("-", "_").downcase.strip
         print_debug "Working on finding of type: #{vuln_def_id}"
@@ -116,7 +117,7 @@ module Kenna
           elsif vuln_def_id == "open_ports"
 
             # create the sensitive service first
-            create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
+            create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
 
             ###
             ### for each vuln on the service, create a cve
@@ -147,17 +148,18 @@ module Kenna
               # AND we're allowed to create
               if create_benign_findings
                 # then create it
-                create_cwe_vuln("benign_finding", scanner_id, finding, asset_attributes)
+                create_cwe_vuln("benign_finding", finding, asset_attributes, dfm)
               else # otherwise skip!
                 print_debug "Skipping benign finding: #{vuln_def_id}"
+                next
               end
 
-            else # we are probably a negative finding, just create it
-              create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
+            else # not a benign grade
+              create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
             end
 
           else # no grade, so fall back to just creating
-            create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
+            create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
 
           end
         end
@@ -174,6 +176,7 @@ module Kenna
           "scanner_identifier" => scanner_id,
           "vuln_def_name" => vuln_def_id.upcase,
           "scanner_type" => "Bitsight",
+          "scanner_score" => ["severity"],
           "details" => details,
           "created_at" => finding["first_seen"],
           "last_seen_at" => finding["last_seen"]
@@ -197,65 +200,29 @@ module Kenna
       ###
       ### Helper to handle creating a cwe vuln
       ###
-      def create_cwe_vuln(vuln_def_id, scanner_id, finding, asset_attributes)
+      def create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
         # set the port if it's available
         port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
-
-        detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
-        scanner_identifier = if vuln_def_id == "open_ports" && !port_number.nil?
-                               if %w[HTTP HTTPS].include?(detected_service) || [80, 443, 8080, 8443].include?(port_number)
-                                 "http_open_port"
-                               elsif [3306, 5432, 6379, 9200, 9300].include?(port_number)
-                                 "database_server_detected"
-                               elsif %w[Telnet SMTP].include?(detected_service) || [23, 25, 135, 136, 137, 138, 139, 445, 465, 587, 2323, 3389, 9002].include?(port_number)
-                                 "trusted_open_port"
-                               elsif [111].include?(port_number)
-                                 "trusted_open_service"
-                               elsif [1723].include?(port_number)
-                                 "deprecated_protocol"
-                               elsif [5800, 5900].include?(port_number)
-                                 "infrastructure_exposure"
-                               elsif %w[SIP].include?(detected_service) || [161, 1900, 5060, 5061, 5222, 5269, 5353].include?(port_number)
-                                 "internal_network_exposure"
-                               elsif %w[BGP DNS].include?(detected_service) || [22, 53, 110, 179].include?(port_number)
-                                 "potential_trusted_protocol"
-                               elsif [21].include?(port_number)
-                                 "unecrypted_login"
-                               elsif [1433, 1434].include?(port_number)
-                                 "database_service_exposure"
-                               elsif [112_11].include?(port_number)
-                                 "sensitive_data_exposure"
-                               elsif [22, 873].include?(port_number)
-                                 "trusted_open_utility"
-                               elsif [554].include?(port_number)
-                                 "transmission_exposure"
-                               elsif [179].include?(port_number)
-                                 "network_misconfig"
-                               elsif %w[XNPP NTP ISAKMP].include?(detected_service) || [123, 5222].include?(port_number)
-                                 "non_sensitive_open_port"
-                               elsif !detected_service.nil? && !detected_service.match?(/^HTTP/im)
-                                 "#{detected_service}_open_port"
-                               else
-                                 "other_open_port"
-                               end
-                             else
-                               vuln_def_id.to_s
-                             end
+        detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
+        vuln_def_name = detected_service.nil? ? vuln_def_id : detected_service[0]
+        scanner_identifier = detected_service.nil? ? vuln_def_id : "#{detected_service[0].gsub(/^Allows insecure protocol: /im, '').to_s.tr(' ', '_').tr('-', '_').downcase.strip}_open_port"
         vd = {
           "scanner_identifier" => scanner_identifier
         }
 
         # get our mapped vuln
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
-        cvd = fm.get_canonical_vuln_details("Bitsight", vd)
+        # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
+        cvd = dfm.get_canonical_vuln_details("Bitsight", vd)
         details = "Full Finding Record\n\n#{JSON.pretty_generate(finding)}"
         details = "Solutions\n\n#{JSON.pretty_generate(finding['details']['remediations'])}\n\n#{details}" if finding.key?("details") && finding["details"].key?("remediations")
         # then create each vuln for this asset
         vuln_attributes = {
-          "scanner_identifier" => scanner_id,
+          "scanner_identifier" => vuln_def_name,
           "scanner_type" => "Bitsight",
           "details" => details,
+          "scanner_score" => finding["severity"],
           "created_at" => finding["first_seen"],
+          "vuln_def_name" => scanner_identifier,
           "last_seen_at" => finding["last_seen"]
         }
 

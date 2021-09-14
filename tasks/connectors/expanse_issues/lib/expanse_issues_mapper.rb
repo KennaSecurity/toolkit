@@ -41,7 +41,7 @@ module Kenna
           out
         end
 
-        def create_kdi_from_issues(max_pages, max_per_page, issue_types, priorities, tags, dfm)
+        def create_kdi_from_issues(max_per_page, issue_types, priorities, tags, dfm, lookback)
           ###
           ### Get the list of business units
           ###
@@ -55,7 +55,7 @@ module Kenna
           ###
           business_units.lazy.sort.each do |bu|
             issue_types.lazy.sort.each do |it|
-              issues = @client.issues(max_pages, max_per_page, it, bu, priorities, tags)
+              issues = @client.issues(max_per_page, it, bu, priorities, tags, lookback)
               print_debug "Got #{issues.count} issues of type #{it}"
 
               # skip if we don't have any
