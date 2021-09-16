@@ -7,7 +7,7 @@ module Kenna
         class DigiFootprintFindingMapper
           def initialize(output_directory, input_directory = "", mapping_file = "")
             @output_dir = output_directory
-            @missing_mappings = []
+            @missing_mappings = Set.new
             @input_directory = input_directory
             @mapping_file = mapping_file
             @map_data = nil
@@ -54,16 +54,13 @@ module Kenna
             # we didnt map it, so just pass it back
             if out.empty?
               print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
-              @missing_mappings.nil? ? @missing_mappings = [[orig_vuln_id, orig_source]] : @missing_mappings.push([orig_vuln_id, orig_source])
-              @missing_mappings&.uniq
-              write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.to_s) unless @missing_mappings.nil?
+              @missing_mappings << [orig_vuln_id, orig_source]
+              write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.map(&:to_csv).join) unless @missing_mappings.nil?
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
                 source: orig_source,
-                scanner_score: 8,
-                override_score: 80,
-                name: "Unmappable Vuln"
+                name: orig_vuln_id
               }.stringify_keys.merge(specific_details)
             end
             out

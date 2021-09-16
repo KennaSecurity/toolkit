@@ -37,6 +37,16 @@ module Kenna
               required: false,
               default: "",
               description: "Comma-separated list of tag names. If not set, all tags will be included" },
+            { name: "lookback",
+              type: "integer",
+              required: false,
+              default: 90,
+              description: "Integer to retrieve the last n days of issues" },
+            { name: "expanse_page_size",
+              type: "integer",
+              required: false,
+              default: 10_000,
+              description: "Comma-separated list of tag names. If not set, all tags will be included" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -97,16 +107,7 @@ module Kenna
         end
         print_good "Valid key, proceeding!"
 
-        if @options[:debug]
-          max_pages = 1
-          max_per_page = 100
-          print_debug "Debug mode, override max to: #{max_pages * max_per_page}"
-        else
-          max_pages = 100
-          max_per_page = 10_000
-        end
-
-        create_kdi_from_issues(max_pages, max_per_page, @issue_types, @priorities, @tags, @fm)
+        create_kdi_from_issues(@options[:expanse_page_size], @issue_types, @priorities, @tags, @fm, @options[:lookback])
 
         ####
         ### Finish by uploading if we're all configured

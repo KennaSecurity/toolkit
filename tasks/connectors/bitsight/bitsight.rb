@@ -21,7 +21,7 @@ module Kenna
             { name: "bitsight_benign_finding_grades",
               type: "string",
               required: false,
-              default: "GOOD, NEUTRAL",
+              default: "GOOD,NEUTRAL",
               description: "Any bitsight findings with this grade will be considered benign (comma delimited list)" },
             { name: "bitsight_create_benign_findings",
               type: "boolean",
@@ -33,6 +33,11 @@ module Kenna
               required: false,
               default: "",
               description: "Comma separated list of company guids to use for data pull. If nil, script will pull for 'My Company' only" },
+            { name: "bitsight_lookback",
+              type: "integer",
+              required: false,
+              default: 90,
+              description: "Integer to pull the last n days of findings" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -83,8 +88,8 @@ module Kenna
           print_error "Unable to proceed, invalid key for Bitsight?"
           return
         end
-
-        bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades, company_guids)
+        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
+        bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades, company_guids, fm, @options[:bitsight_lookback])
 
         ### Write KDI format
         print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"

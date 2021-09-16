@@ -180,7 +180,7 @@ module Kenna
         query_string << "]}}"
       end
 
-      def search_global_inventory(query, batch_page_size)
+      def search_global_inventory(query, batch_page_size, riskiq_page_size)
         # start with sensible defaults
         current_page = 0
         total_pages = 0
@@ -192,7 +192,7 @@ module Kenna
         while mark
           print_debug "DEBUG Getting page #{current_page} of #{total_pages} with mark: #{mark}" if @debug
 
-          endpoint = "#{@api_url}globalinventory/search?size=100&recent=true&mark=#{mark}"
+          endpoint = "#{@api_url}globalinventory/search?size=#{riskiq_page_size}&recent=true&mark=#{mark}"
           response = http_post(endpoint, @headers, query)
           return if response.nil?
 
@@ -253,6 +253,7 @@ module Kenna
       end
 
       def create_self_signed_cert_vuln(asset, cert, first_seen, last_seen)
+        print_debug "at start of create self signed cert" if @debug
         vuln = {
           "scanner_identifier" => "self_signed_certificate",
           "scanner_type" => "RiskIQ",
@@ -277,6 +278,7 @@ module Kenna
       end
 
       def create_expired_cert_vuln(asset, cert, expired, first_seen, last_seen)
+        print_debug "at start of create expired cert" if @debug
         scanner_identifier = ("expired_certificate" if expired) || "expiring_certificate"
 
         vuln = {
@@ -304,7 +306,7 @@ module Kenna
       end
 
       def create_open_port_vuln(asset, service, item, first_seen, last_seen)
-        # print_debug "at start of create open port vuln" if @debug
+        print_debug "at start of create open port vuln" if @debug
         port_number = service["port"] if service.is_a? Hash
         port_number = port_number.to_i
         return unless service.key?("latestPortState") && service["latestPortState"]&.fetch("portState") == "OPEN"
@@ -357,7 +359,6 @@ module Kenna
         return output unless data_items
 
         # kdi_initialize
-
         @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory, @options[:input_directory], @options[:df_mapping_filename])
 
         # print_debug "Working on on #{data_items.count} items" if @debug
@@ -471,44 +472,39 @@ module Kenna
 
           next unless item["asset"]["webComponents"]
 
-          # print_debug "heading into web component processing for cves" if @debug
-
+          print_debug "heading into web component processing for cves" if @debug
           (item["asset"]["webComponents"] || []).lazy.each do |wc|
+            next unless wc["cves"]&.any?
+
             # default to derived if no port specified
             derived_port = (item["asset"]["service"]).to_s.split(":").last
-
             # if you want to create open ports, we need to infer the port from the service
             # in addition to whatever else we've gotten
-            (wc["ports"] << derived_port).uniq.compact.lazy.each do |port|
-              port = port["port"] if port.is_a? Hash
+            port = wc["ports"].any? && !derived_port.nil? ? wc["ports"][0]["port"] : derived_port
+            (wc["cves"] || []).lazy.each do |cve|
+              details = {
+                "webComponentName" => wc.fetch("webComponentName"),
+                "webComponentCategory" => wc.fetch("webComponentCategory"),
+                "cves" => wc.fetch("cves")
+              }
+              vuln = {
+                "scanner_identifier" => (cve["name"]).to_s,
+                "scanner_type" => "RiskIQ",
+                "details" => JSON.pretty_generate(details),
+                "vuln_def_name" => (cve["name"]).to_s,
+                "created_at" => first_seen,
+                "last_seen_at" => last_seen
+              }
+              vuln["port"] = port.to_i unless port.nil?
+              vuln.compact!
 
-              # if you want to create open ports
-              (wc["cves"] || []).uniq.lazy.each do |cve|
-                details = {
-                  "webComponentName" => wc.fetch("webComponentName"),
-                  "webComponentCategory" => wc.fetch("webComponentCategory"),
-                  "cves" => wc.fetch("cves")
-                }
-                vuln = {
-                  "scanner_identifier" => (cve["name"]).to_s,
-                  "scanner_type" => "RiskIQ",
-                  "port" => port.to_i,
-                  "details" => JSON.pretty_generate(details),
-                  "vuln_def_name" => (cve["name"]).to_s,
-                  "created_at" => first_seen,
-                  "last_seen_at" => last_seen
-                }
-                vuln.compact!
-                vuln_def = {
-                  "scanner_type" => "RiskIQ",
-                  "cve_identifiers" => (cve["name"]).to_s,
-                  "name" => (cve["name"]).to_s
-                }
-                create_kdi_asset_vuln(asset, vuln)
-
-                # these don't need to be mapped
-                create_kdi_vuln_def(vuln_def)
-              end
+              vuln_def = {
+                "scanner_type" => "RiskIQ",
+                "cve_identifiers" => (cve["name"]).to_s,
+                "name" => (cve["name"]).to_s
+              }
+              create_kdi_asset_vuln(asset, vuln)
+              create_kdi_vuln_def(vuln_def)
             end
           end
         end

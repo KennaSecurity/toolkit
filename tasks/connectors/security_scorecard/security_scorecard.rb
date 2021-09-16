@@ -33,6 +33,16 @@ module Kenna
               required: false,
               default: nil,
               description: "Comma separated list of domains. If nil, it will pull by portfolio." },
+            { name: "ssc_exclude_severity",
+              type: "string",
+              required: false,
+              default: "info,low",
+              description: "Comma separated list of severities that should NOT be loaded into Kenna" },
+            { name: "ssc_lookback",
+              type: "integer",
+              required: false,
+              default: 90,
+              description: "Number of days to include is data pull" },
             { name: "ssc_portfolio_ids",
               type: "string",
               required: false,
@@ -203,6 +213,7 @@ module Kenna
         kenna_connector_id = @options[:kenna_connector_id]
         ssc_api_key = @options[:ssc_api_key]
         ssc_domain = @options[:ssc_domain]&.split(",")
+        ssc_exclude_severity = @options[:ssc_exclude_severity]&.split(",")
         ssc_portfolio_ids = @options[:ssc_portfolio_ids]&.split(",")
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         issue_types = nil # all
@@ -235,7 +246,9 @@ module Kenna
             issue_types.each do |type|
               type_name = type["type"]
               severity = type["severity"]
-              issues_by_type = client.issues_by_factors(type["detail_url"])
+              next if ssc_exclude_severity.include? severity
+
+              issues_by_type = client.issues_by_factors(type["detail_url"], @options[:ssc_lookback])
 
               issues = issues_by_type["entries"] unless issues_by_type.nil?
 
@@ -278,7 +291,7 @@ module Kenna
                   csp_no_policy
                 ] # nil
                 print_debug "Only getting #{issue_types}... "
-                issue_types ||= client.issue_types_list
+                issue_types ||= client.issue_types_list(ssc_exclude_severity)
                 issue_types.each do |type|
                   issues_by_type = client.issues_by_type_for_company(company["domain"], type)
 
@@ -296,7 +309,9 @@ module Kenna
                 issue_types.each do |type|
                   type_name = type["type"]
                   severity = type["severity"]
-                  issues_by_type = client.issues_by_factors(type["detail_url"])
+                  next if ssc_exclude_severity.include? severity
+
+                  issues_by_type = client.issues_by_factors(type["detail_url"], @options[:ssc_lookback])
 
                   issues = issues_by_type["entries"] unless issues_by_type.nil?
 

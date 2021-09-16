@@ -58,6 +58,11 @@ module Kenna
               required: false,
               default: "Candidate,CONFIRMED",
               description: "List of Inventory States." },
+            { name: "riskiq_page_size",
+              type: "integer",
+              required: false,
+              default: 999,
+              description: "Page size for calls to riskiq. Must be less than 1000. High page size without pull_incremental may lead to OOM failure" },
             { name: "batch_page_size",
               type: "integer",
               required: false,
@@ -116,18 +121,18 @@ module Kenna
 
         if @riq_create_cves
           print_good "Getting CVEs from footprint"
-          search_global_inventory(cve_footprint_query, @batch_page_size)
+          search_global_inventory(cve_footprint_query, @batch_page_size, @options[:riskiq_page_size])
         end
 
         if @riq_create_open_ports
           print_good "Getting open ports from footprint"
-          search_global_inventory(open_port_query, @batch_page_size)
+          search_global_inventory(open_port_query, @batch_page_size, @options[:riskiq_page_size])
         end
 
         if @riq_create_ssl_misconfigs
           print_good "Getting ssl information from footprint"
-          search_global_inventory(ssl_cert_query, @batch_page_size)
-          search_global_inventory(expired_ssl_cert_query("[\"Expired\",\"Expires30\"]"), @batch_page_size)
+          search_global_inventory(ssl_cert_query, @batch_page_size, @options[:riskiq_page_size])
+          search_global_inventory(expired_ssl_cert_query("[\"Expired\",\"Expires30\"]"), @batch_page_size, @options[:riskiq_page_size])
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
