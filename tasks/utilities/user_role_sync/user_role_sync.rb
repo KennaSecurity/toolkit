@@ -109,7 +109,6 @@ module Kenna
         output_filename = "#{$basedir}/output/user-role-sync_log-#{start_time.strftime('%Y%m%dT%H%M')}.txt"
         @log_output = File.open(output_filename, "a+")
         @log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now}, start time: #{start_time})\n"
-        # binding.pry
 
         # Pull Existing Roles and Users from Kenna Instance
         # and store for lookups
@@ -123,12 +122,14 @@ module Kenna
         # @role_exclusions.split(",").all? {|i| true if Integer(i) rescue false }
         if @role_exclusions.nil? || @role_exclusions == ""
           print_good "No Kenna Roles Excluded."
+          @role_exclusions = []
         else
           print_good "Excluding the following Kenna Roles:"
           @role_exclusions&.split(",")&.map do |role_id|
             role = @role_list["roles"].detect { |r| r["id"] == role_id.to_i }
             print_good "\t#{role['id']} \t-- \t#{role['name']}" if role
           end
+          @role_exclusions = @role_exclusions.split(",").map(&:strip).map(&:to_i)
         end
 
         # Iterate through CSV
@@ -136,12 +137,10 @@ module Kenna
         # Changed loop from the line above to accommodate for a hidden BOM byte at the beginning of files created by Excel.
         CSV.open(csv_file_path, "r:bom|utf-8", headers: true) do |csv|
           csv.each do |row|
-            # require 'pry'
-            # binding.pry
             email_address = row[@email_col].downcase
             first_name = row[@firstname_col]
             last_name = row[@lastname_col]
-            role_name = row[@role_col]
+            role_array = row[@role_col].split(",").map(&:strip)
 
             # append to list
             @user_file_list << row[@email_col]
@@ -150,32 +149,35 @@ module Kenna
             print_good "------" if @debug
 
             print_good "------"
-            print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
-            @log_output << "\rEmail:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_name}"
+            print_good "Email:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_array}"
+            @log_output << "\rEmail:#{email_address} , First:#{first_name} , Last:#{last_name} , Role:#{role_array}"
 
-            if role_exists(role_name)
-              # Role Doesn't Exist
-              print_error "Role Already Exists."
-              @log_output << "\rRole Already Exists."
-            else
-              print_good "Role Does Not Exist. Creating Role."
-              @log_output << "\rRole Does Not Exist. Creating Role."
-              create_role(role_name)
-              # Refresh Role List
-              @role_list = JSON.parse(pull_roles_list)
+            role_array.each do |role_name|
+              if role_exists(role_name)
+                # Role Exists
+                print_error "Role Already Exists."
+                @log_output << "\rRole Already Exists."
+              else
+                # Role Doesn't Exist
+                print_good "Role Does Not Exist. Creating Role."
+                @log_output << "\rRole Does Not Exist. Creating Role."
+                create_role(role_name)
+                # Refresh Role List
+                @role_list = JSON.parse(pull_roles_list)
+              end
             end
 
             if user_exists(email_address)
-              # User Doesn't Exist
+              # User Exists
               print_error "User Already Exists. Updating User."
               @log_output << "\rUser Already Exists. Updating User."
-              update_user(@user_id.to_s, first_name, last_name, email_address, role_name)
+              update_user(@user_id.to_s, first_name, last_name, email_address, role_array)
               @user_id = ""
             else
-              # User Exists
+              # User Doesn't Exist
               print_good "User Does Not Exist. Creating User."
               @log_output << "\rUser Does Not Exist. Creating User."
-              create_user(first_name, last_name, email_address, role_name)
+              create_user(first_name, last_name, email_address, role_array)
             end
             sleep(2)
           end
@@ -259,14 +261,14 @@ module Kenna
         end
       end
 
-      def create_user(fname, lname, email, role_name)
+      def create_user(fname, lname, email, role_array)
         json_data = {
           "user" =>
           {
             "firstname" => fname,
             "lastname" => lname,
             "email" => email,
-            "role" => role_name
+            "roles" => role_array
           }
         }
         # print_good json_data
@@ -290,16 +292,17 @@ module Kenna
         end
       end
 
-      def update_user(uid, fname, lname, email, role_name)
+      def update_user(uid, fname, lname, email, role_array)
         user = @user_list["users"].find { |r1| r1["email"] == email.downcase }
 
         # Check for Admin users
-        if user["role"] == "administrator"
+        if user["roles"].include? "administrator"
           print_good "User #{email} is Administrator and will not be updated."
           @log_output << "\rUser #{email} is Administrator and will not be updated."
-        elsif @role_exclusions&.include? user["role_id"].to_s
-          print_good "User #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
-          @log_output << "\rUser #{email} has role of \"#{user['role']}\" is on exclusion list and will not be updated."
+        # elsif @role_exclusions&.include? user["role_id"].to_s
+        elsif (@role_exclusions & user["role_ids"]).any?
+          print_good "User #{email} has role of \"#{user['roles']}\" is on exclusion list and will not be updated."
+          @log_output << "\rUser #{email} has role of \"#{user['roles']}\" is on exclusion list and will not be updated."
         else
 
           json_data = {
@@ -308,7 +311,7 @@ module Kenna
               "firstname" => fname,
               "lastname" => lname,
               "email" => email,
-              "role" => role_name
+              "roles" => role_array
             }
           }
           print_good json_data if @debug
@@ -316,12 +319,10 @@ module Kenna
           url = "#{@user_post_url}/#{uid}"
           print_good url if @debug
 
-          # binding.pry
-
           # Check for Role change
-          if user["role"] != role_name
-            print_good "ROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
-            @log_output << "\rROLE CHANGE: User #{email} - #{user['role']} => #{role_name}."
+          if user["roles"] != role_array
+            print_good "ROLE CHANGE: User #{email} - #{user['roles']} => #{role_array}."
+            @log_output << "\rROLE CHANGE: User #{email} - #{user['roles']} => #{role_array}."
           end
 
           begin
@@ -377,22 +378,22 @@ module Kenna
       def remove_users
         # print_good "in remove_users"
 
-        curr_users_array = field_values(@user_list["users"], "id", "email", "role_id", "role")
+        # curr_users_array = field_values(@user_list["users"], "id", "email", "role_id", "role")
+        curr_users_array = field_values(@user_list["users"], "id", "email", "role_ids", "roles")
 
-        curr_users_array.each do |id, email, role_id, role_name|
-          # binding.pry
+        curr_users_array.each do |id, email, role_ids, role_names|
           next if @user_file_list.include? email
 
           # Check for Admin users
-          if role_name == "administrator"
+          if role_names.include? "administrator"
             print_good "User #{email} is Administrator and will not be removed."
             @log_output << "\rUser #{email} is Administrator and will not be removed."
-          elsif @role_exclusions.include? role_id.to_s
-            print_good "User #{email} has role of \"#{role_name}\" is on exclusion list and will not be removed."
-            @log_output << "\rUser #{email} has role of \"#{role_name}\" is on exclusion list and will not be removed."
+          elsif (@role_exclusions & role_ids).any?
+            print_good "User #{email} has role of \"#{role_names}\" is on exclusion list and will not be removed."
+            @log_output << "\rUser #{email} has role of \"#{role_names}\" is on exclusion list and will not be removed."
           else
-            print_good "Deleting #{email} with ID: #{id} and ROLE: \"#{role_name}\""
-            @log_output << "\rDeleting #{email} with ID: #{id} and ROLE: \"#{role_name}\""
+            print_good "Deleting #{email} with ID: #{id} and ROLE: \"#{role_names}\""
+            @log_output << "\rDeleting #{email} with ID: #{id} and ROLE: \"#{role_names}\""
             delete_user(id.to_s)
           end
         end
