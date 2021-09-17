@@ -24,7 +24,6 @@ module Kenna
         limit = 100
         page_count = 0
         from_date = (DateTime.now - lookback.to_i).strftime("%Y-%m-%d")
-        puts from_date
         company_guids = [@company_guid] if company_guids.nil?
         company_guids.lazy.each do |company_guid|
           company = @companies.lazy.find { |comp| comp["guid"] == company_guid }
@@ -48,7 +47,7 @@ module Kenna
             end
             page_count += 1
           end
-          filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}json"
+          filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
           kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
       end
@@ -176,7 +175,7 @@ module Kenna
           "scanner_identifier" => scanner_id,
           "vuln_def_name" => vuln_def_id.upcase,
           "scanner_type" => "Bitsight",
-          "scanner_score" => ["severity"],
+          "scanner_score" => finding["severity"].to_i,
           "details" => details,
           "created_at" => finding["first_seen"],
           "last_seen_at" => finding["last_seen"]
@@ -205,7 +204,7 @@ module Kenna
         port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
         detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
         vuln_def_name = detected_service.nil? ? vuln_def_id : detected_service[0]
-        scanner_identifier = detected_service.nil? ? vuln_def_id : "#{detected_service[0].gsub(/^Allows insecure protocol: /im, '').to_s.tr(' ', '_').tr('-', '_').downcase.strip}_open_port"
+        scanner_identifier = detected_service.nil? ? vuln_def_id : "#{detected_service[0].gsub(/^Allows insecure protocol: /im, '').gsub(/^Insecure signature algorithm: /im, '').to_s.tr(' ', '_').tr('-', '_').downcase.strip}_open_port"
         vd = {
           "scanner_identifier" => scanner_identifier
         }
