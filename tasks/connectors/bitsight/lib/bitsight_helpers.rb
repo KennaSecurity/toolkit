@@ -183,7 +183,7 @@ module Kenna
 
         # set the port if it's available
         vuln_attributes["port"] = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
-
+        vuln_attributes.compact!
         # def create_kdi_asset_vuln(asset_id, asset_locator, args)
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
 
@@ -219,7 +219,7 @@ module Kenna
           "scanner_identifier" => vuln_def_name,
           "scanner_type" => "Bitsight",
           "details" => details,
-          "scanner_score" => finding["severity"],
+          "scanner_score" => finding["severity"].to_i,
           "created_at" => finding["first_seen"],
           "vuln_def_name" => scanner_identifier,
           "last_seen_at" => finding["last_seen"]
