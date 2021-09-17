@@ -484,9 +484,9 @@ module Kenna
             (wc["cves"] || []).lazy.each do |cve|
               details = {
                 "webComponentName" => wc.fetch("webComponentName"),
-                "webComponentCategory" => wc.fetch("webComponentCategory"),
-                "cves" => wc.fetch("cves")
+                "webComponentCategory" => wc.fetch("webComponentCategory")
               }
+              print_debug "cves = #{wc.fetch('cves')}"
               vuln = {
                 "scanner_identifier" => (cve["name"]).to_s,
                 "scanner_type" => "RiskIQ",
