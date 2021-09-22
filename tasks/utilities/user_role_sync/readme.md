@@ -58,3 +58,30 @@ docker run -it --rm toolkit:latest task=user_role_sync csv_file=path/to/file.csv
 This example shows how to specify role IDs within Kenna that should be excluded from any updates. These should be supplied by Kenna Role ID. Multiple IDs can be included in a comma-separated list. You can find the role IDs within Kenna by opening the edit screen for a role and pulling it from the URL.
 
 **Example:** ```https://mykenna.kennasecurity.com/settings/roles/xxxxx/edit```
+
+## CSV File Example:
+The CSV File is expected to have the follow format:
+
+| Email | FirstName | LastName | ADGroup |
+| --- | --- | --- | --- |
+| user1@example.com | User1 | FirstLast | Role1,Role2 |
+| user2@example.com | User2 | SecondLast | Role1 |
+| user3@example.com | User3 | ThirdLast | Role1 |
+| user4@example.com | User4 | FourthLast | Role2 |
+| user5@example.com | User5 | FifthLast | Role3 |
+| user6@example.com | User6 | SixthLast | Role4 |
+
+If viewed in a simple text editor the CSV example above would look like the following:
+```
+Email,FirstName,LastName,ADGroup
+user1@example.com,User1,FirstLast,"Role1,Role2"
+user2@example.com,User2,SecondLast,Role1
+user3@example.com,User3,ThirdLast,Role1
+user4@example.com,User4,FourthLast,Role2
+user5@example.com,User5,FifthLast,Role3
+user6@example.com,User6,SixthLast,Role4
+```
+
+**Note:** Comma-delimited roles must be enclosed in double-quotes (_standard CSV text qualifier_)
+
+
