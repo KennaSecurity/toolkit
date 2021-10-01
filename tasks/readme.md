@@ -9,6 +9,7 @@
 
 | 3rd Party Product | Release Status | Maintained By |
 | --- | --- | --- |
+| aqua | Beta | Aqua |
 | aws_guardduty | Pre-Release/Beta | Kenna |
 | aws_inspector | Pre-Release/Beta | Kenna |
 | bitsight | Released | Kenna |
