@@ -137,6 +137,7 @@ Configuring A Volume With Podman:
 
 These are the current tasks available:
 
+- aqua: This task pulls assets and vulnerabilities from Aqua and translates them into KDI JSON which is consumed by the Kenna platform
 - aws_guardduty: This task pulls results from AWS GuardDuty API and translates them into KDI JSON
 - aws_inspector: This task pulls results from AWS inspector API and translates them into KDI JSON
 - bitsight: This task connects to the Bitsight API and pulls results into the Kenna Platform.
