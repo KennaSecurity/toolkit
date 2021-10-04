@@ -158,7 +158,8 @@ module Kenna
           vuln_def_attributes = {
             "name" => (issue["vulnerability_id"]).to_s,
             "cve_identifiers" => (issue["vulnerability_id"]).to_s,
-            "scanner_type" => scanner_type
+            "scanner_type" => scanner_type,
+            "description" => issue_type
           }
 
         # OTHERWISE!!!
@@ -199,7 +200,9 @@ module Kenna
           vuln_attributes["scanner_score"] = vuln_def_attributes["scanner_score"] if vuln_def_attributes["scanner_score"]
           vuln_attributes["vuln_def_name"] = vuln_def_attributes["name"] if vuln_def_attributes.key?("name")
           vuln_attributes["override_score"] = vuln_def_attributes["override_score"] if vuln_def_attributes["override_score"]
+          vuln_def_attributes.compact!
           vuln_def_attributes.tap { |hs| hs.delete("scanner_identifier") }
+          vuln_def_attributes["description"] = issue_type unless vuln_def_attributes.key("description")
         end
 
         [vuln_attributes, vuln_def_attributes]
