@@ -70,7 +70,11 @@ module Kenna
         password = @options[:aqua_password]
         aqua_port = @options[:aqua_console_port]
         aqua_console = @options[:aqua_console]
-        aqua_url if aqua_port ? "#{aqua_console}:#{aqua_port}" : aqua_console
+        aqua_url = if aqua_port
+                     "#{aqua_console}:#{aqua_port}"
+                   else
+                     aqua_console
+                   end
         container_data = @options[:container_data]
 
         cont_pagenum = 0
