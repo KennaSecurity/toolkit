@@ -10,7 +10,6 @@ module Kenna
       @api_key = nil
       @token = nil
 
-
       # methods here will vary based on called needed to get data from scanner API examples
       # get projects, get business lines, get vuln types, etc.
       # Be sure to understand pagination for these calls
@@ -68,7 +67,7 @@ module Kenna
         json
       end
 
-      def get_auth_token
+      def auth_token
         print_debug "Getting token"
         oauth_url = "https://#{@oath_url}/#{@client_id}/oauth2/token"
         headers = { "content-type" => "application/x-www-form-urlencoded" }
