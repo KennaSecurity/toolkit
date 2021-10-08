@@ -39,22 +39,22 @@ module Kenna
           get("/vuln", query)
         end
 
-        def assets(&block)
-          return to_enum(__method__) unless block_given?
+        def assets(page_size: ASSET_LIMIT, &block)
+          return to_enum(__method__, page_size: page_size) unless block_given?
 
           offset = 0
           loop do
             query = {
               "display_asset" => 1,
               "display_all" => 1,
-              "page:limit" => ASSET_LIMIT,
+              "page:limit" => page_size,
               "page:offset" => offset
             }
 
             response = get("/asset", query)
             parsed = JSON.parse(response, symbolize_names: true)
             parsed[:collection].each(&block)
-            offset += ASSET_LIMIT
+            offset += page_size
             break if parsed[:page][:total].to_i <= offset
           end
         end
