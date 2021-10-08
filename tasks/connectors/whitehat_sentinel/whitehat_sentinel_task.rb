@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "lib/api_client"
+
 module Kenna
   module Toolkit
     class WhitehatSentinelTask < Kenna::Toolkit::BaseTask
