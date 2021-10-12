@@ -369,13 +369,15 @@ module Kenna
           enc_close_paren = "%29"
           enc_ampersand = "%26"
 
-          application.gsub! "(", enc_open_paren.to_s
-          application.gsub! ")", enc_close_paren.to_s
-          application.gsub! "&", enc_ampersand.to_s
+          app_name = application
+
+          app_name.gsub! "(", enc_open_paren.to_s
+          app_name.gsub! ")", enc_close_paren.to_s
+          app_name.gsub! "&", enc_ampersand.to_s
 
           # Pull assets for application from Kenna
           api_client = Kenna::Api::Client.new(@kenna_api_key, @kenna_api_host)
-          query = "application:\"#{application}\""
+          query = "application:\"#{app_name}\""
 
           response = api_client.get_assets_with_query(query)
 
