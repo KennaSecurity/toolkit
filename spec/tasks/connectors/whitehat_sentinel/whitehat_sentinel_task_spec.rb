@@ -92,4 +92,31 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
       end
     end
   end
+
+  describe "#sanitize" do
+    it "returns nil for protocol only urls" do
+      url = "http://"
+      expect(task.sanitize(url)).to be_nil
+    end
+
+    it "returns nil for blank urls" do
+      url = ""
+      expect(task.sanitize(url)).to be_nil
+    end
+
+    it "removes query parameters" do
+      url = "http://test.com/path?item=1"
+      expect(task.sanitize(url)).to eq "http://test.com/path"
+    end
+
+    it "removes fragments" do
+      url = "http://test.com/path#item"
+      expect(task.sanitize(url)).to eq "http://test.com/path"
+    end
+
+    it "adds http if there is no protocol" do
+      url = "test.com"
+      expect(task.sanitize(url)).to eq "http://test.com"
+    end
+  end
 end

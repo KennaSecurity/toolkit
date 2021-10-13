@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "addressable"
+require "sanitize"
+
 require_relative "lib/api_client"
 
 module Kenna
@@ -53,6 +56,20 @@ module Kenna
          asset[:label],
          asset[:asset_owner_name],
          asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
+      end
+
+      def sanitize(raw_url)
+        return nil unless raw_url
+        return nil if /\A[[:space:]]*\z/.match?(raw_url)
+        return nil if %w[http:// http:/].member? raw_url
+
+        u = Addressable::URI.parse(raw_url)
+        scheme = u.scheme || "http"
+        sanitizer.fragment([scheme, "://", u.authority, u.path].join)
+      end
+
+      def sanitizer
+        @sanitizer ||= Sanitize.new({ remove_contents: false, parser_options: { max_attributes: -1 } })
       end
     end
   end
