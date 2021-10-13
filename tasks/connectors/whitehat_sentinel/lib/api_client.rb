@@ -4,6 +4,8 @@ module Kenna
   module Toolkit
     module WhitehatSentinel
       class ApiClient
+        class Error < StandardError; end
+
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
         ASSET_LIMIT = 10
 
@@ -86,7 +88,11 @@ module Kenna
         def get(path, options = {})
           url = "#{BASE_PATH}#{path}"
           params = { key: @api_key, format: :json }.merge(options)
-          Kenna::Toolkit::Helpers::Http.http_get(url, { params: params })
+          response = Kenna::Toolkit::Helpers::Http.http_get(url, { params: params })
+
+          raise Error unless response
+
+          response
         end
       end
     end
