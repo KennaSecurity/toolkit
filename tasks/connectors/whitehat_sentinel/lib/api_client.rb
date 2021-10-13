@@ -41,7 +41,7 @@ module Kenna
             "display_abbr" => "0"
           }
 
-          get("/vuln", query)
+          JSON.parse(get("/vuln", query), symbolize_names: true)[:collection]
         end
 
         def assets(page_size: ASSET_LIMIT, &block)
