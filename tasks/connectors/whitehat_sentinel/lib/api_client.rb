@@ -17,14 +17,10 @@ module Kenna
         end
 
         def api_key_valid?
-          login
+          get("/", retries: 0)
           true
         rescue Error
           false
-        end
-
-        def login
-          get("/", retries: 0)
         end
 
         def vulns
