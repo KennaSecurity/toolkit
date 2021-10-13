@@ -24,7 +24,7 @@ module Kenna
         end
 
         def login
-          get("/")
+          get("/", retries: 0)
         end
 
         def vulns
@@ -93,9 +93,11 @@ module Kenna
         end
 
         def get(path, options = {})
+          retries = options.delete(:retries) { |_k| 5 }
+
           url = "#{BASE_PATH}#{path}"
           params = { key: @api_key, format: :json }.merge(options)
-          response = Kenna::Toolkit::Helpers::Http.http_get(url, { params: params })
+          response = Kenna::Toolkit::Helpers::Http.http_get(url, { params: params }, retries)
 
           raise Error unless response
 
