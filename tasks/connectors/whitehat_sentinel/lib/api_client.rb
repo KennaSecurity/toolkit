@@ -16,6 +16,13 @@ module Kenna
           @api_key = api_key
         end
 
+        def api_key_valid?
+          login
+          true
+        rescue Error
+          false
+        end
+
         def login
           get("/")
         end

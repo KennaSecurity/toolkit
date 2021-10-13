@@ -33,7 +33,15 @@ module Kenna
         key = @options[:whitehat_api_key]
         client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key)
 
+        unless client.api_key_valid?
+          print_error "The Whitehat API does not accept the provided API key."
+          exit
+        end
+
         client.sites
+      rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
+        print_error "Problem connecting to Whitehat API, please verify the API key."
+        exit
       end
     end
   end
