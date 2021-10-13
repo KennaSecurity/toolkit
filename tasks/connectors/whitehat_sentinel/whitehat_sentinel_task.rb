@@ -38,10 +38,21 @@ module Kenna
           exit
         end
 
-        client.sites
+        sites = client.sites
+        vulns = client.vulns
+        tag_hash = client.assets.map { |node| node[:asset] }.map { |asset| [asset[:id], tags_for(asset)] }.to_h
+
+        [sites, vulns, tag_hash]
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
         print_error "Problem connecting to Whitehat API, please verify the API key."
         exit
+      end
+
+      def tags_for(asset)
+        [asset[:tags],
+         asset[:label],
+         asset[:asset_owner_name],
+         asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
       end
     end
   end
