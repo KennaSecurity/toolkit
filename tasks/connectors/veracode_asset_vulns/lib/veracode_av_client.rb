@@ -66,12 +66,15 @@ module Kenna
               application["profile"]["tags"]&.split(",")&.each { |t| tag_list.push(t.strip) } # if application["profile"]["tags"]
               tag_list.push("veracode_bu: #{application['profile']['business_unit']['name']}") if application["profile"]["business_unit"]["name"]
               tag_list.push("veracode_bc: #{application['profile']['business_criticality']}") if application["profile"]["business_criticality"]
-              # tag_list = application["profile"]["tags"].split(",") if application["profile"]["tags"]
+
+              # grab owner if exists
+              owner = application["profile"]["business_owners"][0]["name"] unless application["profile"]["business_owners"][0].nil?
+
               if custom_field_filter_name.to_s.empty? && custom_field_filter_value.to_s.empty?
-                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list }
+                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list, "owner" => owner }
               else
                 custom_field_lookup = application["profile"]["custom_fields"]&.select { |custom_field| custom_field["name"] == custom_field_filter_name && custom_field["value"] == custom_field_filter_value }
-                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list } if custom_field_lookup.to_a.empty?
+                app_list << { "guid" => application.fetch("guid"), "name" => application["profile"]["name"], "tags" => tag_list, "owner" => owner } if custom_field_lookup.to_a.empty?
               end
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
@@ -118,7 +121,7 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def get_findings(app_guid, app_name, tags, page_size, scan_type)
+        def get_findings(app_guid, app_name, tags, owner, page_size, scan_type)
           print_debug "pulling #{scan_type} issues for #{app_name}"
           puts "pulling #{scan_type} issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=#{scan_type}"
@@ -201,6 +204,7 @@ module Kenna
                 "file" => file,
                 "external_id" => ext_id,
                 "application" => app_name,
+                "owner" => owner,
                 "tags" => finding_tags
               }
 
@@ -244,7 +248,7 @@ module Kenna
           end
         end
 
-        def get_findings_sca(app_guid, app_name, tags, page_size)
+        def get_findings_sca(app_guid, app_name, tags, owner, page_size)
           print_debug "pulling SCA issues for #{app_name}"
           puts "pulling SCA issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=SCA"
@@ -313,6 +317,7 @@ module Kenna
                 "file" => file,
                 "external_id" => ext_id,
                 "application" => app_name,
+                "owner" => owner,
                 "tags" => finding_tags
               }
 
@@ -369,6 +374,7 @@ module Kenna
           enc_close_paren = "%29"
           enc_ampersand = "%26"
 
+          # encoding problematic characters for use in call to Kenna API
           app_name = application.gsub("(", enc_open_paren.to_s).gsub(")", enc_close_paren.to_s).gsub("&", enc_ampersand.to_s)
 
           # Pull assets for application from Kenna
@@ -413,16 +419,16 @@ module Kenna
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size, scan_types)
+        def issues(app_guid, app_name, tags, owner, page_size, scan_types)
           scan_types_array = scan_types.split(",")
           # Get STATIC Findings
-          get_findings(app_guid, app_name, tags, page_size, "STATIC") if scan_types_array.include? "STATIC"
+          get_findings(app_guid, app_name, tags, owner, page_size, "STATIC") if scan_types_array.include? "STATIC"
           # Get DYNAMIC Findings
-          get_findings(app_guid, app_name, tags, page_size, "DYNAMIC") if scan_types_array.include? "DYNAMIC"
+          get_findings(app_guid, app_name, tags, owner, page_size, "DYNAMIC") if scan_types_array.include? "DYNAMIC"
           # Get MANUAL Findings
-          get_findings(app_guid, app_name, tags, page_size, "MANUAL") if scan_types_array.include? "MANUAL"
+          get_findings(app_guid, app_name, tags, owner, page_size, "MANUAL") if scan_types_array.include? "MANUAL"
           # Get SCA Findings
-          get_findings_sca(app_guid, app_name, tags, page_size) if scan_types_array.include? "SCA"
+          get_findings_sca(app_guid, app_name, tags, owner, page_size) if scan_types_array.include? "SCA"
 
           find_missing_kenna_assets(app_name)
 

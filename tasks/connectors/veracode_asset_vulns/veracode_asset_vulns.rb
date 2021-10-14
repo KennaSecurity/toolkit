@@ -100,7 +100,8 @@ module Kenna
           guid = application.fetch("guid")
           appname = application.fetch("name")
           tags = application.fetch("tags")
-          client.issues(guid, appname, tags, page_size, veracode_scan_types)
+          owner = application.fetch("owner")
+          client.issues(guid, appname, tags, owner, page_size, veracode_scan_types)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
