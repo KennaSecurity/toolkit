@@ -8,6 +8,8 @@ require_relative "lib/api_client"
 module Kenna
   module Toolkit
     class WhitehatSentinelTask < Kenna::Toolkit::BaseTask
+      SEVERITY_RANGE = (1..5).freeze
+
       def self.metadata
         {
           id: "whitehat_sentinel",
@@ -18,7 +20,12 @@ module Kenna
               type: "string",
               required: true,
               default: "",
-              description: "This is the Whitehat key used to query the API." }
+              description: "This is the Whitehat key used to query the API." },
+            { name: "minimum_severity_level",
+              type: "integer",
+              required: false,
+              default: 1,
+              description: "The minimum severity level of vulns to retrieve from the API." }
           ]
         }
       end
@@ -40,7 +47,10 @@ module Kenna
           exit
         end
 
-        findings = client.vulns
+        filter = {}
+        filter[:query_severity] = query_severity_for(@options[:minimum_severity_level])
+
+        findings = client.vulns(filter.compact)
         tag_hash = client.assets.map { |node| node[:asset] }.map { |asset| [asset[:id], tags_for(asset)] }.to_h
 
         findings.group_by { |node| sanitize(node[:url]) }.each do |url, nodes|
@@ -108,6 +118,14 @@ module Kenna
         else
           "new"
         end
+      end
+
+      def query_severity_for(level)
+        level = level.to_i
+        raise ArgumentError, "Unsupported minimum severity level.  Must be between 1 and 5." unless SEVERITY_RANGE.include? level
+        return if level == 1
+
+        level.upto(5).to_a.join(",")
       end
     end
   end

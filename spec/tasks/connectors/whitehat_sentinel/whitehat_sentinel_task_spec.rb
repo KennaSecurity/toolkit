@@ -119,4 +119,34 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
       expect(task.sanitize(url)).to eq "http://test.com"
     end
   end
+
+  describe "#query_severity_for" do
+    it "returns nil for a severity of 1" do
+      expect(task.query_severity_for(1)).to be_nil
+    end
+
+    it "returns 5 for a severity of 5" do
+      expect(task.query_severity_for(5)).to eq "5"
+    end
+
+    it "returns 3,4,5 for a severity of 3" do
+      expect(task.query_severity_for(3)).to eq "3,4,5"
+    end
+
+    it "raises an ArgumentError for values below 1" do
+      expect { task.query_severity_for(0) }.to raise_error(ArgumentError)
+    end
+
+    it "raises an ArgumentError for values above 5" do
+      expect { task.query_severity_for(10) }.to raise_error(ArgumentError)
+    end
+
+    it "accepts integers as strings" do
+      expect(task.query_severity_for("2")).to eq "2,3,4,5"
+    end
+
+    it "rejects non-integer strings" do
+      expect { task.query_severity_for("foobar") }.to raise_error(ArgumentError)
+    end
+  end
 end
