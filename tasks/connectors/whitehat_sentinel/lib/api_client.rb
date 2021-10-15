@@ -64,29 +64,7 @@ module Kenna
           end
         end
 
-        def sites
-          # We need to know the satellite attribute for all sites, but that data
-          # is only available when requesting an individual site.  Instead of
-          # making a request per-site, we request all sites where satellite is
-          # true and all sites where satellite is false, then combine the results
-          # (while setting the attribute manually).
-          fetch_sites_by_satellite(true).merge(fetch_sites_by_satellite(false))
-        end
-
         private
-
-        def fetch_sites_by_satellite(satellite)
-          query = {
-            display_entry_points: 1,
-            query_satellite: satellite ? 1 : 0
-          }
-
-          JSON.parse(get("/site", query))
-              .fetch("sites", [])
-              .each_with_object({}) do |site, data|
-            data[site["id"]] = site.slice("label", "entry_points").merge(satellite: satellite)
-          end
-        end
 
         def get(path, options = {})
           retries = options.delete(:retries) { |_k| 5 }

@@ -6,7 +6,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
   subject(:task) { described_class.new }
 
   describe "#run" do
-    let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, sites: {}, vulns: [], assets: []) }
+    let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, vulns: [], assets: []) }
     let(:key) { "0xdeadbeef" }
     let(:options) { { whitehat_api_key: key } }
     let(:valid) { true }
