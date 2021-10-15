@@ -23,7 +23,7 @@ module Kenna
           false
         end
 
-        def vulns
+        def vulns(filters = {})
           query = {
             "display_description" => "custom",
             "display_default_description" => "1",
@@ -39,7 +39,7 @@ module Kenna
             "display_headers" => "1",
             "display_body" => "1",
             "display_abbr" => "0"
-          }
+          }.merge(filters)
 
           JSON.parse(get("/vuln", query), symbolize_names: true)[:collection]
         end
