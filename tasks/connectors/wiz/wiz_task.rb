@@ -23,7 +23,7 @@ module Kenna
             { name: "wiz_auth_endpoint",
               type: "hostname",
               required: false,
-              default: "auth0.test",
+              default: "auth",
               description: "url to retrieve hosts and vulns - if no variation this might not need to be a param" },
             { name: "wiz_api_host",
               type: "hostname",
