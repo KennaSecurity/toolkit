@@ -25,7 +25,12 @@ module Kenna
               type: "integer",
               required: false,
               default: 1,
-              description: "The minimum severity level of vulns to retrieve from the API." }
+              description: "The minimum severity level of vulns to retrieve from the API." },
+            { name: "whitehat_scoring",
+              type: "string",
+              required: false,
+              default: "legacy",
+              description: "The scoring system used by Whitehat.  Choices are legacy and advanced." }
           ]
         }
       end
@@ -38,6 +43,16 @@ module Kenna
         # 2. Retrieve tags from API
         # 3. Group findings by canonical URL
         # 4. Generate KDI doc from findings
+
+        severity_proc = case @options[:whitehat_scoring].downcase
+                        when "legacy"
+                          ->(node) { node[:severity].to_i * 2 }
+                        when "advanced"
+                          ->(node) { node[:risk].to_i * 2 }
+                        else
+                          print_error "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced."
+                          exit
+                        end
 
         key = @options[:whitehat_api_key]
         client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key)
@@ -67,7 +82,7 @@ module Kenna
             finding = {
               scanner_identifier: node[:id],
               scanner_type: "Whitehat Sentinel",
-              severity: node[:severity].to_i * 2,
+              severity: severity_proc.call(node),
               created_at: Time.parse(node[:found]),
               last_seen_at: closed_at || Time.now,
               last_fixed_on: closed_at,

@@ -6,10 +6,12 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
   subject(:task) { described_class.new }
 
   describe "#run" do
-    let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, vulns: [], assets: []) }
+    let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, vulns: [vuln], assets: [asset]) }
     let(:key) { "0xdeadbeef" }
     let(:options) { { whitehat_api_key: key } }
     let(:valid) { true }
+    let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5 } }
+    let(:asset) { { asset: { id: 12 } } }
 
     before do
       allow(Kenna::Toolkit::WhitehatSentinel::ApiClient).to receive(:new) { api_client }
@@ -17,6 +19,32 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
 
     it "succeeds" do
       expect { task.run(options) }.to_not raise_error
+    end
+
+    it "defaults to Whitehat's severity for the finding's severity" do
+      expect(task).to receive(:create_kdi_asset_finding).with(anything, hash_including(severity: 8))
+      task.run(options)
+    end
+
+    context "when using advanced scoring" do
+      before do
+        options[:whitehat_scoring] = "advanced"
+      end
+
+      it "uses Whitehat's risk for the finding's severity" do
+        expect(task).to receive(:create_kdi_asset_finding).with(anything, hash_including(severity: 10))
+        task.run(options)
+      end
+    end
+
+    context "when using an unknown scoring system" do
+      before do
+        options[:whitehat_scoring] = "kenna"
+      end
+
+      it "exits the script" do
+        expect { task.run(options) }.to raise_error(SystemExit)
+      end
     end
 
     context "when the API key is wrong" do
