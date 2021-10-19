@@ -150,7 +150,7 @@ module Kenna
                 # this method will efficiently write out the KDI file, upload to kenna if connector
                 # information has been provided, and delete the file if debug = false and upload completes
                 # it also saves the returned file id in an array for later
-                kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
+                kdi_upload @output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
                 asset_count = 0
               end
               asset_count += 1
@@ -189,11 +189,16 @@ module Kenna
             asset.compact!
 
             # formatting data for either vuln or finding can be the same
+            # and should include any data an engineer might need to
+            # complete remediation
             details_additional_fields = {
               "introducedDate" => vuln.fetch("introducedDate"),
               "functions" => vuln.fetch("functions"),
               "isPatchable" => vuln.fetch("isPatchable"),
-              "isUpgradable" => vuln.fetch("isUpgradable")
+              "isUpgradable" => vuln.fetch("isUpgradable"),
+              "module" => vuln.fetch("module"),
+              "sourcefile" => vuln.fetch("sourcefile"),
+              "line" => vuln.fetch("line")
             }
             # in case any values are null, it's good to remove them
             details_additional_fields.compact!
@@ -256,7 +261,7 @@ module Kenna
             # create_kdi_asset_finding(asset, finding)
 
             # if processing items by assets and you want to create an asset with no vulns
-            find_or_create_kdi_asset(asset)
+            # find_or_create_kdi_asset(asset)
 
             # create the KDI vuln def entry
             create_kdi_vuln_def(vuln_def)
@@ -279,7 +284,7 @@ module Kenna
         # this method will efficiently write out the KDI file, upload to kenna if connector
         # information has been provided, and delete the file if debug = false and upload completes
         # it also saves the returned file id in an array for later
-        kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
+        kdi_upload @output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
         # this method will automatically use the stored array of uploaded files when calling the connector
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
