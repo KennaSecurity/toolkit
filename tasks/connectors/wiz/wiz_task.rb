@@ -20,10 +20,15 @@ module Kenna
               required: true,
               default: nil,
               description: "Wiz client secret" },
-            { name: "scanner_api_host",
+            { name: "wiz_auth_endpoint",
               type: "hostname",
               required: false,
-              default: "api.xxx.com",
+              default: "auth0.test",
+              description: "url to retrieve hosts and vulns - if no variation this might not need to be a param" },
+            { name: "wiz_api_host",
+              type: "hostname",
+              required: false,
+              default: "eu3.test",
               description: "url to retrieve hosts and vulns - if no variation this might not need to be a param" },
             { name: "vulnerabilities_since",
               type: "integer",
@@ -60,7 +65,6 @@ module Kenna
       end
 
       def delete_file(dir, fname)
-        puts "#{dir}/#{fname}"
         File.delete("#{dir}/#{fname}")
       end
 
@@ -72,6 +76,7 @@ module Kenna
         client_id = @options[:wiz_client_id]
         client_secret = @options[:wiz_client_secret]
         report_object_types = @options[:report_object_types].split(",")
+        # vulnerabilities_since = @options[:vulnerabilities_since]
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -83,21 +88,18 @@ module Kenna
         days_used_regenerate_report = false
         # vulnerabilities_since = @options[:vulnerabilities_since]
 
-        client = Kenna::Toolkit::Wiz::WizClient.new(client_id, client_secret, @output_directory)
+        client = Kenna::Toolkit::Wiz::WizClient.new(client_id, client_secret, @output_directory, @options[:wiz_auth_endpoint], @options[:wiz_api_host])
 
-        puts "report object types count #{report_object_types.size} and #{report_object_types}"
+        print_debug "report object types count #{report_object_types.size} and #{report_object_types}"
 
-        puts "Generating Vulnerability Report for all types: Virtal Machines, Container Images and Serverless"
-        puts "-- ** ** --"
-        # report_types = ["a"]
-        # @create_report_variables[:input][:params][:vulnerabilities_since] = vulnerabilities_since if vulnerabilities_since != ''
+        # @create_report_variables[:input][:params][:vulnerabilities_since] = vulnerabilities_since if vulnerabilities_since != ""
 
-        # client.create_report(days_used_regenerate_report, report_object_types)
+        client.create_report(days_used_regenerate_report, report_object_types)
 
         Dir.entries(@output_directory.to_s).each do |abspath|
-          # puts abspath
+          next unless abspath.end_with? ".csv"
+
           fname = File.basename(abspath)
-          # puts fname
           csv_file = CSV.parse(File.open("#{@output_directory}/#{fname}", "r:bom|utf-8", &:read), headers: true)
           unless csv_file.size.positive?
             delete_file(@output_directory, fname)
@@ -118,21 +120,15 @@ module Kenna
             os = ""
             runtime = ""
             tags = []
-            puts "before the parse"
-            if JSON.parse(row["Tags"])
-              puts "passed the if"
-              tags_hash = JSON.parse(row["Tags"])
-              puts "parsed the file"
-              unless tags_hash.empty?
-                tags_hash.each do |key, value|
-                  tags << "#{key}:#{value}"
-                  puts tags
-                end
+            tags_hash = JSON.parse(row["Tags"])
+            unless tags_hash.empty?
+              tags_hash.each do |key, value|
+                tags << "#{key}:#{value}"
               end
             end
             tags << "Region:#{row['AssetRegion']}"
             tags << "CloudPlatform:#{row['CloudPlatform']}"
-            vuln_severity = { "high" => 6, "medium" => 4, "low" => 1 }
+            vuln_severity = { "Critical" => 10, "High" => 8, "Medium" => 6, "Low" => 3 }
             vuln_score = vuln_severity[severity].to_i
             if abspath.include? "VIRTUAL_MACHINE"
               runtime = row["Runtime"]
@@ -194,6 +190,7 @@ module Kenna
           end
           filename = abspath.sub(/.csv/, ".json")
           kdi_upload @output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
+          delete_file(@output_directory, fname)
         end
         # this method will automatically use the stored array of uploaded files when calling the connector
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
