@@ -45,15 +45,12 @@ module Kenna
         # 3. Group findings by canonical URL
         # 4. Generate KDI doc from findings
 
-        severity_proc = case @options[:whitehat_scoring].downcase
-                        when "legacy"
-                          ->(node) { node[:severity].to_i * 2 }
-                        when "advanced"
-                          ->(node) { node[:risk].to_i * 2 }
-                        else
-                          print_error "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced."
-                          exit
-                        end
+        scoring_system = @options[:whitehat_scoring].downcase.to_sym
+        unless %i[advanced legacy].include? scoring_system
+          print_error "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced."
+          exit
+        end
+        mapper = Kenna::Toolkit::WhitehatSentinel::Mapper.new(scoring_system)
 
         key = @options[:whitehat_api_key]
         client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key)
@@ -78,19 +75,7 @@ module Kenna
           }
 
           nodes.each do |node|
-            closed_at = Time.parse(node[:closed]) if node[:closed]
-
-            finding = {
-              scanner_identifier: node[:id],
-              scanner_type: "Whitehat Sentinel",
-              severity: severity_proc.call(node),
-              created_at: Time.parse(node[:found]),
-              last_seen_at: closed_at || Time.now,
-              last_fixed_on: closed_at,
-              closed_at: closed_at,
-              vuln_def_name: node[:class],
-              triage_state: map_status_to_triage_state(node[:status])
-            }.compact
+            finding = mapper.finding_hash(node)
 
             create_kdi_asset_finding(asset, finding)
           end
@@ -119,21 +104,6 @@ module Kenna
 
       def sanitizer
         @sanitizer ||= Sanitize.new({ remove_contents: false, parser_options: { max_attributes: -1 } })
-      end
-
-      def map_status_to_triage_state(status)
-        case status.upcase
-        when "OPEN"
-          "in_progress"
-        when "CLOSED"
-          "resolved"
-        when "ACCEPTED"
-          "risk_accepted"
-        when "INVALID"
-          "not_a_security_issue"
-        else
-          "new"
-        end
       end
 
       def query_severity_for(level)

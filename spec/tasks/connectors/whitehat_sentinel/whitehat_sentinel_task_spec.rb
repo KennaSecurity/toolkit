@@ -21,22 +21,6 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
       expect { task.run(options) }.to_not raise_error
     end
 
-    it "defaults to Whitehat's severity for the finding's severity" do
-      expect(task).to receive(:create_kdi_asset_finding).with(anything, hash_including(severity: 8))
-      task.run(options)
-    end
-
-    context "when using advanced scoring" do
-      before do
-        options[:whitehat_scoring] = "advanced"
-      end
-
-      it "uses Whitehat's risk for the finding's severity" do
-        expect(task).to receive(:create_kdi_asset_finding).with(anything, hash_including(severity: 10))
-        task.run(options)
-      end
-    end
-
     context "when using an unknown scoring system" do
       before do
         options[:whitehat_scoring] = "kenna"
