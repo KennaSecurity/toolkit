@@ -13,7 +13,8 @@ module Kenna
             created_at: Time.parse(node[:found]),
             last_seen_at: closed_at || Time.now,
             last_fixed_on: closed_at,
-            closed_at: closed_at
+            closed_at: closed_at,
+            vuln_def_name: node[:class]
           }
         end
       end

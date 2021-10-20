@@ -6,10 +6,11 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
   subject(:mapper) { described_class.new }
 
   describe "#finding_hash" do
-    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601 } }
+    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601, class: node_class } }
     let(:node_id) { 10_085 }
     let(:found) { Time.new(2021, 10, 22, 12, 13, 14).utc }
     let(:closed) { nil }
+    let(:node_class) { "Insufficient Transport Layer Protection" }
 
     it "uses the node's id attribute as scanner_identifier" do
       expect(mapper.finding_hash(node)).to include(scanner_identifier: node_id)
@@ -37,6 +38,10 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
       Timecop.freeze(now) do
         expect(mapper.finding_hash(node)).to include(last_seen_at: now)
       end
+    end
+
+    it "uses the vuln's class as the vuln_def_name field" do
+      expect(mapper.finding_hash(node)).to include(vuln_def_name: node_class)
     end
 
     context "when the node has a closed attribute" do
