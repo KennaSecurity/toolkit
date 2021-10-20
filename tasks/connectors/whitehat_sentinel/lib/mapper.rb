@@ -23,7 +23,7 @@ module Kenna
             vuln_def_name: node[:class],
             triage_state: map_status_to_triage_state(node.fetch(:status)),
             severity: severity_of(node)
-          }
+          }.compact
         end
 
         private

@@ -21,8 +21,8 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
     it { is_expected.to include(scanner_identifier: node_id) }
     it { is_expected.to include(scanner_type: "Whitehat Sentinel") }
     it { is_expected.to include(created_at: found) }
-    it { is_expected.to include(last_fixed_on: nil) }
-    it { is_expected.to include(closed_at: nil) }
+    it { is_expected.to_not include(:last_fixed_on) }
+    it { is_expected.to_not include(:closed_at) }
     it { is_expected.to include(vuln_def_name: node_class) }
 
     it "sets last_seen_at to now" do
