@@ -145,6 +145,7 @@ GEM
     strings-ansi (0.2.0)
     thor (1.1.0)
     tilt (2.0.10)
+    timecop (0.9.4)
     tty-pager (0.14.0)
       strings (~> 0.2.0)
       tty-screen (~> 0.8)
@@ -181,6 +182,7 @@ DEPENDENCIES
   rubocop-rails
   sanitize
   solargraph
+  timecop
   tty-pager
 
 BUNDLED WITH
