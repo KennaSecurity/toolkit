@@ -33,7 +33,7 @@ module Kenna
             { name: "vulnerabilities_since",
               type: "integer",
               required: false,
-              default: 30,
+              default: nil,
               description: "integer days number to get the vulnerabilities detected SINCE x days" },
             { name: "report_object_types",
               type: "string",
@@ -76,17 +76,21 @@ module Kenna
         client_id = @options[:wiz_client_id]
         client_secret = @options[:wiz_client_secret]
         report_object_types = @options[:report_object_types].split(",")
-        # vulnerabilities_since = @options[:vulnerabilities_since]
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        days_used_regenerate_report = false
+        vulnerabilities_since = ""
+        unless @options[:vulnerabilities_since].nil?
+          days_used_regenerate_report = true
+          now = Date.today
+          days_ago = (now - @options[:vulnerabilities_since].to_i)
+          vulnerabilities_since = days_ago.strftime("%FT%TZ")
+        end
         skip_autoclose = false
         retries = 3
         kdi_version = 2
-
-        days_used_regenerate_report = false
-        # vulnerabilities_since = @options[:vulnerabilities_since]
 
         client = Kenna::Toolkit::Wiz::WizClient.new(client_id, client_secret, @output_directory, @options[:wiz_auth_endpoint], @options[:wiz_api_host])
 
@@ -94,7 +98,7 @@ module Kenna
 
         # @create_report_variables[:input][:params][:vulnerabilities_since] = vulnerabilities_since if vulnerabilities_since != ""
 
-        client.create_report(days_used_regenerate_report, report_object_types)
+        client.create_report(days_used_regenerate_report, report_object_types, vulnerabilities_since)
 
         Dir.entries(@output_directory.to_s).each do |abspath|
           next unless abspath.end_with? ".csv"
