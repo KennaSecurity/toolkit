@@ -4,6 +4,7 @@ require "addressable"
 require "sanitize"
 
 require_relative "lib/api_client"
+require_relative "lib/mapper"
 
 module Kenna
   module Toolkit
