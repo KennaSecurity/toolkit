@@ -4,6 +4,12 @@ module Kenna
   module Toolkit
     module WhitehatSentinel
       class Mapper
+        def initialize(scoring_system)
+          raise ArgumentError unless %i[advanced legacy].include? scoring_system
+
+          @scoring_system = scoring_system
+        end
+
         def finding_hash(node)
           closed_at = Time.parse(node[:closed]) if node[:closed]
 
@@ -15,7 +21,8 @@ module Kenna
             last_fixed_on: closed_at,
             closed_at: closed_at,
             vuln_def_name: node[:class],
-            triage_state: map_status_to_triage_state(node.fetch(:status))
+            triage_state: map_status_to_triage_state(node.fetch(:status)),
+            severity: severity_of(node)
           }
         end
 
@@ -33,6 +40,14 @@ module Kenna
             "not_a_security_issue"
           else
             "new"
+          end
+        end
+
+        def severity_of(node)
+          if @scoring_system == :legacy
+            node.fetch(:severity).to_i * 2
+          else
+            node.fetch(:risk).to_i * 2
           end
         end
       end
