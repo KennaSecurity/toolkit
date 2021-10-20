@@ -6,11 +6,12 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
   subject(:mapper) { described_class.new }
 
   describe "#finding_hash" do
-    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601, class: node_class } }
+    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601, class: node_class, status: status } }
     let(:node_id) { 10_085 }
     let(:found) { Time.new(2021, 10, 22, 12, 13, 14).utc }
     let(:closed) { nil }
     let(:node_class) { "Insufficient Transport Layer Protection" }
+    let(:status) { "new" }
 
     subject(:finding_hash) { mapper.finding_hash(node) }
 
@@ -35,6 +36,36 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
       it { is_expected.to include(last_seen_at: closed) }
       it { is_expected.to include(last_fixed_on: closed) }
       it { is_expected.to include(closed_at: closed) }
+    end
+
+    context "when the node's status is open" do
+      let(:status) { "open" }
+
+      it { is_expected.to include(triage_state: "in_progress") }
+    end
+
+    context "when the node's status is closed" do
+      let(:status) { "closed" }
+
+      it { is_expected.to include(triage_state: "resolved") }
+    end
+
+    context "when the node's status is accepted" do
+      let(:status) { "accepted" }
+
+      it { is_expected.to include(triage_state: "risk_accepted") }
+    end
+
+    context "when the node's status is invalid" do
+      let(:status) { "invalid" }
+
+      it { is_expected.to include(triage_state: "not_a_security_issue") }
+    end
+
+    context "when the node's status is an unrecognized value" do
+      let(:status) { "bogus" }
+
+      it { is_expected.to include(triage_state: "new") }
     end
   end
 end
