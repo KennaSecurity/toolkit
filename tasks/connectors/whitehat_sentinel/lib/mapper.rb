@@ -8,6 +8,23 @@ module Kenna
           raise ArgumentError unless %i[advanced legacy].include? scoring_system
 
           @scoring_system = scoring_system
+          @tag_hash = {}
+        end
+
+        def register_asset(node)
+          asset = node[:asset]
+
+          @tag_hash[asset[:id]] = tags_for(asset)
+        end
+
+        def asset_hash(node, sanitized_url)
+          site_id = node[:site].to_i
+
+          {
+            application: node[:site_name],
+            url: sanitized_url,
+            tags: @tag_hash.fetch(site_id, [])
+          }
         end
 
         def finding_hash(node)
@@ -49,6 +66,13 @@ module Kenna
           else
             node.fetch(:risk).to_i * 2
           end
+        end
+
+        def tags_for(asset)
+          [asset[:tags],
+           asset[:label],
+           asset[:asset_owner_name],
+           asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
         end
       end
     end

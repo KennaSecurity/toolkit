@@ -64,15 +64,10 @@ module Kenna
         filter[:query_severity] = query_severity_for(@options[:minimum_severity_level])
 
         findings = client.vulns(filter.compact)
-        tag_hash = client.assets.map { |node| node[:asset] }.map { |asset| [asset[:id], tags_for(asset)] }.to_h
+        client.assets.each { |node| mapper.register_asset(node) }
 
         findings.group_by { |node| sanitize(node[:url]) }.each do |url, nodes|
-          site_id = nodes.first[:site].to_i
-          asset = {
-            application: nodes.first[:site_name],
-            url: url,
-            tags: tag_hash[site_id]
-          }
+          asset = mapper.asset_hash(nodes.first, url)
 
           nodes.each do |node|
             finding = mapper.finding_hash(node)
@@ -83,13 +78,6 @@ module Kenna
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
         print_error "Problem connecting to Whitehat API, please verify the API key."
         exit
-      end
-
-      def tags_for(asset)
-        [asset[:tags],
-         asset[:label],
-         asset[:asset_owner_name],
-         asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
       end
 
       def sanitize(raw_url)

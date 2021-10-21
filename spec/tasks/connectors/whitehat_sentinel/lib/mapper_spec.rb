@@ -3,6 +3,8 @@
 require "rspec_helper"
 
 RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
+  let(:scoring_system) { :legacy }
+
   subject(:mapper) { described_class.new(scoring_system) }
 
   describe "#finding_hash" do
@@ -14,7 +16,6 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
     let(:status) { "new" }
     let(:severity) { 4 }
     let(:risk) { 3 }
-    let(:scoring_system) { :legacy }
 
     subject(:finding_hash) { mapper.finding_hash(node) }
 
@@ -82,6 +83,98 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
     context "when using an unknown scoring system" do
       it "raises an ArgumentError" do
         expect { described_class.new(:bogus) }.to raise_error(ArgumentError)
+      end
+    end
+  end
+
+  describe "#asset_hash" do
+    let(:node) { { site: site_id.to_s, site_name: site_name } }
+    let(:site_id) { 12 }
+    let(:site_name) { "Example dot com" }
+    let(:url) { "http://foo.example.com/path" }
+
+    subject(:asset_hash) { mapper.asset_hash(node, url) }
+
+    it { is_expected.to include(url: url) }
+    it { is_expected.to include(application: site_name) }
+    it { is_expected.to include(tags: []) }
+
+    context "when an asset has been registered" do
+      let(:asset) do
+        {
+          asset: {
+            id: site_id,
+            custom_asset_id: whitehat_custom_id,
+            label: whitehat_label,
+            asset_owner_name: whitehat_owner,
+            tags: whitehat_tags
+          }
+        }
+      end
+      let(:whitehat_custom_id) { "custom id" }
+      let(:whitehat_tags) { %w[tag_one tag_two] }
+      let(:whitehat_label) { "label" }
+      let(:whitehat_owner) { "owner" }
+
+      before do
+        mapper.register_asset(asset)
+      end
+
+      it "includes the asset's tags from Whitehat" do
+        expect(asset_hash[:tags]).to include(*whitehat_tags)
+      end
+
+      it "includes the asset's label from Whitehat" do
+        expect(asset_hash[:tags]).to include(whitehat_label)
+      end
+
+      it "includes the asset's owner name from Whitehat" do
+        expect(asset_hash[:tags]).to include(whitehat_owner)
+      end
+
+      it "includes the asset's custom id from Whitehat" do
+        expect(asset_hash[:tags]).to include(whitehat_custom_id)
+      end
+
+      context "when there are no tags" do
+        let(:whitehat_tags) { [] }
+
+        it "includes the other fields" do
+          expect(asset_hash[:tags]).to contain_exactly(whitehat_label, whitehat_owner, whitehat_custom_id)
+        end
+      end
+
+      context "when a field is blank" do
+        let(:whitehat_owner) { "" }
+
+        it "excludes the empty string" do
+          expect(asset_hash[:tags]).to_not include("")
+        end
+      end
+
+      context "when a field is nil" do
+        let(:whitehat_label) { nil }
+
+        it "excludes the nil" do
+          expect(asset_hash[:tags]).to_not include(nil)
+        end
+      end
+
+      context "when a field is missing" do
+        let(:asset) do
+          {
+            asset: {
+              id: site_id,
+              label: whitehat_label,
+              asset_owner_name: whitehat_owner,
+              tags: whitehat_tags
+            }
+          }
+        end
+
+        it "includes the other fields" do
+          expect(asset_hash[:tags]).to contain_exactly(*[whitehat_tags, whitehat_label, whitehat_owner].flatten)
+        end
       end
     end
   end
