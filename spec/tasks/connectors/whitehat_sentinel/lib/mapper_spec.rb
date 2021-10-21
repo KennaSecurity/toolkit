@@ -8,7 +8,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
   subject(:mapper) { described_class.new(scoring_system) }
 
   describe "#finding_hash" do
-    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601, class: node_class, status: status, severity: severity.to_s, risk: risk } }
+    let(:node) { { id: node_id, found: found.iso8601, closed: closed&.iso8601, class: node_class, status: status, severity: severity.to_s, risk: risk, attack_vectors: attack_vectors } }
     let(:node_id) { 10_085 }
     let(:found) { Time.new(2021, 10, 22, 12, 13, 14).utc }
     let(:closed) { nil }
@@ -16,6 +16,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
     let(:status) { "new" }
     let(:severity) { 4 }
     let(:risk) { 3 }
+    let(:attack_vectors) { [] }
 
     subject(:finding_hash) { mapper.finding_hash(node) }
 
@@ -83,6 +84,25 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
     context "when using an unknown scoring system" do
       it "raises an ArgumentError" do
         expect { described_class.new(:bogus) }.to raise_error(ArgumentError)
+      end
+    end
+
+    context "when there is an attack vector" do
+      let(:attack_vectors) { [vector] }
+      let(:vector) { { method: method, url: vector_url } }
+      let(:method) { "GET" }
+      let(:vector_url) { "http://vector.example.com" }
+
+      it { is_expected.to include(additional_details: hash_including(request_method: method)) }
+    end
+
+    context "when there are multiple attack vectors" do
+      let(:attack_vectors) { [vector0, vector1] }
+      let(:vector0) { { method: "GET", url: "http://vec.example.com" } }
+      let(:vector1) { { method: "POST", url: "http://vec.example.com/another/vector" } }
+
+      it "includes all vectors", :pending do
+        expect(finding_hash).to include(:request_0_url, :request_1_url)
       end
     end
   end

@@ -39,7 +39,10 @@ module Kenna
             closed_at: closed_at,
             vuln_def_name: node[:class],
             triage_state: map_status_to_triage_state(node.fetch(:status)),
-            severity: severity_of(node)
+            severity: severity_of(node),
+            additional_details: {
+              request_method: "GET"
+            }
           }.compact
         end
 
