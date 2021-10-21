@@ -56,14 +56,14 @@ module Kenna
               print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
               @missing_mappings << [orig_vuln_id, orig_source]
               write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.map(&:to_csv).join) unless @missing_mappings.nil?
-              # out = {
-              #   scanner_identifier: orig_vuln_id,
-              #   scanner_type: orig_source,
-              #   source: orig_source,
-              #   name: orig_vuln_id
-              # }.stringify_keys.merge(specific_details)
+              out = {
+                scanner_identifier: orig_vuln_id,
+                scanner_type: orig_source,
+                source: orig_source,
+                name: orig_vuln_id
+              }.stringify_keys.merge(specific_details)
             end
-            out = specific_details
+            out
           end
 
           def df_mapping_stats
