@@ -46,7 +46,7 @@ module Kenna
                   description: "#{map[:description]}\n\n #{description}".strip,
                   recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
                 }
-
+                out.compact!
                 out = out.stringify_keys
                 done = true
               end
