@@ -9,6 +9,7 @@ module Kenna
 
           @scoring_system = scoring_system
           @tag_hash = {}
+          @sanitizer = Sanitize.new(remove_contents: false, parser_options: { max_attributes: -1 })
         end
 
         def register_asset(node)
@@ -40,9 +41,7 @@ module Kenna
             vuln_def_name: node[:class],
             triage_state: map_status_to_triage_state(node.fetch(:status)),
             severity: severity_of(node),
-            additional_details: {
-              request_method: "GET"
-            }
+            additional_details: attack_vectors(node)
           }.compact
         end
 
@@ -76,6 +75,33 @@ module Kenna
            asset[:label],
            asset[:asset_owner_name],
            asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
+        end
+
+        def attack_vectors(node)
+          return {} if node[:attack_vectors].empty?
+
+          vector = node[:attack_vectors].first
+
+          {
+            request_method: vector[:request][:method],
+            request_url: vector[:request][:url],
+            request_body: vector[:request][:body],
+            request_param_name: vector[:request][:param_name],
+            request_param_value: vector[:request][:param_value],
+            request_headers: combine_headers(vector[:request][:headers]),
+            response_status: vector[:response][:status],
+            response_headers: combine_headers(vector[:response][:headers])
+          }.compact.transform_values { |v| sanitize(v) }
+        end
+
+        def combine_headers(headers)
+          return nil if headers.nil? || headers.empty?
+
+          headers.map { |header| "#{header[:name]}=#{header[:value]}" }.join(" ")
+        end
+
+        def sanitize(string)
+          @sanitizer.fragment(string)
         end
       end
     end

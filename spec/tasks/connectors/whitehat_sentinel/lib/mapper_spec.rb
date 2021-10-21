@@ -89,11 +89,26 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
 
     context "when there is an attack vector" do
       let(:attack_vectors) { [vector] }
-      let(:vector) { { method: method, url: vector_url } }
+      let(:vector) { { request: { method: method, url: vector_url, headers: request_headers }, response: { status: response_status, headers: response_headers } } }
       let(:method) { "GET" }
       let(:vector_url) { "http://vector.example.com" }
+      let(:response_status) { 200 }
+      let(:request_headers) { [{ name: "User-Agent", value: "chrome" }, { name: "Cookie", value: "oreo" }] }
+      let(:response_headers) { [{ name: "ETag", value: "0xdeadbeef" }, { name: "X-Token", value: "this is a token" }] }
 
       it { is_expected.to include(additional_details: hash_including(request_method: method)) }
+      it { is_expected.to include(additional_details: hash_including(request_url: vector_url)) }
+      it { is_expected.to include(additional_details: hash_including(response_status: response_status.to_s)) }
+
+      it "combines the request headers into a single string" do
+        headers_string = "User-Agent=chrome Cookie=oreo"
+        expect(finding_hash[:additional_details]).to include(request_headers: headers_string)
+      end
+
+      it "combines the response headers into a single string" do
+        headers_string = "ETag=0xdeadbeef X-Token=this is a token"
+        expect(finding_hash[:additional_details]).to include(response_headers: headers_string)
+      end
     end
 
     context "when there are multiple attack vectors" do
