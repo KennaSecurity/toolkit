@@ -154,12 +154,14 @@ module Kenna
               { action: "proc", target: "port", proc: ->(x) { (x["portNumber"] || x["initialEvidence"]["portNumber"]).to_i } },
               { action: "proc", target: "details", proc: ->(x) { "Headline: #{x['headline']}\nHelpText: #{x['helpText']}\n\nFull Issue:\n #{JSON.pretty_generate(x)}" } },
               { action: "proc", target: "scanner_score", proc: ->(x) { map_issue_priority(x["priority"]) } },
+              { action: "proc", target: "override_score", proc: ->(x) { map_issue_priority(x["priority"]).to_i * 10 } },
               { action: "data", target: "scanner_type", data: "Expanse_issues" }
             ],
             "vuln_def" => [
               { action: "data", target: "scanner_type", data: "Expanse_issues" },
               { action: "proc", target: "name", proc: ->(_x) { issue_type } },
               { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "description", proc: ->(x) { x["headline"] } },
               { action: "data", target: "remediation", data: "Investigate this Issue!" }
             ]
           }

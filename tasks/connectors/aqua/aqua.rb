@@ -113,22 +113,21 @@ module Kenna
               compliant = cont_obj["compliant"]
               img_compliant = cont_obj["image_assurance_compliant"]
 
-              cont_locator = {
-                "container_id" => cont_id
-              }
+              # cont_locator = {
+              #   "container_id" => cont_id
+              # }
 
               cont_asset = {
                 "container_id" => cont_id,
                 "asset_type" => "container",
                 "hostname" => cont_name,
-                "locator_fields" => cont_locator,
+                "image_id" => img_id,
                 "tags" => ["status: #{cont_status}",
                            "systemContainer: #{sys_cont}",
                            "type: #{cont_type}",
                            "enforcerGroup: #{enforcer_group}",
                            "containerCompliance: #{compliant}",
-                           "imageCompliance: #{img_compliant}",
-                           "imageID: #{img_id}"]
+                           "imageCompliance: #{img_compliant}"]
               }
               print_debug "Creating a Container HashMap"
               containers.store(img_id, cont_id)
@@ -173,16 +172,15 @@ module Kenna
             aqua_score = (vuln_obj["aqua_score"]).ceil
             print_debug "Vuln name: #{vuln_name}"
 
-            locator = {
-              "image_id" => image_id
-            }
+            # locator = {
+            #   "image_id" => image_id
+            # }
 
             img_asset = {
 
               "image_id" => image_id,
               "asset_type" => "image",
               "hostname" => image_name,
-              "locator_fields" => locator,
               "os" => os,
               "tags" => ["registry: #{image_registry}",
                          "repository: #{image_repo}",
@@ -204,8 +202,7 @@ module Kenna
               "name" => vuln_name,
               "description" => description,
               "solution" => solution,
-              "cve_identifiers" => cve_identifiers,
-              "scanner_identifier" => identifiers
+              "cve_identifiers" => cve_identifiers
             }
             vuln_def.compact!
             # print_debug vuln_def
