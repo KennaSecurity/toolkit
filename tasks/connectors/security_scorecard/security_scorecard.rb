@@ -38,11 +38,6 @@ module Kenna
               required: false,
               default: "info,low",
               description: "Comma separated list of severities that should NOT be loaded into Kenna" },
-            { name: "ssc_lookback",
-              type: "integer",
-              required: false,
-              default: 90,
-              description: "Number of days to include is data pull" },
             { name: "ssc_portfolio_ids",
               type: "string",
               required: false,
@@ -251,7 +246,7 @@ module Kenna
               severity = type["severity"]
               next if ssc_exclude_severity.include? severity
 
-              issues_by_type = client.issues_by_factors(type["detail_url"], @options[:ssc_lookback])
+              issues_by_type = client.issues_by_factors(type["detail_url"])
 
               issues = issues_by_type["entries"] unless issues_by_type.nil?
 
@@ -314,7 +309,7 @@ module Kenna
                   severity = type["severity"]
                   next if ssc_exclude_severity.include? severity
 
-                  issues_by_type = client.issues_by_factors(type["detail_url"], @options[:ssc_lookback])
+                  issues_by_type = client.issues_by_factors(type["detail_url"])
 
                   issues = issues_by_type["entries"] unless issues_by_type.nil?
 
