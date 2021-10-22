@@ -118,8 +118,8 @@ module Kenna
       def extract_definition(issue)
         {
           "name" => issue["issue_type"]["name"],
-          "description" => issue["issue_type"]["description_html"],
-          "solution" => issue["issue_type"]["remediation_html"],
+          "description" => remove_html_tags(issue["issue_type"]["description_html"] || ""),
+          "solution" => remove_html_tags(issue["issue_type"]["remediation_html"] || ""),
           "scanner_type" => "BurpSuite"
         }.compact
       end
