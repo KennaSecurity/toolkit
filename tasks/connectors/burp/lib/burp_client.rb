@@ -11,13 +11,8 @@ module Kenna
           @headers = { "content-type": "application/json", "Authorization": api_token }
         end
 
-        def get_site_scans(site_id)
-          response = http_post(@endpoint, @headers, query(site_scans_query, site_id: site_id))
-          JSON.parse(response)['data']['scans']
-        end
-
-        def get_last_site_scan(site_id)
-          response = http_post(@endpoint, @headers, query(last_site_scan_query, site_id: site_id))
+        def get_last_schedule_scan(schedule_id)
+          response = http_post(@endpoint, @headers, query(last_schedule_scan_query, schedule_id: schedule_id))
           JSON.parse(response)['data']['scans'].first
         end
 
@@ -33,22 +28,9 @@ module Kenna
           query.to_json
         end
 
-        def site_scans_query
-          "query ScanInfo($site_id: ID!){
-            scans(offset: 0, limit: 1000, scan_status:[succeeded], site_id: $site_id){
-              id
-              site_id
-              status
-              issue_counts {
-                total
-              }
-            }
-          }"
-        end
-
-        def last_site_scan_query
-          "query ScanInfo($site_id: ID!){
-            scans(offset: 0, limit: 1, scan_status:[succeeded], sort_column: start, sort_order: desc, site_id: $site_id){
+        def last_schedule_scan_query
+          "query ScanInfo($schedule_id: ID!){
+            scans(offset: 0, limit: 1, scan_status:[succeeded], sort_column: start, sort_order: desc, schedule_item_id: $schedule_id){
               id
               site_id
               status

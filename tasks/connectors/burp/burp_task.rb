@@ -16,11 +16,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Burp instance hostname, e.g. http://burp.example.com:8080" },
-            { name: "burp_site_id",
+            { name: "burp_schedule_id",
               type: "string",
               required: true,
               default: nil,
-              description: "Burp Site ID" },
+              description: "Burp Schedule ID" },
             { name: "burp_api_token",
               type: "api_key",
               required: true,
@@ -59,7 +59,7 @@ module Kenna
         super
 
         @host = @options[:burp_api_host]
-        @site_id = @options[:burp_site_id]
+        @schedule_id = @options[:burp_schedule_id]
         @api_token = @options[:burp_api_token]
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
@@ -71,7 +71,7 @@ module Kenna
 
         client = Kenna::Toolkit::Burp::BurpClient.new(@host, @api_token)
 
-        last_scan = client.get_last_site_scan(@site_id)
+        last_scan = client.get_last_schedule_scan(@schedule_id)
         return unless last_scan
 
         issues = client.get_scan(last_scan["id"])["issues"]

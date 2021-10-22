@@ -5,7 +5,7 @@ This toolkit brings in data from Portswigger Burp Suite Enterprise Edition
 To run this task you need the following information from Burp: 
 
 1. Burp instance hostname
-2. Site Id
+2. Schedule Id (you can see the ID in the browser's tab when you edit the schedule)
 3. User API Token
 
 ## Command Line
@@ -28,7 +28,7 @@ Complete list of Options:
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
 | burp_api_host | true | Burp instance hostname, e.g. http://burp.example.com:8080  | n/a |
-| burp_site_id | true | Burp Site ID | n/a |
+| burp_schedule_id | true | Burp Schedule ID | n/a |
 | burp_api_token | true | Burp User API token | n/a |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
