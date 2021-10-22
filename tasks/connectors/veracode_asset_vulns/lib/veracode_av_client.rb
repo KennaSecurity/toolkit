@@ -370,9 +370,9 @@ module Kenna
 
         def find_missing_kenna_assets(application)
           # encoding help
-          enc_open_paren = "%28"
-          enc_close_paren = "%29"
-          enc_ampersand = "%26"
+          # enc_open_paren = "%28"
+          # enc_close_paren = "%29"
+          # enc_ampersand = "%26"
 
           # encoding problematic characters for use in call to Kenna API
           # app_name = application.gsub("(", enc_open_paren.to_s).gsub(")", enc_close_paren.to_s).gsub("&", enc_ampersand.to_s)
