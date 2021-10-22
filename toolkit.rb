@@ -5,8 +5,9 @@
 require_relative "lib/toolkit"
 
 # First split up whatever we got
-args_array = ARGV.map { |arg| arg.split(":") }.flatten
-
+#args_array = ARGV.map { |arg| arg.split(":") }.flatten
+#args_array = ARGV.map { |arg| arg.split(/(".*?"|[^":\s]+)(?=\s*:|\s*$)/) }.flatten
+args_array = ARGV
 # Then split up this into a hash
 args = {}
 args_array.each do |arg|

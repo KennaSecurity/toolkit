@@ -26,11 +26,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Burp User API token" },
-            { name: "vulnerabilities_since",
+            { name: "batch_size",
               type: "integer",
               required: false,
-              default: nil,
-              description: "integer days number to get the vulnerabilities detected SINCE x days" },
+              default: 500,
+              description: "Maximum number of issues to retrieve in batches." },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -58,6 +58,40 @@ module Kenna
       def run(opts)
         super
 
+        initialize_options
+
+        client = Kenna::Toolkit::Burp::BurpClient.new(@host, @api_token)
+
+        last_schedule_scan = client.get_last_schedule_scan(@schedule_id)
+        return print("No scans to process.") unless last_schedule_scan
+
+        total_issues = last_schedule_scan["issue_counts"]["total"].to_i
+        scan_id = last_schedule_scan["id"]
+        print_good("Found scan ##{scan_id} with #{total_issues} issues.")
+        pos = 0
+
+        while pos < total_issues
+          last_scan = client.get_scan(scan_id, pos, @max_issues)
+          issues = last_scan["issues"]
+          issues.each do |issue|
+            asset = extract_asset(issue)
+            finding = extract_finding(issue)
+            definition = extract_definition(issue)
+
+            create_kdi_asset_finding(asset, finding)
+            create_kdi_vuln_def(definition)
+          end
+
+          print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues.")
+          kdi_upload(@output_directory, "burp_scan_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          pos += @max_issues
+        end
+      end
+
+      private
+
+      def initialize_options
         @host = @options[:burp_api_host]
         @schedule_id = @options[:burp_schedule_id]
         @api_token = @options[:burp_api_token]
@@ -65,30 +99,11 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        skip_autoclose = false
-        retries = 3
-        kdi_version = 2
-
-        client = Kenna::Toolkit::Burp::BurpClient.new(@host, @api_token)
-
-        last_scan = client.get_last_schedule_scan(@schedule_id)
-        return unless last_scan
-
-        issues = client.get_scan(last_scan["id"])["issues"]
-        issues.each do |issue|
-          asset = extract_asset(issue)
-          finding = extract_finding(issue)
-          definition = extract_definition(issue)
-
-          create_kdi_asset_finding(asset, finding)
-          create_kdi_vuln_def(definition)
-        end
-
-        kdi_upload(@output_directory, "burp_scan_report.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version)
-        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+        @max_issues = @options[:batch_size].to_i
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
       end
-
-      private
 
       SEVERITY_VALUE = {
         "info" => 0,

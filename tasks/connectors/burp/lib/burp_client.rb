@@ -16,8 +16,8 @@ module Kenna
           JSON.parse(response)['data']['scans'].first
         end
 
-        def get_scan(id)
-          response = http_post(@endpoint, @headers, query(scan_query, id: id))
+        def get_scan(id, start = 0, count = 100)
+          response = http_post(@endpoint, @headers, query(scan_query, id: id, start: start, count: count))
           JSON.parse(response)['data']['scan']
         end
 
@@ -42,11 +42,11 @@ module Kenna
         end
 
         def scan_query
-          "query GetScan ($id: ID!) {
+          "query GetScan ($id: ID!, $start: Int!, $count: Int!) {
             scan(id: $id) {
                 id
                 status
-                issues(start: 0, count: 100) {
+                issues(start: $start, count: $count) {
                     issue_type {
                         name
                         description_html

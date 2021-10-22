@@ -30,6 +30,7 @@ Complete list of Options:
 | burp_api_host | true | Burp instance hostname, e.g. http://burp.example.com:8080  | n/a |
 | burp_schedule_id | true | Burp Schedule ID | n/a |
 | burp_api_token | true | Burp User API token | n/a |
+| batch_size | false | Maximum number of issues to retrieve in batches | 500 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
