@@ -375,7 +375,8 @@ module Kenna
           enc_ampersand = "%26"
 
           # encoding problematic characters for use in call to Kenna API
-          app_name = application.gsub("(", enc_open_paren.to_s).gsub(")", enc_close_paren.to_s).gsub("&", enc_ampersand.to_s)
+          # app_name = application.gsub("(", enc_open_paren.to_s).gsub(")", enc_close_paren.to_s).gsub("&", enc_ampersand.to_s)
+          app_name = application.dup
 
           # Pull assets for application from Kenna
           api_client = Kenna::Api::Client.new(@kenna_api_key, @kenna_api_host)
