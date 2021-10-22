@@ -111,7 +111,7 @@ module Kenna
           "vuln_def_name" => issue["issue_type"]["name"],
           "severity" => SEVERITY_VALUE[issue["severity"]],
           "triage_state" => triage_value(issue["confidence"]),
-          "additional_fields" => [{ "novelty" => issue["novelty"] }]
+          "additional_fields" => extract_additional_fields(issue)
         }.compact
       end
 
@@ -122,6 +122,47 @@ module Kenna
           "solution" => remove_html_tags(issue["issue_type"]["remediation_html"] || ""),
           "scanner_type" => "BurpSuite"
         }.compact
+      end
+
+      def extract_additional_fields(issue)
+        fields = {
+          "Burp Severity" => issue["severity"],
+          "Confidence" => issue["confidence"],
+          "Novelty" => issue["novelty"],
+          "Vulnerability Classifications" => remove_html_tags(issue["issue_type"]["vulnerability_classifications_html"] || ""),
+          "References" => remove_html_tags(issue["issue_type"]["references_html"] || "")
+        }
+        fields.merge!(extract_evidence(issue))
+        fields
+      end
+
+      def extract_evidence(issue)
+        evidence = {}
+        issue["evidence"].each do |item|
+          case item["__typename"]
+          when "DescriptiveEvidence"
+            evidence[item["title"]] = remove_html_tags(item["description_html"])
+          when "HttpInteraction"
+            evidence[item["title"]] = remove_html_tags(item["description_html"])
+            evidence["Http Interaction Request Data"] = build_segments_string(item["request"])
+            evidence["Http Interaction Response Data"] = build_segments_string(item["response"])
+          when "Request"
+            evidence["Request Index"] = item["request_index"]
+            evidence["Request Count"] = item["request_count"]
+            evidence["Request Data"] = build_segments_string(item["request_segments"])
+          when "Response"
+            evidence["Response Index"] = item["response_index"]
+            evidence["Response Count"] = item["response_count"]
+            evidence["Response Data"] = build_segments_string(item["response_segments"])
+          end
+        end
+        evidence
+      end
+
+      def build_segments_string(segments)
+        segments.select { |segment| segment["__typename"] == "DataSegment" }
+                .collect { |segment| remove_html_tags(segment["data_html"]) }
+                .join("\n---\n")
       end
 
       def triage_value(triage)

@@ -61,6 +61,49 @@ module Kenna
                     path
                     origin
                     novelty
+                    evidence {
+                      __typename
+                      ... on DescriptiveEvidence {
+                          title
+                          description_html
+                      }
+                      ... on HttpInteraction {
+                          title
+                          description_html
+                          request {
+                            __typename
+                            ... on DataSegment {
+                              data_html
+                            }
+                          }
+                          response {
+                            __typename
+                            ... on DataSegment {
+                              data_html
+                            }
+                          }
+                      }
+                      ... on Request {
+                        request_index
+                        request_count
+                        request_segments {
+                          __typename
+                          ... on DataSegment {
+                            data_html
+                          }
+                        }
+                      }
+                      ... on Response {
+                        response_index
+                        response_count
+                        response_segments {
+                          __typename
+                          ... on DataSegment {
+                            data_html
+                          }
+                        }
+                      }
+                    }
                 }
             }
           }"
