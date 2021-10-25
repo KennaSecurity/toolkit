@@ -197,7 +197,6 @@ module Kenna
       def triage_value(triage)
         triage == "false_positive" ? "false_positive" : "new"
       end
-
     end
   end
 end
