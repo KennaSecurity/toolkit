@@ -5,7 +5,7 @@ This toolkit brings in data from Portswigger Burp Suite Enterprise Edition
 To run this task you need the following information from Burp: 
 
 1. Burp instance hostname
-2. Schedule Id (you can see the ID in the browser's tab when you edit the schedule)
+2. Schedule Id list (you can see the ID in the browser's tab when you edit the schedule)
 3. User API Token
 
 ## Command Line
@@ -28,7 +28,8 @@ Complete list of Options:
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
 | burp_api_host | true | Burp instance hostname, e.g. http://burp.example.com:8080  | n/a |
-| burp_schedule_id | true | Burp Schedule ID | n/a |
+| burp_schedule_id | true | A list of Burp Schedule ID (comma separated) | n/a |
+| burp_issue_severity | false | A list of [info, low, medium, high] (comma separated) | [info, low, medium, high] |
 | burp_api_token | true | Burp User API token | n/a |
 | batch_size | false | Maximum number of issues to retrieve in batches | 500 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |

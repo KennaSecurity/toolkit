@@ -20,7 +20,12 @@ module Kenna
               type: "string",
               required: true,
               default: nil,
-              description: "Burp Schedule ID" },
+              description: "A list of Burp Schedule ID (comma separated)" },
+            { name: "burp_issue_severity",
+              type: "string",
+              required: false,
+              default: "[info, low, medium, high]",
+              description: "A list of [info, low, medium, high] (comma separated)" },
             { name: "burp_api_token",
               type: "api_key",
               required: true,
@@ -62,30 +67,34 @@ module Kenna
 
         client = Kenna::Toolkit::Burp::BurpClient.new(@host, @api_token)
 
-        last_schedule_scan = client.get_last_schedule_scan(@schedule_id)
-        return print("No scans to process.") unless last_schedule_scan
+        @schedule_ids.each do |schedule_id|
+          last_schedule_scan = client.get_last_schedule_scan(schedule_id)
+          if last_schedule_scan
+            total_issues = @issue_severities.sum { |key| (last_schedule_scan["issue_counts"][key]["total"] || 0).to_i }
+            scan_id = last_schedule_scan["id"]
+            print_good("Found scan ##{scan_id} for schedule ##{schedule_id} with #{total_issues} issues with severities #{@issue_severities}.")
+            pos = 0
 
-        total_issues = last_schedule_scan["issue_counts"]["total"].to_i
-        scan_id = last_schedule_scan["id"]
-        print_good("Found scan ##{scan_id} with #{total_issues} issues.")
-        pos = 0
+            while pos < total_issues
+              last_scan = client.get_scan(scan_id, @issue_severities, pos, @max_issues)
+              issues = last_scan["issues"]
+              issues.each do |issue|
+                asset = extract_asset(issue)
+                finding = extract_finding(issue)
+                definition = extract_definition(issue)
 
-        while pos < total_issues
-          last_scan = client.get_scan(scan_id, pos, @max_issues)
-          issues = last_scan["issues"]
-          issues.each do |issue|
-            asset = extract_asset(issue)
-            finding = extract_finding(issue)
-            definition = extract_definition(issue)
+                create_kdi_asset_finding(asset, finding)
+                create_kdi_vuln_def(definition)
+              end
 
-            create_kdi_asset_finding(asset, finding)
-            create_kdi_vuln_def(definition)
+              print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
+              kdi_upload(@output_directory, "burp_scan_#{scan_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+              kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+              pos += @max_issues
+            end
+          else
+            print("No scan found for schedule #{schedule_id}")
           end
-
-          print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues.")
-          kdi_upload(@output_directory, "burp_scan_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
-          pos += @max_issues
         end
       end
 
@@ -93,7 +102,8 @@ module Kenna
 
       def initialize_options
         @host = @options[:burp_api_host]
-        @schedule_id = @options[:burp_schedule_id]
+        @schedule_ids = extract_list(:burp_schedule_id)
+        @issue_severities = extract_list(:burp_issue_severity, %w[info low medium high])
         @api_token = @options[:burp_api_token]
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
@@ -103,6 +113,11 @@ module Kenna
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
+      end
+
+      def extract_list(key, default = nil)
+        list = (@options[key] || "").split(",").map(&:strip)
+        list.empty? ? default : list
       end
 
       SEVERITY_VALUE = {
