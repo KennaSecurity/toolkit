@@ -3,7 +3,6 @@
 require_relative "lib/burp_client"
 module Kenna
   module Toolkit
-    #noinspection DuplicatedCode
     class BurpTask < Kenna::Toolkit::BaseTask
       def self.metadata
         {
