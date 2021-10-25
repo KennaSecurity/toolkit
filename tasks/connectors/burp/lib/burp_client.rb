@@ -13,12 +13,12 @@ module Kenna
 
         def get_last_schedule_scan(schedule_id)
           response = http_post(@endpoint, @headers, query(last_schedule_scan_query, schedule_id: schedule_id))
-          JSON.parse(response)['data']['scans'].first
+          JSON.parse(response)["data"]["scans"].first
         end
 
         def get_scan(id, severities, start = 0, count = 100)
           response = http_post(@endpoint, @headers, query(scan_query, id: id, start: start, count: count, severities: severities))
-          JSON.parse(response)['data']['scan']
+          JSON.parse(response)["data"]["scan"]
         end
 
         private
