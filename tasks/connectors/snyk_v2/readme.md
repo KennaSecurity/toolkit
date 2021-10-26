@@ -33,6 +33,7 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
 | snyk_api_token |api_key | true | Snyk API Token |
+| use_findings | boolean | false | Whether the connector should import data as findings. |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | include_license | boolean | false | retrieve license issues? |

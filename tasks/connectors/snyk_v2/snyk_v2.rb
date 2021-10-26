@@ -22,7 +22,7 @@ module Kenna
               type: "boolean",
               required: false,
               default: false,
-              description: "Snyk API Token" },
+              description: "whether the connector should import data as findings." },
             { name: "retrieve_from",
               type: "date",
               required: false,
