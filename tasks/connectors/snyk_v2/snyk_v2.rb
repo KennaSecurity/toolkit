@@ -106,7 +106,6 @@ module Kenna
 
         org_ids.each do |org|
           project_json = snyk_get_projects(snyk_api_token, org)
-          print_debug project_json
           project_json.each do |project|
             projects << [project.fetch("name"), project.fetch("id")]
             project_ids << project.fetch("id")
@@ -134,17 +133,17 @@ module Kenna
 
           pagenum += 1
 
-          vuln_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum, from_date, to_date)
+          issue_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum, from_date, to_date)
 
-          print_debug "issue json = #{vuln_json}"
+          print_debug "issue json = #{issue_json}"
 
-          if vuln_json.nil? || vuln_json.empty? || vuln_json.length.zero?
+          if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
             morepages = false
             break
           end
 
-          vuln_severity = { "high" => 6, "medium" => 4, "low" => 1 } # converter
-          vuln_json.each do |issue_obj|
+          issue_severity = { "high" => 6, "medium" => 4, "low" => 1 } # converter
+          issue_json.each do |issue_obj|
             issue = issue_obj["issue"]
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
@@ -172,18 +171,15 @@ module Kenna
             tags << packageManager if !packageManager.nil? && !packageManager.empty?
 
             asset = {
-
               "file" => targetFile,
               "application" => application,
               "tags" => tags
-
             }
 
-            # scanner_score = ""
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else
-                              vuln_severity.fetch(issue.fetch("severity"))
+                              issue_severity.fetch(issue.fetch("severity"))
                             end
 
             source = project.fetch("source") if issue.key?("source")
@@ -200,7 +196,7 @@ module Kenna
             language = issue.fetch("language") if issue.key?("language")
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
-            version =  issue.fetch("version") if issue.key?("version")
+            version = issue.fetch("version") if issue.key?("version")
             description = issue.fetch("description") if issue.key?("description")
             cves = nil
             cwes = nil
@@ -239,16 +235,21 @@ module Kenna
 
             additional_fields.compact!
 
-            # craft the vuln hash
-            vuln = {
+            kdi_issue = {
               "scanner_identifier" => issue.fetch("id"),
-              "scanner_type" => "Snyk",
-              "scanner_score" => scanner_score,
-              "created_at" => issue_obj.fetch("introducedDate"),
-              "details" => JSON.pretty_generate(additional_fields)
+              "scanner_type" => "Snyk"
             }
-
-            vuln.compact!
+            kdi_issue_data = if use_findings
+                               { "severity" => scanner_score,
+                                 "last_seen_at" => issue_obj.fetch("introducedDate"),
+                                 "additional_fields" => additional_fields }
+                             else
+                               { "scanner_score" => scanner_score,
+                                 "created_at" => issue_obj.fetch("introducedDate"),
+                                 "details" => JSON.pretty_generate(additional_fields) }
+                             end
+            kdi_issue.merge!(kdi_issue_data)
+            kdi_issue.compact!
 
             patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
@@ -268,14 +269,19 @@ module Kenna
             vuln_def.compact!
 
             # Create the KDI entries
-            create_kdi_asset_vuln(asset, vuln)
+            if use_findings
+              create_kdi_asset_finding(asset, kdi_issue)
+            else
+              create_kdi_asset_vuln(asset, kdi_issue)
+            end
             create_kdi_vuln_def(vuln_def)
           end
         end
 
         ### Write KDI format
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        filename = "snyk_kdi.json"
+        suffix = use_findings ? "findings" : "vulns"
+        filename = "snyk_kdi_#{suffix}.json"
         kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end

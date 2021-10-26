@@ -42,6 +42,7 @@ Lint/UselessAssignment:
 Naming/VariableName:
   Exclude:
     - 'tasks/connectors/snyk/snyk.rb'
+    - 'tasks/connectors/snyk_v2/snyk_v2.rb'
     - 'tasks/connectors/snyk_findings/snyk_findings.rb'
     - 'tasks/utilities/csv2kdi/csv2kdi.rb'
 
@@ -111,6 +112,7 @@ Style/SoleNestedConditional:
   Exclude:
     - 'lib/kdi/kdi_helpers.rb'
     - 'tasks/connectors/snyk/snyk.rb'
+    - 'tasks/connectors/snyk_v2/snyk_v2.rb'
     - 'tasks/connectors/snyk_findings/snyk_findings.rb'
 
 # Offense count: 4
