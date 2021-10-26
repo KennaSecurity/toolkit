@@ -113,11 +113,15 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
 
     context "when there are multiple attack vectors" do
       let(:attack_vectors) { [vector0, vector1] }
-      let(:vector0) { { method: "GET", url: "http://vec.example.com" } }
-      let(:vector1) { { method: "POST", url: "http://vec.example.com/another/vector" } }
+      let(:vector0) { { request: { method: "GET", url: vector_url, headers: request_headers }, response: { status: response_status, headers: response_headers } } }
+      let(:vector1) { { request: { method: "POST", url: vector_url, headers: request_headers }, response: { status: response_status, headers: response_headers } } }
+      let(:vector_url) { "http://vector.example.com" }
+      let(:response_status) { 200 }
+      let(:request_headers) { [{ name: "User-Agent", value: "chrome" }, { name: "Cookie", value: "oreo" }] }
+      let(:response_headers) { [{ name: "ETag", value: "0xdeadbeef" }, { name: "X-Token", value: "this is a token" }] }
 
-      it "includes all vectors", :pending do
-        expect(finding_hash).to include(:request_0_url, :request_1_url)
+      it "includes all vectors" do
+        expect(finding_hash[:additional_details]).to include(request_0_method: "GET", request_1_method: "POST")
       end
     end
   end

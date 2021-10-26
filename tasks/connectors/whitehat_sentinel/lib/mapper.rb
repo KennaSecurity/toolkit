@@ -78,20 +78,22 @@ module Kenna
         end
 
         def attack_vectors(node)
-          return {} if node[:attack_vectors].empty?
+          vector_count = node.fetch(:attack_vectors, []).count
+          return {} if vector_count.zero?
 
-          vector = node[:attack_vectors].first
-
-          {
-            request_method: vector[:request][:method],
-            request_url: vector[:request][:url],
-            request_body: vector[:request][:body],
-            request_param_name: vector[:request][:param_name],
-            request_param_value: vector[:request][:param_value],
-            request_headers: combine_headers(vector[:request][:headers]),
-            response_status: vector[:response][:status],
-            response_headers: combine_headers(vector[:response][:headers])
-          }.compact.transform_values { |v| sanitize(v) }
+          node[:attack_vectors].each_with_index.map do |vector, i|
+            suffix = "_#{i}" unless vector_count == 1
+            {
+              "request#{suffix}_method": vector[:request][:method],
+              "request#{suffix}_url": vector[:request][:url],
+              "request#{suffix}_body": vector[:request][:body],
+              "request#{suffix}_param_name": vector[:request][:param_name],
+              "request#{suffix}_param_value": vector[:request][:param_value],
+              "request#{suffix}_headers": combine_headers(vector[:request][:headers]),
+              "response#{suffix}_status": vector[:response][:status],
+              "response#{suffix}_headers": combine_headers(vector[:response][:headers])
+            }.compact.transform_values { |v| sanitize(v) }
+          end.reduce(&:merge)
         end
 
         def combine_headers(headers)
