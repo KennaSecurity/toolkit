@@ -41,7 +41,7 @@ module Kenna
             vuln_def_name: node[:class],
             triage_state: map_status_to_triage_state(node.fetch(:status)),
             severity: severity_of(node),
-            additional_details: attack_vectors(node)
+            additional_fields: attack_vectors(node)
           }.compact
         end
 

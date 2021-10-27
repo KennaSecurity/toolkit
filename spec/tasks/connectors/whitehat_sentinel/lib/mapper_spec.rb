@@ -96,18 +96,18 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
       let(:request_headers) { [{ name: "User-Agent", value: "chrome" }, { name: "Cookie", value: "oreo" }] }
       let(:response_headers) { [{ name: "ETag", value: "0xdeadbeef" }, { name: "X-Token", value: "this is a token" }] }
 
-      it { is_expected.to include(additional_details: hash_including(request_method: method)) }
-      it { is_expected.to include(additional_details: hash_including(request_url: vector_url)) }
-      it { is_expected.to include(additional_details: hash_including(response_status: response_status.to_s)) }
+      it { is_expected.to include(additional_fields: hash_including(request_method: method)) }
+      it { is_expected.to include(additional_fields: hash_including(request_url: vector_url)) }
+      it { is_expected.to include(additional_fields: hash_including(response_status: response_status.to_s)) }
 
       it "combines the request headers into a single string" do
         headers_string = "User-Agent=chrome Cookie=oreo"
-        expect(finding_hash[:additional_details]).to include(request_headers: headers_string)
+        expect(finding_hash[:additional_fields]).to include(request_headers: headers_string)
       end
 
       it "combines the response headers into a single string" do
         headers_string = "ETag=0xdeadbeef X-Token=this is a token"
-        expect(finding_hash[:additional_details]).to include(response_headers: headers_string)
+        expect(finding_hash[:additional_fields]).to include(response_headers: headers_string)
       end
     end
 
@@ -121,7 +121,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
       let(:response_headers) { [{ name: "ETag", value: "0xdeadbeef" }, { name: "X-Token", value: "this is a token" }] }
 
       it "includes all vectors" do
-        expect(finding_hash[:additional_details]).to include(request_0_method: "GET", request_1_method: "POST")
+        expect(finding_hash[:additional_fields]).to include(request_0_method: "GET", request_1_method: "POST")
       end
     end
   end
