@@ -174,6 +174,11 @@ module Kenna
 
         query_response_json
       end
+
+      def remove_html_tags(string)
+        regex = /<("[^"]*"|'[^']*'|[^'">])*>/
+        string.gsub(regex, "")
+      end
     end
   end
 end

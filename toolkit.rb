@@ -3,10 +3,10 @@
 
 # all dependencies
 require_relative "lib/toolkit"
+require_relative "lib/params_helper"
 
 # First split up whatever we got
-args_array = ARGV.map { |arg| arg.split(":") }.flatten
-
+args_array = Kenna::Toolkit::ParamsHelper.build_params(ARGV)
 # Then split up this into a hash
 args = {}
 args_array.each do |arg|
