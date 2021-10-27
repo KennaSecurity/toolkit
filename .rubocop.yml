@@ -9,6 +9,8 @@ require:
 AllCops:
   TargetRubyVersion: 2.6
   NewCops: enable
+  Exclude:
+    - bin/**/*
 
 Bundler/DuplicatedGem:
   Enabled: true
