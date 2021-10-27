@@ -217,4 +217,40 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinel::Mapper do
       end
     end
   end
+
+  describe "#vuln_def_hash" do
+    let(:node) { { class: node_class, solution: solution_node, description: description_node } }
+    let(:node_class) { "Insufficient Transport Layer Protection" }
+    let(:solution_node) { { solution: "solution text" } }
+    let(:description_node) { { description: description_text } }
+    let(:description_text) { "description text" }
+
+    subject(:asset_hash) { mapper.vuln_def_hash(node) }
+
+    it { is_expected.to_not include(:cwe_identifiers) }
+
+    context "when the description references a CWE" do
+      let(:description_text) do
+        "<p>description text</p>\r\n\r\n<h2>References</h2>\r\n\r\n<p><a href=\"https://owasp.org/www-community/attacks/xss/\">owasp.org/www-community/attacks/xss/</a></p>\r\n\r\n<p><a href=\"https://webappsec.pbworks.com/w/page/13246920/Cross%20Site%20Scripting\">webappsec.pbworks.com/w/page/13246920/Cross%20Site%20Scripting</a></p>\r\n\r\n<p><a href=\"https://cwe.mitre.org/data/definitions/79.html\">cwe.mitre.org/data/definitions/79.html</a></p>\r\n\r\n<p>&nbsp;</p>\r\n"
+      end
+
+      it { is_expected.to include(cwe_identifiers: "CWE-79") }
+    end
+
+    context "when the description references a CWE without TLS" do
+      let(:description_text) do
+        "<p>description text</p>\r\n\r\n<h2>References</h2>\r\n\r\n<p><a href=\"https://owasp.org/www-community/attacks/xss/\">owasp.org/www-community/attacks/xss/</a></p>\r\n\r\n<p><a href=\"https://webappsec.pbworks.com/w/page/13246920/Cross%20Site%20Scripting\">webappsec.pbworks.com/w/page/13246920/Cross%20Site%20Scripting</a></p>\r\n\r\n<p><a href=\"http://cwe.mitre.org/data/definitions/79.html\">cwe.mitre.org/data/definitions/79.html</a></p>\r\n\r\n<p>&nbsp;</p>\r\n"
+      end
+
+      it { is_expected.to include(cwe_identifiers: "CWE-79") }
+    end
+
+    context "when the description references multiple CWEs" do
+      let(:description_text) do
+        "<p>description text</p>\r\n\r\n<h2>References</h2>\r\n\r\n<div><a href=\"https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A3-Sensitive_Data_Exposure\">https://owasp.org/www-project-top-ten/OWASP_Top_Ten_2017/Top_10-2017_A3-Sensitive_Data_Exposure</a></div>\r\n\r\n<div><a href=\"https://owasp-aasvs.readthedocs.io/en/latest/requirement-8.1.html\">https://owasp-aasvs.readthedocs.io/en/latest/requirement-8.1.html</a></div>\r\n\r\n<div><a href=\"https://cwe.mitre.org/data/definitions/200.html\">https://cwe.mitre.org/data/definitions/200.html</a></div>\r\n\r\n<div><a href=\"https://cwe.mitre.org/data/definitions/209.html\">cwe.mitre.org/data/definitions/209.html</a></div>\r\n\r\n<div><a href=\"https://capec.mitre.org/data/definitions/118.html\">capec.mitre.org/data/definitions/118.html</a></div>\r\n"
+      end
+
+      it { is_expected.to include(cwe_identifiers: "CWE-200,CWE-209") }
+    end
+  end
 end

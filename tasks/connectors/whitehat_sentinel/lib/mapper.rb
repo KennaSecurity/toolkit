@@ -4,6 +4,8 @@ module Kenna
   module Toolkit
     module WhitehatSentinel
       class Mapper
+        CWE_REGEX = %r{cwe.mitre.org/data/definitions/(?<cwe_id>\d+)\.html}.freeze
+
         def initialize(scoring_system)
           raise ArgumentError unless %i[advanced legacy].include? scoring_system
 
@@ -47,12 +49,13 @@ module Kenna
 
         def vuln_def_hash(node)
           {
-            "scanner_identifier" => node[:class],
-            "scanner_type" => "Whitehat Sentinel",
-            "name" => node[:class],
-            "description" => node[:description][:description],
-            "solution" => node[:solution][:solution]
-          }
+            scanner_identifier: node[:class],
+            scanner_type: "Whitehat Sentinel",
+            name: node[:class],
+            description: node[:description][:description],
+            solution: node[:solution][:solution],
+            cwe_identifiers: cwe_identifiers_from(node[:description][:description])
+          }.compact
         end
 
         private
@@ -114,6 +117,13 @@ module Kenna
 
         def sanitize(string)
           @sanitizer.fragment(string)
+        end
+
+        def cwe_identifiers_from(description)
+          identifiers = description.scan(CWE_REGEX).flatten.uniq
+          return unless identifiers.any?
+
+          identifiers.map { |id| "CWE-#{id}" }.join(",")
         end
       end
     end
