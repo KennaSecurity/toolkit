@@ -71,8 +71,10 @@ module Kenna
 
           nodes.each do |node|
             finding = mapper.finding_hash(node)
+            vuln_def = mapper.vuln_def_hash(node)
 
             create_kdi_asset_finding(asset, finding)
+            create_kdi_vuln_def(vuln_def)
           end
         end
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error

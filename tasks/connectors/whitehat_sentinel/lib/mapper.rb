@@ -45,6 +45,16 @@ module Kenna
           }.compact
         end
 
+        def vuln_def_hash(node)
+          {
+            "scanner_identifier" => node[:class],
+            "scanner_type" => "Whitehat Sentinel",
+            "name" => node[:class],
+            "description" => node[:description][:description],
+            "solution" => node[:solution][:solution]
+          }
+        end
+
         private
 
         def map_status_to_triage_state(status)
