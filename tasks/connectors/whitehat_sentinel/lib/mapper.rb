@@ -54,7 +54,7 @@ module Kenna
             name: node[:class],
             description: node[:description][:description],
             solution: node[:solution][:solution],
-            cwe_identifiers: cwe_identifiers_from(node[:description][:description])
+            cwe_identifiers: cwe_identifiers_from(node)
           }.compact
         end
 
@@ -119,8 +119,10 @@ module Kenna
           @sanitizer.fragment(string)
         end
 
-        def cwe_identifiers_from(description)
-          identifiers = description.scan(CWE_REGEX).flatten.uniq
+        def cwe_identifiers_from(node)
+          identifiers = node[:description][:description].scan(CWE_REGEX)
+          identifiers += node[:solution][:solution].scan(CWE_REGEX)
+          identifiers = identifiers.flatten.uniq
           return unless identifiers.any?
 
           identifiers.map { |id| "CWE-#{id}" }.join(",")
