@@ -31,7 +31,28 @@ module Kenna
               type: "string",
               required: false,
               default: "legacy",
-              description: "The scoring system used by Whitehat.  Choices are legacy and advanced." }
+              description: "The scoring system used by Whitehat.  Choices are legacy and advanced." },
+            { name: "kenna_api_key",
+              type: "api_key",
+              required: true,
+              default: nil,
+              description: "Kenna API Key" },
+            { name: "kenna_api_host",
+              type: "hostname",
+              required: true,
+              default: "api.kennasecurity.com",
+              description: "Kenna API Hostname" },
+            { name: "kenna_connector_id",
+              type: "integer",
+              required: true,
+              default: nil,
+              description: "The connector we will upload to." },
+            { name: "output_directory",
+              type: "filename",
+              required: false,
+              default: "output/whitehat_sentinel",
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+
           ]
         }
       end
@@ -44,6 +65,10 @@ module Kenna
         # 2. Retrieve tags from API
         # 3. Group findings by canonical URL
         # 4. Generate KDI doc from findings
+
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
 
         scoring_system = @options[:whitehat_scoring].downcase.to_sym
         unless %i[advanced legacy].include? scoring_system
@@ -77,6 +102,12 @@ module Kenna
             create_kdi_vuln_def(vuln_def)
           end
         end
+
+        ### Write KDI format
+        output_dir = "#{$basedir}/#{@options[:output_directory]}"
+        filename = "whitehat_sentinel_kdi.json"
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+        kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
         print_error "Problem connecting to Whitehat API, please verify the API key."
         exit
