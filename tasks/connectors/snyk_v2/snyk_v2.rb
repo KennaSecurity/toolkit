@@ -75,6 +75,9 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
+        skip_autoclose = false
+        retries = 3
+        kdi_version = 2
 
         snyk_api_token = @options[:snyk_api_token]
         use_findings = @options[:use_findings]
@@ -231,9 +234,12 @@ module Kenna
 
             additional_fields.compact!
 
+            vuln_name = issue["title"]
+
             kdi_issue = {
               "scanner_identifier" => issue.fetch("id"),
-              "scanner_type" => "Snyk"
+              "scanner_type" => "Snyk",
+              "vuln_def_name" => vuln_name
             }
             kdi_issue_data = if use_findings
                                { "severity" => scanner_score,
@@ -249,14 +255,10 @@ module Kenna
 
             patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
 
-            vuln_name = nil
-            vuln_name = issue.fetch("title") unless issue.fetch("title").nil?
-
             vuln_def = {
-              "scanner_identifier" => issue.fetch("id"),
+              "name" => vuln_name,
               "scanner_type" => "Snyk",
               "solution" => patches,
-              "name" => vuln_name,
               "description" => description
             }
             vuln_def["cve_identifiers"] = cves unless cves.nil?
@@ -278,7 +280,7 @@ module Kenna
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         suffix = use_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
     end
