@@ -86,8 +86,8 @@ module Kenna
         # output_directory = @options[:output_directory]
         include_license = @options[:include_license]
 
-        projectName_strip_colon = @options[:projectName_strip_colon]
-        packageManager_strip_colon = @options[:packageManager_strip_colon]
+        project_name_strip_colon = @options[:projectName_strip_colon]
+        package_manager_strip_colon = @options[:packageManager_strip_colon]
         package_strip_colon = @options[:package_strip_colon]
         to_date = Date.today.strftime("%Y-%m-%d")
         retrieve_from = @options[:retrieve_from]
@@ -148,30 +148,26 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application.slice(0..(application.rindex(":") - 1)) if projectName_strip_colon && !application.rindex(":").nil?
-            packageManager = issue.fetch("packageManager") if issue.key?("packageManager")
+            application.slice(0..(application.rindex(":") - 1)) if project_name_strip_colon && !application.rindex(":").nil?
+            package_manager = issue["packageManager"]
             package = issue.fetch("package")
             if project.key?("targetFile")
-              targetFile = project.fetch("targetFile")
+              target_file = project.fetch("targetFile")
             else
               print_debug "using strip colon params if set"
-              if !packageManager.nil? && !packageManager.empty?
-                packageManager = packageManager.slice(0..(packageManager.rindex(":") - 1)) if packageManager_strip_colon && !packageManager.rindex(":").nil?
-              end
-              if !package.nil? && !package.empty?
-                package = package.slice(0..(package.rindex(":") - 1)) if package_strip_colon && !package.rindex(":").nil?
-              end
-              targetFile = packageManager.to_s unless packageManager.nil?
-              targetFile = "#{targetFile}/" if !packageManager.nil? && !package.nil?
-              targetFile = "#{targetFile}#{package}"
+              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && package_manager_strip_colon && !package_manager.rindex(":").nil?
+              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && package_strip_colon && !package.rindex(":").nil?
+              target_file = package_manager.to_s
+              target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
+              target_file = "#{target_file}#{package}"
             end
 
             tags = []
             tags << project.fetch("source") if project.key?("source")
-            tags << packageManager if !packageManager.nil? && !packageManager.empty?
+            tags << package_manager if !package_manager.nil? && !package_manager.empty?
 
             asset = {
-              "file" => targetFile,
+              "file" => target_file,
               "application" => application,
               "tags" => tags
             }
@@ -186,12 +182,12 @@ module Kenna
             url = issue.fetch("url") if issue.key?("url")
             cvss = issue.fetch("cvssScore") if issue.key?("cvssScore")
             title = issue.fetch("title") if issue.key?("title")
-            fixedIn = issue.fetch("fixedIn") if issue.key?("fixedIn")
+            fixed_in = issue.fetch("fixedIn") if issue.key?("fixedIn")
             from = issue.fetch("from") if issue.key?("from")
             functions = issue.fetch("functions") if issue.key?("functions")
-            isPatchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
+            is_patchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
             publication_time = issue.fetch("publicationTime") if issue.key?("publicationTime")
-            isUpgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
+            is_upgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
             references = issue.fetch("references") if issue.key?("references")
             language = issue.fetch("language") if issue.key?("language")
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
@@ -216,18 +212,18 @@ module Kenna
               "title" => title,
               "introducedDate" => issue_obj.fetch("introducedDate"),
               "source" => source,
-              "fixedIn" => fixedIn,
+              "fixedIn" => fixed_in,
               "from" => from,
               "functions" => functions,
-              "isPatchable" => isPatchable,
-              "isUpgradable" => isUpgradable,
+              "isPatchable" => is_patchable,
+              "isUpgradable" => is_upgradable,
               "language" => language,
               "references" => references,
               "semver" => semver,
               "cvssScore" => cvss,
               "severity" => issue_severity,
               "package" => package,
-              "packageManager" => packageManager,
+              "packageManager" => package_manager,
               "version" => version,
               "identifiers" => identifiers_af,
               "publicationTime" => publication_time
