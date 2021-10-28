@@ -7,11 +7,7 @@ To run this task you need the following information:
 1. Kenna API Token/Key
 1. User-Role CSV File
 
-The data is batched by Application before being sent to Kenna. 
-
-1. Pull a list of applications (https://help.veracode.com/r/c_apps_intro)
-1. Pull a list of assets and vulns for each application and submit to Kenna (https://help.veracode.com/r/c_findings_v2_intro)
-
+This task will ingest the supplied CSV File and align the Kenna Users and Roles to match. There are a few optional parameters that can be supplied to provide more detailed functionality. It will create users, and roles as needed.  Any roles created will be general read-only roles that will need to be configured by the Kenna Administrator.  This task also has the capability to remove users when they exist in Kenna, but not in the currently supplied CSV File.
 
 ## Command Line
 
