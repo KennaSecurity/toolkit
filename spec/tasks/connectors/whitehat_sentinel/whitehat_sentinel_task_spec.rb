@@ -8,13 +8,15 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
   describe "#run" do
     let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, vulns: [vuln], assets: [asset]) }
     let(:key) { "0xdeadbeef" }
-    let(:options) { { whitehat_api_key: key } }
+    let(:options) { { whitehat_api_key: key, kenna_api_key: "api_key", kenna_api_host: "kenna.example.com", kenna_connector_id: "12" } }
     let(:valid) { true }
-    let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5 } }
+    let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5, description: { description: "text" }, solution: { solution: "text" } } }
     let(:asset) { { asset: { id: 12 } } }
+    let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: {}) }
 
     before do
       allow(Kenna::Toolkit::WhitehatSentinel::ApiClient).to receive(:new) { api_client }
+      allow(Kenna::Api::Client).to receive(:new) { kenna_client }
     end
 
     it "succeeds" do
