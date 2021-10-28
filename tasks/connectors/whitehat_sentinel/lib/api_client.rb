@@ -7,13 +7,14 @@ module Kenna
         class Error < StandardError; end
 
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
-        ASSET_LIMIT = 10
+        DEFAULT_PAGE_SIZE = 1_000
 
-        attr_reader :api_key
+        attr_reader :api_key, :page_size
         attr_accessor :logger
 
-        def initialize(api_key:)
+        def initialize(api_key:, page_size: DEFAULT_PAGE_SIZE)
           @api_key = api_key
+          @page_size = page_size
         end
 
         def api_key_valid?
@@ -23,7 +24,7 @@ module Kenna
           false
         end
 
-        def vulns(filters = {})
+        def vulns(filters = {}, &block)
           query = {
             "display_description" => "custom",
             "display_default_description" => "1",
@@ -41,30 +42,36 @@ module Kenna
             "display_abbr" => "0"
           }.merge(filters)
 
-          JSON.parse(get("/vuln", query), symbolize_names: true)[:collection]
+          paginated("/vuln", query, &block)
         end
 
-        def assets(page_size: ASSET_LIMIT, &block)
-          return to_enum(__method__, page_size: page_size) unless block_given?
+        def assets(&block)
+          query = {
+            "display_asset" => 1,
+            "display_all" => 1
+          }
 
-          offset = 0
-          loop do
-            query = {
-              "display_asset" => 1,
-              "display_all" => 1,
-              "page:limit" => page_size,
-              "page:offset" => offset
-            }
-
-            response = get("/asset", query)
-            parsed = JSON.parse(response, symbolize_names: true)
-            parsed[:collection].each(&block)
-            offset += page_size
-            break if parsed[:page][:total].to_i <= offset
-          end
+          paginated("/asset", query, &block)
         end
 
         private
+
+        def paginated(endpoint, query, &block)
+          return to_enum(__method__, endpoint, query) unless block_given?
+
+          query["page:limit"] = page_size
+          offset = 0
+          loop do
+            query["page:offset"] = offset
+            response = get(endpoint, query)
+            parsed = JSON.parse(response, symbolize_names: true)
+            parsed[:collection].each(&block)
+            offset += page_size
+
+            break if parsed[:collection].size < page_size
+            break if parsed.key?(:page) && parsed[:page][:total].to_i <= offset
+          end
+        end
 
         def get(path, options = {})
           retries = options.delete(:retries) { |_k| 5 }
