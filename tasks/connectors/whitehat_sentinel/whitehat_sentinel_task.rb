@@ -22,6 +22,11 @@ module Kenna
               required: true,
               default: "",
               description: "This is the Whitehat key used to query the API." },
+            { name: "whitehat_page_size",
+              type: "integer",
+              required: false,
+              default: 1_000,
+              description: "The number of items to retrieve from Whitehat with each API call." },
             { name: "minimum_severity_level",
               type: "integer",
               required: false,
@@ -78,7 +83,7 @@ module Kenna
         mapper = Kenna::Toolkit::WhitehatSentinel::Mapper.new(scoring_system)
 
         key = @options[:whitehat_api_key]
-        client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key)
+        client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key, page_size: @options[:whitehat_page_size])
 
         unless client.api_key_valid?
           print_error "The Whitehat API does not accept the provided API key."
