@@ -52,6 +52,11 @@ module Kenna
               required: true,
               default: nil,
               description: "The connector we will upload to." },
+            { name: "kenna_batch_size",
+              type: "integer",
+              required: false,
+              default: 1_000,
+              description: "The number of vulns to upload to Kenna at a time." },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -65,53 +70,61 @@ module Kenna
       def run(options)
         super
 
-        # Process:
-        # 1. Retrieve findings from API
-        # 2. Retrieve tags from API
-        # 3. Group findings by canonical URL
-        # 4. Generate KDI doc from findings
-
+        # Extract given options
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-
         scoring_system = @options[:whitehat_scoring].downcase.to_sym
+        key = @options[:whitehat_api_key]
+        page_size = @options[:whitehat_page_size].to_i
+        batch_size = @options[:kenna_batch_size].to_i
+        query_severity = query_severity_for(@options[:minimum_severity_level])
+        output_dir = "#{$basedir}/#{@options[:output_directory]}"
+
+        # Validate given options
         unless %i[advanced legacy].include? scoring_system
           print_error "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced."
           exit
         end
+
+        unless page_size.positive?
+          print_error "The page size of #{@options[:whitehat_page_size]} is not supported."
+          exit
+        end
+
+        print_error "The batch size of #{@options[:kenna_batch_size]} is not supported." unless batch_size.positive?
+
         mapper = Kenna::Toolkit::WhitehatSentinel::Mapper.new(scoring_system)
 
-        key = @options[:whitehat_api_key]
-        client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key, page_size: @options[:whitehat_page_size])
-
+        client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key, page_size: page_size)
         unless client.api_key_valid?
           print_error "The Whitehat API does not accept the provided API key."
           exit
         end
 
         filter = {}
-        filter[:query_severity] = query_severity_for(@options[:minimum_severity_level])
+        filter[:query_severity] = query_severity
 
         findings = client.vulns(filter.compact)
         client.assets.each { |node| mapper.register_asset(node) }
 
-        findings.group_by { |node| sanitize(node[:url]) }.each do |url, nodes|
-          asset = mapper.asset_hash(nodes.first, url)
+        findings.each_slice(batch_size).each_with_index do |batch, i|
+          batch.group_by { |node| sanitize(node[:url]) }.each do |url, nodes|
+            asset = mapper.asset_hash(nodes.first, url)
 
-          nodes.each do |node|
-            finding = mapper.finding_hash(node)
-            vuln_def = mapper.vuln_def_hash(node)
+            nodes.each do |node|
+              finding = mapper.finding_hash(node)
+              vuln_def = mapper.vuln_def_hash(node)
 
-            create_kdi_asset_finding(asset, finding)
-            create_kdi_vuln_def(vuln_def.stringify_keys)
+              create_kdi_asset_finding(asset, finding)
+              create_kdi_vuln_def(vuln_def.stringify_keys)
+            end
           end
-        end
 
-        ### Write KDI format
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        filename = "whitehat_sentinel_kdi.json"
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+          ### Write KDI format
+          filename = "whitehat_sentinel_kdi_#{i}.json"
+          kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+        end
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
         print_error "Problem connecting to Whitehat API, please verify the API key."
