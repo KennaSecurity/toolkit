@@ -55,8 +55,8 @@ module Kenna
             { name: "kenna_batch_size",
               type: "integer",
               required: false,
-              default: 1_000,
-              description: "The number of vulns to upload to Kenna at a time." },
+              default: 0,
+              description: "The number of findings to upload to Kenna at a time.  If not set, or set to 0, findings will not be batched, instead they will all be uploaded at once." },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -77,7 +77,7 @@ module Kenna
         scoring_system = @options[:whitehat_scoring].downcase.to_sym
         key = @options[:whitehat_api_key]
         page_size = @options[:whitehat_page_size].to_i
-        batch_size = @options[:kenna_batch_size].to_i
+        @batch_size = @options[:kenna_batch_size].to_i
         query_severity = query_severity_for(@options[:minimum_severity_level])
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
 
@@ -92,7 +92,7 @@ module Kenna
           exit
         end
 
-        print_error "The batch size of #{@options[:kenna_batch_size]} is not supported." unless batch_size.positive?
+        print_error "The batch size of #{@options[:kenna_batch_size]} is not supported." if @batch_size.negative?
 
         mapper = Kenna::Toolkit::WhitehatSentinel::Mapper.new(scoring_system)
 
@@ -108,7 +108,7 @@ module Kenna
         findings = client.vulns(filter.compact)
         client.assets.each { |node| mapper.register_asset(node) }
 
-        findings.each_slice(batch_size).each_with_index do |batch, i|
+        batched(findings).each_with_index do |batch, i|
           batch.group_by { |node| sanitize(node[:url]) }.each do |url, nodes|
             asset = mapper.asset_hash(nodes.first, url)
 
@@ -151,6 +151,15 @@ module Kenna
         return if level == 1
 
         level.upto(5).to_a.join(",")
+      end
+
+      def batched(findings)
+        if @batch_size.zero?
+          print_debug "Batch size of zero means we won't batch."
+          return [findings]
+        end
+
+        findings.each_slice(@batch_size)
       end
     end
   end
