@@ -9,6 +9,8 @@ require "json-write-stream"
 # initialize monkeypatches & other hacks
 require_relative "../initialize/hash"
 require_relative "../initialize/string"
+require_relative "../initialize/enumerable"
+require_relative "../initialize/presence"
 
 # local deps
 require_relative "helpers"
