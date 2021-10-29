@@ -1,0 +1,177 @@
+# frozen_string_literal: true
+
+require_relative "lib/bugcrowd_client"
+module Kenna
+  module Toolkit
+    class BugcrowdTask < Kenna::Toolkit::BaseTask
+      def self.metadata
+        {
+          id: "bugcrowd",
+          name: "Bugcrowd",
+          description: "Pulls assets and findings from Bugcrowd",
+          options: [
+            { name: "bugcrowd_api_user",
+              type: "string",
+              required: true,
+              default: nil,
+              description: "Bugcrowd API user" },
+            { name: "bugcrowd_api_password",
+              type: "string",
+              required: true,
+              default: nil,
+              description: "Bugcrowd API password" },
+            { name: "bugcrowd_api_host",
+              type: "hostname",
+              required: false,
+              default: "api.bugcrowd.com",
+              description: "Bugcrowd hostname, e.g. api.bugcrowd.com" },
+            { name: "batch_size",
+              type: "integer",
+              required: false,
+              default: 100,
+              description: "Maximum number of submissions to retrieve in batches. Bugcrowd API max value is 100." },
+            { name: "kenna_api_key",
+              type: "api_key",
+              required: false,
+              default: nil,
+              description: "Kenna API Key" },
+            { name: "kenna_api_host",
+              type: "hostname",
+              required: false,
+              default: "api.kennasecurity.com",
+              description: "Kenna API Hostname" },
+            { name: "kenna_connector_id",
+              type: "integer",
+              required: false,
+              default: nil,
+              description: "If set, we'll try to upload to this connector" },
+            { name: "output_directory",
+              type: "filename",
+              required: false,
+              default: "output/bugcrowd",
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+          ]
+        }
+      end
+
+      def run(opts)
+        super
+        initialize_options
+        client = Kenna::Toolkit::Bugcrowd::Client.new(@host, @api_user, @api_password)
+        offset = 0
+        loop do
+          response = client.get_submissions(offset, @batch_size)
+          response[:issues].each do |issue|
+            asset = extract_asset(issue)
+            finding = extract_finding(issue)
+            definition = extract_definition(issue)
+
+            create_kdi_asset_finding(asset, finding)
+            create_kdi_vuln_def(definition)
+          end
+
+          print_good("Processed #{offset + response[:count]} of #{response[:total_hits]} submissions.")
+          kdi_upload(@output_directory, "bugcrowd_submissions_report_#{offset}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          offset += response[:count]
+          break unless (response[:count]).positive?
+        end
+
+      end
+
+      private
+
+      def initialize_options
+        @host = @options[:bugcrowd_api_host]
+        @api_user = @options[:bugcrowd_api_user]
+        @api_password = @options[:bugcrowd_api_password]
+        @output_directory = @options[:output_directory]
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @batch_size = @options[:batch_size].to_i
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
+        print_error "Max batch_size value is 100." if @batch_size > 100
+      end
+
+      def extract_list(key, default = nil)
+        list = (@options[key] || "").split(",").map(&:strip)
+        list.empty? ? default : list
+      end
+
+      def valid_uri?(string)
+        uri = URI.parse(string)
+        %w[http https].include?(uri.scheme)
+      rescue URI::BadURIError, URI::InvalidURIError
+        false
+      end
+
+      def extract_asset(issue)
+        # This was decided by sebastian.calvo and maybe is wrong but it's something to start on
+        # 1. bug_url is a non required field in bugcrowd, but when present, can be any string, there is no validation
+        # 2. target sometimes is nil
+        # 3. program must be present
+        asset = {}
+        url = issue["attributes"]["bug_url"]
+        external_id = issue["target"] && issue["target"]["name"] || issue["program"]["name"]
+
+        if url.nil? || url.empty? || !valid_uri?(url)
+          print_error "Cannot build an asset locator. This should no happen. Review you data" if external_id.nil? || external_id.empty?
+          asset[:external_id] = external_id
+        else
+          asset[:url] = url
+        end
+
+        asset[:application] = external_id
+        asset.compact
+      end
+
+      def extract_finding(issue)
+        {
+          "scanner_identifier" => issue["id"],
+          "scanner_type" => "Bugcrowd",
+          "vuln_def_name" => issue["attributes"]["vrt_id"],
+          "severity" => (issue["attributes"]["severity"] || 0) * 2, # Bugcrowd severity is [1..5]
+          "triage_state" => map_state_to_triage_state(issue["attributes"]["state"]),
+          "additional_fields" => extract_additional_fields(issue),
+          "created_at" => issue["attributes"]["submitted_at"]
+        }.compact
+      end
+
+      def extract_definition(issue)
+        {
+          "name" => issue["attributes"]["vrt_id"],
+          "description" => CGI.escapeHTML("#{issue['attributes']['title']}\n\n#{issue['attributes']['description']}"),
+          "solution" => issue["attributes"]["remediation_advice"],
+          "scanner_type" => "Bugcrowd"
+        }.compact
+      end
+
+      def extract_additional_fields(issue)
+        fields = {}
+        fields[:custom_fields] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].empty?
+        fields[:extra_info] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].nil? || issue["attributes"]["extra_info"].empty?
+        fields[:http_request] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].nil? || issue["attributes"]["http_request"].empty?
+        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"] unless issue["attributes"]["vulnerability_references"].nil? || issue["attributes"]["vulnerability_references"].empty?
+        fields[:source] = issue["attributes"]["source"] unless issue["attributes"]["source"].nil?
+        fields[:program] = issue["program"] unless issue["program"]["name"]
+        fields[:organization] = issue["organization"] unless issue["organization"]["name"]
+        fields
+      end
+
+      def map_state_to_triage_state(bugcrowd_state)
+        case bugcrowd_state
+        when "new", "triaged", "resolved"
+          bugcrowd_state
+        when "unresolved"
+          "in_progress"
+        else
+          "not_a_security_issue"
+        end
+      end
+
+    end
+  end
+end
