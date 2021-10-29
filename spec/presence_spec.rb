@@ -54,6 +54,5 @@ RSpec.describe "BaseExtensions" do
     it "returns true on true" do
       expect(true.present?).to be_truthy
     end
-
   end
 end

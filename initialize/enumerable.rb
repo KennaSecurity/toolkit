@@ -2,7 +2,7 @@
 
 module Enumerable
   # Extracted from activesupport
-  # 
+  #
   # Convert an enumerable to a hash, using the block result as the key and the
   # element as the value.
   #
