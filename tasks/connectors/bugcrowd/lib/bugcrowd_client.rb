@@ -44,17 +44,13 @@ module Kenna
             index[info["id"]] = info
           end
 
-          count = 0
           submissions.each do |submission|
             submission["relationships"].each do |type, info|
               if info["data"]
                 relationship_id = info["data"]["id"]
                 relationship = included[type][relationship_id]
                 submission[type] = relationship["attributes"]
-              else
-                count += 1
               end
-              count
               if type == "program"
                 organization_id = relationship["relationships"]["organization"]["data"]["id"]
                 submission["organization"] = included["organization"][organization_id]["attributes"]

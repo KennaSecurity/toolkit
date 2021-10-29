@@ -76,7 +76,6 @@ module Kenna
           offset += response[:count]
           break unless (response[:count]).positive?
         end
-
       end
 
       private
@@ -171,7 +170,6 @@ module Kenna
           "not_a_security_issue"
         end
       end
-
     end
   end
 end
