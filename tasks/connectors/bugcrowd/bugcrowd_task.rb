@@ -30,6 +30,31 @@ module Kenna
               required: false,
               default: 100,
               description: "Maximum number of submissions to retrieve in batches. Bugcrowd API max value is 100." },
+            { name: "include_duplicated",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "Indicates whether to include duplicated submissions, defaults to false." },
+            { name: "severity",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "Limit results to a list of severity values ranging from 1 to 5 (comma separated). Only a maximum of 4 values are allowed." },
+            { name: "state",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "Limit results to a list of [new, out_of_scope, not_applicable, not_reproducible, triaged, unresolved, resolved, informational]." },
+            { name: "source",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "Limit results to a list of [api, csv, platform, qualys, external_form, email, jira]." },
+            { name: "submitted_from",
+              type: "date",
+              required: false,
+              default: nil,
+              description: "Get results above date. Use YYYY-MM-DD format." },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -60,7 +85,7 @@ module Kenna
         client = Kenna::Toolkit::Bugcrowd::Client.new(@host, @api_user, @api_password)
         offset = 0
         loop do
-          response = client.get_submissions(offset, @batch_size)
+          response = client.get_submissions(offset, @batch_size, submissions_filter)
           response[:issues].each do |issue|
             asset = extract_asset(issue)
             finding = extract_finding(issue)
@@ -71,10 +96,12 @@ module Kenna
           end
 
           print_good("Processed #{offset + response[:count]} of #{response[:total_hits]} submissions.")
+          break unless (response[:count]).positive?
+
           kdi_upload(@output_directory, "bugcrowd_submissions_report_#{offset}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
           offset += response[:count]
-          break unless (response[:count]).positive?
+          print_error "Reached max Bugcrowd API offset value of 9900" if offset > 9900
         end
       end
 
@@ -93,6 +120,16 @@ module Kenna
         @retries = 3
         @kdi_version = 2
         print_error "Max batch_size value is 100." if @batch_size > 100
+      end
+
+      def submissions_filter
+        {
+          include_duplicated: @options[:include_duplicated],
+          severity: @options[:severity],
+          state: @options[:state],
+          source: @options[:source],
+          submitted: @options[:submitted_from].nil? ? "" : "from.#{@options[:submitted_from]}"
+        }
       end
 
       def extract_list(key, default = nil)
@@ -153,7 +190,7 @@ module Kenna
         fields[:custom_fields] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].empty?
         fields[:extra_info] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].nil? || issue["attributes"]["extra_info"].empty?
         fields[:http_request] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].nil? || issue["attributes"]["http_request"].empty?
-        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"] unless issue["attributes"]["vulnerability_references"].nil? || issue["attributes"]["vulnerability_references"].empty?
+        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"].split("* ").join("\n") unless issue["attributes"]["vulnerability_references"].nil? || issue["attributes"]["vulnerability_references"].empty?
         fields[:source] = issue["attributes"]["source"] unless issue["attributes"]["source"].nil?
         fields[:program] = issue["program"] unless issue["program"]["name"]
         fields[:organization] = issue["organization"] unless issue["organization"]["name"]

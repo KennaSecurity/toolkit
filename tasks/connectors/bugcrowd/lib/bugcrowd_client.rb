@@ -16,8 +16,8 @@ module Kenna
                        "Bugcrowd-Version": BUGCROWD_VERSION }
         end
 
-        def get_submissions(offset = 0, limit = 100)
-          url = submissions_url(offset: offset, limit: limit)
+        def get_submissions(offset = 0, limit = 100, options = {})
+          url = submissions_url(options.merge(offset: offset, limit: limit))
           response = http_get(url, @headers, 2)
           build_issues(JSON.parse(response))
         end
@@ -25,13 +25,21 @@ module Kenna
         private
 
         def submissions_url(options = {})
-          params_string = "page[offset]=:offset&page[limit]=:limit&fields[submission]=bug_url,custom_fields,description,extra_info,http_request,remediation_advice,source,submitted_at,title,vrt_id,vrt_version,vulnerability_references,severity,state,target,program,cvss_vector&fields[organization]=name&fields[target]=name,category&include=target,program,program.organization,cvss_vector&fields[program]=name,organization"
-          params = fill_params(params_string, options)
-          "#{@endpoint}/submissions?#{params}"
+          params_string = "page[offset]=:offset&page[limit]=:limit&filter[duplicate]=:include_duplicated"\
+                          "&filter[severity]=:severity&filter[state]=:state&filter[source]=:source&filter[submitted]=:submitted"\
+                          "&fields[submission]=bug_url,custom_fields,description,extra_info,http_request,remediation_advice,"\
+                          "source,submitted_at,title,vrt_id,vrt_version,vulnerability_references,severity,state,target,"\
+                          "program,cvss_vector&fields[organization]=name&fields[target]=name,category&include=target,program,"\
+                          "program.organization,cvss_vector&fields[program]=name,organization"
+          defaults = { severity: "", state: "", submitted: "" }
+          params = fill_params(params_string, defaults.merge(options))
+          url = "#{@endpoint}/submissions?#{params}"
+          print_debug("GET: #{url}")
+          url
         end
 
         def fill_params(params_string, options)
-          options.inject(params_string) { |string, (key, value)| string.gsub(key.inspect, CGI.escape(value.to_s)) }
+          options.inject(params_string) { |string, (key, value)| string.gsub(key.inspect, value.to_s) }
         end
 
         # The API returns the data separated in submissions and it's associations in the "included" hash.

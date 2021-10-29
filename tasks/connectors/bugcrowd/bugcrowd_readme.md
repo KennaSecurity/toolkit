@@ -28,6 +28,11 @@ Complete list of Options:
 | bugcrowd_api_password | true | API password | n/a |
 | bugcrowd_api_host | false | "Bugcrowd hostname, e.g. api.bugcrowd.com" | api.bugcrowd.com |
 | batch_size | false | Maximum number of issues to retrieve in batches. Max allowed value is 100. | 100 |
+| include_duplicated | false | Indicates whether to include duplicated submissions, defaults to false. | false |
+| severity | false | Limit results to a list of severity values ranging from 1 to 5 (comma separated). Only a maximum of 4 values are allowed. | n/a |
+| state | false | Limit results to a list of [new, out_of_scope, not_applicable, not_reproducible, triaged, unresolved, resolved, informational]. | n/a |
+| source | false | Limit results to a list of [api, csv, platform, qualys, external_form, email, jira]. | n/a |
+| submitted_from | false | Get results above date. Use YYYY-MM-DD format. | n/a |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
