@@ -74,6 +74,11 @@ module Kenna
         end
       end
 
+      def fail_task(message)
+        print_error(message)
+        exit 1
+      end
+
       ###
       ### Helper to read a file consistently
       ###

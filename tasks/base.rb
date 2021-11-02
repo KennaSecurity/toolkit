@@ -48,11 +48,10 @@ module Kenna
 
         # if we do have missing ones, lets warn the user here and return
         unless missing_options.empty?
-          print_error "Required options missing, cowardly refusing to continue!"
           missing_options.each do |arg|
             print_error "Missing! #{arg[:name]}: #{arg[:description]}"
           end
-          exit
+          fail_task "Required options missing, cowardly refusing to continue!"
         end
 
         # No missing arguments, so let's add in our default arguments now
