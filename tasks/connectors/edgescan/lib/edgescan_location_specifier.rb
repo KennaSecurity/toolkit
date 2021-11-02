@@ -24,7 +24,7 @@ module Kenna
         end
 
         def to_kenna_asset
-          base = { "external_id" => external_asset_id, "application" => asset.application_id, "tags" => asset.tags }
+          base = { "external_id" => external_asset_id, "tags" => asset.tags }
 
           base["ip_address"] = location if type == "ip"
           base["hostname"] = location if type == "hostname"

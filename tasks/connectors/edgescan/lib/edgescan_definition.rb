@@ -12,7 +12,7 @@ module Kenna
 
         def to_kenna_definition
           {
-            "scanner_type" => "Edgescan",
+            "scanner_type" => scanner_type,
             "scanner_identifier" => data["id"],
             "name" => data["name"],
             "description" => data["description_src"],
@@ -23,6 +23,10 @@ module Kenna
         end
 
         private
+
+        def scanner_type
+          data["layer"] == 7 ? "EdgescanApp" : "EdgescanNet"
+        end
 
         def cves
           data["cves"].empty? ? nil : data["cves"].join(",")
