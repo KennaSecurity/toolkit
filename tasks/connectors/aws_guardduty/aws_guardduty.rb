@@ -209,8 +209,7 @@ module Kenna
           end
         rescue Aws::GuardDuty::Errors::ServiceError => e
           # rescues all errors returned by Amazon Inspector
-          print_error "Irrecoverable error connecting to AWS, exiting: #{e}"
-          exit
+          fail_task "Irrecoverable error connecting to AWS, exiting: #{e}"
         end
 
         findings

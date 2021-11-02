@@ -173,8 +173,7 @@ module Kenna
         rescue Aws::Inspector::Errors::ServiceError => e
           # rescues all errors returned by Amazon Inspector
           print_error "Irrecoverable error connecting to AWS!"
-          print_error e.inspect
-          exit
+          fail_task e.inspect
         end
 
         findings

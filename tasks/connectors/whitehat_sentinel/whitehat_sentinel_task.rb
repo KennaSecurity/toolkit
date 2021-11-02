@@ -82,25 +82,16 @@ module Kenna
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
 
         # Validate given options
-        unless %i[advanced legacy].include? scoring_system
-          print_error "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced."
-          exit
-        end
+        fail_task "The #{@options[:whitehat_scoring]} scoring system is not supported.  Choices are legacy and advanced." unless %i[advanced legacy].include? scoring_system
 
-        unless page_size.positive?
-          print_error "The page size of #{@options[:whitehat_page_size]} is not supported."
-          exit
-        end
+        fail_task "The page size of #{@options[:whitehat_page_size]} is not supported. It must be a positive number." unless page_size.positive?
 
-        print_error "The batch size of #{@options[:kenna_batch_size]} is not supported." if @batch_size.negative?
+        fail_task "The batch size of #{@options[:kenna_batch_size]} is not supported. It may not be a negative number." if @batch_size.negative?
 
         mapper = Kenna::Toolkit::WhitehatSentinel::Mapper.new(scoring_system)
 
         client = Kenna::Toolkit::WhitehatSentinel::ApiClient.new(api_key: key, page_size: page_size)
-        unless client.api_key_valid?
-          print_error "The Whitehat API does not accept the provided API key."
-          exit
-        end
+        fail_task "The Whitehat API does not accept the provided API key." unless client.api_key_valid?
 
         filter = {}
         filter[:query_severity] = query_severity
@@ -127,8 +118,7 @@ module Kenna
         end
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       rescue Kenna::Toolkit::WhitehatSentinel::ApiClient::Error
-        print_error "Problem connecting to Whitehat API, please verify the API key."
-        exit
+        fail_task "Problem connecting to Whitehat API, please verify the API key."
       end
 
       def sanitize(raw_url)

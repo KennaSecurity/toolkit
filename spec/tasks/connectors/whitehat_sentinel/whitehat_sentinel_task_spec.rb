@@ -29,7 +29,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
       end
 
       it "exits the script" do
-        expect { task.run(options) }.to raise_error(SystemExit)
+        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
       let(:valid) { false }
 
       it "exits the script" do
-        expect { task.run(options) }.to raise_error(SystemExit)
+        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
       end
     end
   end

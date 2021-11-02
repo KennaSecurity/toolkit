@@ -33,10 +33,7 @@ module Kenna
         def build_score_map(mapping)
           mapping.split(",").each do |score|
             x = score.split("-")
-            unless (0..100).include?(x[1].to_i) && x[1] !~ /\D/
-              puts "ERROR: Invalid Score Mapping. Quitting process."
-              exit
-            end
+            fail_task "ERROR: Invalid Score Mapping. Quitting process." unless (0..100).include?(x[1].to_i) && x[1] !~ /\D/
           end
 
           score_map = {}
