@@ -7,7 +7,9 @@ module Kenna
   module Toolkit
     class QualysWas < Kenna::Toolkit::BaseTask
       include Kenna::Toolkit::QualysWasHelper
-
+      STATUS_MAPPING = {
+        'new' => ''
+      }
       def self.metadata
         {
           id: "qualys_was",
@@ -86,181 +88,83 @@ module Kenna
 
         token = qualys_was_get_token(username, password)
         web_apps = qualys_was_get_webapp(token)
-        web_apps_findings = {}
+        vuln_hsh = {}
         web_apps['ServiceResponse']['data'].each do |web_app|
-          web_apps_findings[web_app['WebApp']['id']] = qualys_was_get_webapp_findings(web_app['WebApp']['id'], token)
+          findings = qualys_was_get_webapp_findings(web_app['WebApp']['id'], token)
+          next unless findings.present?
+
+          findings.map do | _, finding|
+            qids = findings['ServiceResponse']['data'].map{|x| x['Finding']['qid']}.uniq
+            vulns = qualys_was_get_vuln(qids, token)
+            vulns = JSON.parse(vulns)['KNOWLEDGE_BASE_VULN_LIST_OUTPUT']['RESPONSE']['VULN_LIST']['VULN'].group_by do |vuln|
+              vuln['QID']
+            end
+
+            vuln_hsh.merge!(vulns)
+
+            finding['data'].each do |data|
+              find_from = data['Finding']
+
+              asset = {
+                'url' => '',
+                'application_identifier' => find_from['webApp']['name']
+              }
+              asset.compact!
+
+              details = {
+                'potential' => find_from['potential'],
+                'result_list' => find_from['resultList']['list']
+              }.tap do |t|
+                t.merge!(find_from['owasp']) if find_from['owasp'].present?
+              end.tap do |t|
+                t.merge!(find_from['wasc']) if find_from['wasc'].present?
+              end
+
+              details.compact!
+
+              # start finding section
+              finding = {
+                "scanner_identifier" => find_from['id'],
+                "scanner_type" => "QualysWas",
+                'severity' => find_from['severity'] * 2,
+                "created_at" => find_from['firstDetectedDate'],
+                "last_seen_at" => find_from['lastTestedDatee'],
+                "additional_fields" => details,
+                "triage_state" => find_from['status'],
+                'vuln_def_name' => find_from['name']
+              }
+              # # in case any values are null, it's good to remove them
+              finding.compact!
+
+              vuln_def = {
+                'name' => find_from['name'],
+                "scanner_type" => "QualysWas"
+              }.tap do |t|
+                if vuln_hsh[find_from['qid'].to_s].present?
+                  t["description"] = vuln_hsh[find_from['qid'].to_s].last['DIAGNOSIS'],
+                  t["solution"] = vuln_hsh[find_from['qid'].to_s].last['SOLUTION']
+                end
+
+                t["cwe_id"] = find_from['cwe']['list'].first if find_from['cwe'].present?
+              end
+
+              # Create the KDI entries
+              create_kdi_asset_finding(asset, finding)
+              create_kdi_vuln_def(vuln_def)
+            end
+          end
+
+          ### Write KDI format
+          output_dir = "#{$basedir}/#{@options[:output_directory]}"
+          filename = "qualys_was_#{web_app['id']}.json"
+          # write_file_stream(output_dir, filename, false, @assets, @vuln_defs, 1)
+          # print_good "Output is available at: #{output_dir}/#{filename}"
+          # print_good "Attempting to upload to Kenna API"
+          # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", true
+          kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+
         end
-
-        web_apps_findings.each do |web_app, findings|
-          p "QID's Details For WebApp ID: #{web_app}"
-          qids = findings['ServiceResponse']['data'].map{|x| x['Finding']['qid']}.uniq
-
-          qualys_was_get_vuln(qids, token)
-        end
-
-        #if container_data
-        #  print_debug "Container_data flag set to true"
-        #  containers = {}
-        #  contpages = true
-        #  while contpages
-#
-#            cont_pagenum += 1
-#            cont_json = qualys_was_get_containers(qualys_was_url, token, 500, cont_pagenum)
-
-#            if cont_json.nil? || cont_json.empty? || cont_json.length.zero?
-#              contpages = false
-#              break
-#            end
-#
-#            cont_json.each do |cont_obj|
-#              cont_id = cont_obj["id"]
-#              cont_name = cont_obj["name"]
-#              # host_name = cont_obj["host_name"]
-#              img_id = cont_obj.fetch("image_id")
-              # img_name = cont_obj["image_name"]
-#              cont_status = cont_obj["status"]
-#              sys_cont = cont_obj["system_container"]
-#              cont_type = cont_obj["container_type"]
-#              enforcer_group = cont_obj["host_enforcer_group"]
-#              compliant = cont_obj["compliant"]
-#              img_compliant = cont_obj["image_assurance_compliant"]
-#
-#              cont_locator = {
-#                "container_id" => cont_id
-#              }
-#
-#              cont_asset = {
-#                "container_id" => cont_id,
-#                "asset_type" => "container",
-#                "hostname" => cont_name,
-#                "locator_fields" => cont_locator,
-#                "tags" => ["status: #{cont_status}",
-#                           "systemContainer: #{sys_cont}",
-#                           "type: #{cont_type}",
-#                           "enforcerGroup: #{enforcer_group}",
-#                           "containerCompliance: #{compliant}",
-#                           "imageCompliance: #{img_compliant}",
-#                           "imageID: #{img_id}"]
-#              }
-#              print_debug "Creating a Container HashMap"
-#              containers.store(img_id, cont_id)
-#              print_debug "Creating Container asset"
-#              create_kdi_asset(cont_asset)
-#            end
-#          end
-#        end
-
-#        morepages = true
-#        while morepages
-#
-#          pagenum += 1
-#          vuln_json = qualys_was_get_vuln(qualys_was_url, token, 500, pagenum)
-#
-#          # print_debug "vuln json = #{vuln_json}"
-#          print_debug "Page: #{pagenum}"
-#          vuln_json.to_json
-#          # print_debug "vuln result json: #{vuln_result_json}"
-#
-#          if vuln_json.nil? || vuln_json.empty? || vuln_json.length.zero?
-#            morepages = false
-#            break
-#          end
-
-          # Not sure if needed
-          # finding_severity = { "high" => 6, "medium" => 4, "low" => 1 }
-#          vuln_json.each do |vuln_obj|
-#            vuln_name = vuln_obj["name"]
-#            identifiers = vuln_obj["name"]
-#            resource_obj = vuln_obj["resource"]
-#            package_manager = resource_obj.fetch("format") if resource_obj.key?("format")
-#            package = resource_obj.fetch("name") if resource_obj.key?("name")
-#            # version =  resource_obj.fetch("version") if resource_obj.key?("version")
-#            image_name = vuln_obj["image_name"]
-#            image_id = vuln_obj["image_digest"]
-#            image_registry = vuln_obj["registry"]
-#            image_repo = vuln_obj["image_repository_name"]
-#            os = "#{vuln_obj['os']}-#{vuln_obj['os_version']}" if vuln_obj.key?("os_version")
-#            arch = resource_obj.fetch("arch") if resource_obj.key?("arch")
-#            ack_date = vuln_obj["acknowledged_date"]
-#            qualys_was_score = (vuln_obj["qualys_was_score"]).ceil
-#            print_debug "Vuln name: #{vuln_name}"
-
-#            locator = {
-#              "image_id" => image_id
-#            }
-
-#            img_asset = {
-#
-#              "image_id" => image_id,
-#              "asset_type" => "image",
-#              "hostname" => image_name,
-#              "locator_fields" => locator,
-#              "os" => os,
-#              "tags" => ["registry: #{image_registry}",
-#                         "repository: #{image_repo}",
-#                         "architecture: #{arch}",
-#                         "package: #{package}",
-#                         "packageManager: #{package_manager}",
-#                         "acknowledged_date: #{ack_date}"]
-#            }
-            # print_debug asset
-
-#            scanner_score = qualys_was_score
-#            description = vuln_obj.fetch("description") if vuln_obj.key?("description")
-#            solution = vuln_obj.fetch("solution") if vuln_obj.key?("solution")
-#            cve_identifiers = identifiers if identifiers.include? "CVE"
-
-            # craft vuln def
-#            vuln_def = {
-#              "scanner_type" => "qualys_was",
-#              "name" => vuln_name,
-#              "description" => description,
-#              "solution" => solution,
-#              "cve_identifiers" => cve_identifiers,
-#              "scanner_identifier" => identifiers
-#            }
-#            vuln_def.compact!
-            # print_debug vuln_def
-
-            # craft the vuln hash
-#            vuln = {
-#              "scanner_identifier" => identifiers,
-#              "scanner_type" => "qualys_was",
-#              "scanner_score" => scanner_score,
-#              "created_at" => vuln_obj.fetch("first_found_date"),
-#              "last_seen_at" => vuln_obj.fetch("last_found_date"),
-#              "status" => "open",
-#              "vuln_def_name" => vuln_name
-#            }
-
-#            vuln.compact!
-            # print_debug vuln
-
-            # Create the KDI entries
-#            print_debug "Creating Image Asset-Vuln in KDI"
-#            create_kdi_asset_vuln(img_asset, vuln)
-#
-#            if container_data && containers.key?("image_id")
-#              asset_id = containers.fetch(image_id)
-#              print_debug "Container asset: #{asset_id}"
-#              print_debug "Creating Container Asset-Vuln in KDI"
-#              create_kdi_asset_vuln({ "container_id" => asset_id }, vuln, "container_id")
-#            end
-#
-#            print_debug "Creating Asset-Vuln in KDI"
-#            create_kdi_vuln_def(vuln_def)
-#          end
-#        end
-#
-#        ### Write KDI format
-#        output_dir = "#{$basedir}/#{@options[:output_directory]}"
-#        filename = "qualys_was_kdi.json"
-#        # write_file_stream(output_dir, filename, false, @assets, @vuln_defs, 1)
-        # print_good "Output is available at: #{output_dir}/#{filename}"
-        # print_good "Attempting to upload to Kenna API"
-        # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", true
-#        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
-#        kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
+        kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
       end
     end
   end
