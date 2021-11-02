@@ -241,9 +241,9 @@ module Kenna
             # craft the vuln def hash
             vuln_def = {
               # PICK (CVE OR CWE OR WASC) OR none but not all three
-              "cve_id" => vuln_cve,
-              "cwe_id" => vuln.fetch("cwe_id_from_scanner"),
-              "wasc_id" => vuln.fetch("wasc_id_from_scanner"),
+              "cve_identifiers" => vuln_cve,
+              "cwe_identifiers" => vuln.fetch("cwe_id_from_scanner"),
+              "wasc_identifiers" => vuln.fetch("wasc_id_from_scanner"),
               # desc & solution can be left blank for cve and cwe and Kenna will pull in data
               "description" => vuln.fetch("description_from_scanner"),
               "solution" => vuln.fetch("solution_from_scanner"),

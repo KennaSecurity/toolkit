@@ -23,13 +23,13 @@ module Kenna
             { name: "wiz_auth_endpoint",
               type: "hostname",
               required: false,
-              default: "auth",
+              default: "auth.wiz.io",
               description: "url to retrieve hosts and vulns - if no variation this might not need to be a param" },
             { name: "wiz_api_host",
               type: "hostname",
-              required: false,
-              default: "eu3.test",
-              description: "url to retrieve hosts and vulns - if no variation this might not need to be a param" },
+              required: true,
+              default: "",
+              description: "url to retrieve hosts and vulns - find it here https://app.wiz.io/user/profile - API Endpoint URL" },
             { name: "vulnerabilities_since",
               type: "integer",
               required: false,
@@ -121,7 +121,7 @@ module Kenna
             hostname = row["AssetName"]
             unique_id = row["ProviderUniqueId"]
             image_id = ""
-            os = ""
+            os = nil
             runtime = ""
             tags = []
             tags_hash = JSON.parse(row["Tags"])
@@ -136,10 +136,11 @@ module Kenna
             vuln_score = vuln_severity[severity].to_i
             if abspath.include? "VIRTUAL_MACHINE"
               runtime = row["Runtime"]
+              os = ow["OperatingSystem"] unless row["OperatingSystem"].empty?
             elsif abspath.include? "CONTAINER_IMAGE"
               image_id = row["ImageId"]
             elsif abspath.include? "SERVERLESS"
-              os = row["OperatingSystem"]
+              os = row["OperatingSystem"] unless row["OperatingSystem"].empty?
               external_id = unique_id
             end
             asset = {
@@ -147,9 +148,9 @@ module Kenna
               "image_id" => image_id,
               "hostname" => hostname,
               "tags" => tags,
-              "os" => os,
               "external_id" => external_id
             }
+            asset["os"] = row["OperatingSystem"] unless os.nil?
             asset.compact!
             details_additional_fields = {
               "WizURL" => vuln_url,
@@ -178,7 +179,7 @@ module Kenna
 
             vuln_def = {
               # PICK (CVE OR CWE OR WASC) OR none but not all three
-              "cve_id" => cve,
+              "cve_identifiers" => cve,
               "solution" => solution,
               "scanner_type" => "Wiz",
               "name" => cve
