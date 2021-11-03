@@ -23,6 +23,10 @@ module Kenna
           "#{data['name']} (ES#{id})"
         end
 
+        def application?
+          data["type"] == "app"
+        end
+
         def location_specifiers
           @location_specifiers ||= @data["location_specifiers"].map do |specifier|
             EdgescanLocationSpecifier.new(self, specifier)
