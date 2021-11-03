@@ -220,12 +220,9 @@ module Kenna
         client = Kenna::Toolkit::Ssc::Client.new(ssc_api_key)
 
         ### Basic Sanity checking
-        if client.successfully_authenticated?
-          print_good "Successfully authenticated!"
-        else
-          print_error "Unable to proceed, invalid key for Security Scorecard?"
-          return
-        end
+        fail_task "Unable to proceed, invalid key for Security Scorecard?" unless client.successfully_authenticated?
+
+        print_good "Successfully authenticated!"
 
         unless ssc_portfolio_ids
           ssc_portfolio_ids = []
