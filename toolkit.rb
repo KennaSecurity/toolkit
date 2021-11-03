@@ -24,7 +24,7 @@ args_array.each do |arg|
     print_error "FATAL! Invalid Argument: #{arg}"
     print_error "All arguments should take the form [name]=[value]"
     print_error "Multiple arguments should be separated by colons (:) or spaces"
-    exit
+    exit 1
   end
 
   # set the arg value into the hash
@@ -35,7 +35,7 @@ end
 unless args[:task]
   print_error "FATAL! Missing required argument: 'task'"
   print_usage
-  exit
+  exit 1
 end
 
 # handle task request
@@ -49,5 +49,6 @@ else
     task_class.new.run(args)
   else
     puts "[!] Error. Unknown task requested!"
+    exit 1
   end
 end
