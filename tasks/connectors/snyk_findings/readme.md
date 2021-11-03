@@ -1,3 +1,4 @@
+# DEPRECATED PLEASE USE SNYK V2
 # Snyk Toolkit Task to Kenna.AppSec Finding Model (Beta)
 
 ## This Task will use the Snyk API to
