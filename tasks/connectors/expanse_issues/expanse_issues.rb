@@ -101,10 +101,7 @@ module Kenna
         @vuln_defs = []
 
         # verify we have a good key before proceeding
-        unless @client.successfully_authenticated?
-          print_error "Unable to proceed, invalid key for Expanse?"
-          return
-        end
+        fail_task "Unable to proceed, invalid key for Expanse?" unless @client.successfully_authenticated?
         print_good "Valid key, proceeding!"
 
         create_kdi_from_issues(@options[:expanse_page_size], @issue_types, @priorities, @tags, @fm, @options[:lookback])
