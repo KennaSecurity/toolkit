@@ -2,7 +2,7 @@
 
 module Kenna
   module Toolkit
-    class Netsparker < Kenna::Toolkit::BaseTask
+    class DeprecatedNetsparker < Kenna::Toolkit::BaseTask
       def self.metadata
         {
           id: "netsparker",
