@@ -29,3 +29,38 @@ Complete list of Options:
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/veracode |
+
+## Veracode Endpoints
+This task uses the following Veracode REST API endpoints.
+- Applications: https://api.veracode.com/appsec/v1/applications/
+- Findings: https://api.veracode.com/appsec/v2/applications/{application_guid}/findings
+- Categories: https://api.veracode.com/appsec/v1/categories/
+
+## What do we bring in?
+
+| Veracode Field | Kenna Field | Notes |
+| --- | --- | --- |
+| <file_path>:<file_line_number> | File | For STATIC Findings. Concatenation of File Path and Line Number |
+| url | URL | For DYNAMIC Findings |
+| <app_name> - <url/file> | External ID | This concatenates the app_name to other primary locator for External ID. The File locator is used for STATIC. The URL value is used for DYNAMIC. |
+| Status/Resolution | Triage State | See explanation below. |
+| Scan Type  | Tags | |
+| CWE ID | CWE | |
+| CWE Name | CWE Name | |
+| fist_found_date | Created At | |
+| last_seen_date | Last Seen At | |
+| Issue_Id, Description, Recommendation, Violates Policy, Severity | Additional Information | |
+| Recommendation | Solution | |
+| "veracode" | Scanner Type | static value |
+| Severity | Scanner Score | |
+| Severity * 2 | Kenna Severity | Converted from 5pt scale to 10pt scale, which is required by the Kenna Data Importer. |
+
+
+## Triage State (Status)
+
+The logic below outlines how the Veracode Status is translated in a Triage State within Kenna AppSec.
+
+- NEW : When the Status is reported as "new" by Veracode
+- FALSE POSITIVE : When the Status is reported as "closed" by Veracode, and "resolution" is "POTENTIAL_FALSE_POSITIVE".
+- CLOSED : When the Status is reported as "closed" by Veracode.
+- IN PROGRESS : When the Status is reported by Veracode as any status other than above.
