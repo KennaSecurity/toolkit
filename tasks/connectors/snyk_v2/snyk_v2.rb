@@ -18,11 +18,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Snyk API Token" },
-            { name: "use_findings",
-              type: "boolean",
+            { name: "import_type",
+              type: "string",
               required: false,
-              default: false,
-              description: "whether the connector should import data as findings." },
+              default: "vulns",
+              description: "what to import \"vulns\" or \"findings\". By default \"vulns\"" },
             { name: "retrieve_from",
               type: "date",
               required: false,
@@ -80,7 +80,7 @@ module Kenna
         kdi_version = 2
 
         snyk_api_token = @options[:snyk_api_token]
-        use_findings = @options[:use_findings]
+        import_findings = @options[:import_type] == "findings"
 
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -241,7 +241,7 @@ module Kenna
               "scanner_type" => "Snyk",
               "vuln_def_name" => vuln_name
             }
-            kdi_issue_data = if use_findings
+            kdi_issue_data = if import_findings
                                { "severity" => scanner_score,
                                  "last_seen_at" => issue_obj.fetch("introducedDate"),
                                  "additional_fields" => additional_fields }
@@ -267,7 +267,7 @@ module Kenna
             vuln_def.compact!
 
             # Create the KDI entries
-            if use_findings
+            if import_findings
               create_kdi_asset_finding(asset, kdi_issue)
             else
               create_kdi_asset_vuln(asset, kdi_issue)
@@ -278,7 +278,7 @@ module Kenna
 
         ### Write KDI format
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        suffix = use_findings ? "findings" : "vulns"
+        suffix = import_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
         kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key

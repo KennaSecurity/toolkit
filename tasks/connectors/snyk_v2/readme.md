@@ -33,7 +33,7 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
 | snyk_api_token |api_key | true | Snyk API Token |
-| use_findings | boolean | false | Whether the connector should import data as findings. |
+| import_type | string | false | What to import, "vulns" or "findings". By default "vulns". |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | include_license | boolean | false | retrieve license issues? |
@@ -43,5 +43,5 @@ Run the Snyk task following the guidelines on the main [toolkit help page](https
 
 ## Example Command Line:
 
-    toolkit:latest task=snyk snyk_api_token=xxx kenna_connector_id=156xxx kenna_api_key:xxx include_license=true
+    toolkit:latest task=snyk_v2 snyk_api_token=xxx kenna_connector_id=156xxx kenna_api_key:xxx include_license=true
 
