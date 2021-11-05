@@ -87,10 +87,10 @@ module Kenna
             end
             print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
             kdi_upload(@output_directory, "acunetix360_scan_#{scan_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
             pos += @max_issues
           end
         end
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       private
