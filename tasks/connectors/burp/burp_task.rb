@@ -23,7 +23,7 @@ module Kenna
             { name: "burp_issue_severity",
               type: "string",
               required: false,
-              default: "[info, low, medium, high]",
+              default: "info, low, medium, high",
               description: "A list of [info, low, medium, high] (comma separated)" },
             { name: "burp_api_token",
               type: "api_key",
@@ -88,13 +88,13 @@ module Kenna
 
               print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
               kdi_upload(@output_directory, "burp_scan_#{scan_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-              kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
               pos += @max_issues
             end
           else
             print("No scan found for schedule #{schedule_id}")
           end
         end
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       private
@@ -129,7 +129,7 @@ module Kenna
       def extract_asset(issue)
         {
           "url" => "#{issue['origin']}#{issue['path']}",
-          "application" => issue["origin"]
+          "application" => issue["origin"].gsub(%r{https://|http://}, "")
         }.compact
       end
 

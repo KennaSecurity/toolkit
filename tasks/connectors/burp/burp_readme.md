@@ -27,7 +27,7 @@ Complete list of Options:
 
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
-| burp_api_host | true | Burp instance hostname, e.g. http://burp.example.com:8080  | n/a |
+| burp_api_host | true | Burp instance hostname, e.g. http://burp.example.com:8080 . Must escape hostname in command line script, e.g. \\"http://burp.example.com:8080\"  | n/a |
 | burp_schedule_id | true | A list of Burp Schedule ID (comma separated) | n/a |
 | burp_issue_severity | false | A list of [info, low, medium, high] (comma separated) | [info, low, medium, high] |
 | burp_api_token | true | Burp User API token | n/a |
