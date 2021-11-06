@@ -1,46 +1,37 @@
 # frozen_string_literal: true
 
 require "json"
-require 'active_support'
-require 'active_support/core_ext'
+require "active_support"
+require "active_support/core_ext"
 require "rest_client"
 require "base64"
-
 
 module Kenna
   module Toolkit
     module QualysWasHelper
       def qualys_was_get_token(username, password)
         auth_details = "#{username}:#{password}"
-        Base64::encode64(auth_details)
+        Base64.encode64(auth_details)
       end
 
-      def qualys_was_get_webapp(token, qualys_was_url = 'qualysapi.qg3.apps.qualys.com/qps/rest/3.0/')
-        print "Getting Webapp \n"
+      def qualys_was_get_webapp(token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+        print_good "Getting Webapp \n"
         qualys_was_auth_api = "https://#{qualys_was_url}search/was/webapp"
-        # auth_headers = { "content-type" => "application/json",
-        #            "accept" => "application/json" }
-        # auth_body = { "id" => "administrator",
-        #              "password" => "My@rvgicmx1" }
-
 
         @headers = {
           "Content-Type" => "application/json",
           "accept" => "application/json",
-          "Authorization" => "Basic #{token}"}
+          "Authorization" => "Basic #{token}"
+        }
         payload = {
-           "ServiceRequest" => {
-              "preferences" => {
-                  "verbose" => "true",
-                  "limitResults": "100"
-              }
-           }
+          "ServiceRequest" => {
+            "preferences" => {
+              "verbose" => "true",
+              "limitResults" => "100"
+            }
+          }
         }
 
-
-        # print_debug "#{qualys_was_auth_api}"
-        # print_debug "#{auth_headers}"
-        # print_debug "#{auth_body}"
         auth_response = http_post(qualys_was_auth_api, @headers, payload.to_json)
         return nil unless auth_response
 
@@ -50,44 +41,37 @@ module Kenna
           print_error "Unable to process Auth Token response!"
         end
 
-        print response
-        print "\n\n \n\n"
+        print_good response
+        print_good "\n\n \n\n"
         response
       end
 
-      def qualys_was_get_webapp_findings(webapp_id, token, qualys_was_url = 'qualysapi.qg3.apps.qualys.com/qps/rest/3.0/')
-        print "Getting Webapp Findings For #{webapp_id} \n"
+      def qualys_was_get_webapp_findings(webapp_id, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+        print_good "Getting Webapp Findings For #{webapp_id} \n"
         qualys_was_auth_api = "https://#{qualys_was_url}search/was/finding"
-        # auth_headers = { "content-type" => "application/json",
-        #            "accept" => "application/json" }
-        # auth_body = { "id" => "administrator",
-        #              "password" => "My@rvgicmx1" }
-
 
         @headers = {
           "Content-Type" => "application/json",
           "accept" => "application/json",
-          "Authorization" => "Basic #{token}"}
+          "Authorization" => "Basic #{token}"
+        }
 
         payload = {
           "ServiceRequest": {
-              "preferences": {
-                  "verbose": "true",
-                  "limitResults": "100"
-              },
-              "filters": {
-                  "Criteria": {
-                      "field": "webApp.id",
-                      "operator": "EQUALS",
-                      "value": "#{webapp_id}"
-                  }
+            "preferences": {
+              "verbose": "true",
+              "limitResults": "100"
+            },
+            "filters": {
+              "Criteria": {
+                "field": "webApp.id",
+                "operator": "EQUALS",
+                "value": webapp_id.to_s
               }
-           }
+            }
+          }
         }
 
-        # print_debug "#{qualys_was_auth_api}"
-        # print_debug "#{auth_headers}"
-        # print_debug "#{auth_body}"
         auth_response = http_post(qualys_was_auth_api, @headers, payload.to_json)
         return nil unless auth_response
 
@@ -97,48 +81,39 @@ module Kenna
           print_error "Unable to process Auth Token response!"
         end
 
-        print response
-        print "\n\n \n\n"
+        print_good response
+        print_good "\n\n \n\n"
         response
       end
 
-      def qualys_was_get_vuln(qids, token, qualys_was_url = 'qualysapi.qg3.apps.qualys.com/api/2.0/fo/')
-        print "Getting VULN For #{qids} \n"
+      def qualys_was_get_vuln(qids, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/api/2.0/fo/")
+        print_good "Getting VULN For #{qids} \n"
         qualys_was_auth_api = URI("https://#{qualys_was_url}knowledge_base/vuln/")
-        # auth_headers = { "content-type" => "application/json",
-        #            "accept" => "application/json" }
-        # auth_body = { "id" => "administrator",
-        #              "password" => "My@rvgicmx1" }
-
 
         @headers = {
           "Content-Type" => "application/json",
           "accept" => "application/json",
           "Authorization" => "Basic #{token}",
-          "X-Requested-With" => 'QualysPostman'
+          "X-Requested-With" => "QualysPostman"
         }
 
         payload = {
           "action" => "list",
-          "ids" => qids.join(',')
+          "ids" => qids.join(",")
         }
 
         qualys_was_auth_api.query = URI.encode_www_form(payload)
-
-        # print_debug "#{qualys_was_auth_api}"
-        # print_debug "#{auth_headers}"
-        # print_debug "#{auth_body}"
-        auth_response = http_get("#{qualys_was_auth_api}", @headers)
+        auth_response = http_get(qualys_was_auth_api.to_s, @headers)
         return nil unless auth_response
 
         begin
           response = Hash.from_xml(auth_response.body).to_json
-        rescue
+        rescue JSON::ParserError
           print_error "Unable to process XML response!"
         end
 
-        print response
-        print "\n\n \n\n"
+        print_good response
+        print_good "\n\n \n\n"
         response
       end
 

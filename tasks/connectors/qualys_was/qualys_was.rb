@@ -2,14 +2,13 @@
 
 require_relative "lib/qualys_was_helper"
 require "json"
+require "pry"
 
 module Kenna
   module Toolkit
     class QualysWas < Kenna::Toolkit::BaseTask
       include Kenna::Toolkit::QualysWasHelper
-      STATUS_MAPPING = {
-        'new' => ''
-      }
+
       def self.metadata
         {
           id: "qualys_was",
@@ -70,18 +69,6 @@ module Kenna
 
         username = @options[:qualys_was_user]
         password = @options[:qualys_was_password]
-        qualys_was_port = @options[:qualys_was_console_port]
-        qualys_was_console = @options[:qualys_was_console]
-        qualys_was_url = if qualys_was_port
-                     "#{qualys_was_console}:#{qualys_was_port}"
-                   else
-                     qualys_was_console
-                   end
-        container_data = @options[:container_data]
-
-        cont_pagenum = 0
-        pagenum = 0
-
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
@@ -89,64 +76,71 @@ module Kenna
         token = qualys_was_get_token(username, password)
         web_apps = qualys_was_get_webapp(token)
         vuln_hsh = {}
-        web_apps['ServiceResponse']['data'].each do |web_app|
-          findings = qualys_was_get_webapp_findings(web_app['WebApp']['id'], token)
+        web_apps["ServiceResponse"]["data"].each do |web_app|
+          web_app_id = web_app["WebApp"]["id"]
+          findings = qualys_was_get_webapp_findings(web_app_id, token)
           next unless findings.present?
 
-          findings.map do | _, finding|
-            qids = findings['ServiceResponse']['data'].map{|x| x['Finding']['qid']}.uniq
+          findings.map do |_, finding|
+            qids = findings["ServiceResponse"]["data"].map { |x| x["Finding"]["qid"] }.uniq
             vulns = qualys_was_get_vuln(qids, token)
-            vulns = JSON.parse(vulns)['KNOWLEDGE_BASE_VULN_LIST_OUTPUT']['RESPONSE']['VULN_LIST']['VULN'].group_by do |vuln|
-              vuln['QID']
+            vulns = JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"].group_by do |vuln|
+              vuln["QID"]
             end
 
             vuln_hsh.merge!(vulns)
 
-            finding['data'].each do |data|
-              find_from = data['Finding']
+            finding["data"].each do |data|
+              find_from = data["Finding"]
 
               asset = {
-                'url' => '',
-                'application_identifier' => find_from['webApp']['name']
+                "url" => "",
+                "application_identifier" => find_from["webApp"]["name"]
               }
               asset.compact!
 
               details = {
-                'potential' => find_from['potential'],
-                'result_list' => find_from['resultList']['list']
-              }.tap do |t|
-                t.merge!(find_from['owasp']) if find_from['owasp'].present?
-              end.tap do |t|
-                t.merge!(find_from['wasc']) if find_from['wasc'].present?
+                "potential" => find_from["potential"],
+                "result_list" => find_from["resultList"]["list"]
+              }
+
+              details.tap do |t|
+                t.merge!(find_from["owasp"]) if find_from["owasp"].present?
+                t.merge!(find_from["wasc"]) if find_from["wasc"].present?
               end
 
               details.compact!
 
               # start finding section
               finding = {
-                "scanner_identifier" => find_from['id'],
+                "scanner_identifier" => find_from["id"],
                 "scanner_type" => "QualysWas",
-                'severity' => find_from['severity'] * 2,
-                "created_at" => find_from['firstDetectedDate'],
-                "last_seen_at" => find_from['lastTestedDatee'],
+                "severity" => find_from["severity"] * 2,
+                "created_at" => find_from["firstDetectedDate"],
+                "last_seen_at" => find_from["lastTestedDatee"],
                 "additional_fields" => details,
-                "triage_state" => find_from['status'],
-                'vuln_def_name' => find_from['name']
+                "triage_state" => find_from["status"],
+                "vuln_def_name" => find_from["name"]
               }
-              # # in case any values are null, it's good to remove them
+              # in case any values are null, it"s good to remove them
               finding.compact!
 
               vuln_def = {
-                'name' => find_from['name'],
+                "name" => find_from["name"],
                 "scanner_type" => "QualysWas"
-              }.tap do |t|
-                if vuln_hsh[find_from['qid'].to_s].present?
-                  t["description"] = vuln_hsh[find_from['qid'].to_s].last['DIAGNOSIS'],
-                  t["solution"] = vuln_hsh[find_from['qid'].to_s].last['SOLUTION']
-                end
+              }
 
-                t["cwe_id"] = find_from['cwe']['list'].first if find_from['cwe'].present?
+              vuln_def.tap do |t|
+                if vuln_hsh[find_from["qid"].to_s].present?
+                  diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
+                  solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
+                  t["description"] = diagnosis
+                  t["solution"] = solution
+                end
+                t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
               end
+
+              vuln_def.compact!
 
               # Create the KDI entries
               create_kdi_asset_finding(asset, finding)
@@ -156,15 +150,11 @@ module Kenna
 
           ### Write KDI format
           output_dir = "#{$basedir}/#{@options[:output_directory]}"
-          filename = "qualys_was_#{web_app['id']}.json"
-          # write_file_stream(output_dir, filename, false, @assets, @vuln_defs, 1)
-          # print_good "Output is available at: #{output_dir}/#{filename}"
-          # print_good "Attempting to upload to Kenna API"
-          # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", true
+          filename = "qualys_was_#{web_app_id}.json"
+          print_good "Output is available at: #{output_dir}/#{filename}"
+          print_good "Attempting to upload to Kenna API"
           kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
-
         end
-        kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
       end
     end
   end
