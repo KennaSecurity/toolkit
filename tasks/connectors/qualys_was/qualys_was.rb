@@ -114,19 +114,19 @@ module Kenna
               finding = {
                 "scanner_identifier" => find_from["id"],
                 "scanner_type" => "QualysWas",
-                "severity" => find_from["severity"] * 2,
+                "severity" => find_from["severity"].to_i * 2,
                 "created_at" => find_from["firstDetectedDate"],
                 "last_seen_at" => find_from["lastTestedDatee"],
                 "additional_fields" => details,
                 "triage_state" => find_from["status"],
-                "name" => find_from["name"],
-                "vuln_def_name" => find_from["qid"]
+                "name" => find_from["name"].to_s,
+                "vuln_def_name" => find_from["qid"].to_s
               }
               # in case any values are null, it's good to remove them
               finding.compact!
 
               vuln_def = {
-                "name" => find_from["qid"],
+                "name" => find_from["qid"].to_s,
                 "scanner_type" => "QualysWas"
               }
 
