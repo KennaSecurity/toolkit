@@ -94,7 +94,7 @@ module Kenna
               find_from = data["Finding"]
 
               asset = {
-                "url" => "",
+                "url" => find_from["webApp"]["url"],
                 "application_identifier" => find_from["webApp"]["name"]
               }
               asset.compact!
@@ -108,7 +108,6 @@ module Kenna
                 t.merge!(find_from["owasp"]) if find_from["owasp"].present?
                 t.merge!(find_from["wasc"]) if find_from["wasc"].present?
               end
-
               details.compact!
 
               # start finding section
@@ -120,13 +119,14 @@ module Kenna
                 "last_seen_at" => find_from["lastTestedDatee"],
                 "additional_fields" => details,
                 "triage_state" => find_from["status"],
-                "vuln_def_name" => find_from["name"]
+                "name" => find_from["name"],
+                "vuln_def_name" => find_from["qid"]
               }
-              # in case any values are null, it"s good to remove them
+              # in case any values are null, it's good to remove them
               finding.compact!
 
               vuln_def = {
-                "name" => find_from["name"],
+                "name" => find_from["qid"],
                 "scanner_type" => "QualysWas"
               }
 
