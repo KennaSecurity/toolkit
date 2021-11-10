@@ -74,16 +74,13 @@ module Kenna
           additional_information.merge!(issue["finding_details"])
           additional_information.merge!(issue["finding_status"])
 
-          format_non_sca_fields(issue, additional_information)
+          if (cwe = cwe(issue))
+            cwe_name = issue["finding_details"]["cwe"].fetch("name")
+            additional_information["cwe"] = "#{cwe} - #{cwe_name} - #{additional_information['cwe']['href']}"
+          end
+          additional_information["finding_category"] = "#{additional_information['finding_category']['id']} - #{additional_information['finding_category']['name']} - #{additional_information['finding_category']['href']}" if additional_information["finding_category"]
 
           additional_information.compact
-        end
-
-        def format_non_sca_fields(issue, fields)
-          cwe = cwe(issue)
-          cwe_name = issue["finding_details"]["cwe"].fetch("name")
-          fields["cwe"] = "#{cwe} - #{cwe_name} - #{fields['cwe']['href']}"
-          fields["finding_category"] = "#{fields['finding_category']['id']} - #{fields['finding_category']['name']} - #{fields['finding_category']['href']}"
         end
       end
 
@@ -141,10 +138,6 @@ module Kenna
 
         def finding_additional_fields(issue, _category_recommendations)
           extract_additional_information(issue)
-        end
-
-        def format_non_sca_fields(_issue, _additional_information)
-          # No custom format
         end
       end
     end
