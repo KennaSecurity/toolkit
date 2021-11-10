@@ -85,88 +85,97 @@ module Kenna
         token = qualys_was_get_token(username, password)
         web_apps = qualys_was_get_webapp(token)
         vuln_hsh = {}
-        web_apps["ServiceResponse"]["data"].each do |web_app|
-          web_app_id = web_app["WebApp"]["id"]
-          findings = qualys_was_get_webapp_findings(web_app_id, token)
-          next unless findings.present?
+        total_count = 0
 
-          findings.each do |findg|
-            findg.map do |_, finding|
-              qids = findg["ServiceResponse"]["data"].map { |x| x["Finding"]["qid"] }.uniq
-              vulns = qualys_was_get_vuln(qids, token)
-              vulns = JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"].group_by do |vuln|
-                vuln["QID"]
-              end
+        web_apps.each do |individual_web_app|
+          individual_web_app["ServiceResponse"]["data"].each do |web_app|
+            web_app_id = web_app["WebApp"]["id"]
+            findings = qualys_was_get_webapp_findings(web_app_id, token)
+            next unless findings.present?
 
-              vuln_hsh.merge!(vulns)
-
-              finding["data"].each do |data|
-                find_from = data["Finding"]
-
-                asset = {
-                  "url" => find_from["webApp"]["url"],
-                  "application_identifier" => find_from["webApp"]["name"]
-                }
-                asset.compact!
-
-                details = {
-                  "potential" => find_from["potential"],
-                  "result_list" => find_from["resultList"]["list"]
-                }
-
-                details.tap do |t|
-                  t.merge!(find_from["owasp"]) if find_from["owasp"].present?
-                  t.merge!(find_from["wasc"]) if find_from["wasc"].present?
+            findings.each do |findg|
+              findg.map do |_, finding|
+                qids = findg["ServiceResponse"]["data"].map { |x| x["Finding"]["qid"] }.uniq
+                vulns = qualys_was_get_vuln(qids, token)
+                vulns = JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"].group_by do |vuln|
+                  vuln["QID"]
                 end
-                details.compact!
 
-                # start finding section
-                finding = {
-                  "scanner_identifier" => find_from["id"],
-                  "scanner_type" => "QualysWas",
-                  "severity" => find_from["severity"].to_i * 2,
-                  "created_at" => find_from["firstDetectedDate"],
-                  "last_seen_at" => find_from["lastTestedDatee"],
-                  "additional_fields" => details,
-                  "name" => find_from["name"].to_s,
-                  "vuln_def_name" => find_from["qid"].to_s
-                }.tap do |f|
-                  f["triage_state"] = STATUS[find_from["status"].downcase] if find_from["status"].present?
-                end
-                # in case any values are null, it's good to remove them
-                finding.compact!
+                vuln_hsh.merge!(vulns)
+                web_app_finding_count = finding["data"].try(:count).to_i
+                print_debug "Total Finding for #{web_app_id} is #{web_app_finding_count}"
+                total_count += web_app_finding_count
 
-                vuln_def = {
-                  "name" => find_from["qid"].to_s,
-                  "scanner_type" => "QualysWas"
-                }
+                finding["data"].each do |data|
+                  find_from = data["Finding"]
 
-                vuln_def.tap do |t|
-                  if vuln_hsh[find_from["qid"].to_s].present?
-                    diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
-                    solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
-                    t["description"] = diagnosis
-                    t["solution"] = solution
+                  asset = {
+                    "url" => find_from["webApp"]["url"],
+                    "application_identifier" => find_from["webApp"]["name"].presence || find_from["webApp"]["url"]
+                  }
+                  asset.compact!
+
+                  details = {
+                    "potential" => find_from["potential"]
+                  }.tap do |d|
+                    d["result_list"] = find_from["resultList"]["list"].to_json if find_from["resultList"]["list"].present?
                   end
-                  t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
+
+                  details.tap do |t|
+                    t.merge!(find_from["owasp"]) if find_from["owasp"].present?
+                    t.merge!(find_from["wasc"]) if find_from["wasc"].present?
+                  end
+                  details.compact!
+
+                  # start finding section
+                  finding = {
+                    "scanner_identifier" => find_from["id"],
+                    "scanner_type" => "QualysWas",
+                    "severity" => find_from["severity"].to_i * 2,
+                    "created_at" => find_from["firstDetectedDate"],
+                    "last_seen_at" => find_from["lastTestedDatee"],
+                    "additional_fields" => details,
+                    "vuln_def_name" => "#{find_from['qid']}-#{find_from['name']}"
+                  }.tap do |f|
+                    f["triage_state"] = STATUS[find_from["status"].downcase] if find_from["status"].present?
+                  end
+                  # in case any values are null, it's good to remove them
+                  finding.compact!
+
+                  vuln_def = {
+                    "name" => "#{find_from['qid']}-#{find_from['name']}",
+                    "scanner_type" => "QualysWas"
+                  }
+
+                  vuln_def.tap do |t|
+                    if vuln_hsh[find_from["qid"].to_s].present?
+                      diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
+                      solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
+                      t["description"] = diagnosis
+                      t["solution"] = solution
+                    end
+                    t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
+                  end
+
+                  vuln_def.compact!
+
+                  # Create the KDI entries
+                  create_kdi_asset_finding(asset, finding)
+                  create_kdi_vuln_def(vuln_def)
                 end
-
-                vuln_def.compact!
-
-                # Create the KDI entries
-                create_kdi_asset_finding(asset, finding)
-                create_kdi_vuln_def(vuln_def)
               end
             end
-          end
 
-          ### Write KDI format
-          output_dir = "#{$basedir}/#{@options[:output_directory]}"
-          filename = "qualys_was_#{web_app_id}.json"
-          print_good "Output is available at: #{output_dir}/#{filename}"
-          print_good "Attempting to upload to Kenna API"
-          kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+            ### Write KDI format
+            output_dir = "#{$basedir}/#{@options[:output_directory]}"
+            filename = "qualys_was_#{web_app_id}.json"
+            print_good "Output is available at: #{output_dir}/#{filename}"
+            print_good "Attempting to upload to Kenna API"
+            kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+          end
         end
+        print_debug "Total Finding of qualys was is #{total_count}"
+        # Total count of findings
         # this method will automatically use the stored array of uploaded files when calling the connector
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
