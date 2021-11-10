@@ -3,6 +3,7 @@
 require_relative "lib/qualys_was_helper"
 require "json"
 require "pry"
+require "uri"
 
 module Kenna
   module Toolkit
@@ -111,7 +112,7 @@ module Kenna
 
                   asset = {
                     "url" => find_from["webApp"]["url"],
-                    "application_identifier" => find_from["webApp"]["name"].presence || find_from["webApp"]["url"]
+                    "application_identifier" => find_from["webApp"]["name"].presence || domain_detail(find_from)
                   }
                   asset.compact!
 
@@ -135,7 +136,7 @@ module Kenna
                     "created_at" => find_from["firstDetectedDate"],
                     "last_seen_at" => find_from["lastTestedDatee"],
                     "additional_fields" => details,
-                    "vuln_def_name" => "#{find_from['qid']}-#{find_from['name']}"
+                    "vuln_def_name" => name(find_from)
                   }.tap do |f|
                     f["triage_state"] = STATUS[find_from["status"].downcase] if find_from["status"].present?
                   end
@@ -143,7 +144,7 @@ module Kenna
                   finding.compact!
 
                   vuln_def = {
-                    "name" => "#{find_from['qid']}-#{find_from['name']}",
+                    "name" => name(find_from),
                     "scanner_type" => "QualysWas"
                   }
 
@@ -178,6 +179,17 @@ module Kenna
         # Total count of findings
         # this method will automatically use the stored array of uploaded files when calling the connector
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      end
+
+      private
+
+      def domain_detail(find_from)
+        uri = URI.parse(find_from["webApp"]["url"])
+        uri.host
+      end
+
+      def name(find_from)
+        "#{find_from['qid']}-#{find_from['name']}"
       end
     end
   end
