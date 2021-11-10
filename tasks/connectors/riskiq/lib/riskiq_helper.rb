@@ -3,6 +3,8 @@
 module Kenna
   module Toolkit
     module RiskIQHelper
+      class ApiError < StandardError; end
+
       @api_url = nil
       @pull_incremental = nil
       @uploaded_files = nil
@@ -194,7 +196,7 @@ module Kenna
 
           endpoint = "#{@api_url}globalinventory/search?size=#{riskiq_page_size}&recent=true&mark=#{mark}"
           response = http_post(endpoint, @headers, query)
-          return if response.nil?
+          raise ApiError if response.nil?
 
           begin
             result = JSON.parse(response.body)
