@@ -26,6 +26,8 @@ module Kenna
           while more_results
             url = "#{@base_url}/orgtraces/filter?expand=application&offset=#{offset}&limit=#{limit}&applicationTags=#{tags}&environments=#{environments}&severities=#{severities}&licensedOnly=true"
             response = http_get(url, @headers)
+            return nil if response.nil?
+
             body = JSON.parse response.body
 
             # prepare the next request
@@ -89,6 +91,8 @@ module Kenna
           print_debug "Getting applications from the Contrast API"
           url = "#{@base_url}/applications/filter/short?filterTags=#{tags}"
           response = http_get(url, @headers)
+          return nil if response.nil?
+
           temp = JSON.parse response.body
           temp["applications"]
         end
