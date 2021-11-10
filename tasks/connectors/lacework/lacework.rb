@@ -74,6 +74,7 @@ module Kenna
         # Generate Temporary Lacework API Token
         puts "Generating Temporary Lacework API Token"
         temp_api_token = generate_temporary_lacework_api_token(lacework_account, lacework_api_key, lacework_api_secret)
+        fail_task "Unable to generate API token, please check credentials" unless temp_api_token
 
         # Pull assets and vulns from Lacework
         puts "Pulling asset and vulnerability data from Lacework API"
