@@ -73,6 +73,8 @@ module Kenna
         end
 
         kenna_api.kickoff
+      rescue Kenna::Toolkit::Edgescan::EdgescanApi::ApiError
+        fail_task "Unable to retrieve assets, please check credentials"
       end
     end
   end

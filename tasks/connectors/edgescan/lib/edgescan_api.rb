@@ -4,6 +4,8 @@ module Kenna
   module Toolkit
     module Edgescan
       class EdgescanApi
+        class ApiError < StandardError; end
+
         def initialize(options)
           @edgescan_token = options[:edgescan_token]
           @page_size = options[:edgescan_page_size].to_i
@@ -61,6 +63,8 @@ module Kenna
 
         def query(resource, query_payload, unwrap: true)
           response = http_post("#{base_url}/api/v1/#{resource}/query.json", { "X-API-TOKEN": @edgescan_token }, query_payload)
+          raise ApiError unless response
+
           json = JSON.parse(response.body)
           unwrap ? json[resource] : json
         end
