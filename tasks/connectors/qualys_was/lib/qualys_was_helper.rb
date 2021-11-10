@@ -56,34 +56,57 @@ module Kenna
           "Authorization" => "Basic #{token}"
         }
 
-        payload = {
-          "ServiceRequest": {
-            "preferences": {
-              "verbose": "true",
-              "limitResults": "100"
-            },
-            "filters": {
-              "Criteria": {
-                "field": "webApp.id",
-                "operator": "EQUALS",
-                "value": webapp_id.to_s
+        response = []
+        next_page = true
+        last_id = nil
+        page = 1
+        while next_page
+          print_good "Fetching Next Page For #{webapp_id}" if page > 1
+          page += 1
+          payload = {
+            "ServiceRequest": {
+              "preferences": {
+                "verbose": "true",
+                "limitResults": "100"
+              },
+              "filters": {
+                "Criteria": {
+                  "field": "webApp.id",
+                  "operator": "EQUALS",
+                  "value": webapp_id.to_s
+                }
               }
             }
-          }
-        }
+          }.compare_by_identity
 
-        auth_response = http_post(qualys_was_auth_api, @headers, payload.to_json)
-        return nil unless auth_response
+          if last_id.present?
+            payload[:ServiceRequest][:filters]["Criteria"] = {
+              "field": "id",
+              "operator": "GREATER",
+              "value": last_id.to_s
+            }
+          end
 
-        begin
-          response = JSON.parse(auth_response.body)
-        rescue JSON::ParserError
-          print_error "Unable to process Auth Token response!"
+          auth_response = http_post(qualys_was_auth_api, @headers, payload.to_json)
+          return nil unless auth_response
+
+          begin
+            res = JSON.parse(auth_response.body)
+            if res["ServiceResponse"]["hasMoreRecords"] == "true"
+              last_id = res["ServiceResponse"]["lastId"]
+            else
+              next_page = false
+            end
+            response << res
+          rescue JSON::ParserError
+            print_error "Unable to process Auth Token response!"
+          end
+
+          print_good response
+          print_good "\n\n \n\n"
         end
 
-        print_good response
-        print_good "\n\n \n\n"
-        response
+        response.flatten
       end
 
       def qualys_was_get_vuln(qids, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/api/2.0/fo/")
