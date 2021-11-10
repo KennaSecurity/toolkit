@@ -69,6 +69,7 @@ module Kenna
 
         findings_json = cobalt_get_findings(cobalt_api_token, cobalt_org_token)
         print_debug "findings json = #{findings_json}"
+        fail_task "Unable to retrieve findings, please check credentials" if findings_json.nil?
 
         severity_map = { "high" => 7, "medium" => 5, "low" => 3 } # converter
         state_map = { "need_fix" => "new", "wont_fix" => "risk_accepted", "valid_fix" => "resolved", "check_fix" => "in_progress", "carried_over" => "new" }
