@@ -105,6 +105,12 @@ module Kenna
         json
       end
 
+      def valid_auth_token?
+        atp_get_auth_token if @token.nil?
+
+        !@token.nil?
+      end
+
       def atp_get_auth_token
         print_debug "Getting token"
         oauth_url = "https://#{@atp_oath_url}/#{@tenant_id}/oauth2/token"

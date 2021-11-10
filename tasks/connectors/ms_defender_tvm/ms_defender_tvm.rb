@@ -99,6 +99,7 @@ module Kenna
         @max_retries = @options[:max_retries]
 
         set_client_data(tvm_tenant_id, tvm_client_id, tvm_client_secret, tvm_api_host, tvm_oath_host, tvm_page_size)
+        fail_task "Unable to retrieve auth token, please check credentials" unless valid_auth_token?
 
         morevuln = true
         asset_count = 0
