@@ -17,7 +17,7 @@ Recommended Steps:
 1. Run with JFrog Keys only to ensure you are able to get data properly from the scanner
 1. Review output for expected data
 1. Create Kenna Data Importer connector in Kenna (example name: JFrog KDI) 
-1, Manually run the connector with the json from step 1 
+1. Manually run the connector with the json from step 1 
 1. Click on the name of the connector to get the connector id
 1. Run the task with JFrog Keys and Kenna Key/connector id
 
