@@ -6,7 +6,7 @@ require_relative "../../../../lib/kdi/kdi_helpers"
 module Kenna
   module Toolkit
     module Veracode
-      class Client
+      class FindingsClient
         include HTTParty
         include KdiHelpers
 
