@@ -99,10 +99,10 @@ module Kenna
           break unless (response[:count]).positive?
 
           kdi_upload(@output_directory, "bugcrowd_submissions_report_#{offset}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
           offset += response[:count]
           print_error "Reached max Bugcrowd API offset value of 9900" if offset > 9900
         end
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       private
