@@ -86,23 +86,28 @@ module Kenna
 
         print_good "The vulnerabilities report was successfully created."
         page_num = 1
+        processed = 0
         loop do
           response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @batch_size)
           issues = response_data["rows"]
           total_issues = response_data["total_rows"].to_i
           print "Received page #{page_num} with #{issues.count} issues for a total of #{total_issues}."
-          break if issues.empty?
 
-          issues.each do |issue|
-            asset = extract_asset(issue)
-            finding = extract_finding(issue)
-            definition = extract_definition(issue)
-            create_kdi_asset_finding(asset, finding)
-            create_kdi_vuln_def(definition)
+          unless issues.empty?
+            issues.each do |issue|
+              asset = extract_asset(issue)
+              finding = extract_finding(issue)
+              definition = extract_definition(issue)
+              create_kdi_asset_finding(asset, finding)
+              create_kdi_vuln_def(definition)
+            end
+            processed += issues.count
+            print_good("Processed #{processed} of #{total_issues} issues.")
+            kdi_upload(@output_directory, "jfrog_report_#{page_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
           end
-          print_good("Processed #{[page_num * @batch_size, total_issues].min} of #{total_issues} issues.")
-          kdi_upload(@output_directory, "jfrog_report_#{page_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+
           page_num += 1
+          break if processed >= total_issues
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
