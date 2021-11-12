@@ -87,7 +87,7 @@ module Kenna
         print_good "The vulnerabilities report was successfully created."
         page_num = 1
         loop do
-          response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @max_issues)
+          response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @batch_size)
           issues = response_data["rows"]
           total_issues = response_data["total_rows"].to_i
           break if issues.empty?
@@ -99,7 +99,7 @@ module Kenna
             create_kdi_asset_finding(asset, finding)
             create_kdi_vuln_def(definition)
           end
-          print_good("Processed #{[page_num * @max_issues, total_issues].min} of #{total_issues} issues.")
+          print_good("Processed #{[page_num * @batch_size, total_issues].min} of #{total_issues} issues.")
           kdi_upload(@output_directory, "jfrog_report_#{page_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
           page_num += 1
         end
@@ -120,7 +120,7 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @max_issues = @options[:batch_size].to_i
+        @batch_size = @options[:batch_size].to_i
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
