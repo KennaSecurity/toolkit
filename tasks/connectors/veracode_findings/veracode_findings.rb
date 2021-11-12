@@ -70,6 +70,7 @@ module Kenna
         client.category_recommendations(page_size)
 
         app_list = client.applications(page_size)
+        fail_task "Unable to retrieve data from API, please check credentials" if app_list.nil?
 
         app_list.each do |application|
           guid = application.fetch("guid")
