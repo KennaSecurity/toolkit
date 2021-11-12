@@ -12,6 +12,7 @@ module Kenna
           @auth_endpoint = "https://#{auth_endpoint}"
           @output_directory = output_dir
           token = request_wiz_api_token(client_id, client_secret)
+          @valid_token = !token.nil?
           @header = { "content-type" => "application/json", "Authorization" => "Bearer #{token}" }
           @get_subs_variables = "{ \"first\" : 500 }"
           # @CreateReport_variables = {"input": {"name": "", "type": "VULNERABILITIES", "params": {"subscriptionIds": [""], "projectId": "*"}}}
@@ -190,6 +191,10 @@ module Kenna
               }".delete("\n")
         end
 
+        def valid_token?
+          @valid_token
+        end
+
         # Methods used in this script
         # Used for creating strings from the variables hash. String is used to update query string
         def transform_hash_to_string(hash)
@@ -213,6 +218,8 @@ module Kenna
           payload = "grant_type=client_credentials&client_id=#{client_id}&client_secret=#{client_secret}&audience=beyond-api"
           auth_url = "#{@auth_endpoint}.wiz.io/oauth/token"
           access_code_call = http_post(auth_url, headers, payload)
+          return unless access_code_call
+
           JSON.parse(access_code_call)["access_token"]
         end
 
