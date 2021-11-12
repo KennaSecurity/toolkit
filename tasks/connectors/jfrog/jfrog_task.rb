@@ -80,7 +80,7 @@ module Kenna
         initialize_options
 
         client = Kenna::Toolkit::JFrog::JFrogClient.new(@hostname, @api_user, @api_token)
-        print "Creating a vulnerabilities report for #{@repositories} repositories, #{@issue_severity} severities and up to #{@days_back} days_back."
+        print "Creating a vulnerabilities report for #{@repositories} repositories, #{@issue_severity.present? ? @issue_severity : 'all'} severities and up to #{@days_back} days_back."
         vulns_report_id = client.execute_vulns_report(@repositories, @issue_severity, @days_back, @report_timeout)
         return unless vulns_report_id
 
@@ -90,6 +90,7 @@ module Kenna
           response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @batch_size)
           issues = response_data["rows"]
           total_issues = response_data["total_rows"].to_i
+          print "Received page #{page_num} with #{issues.count} issues for a total of #{total_issues}."
           break if issues.empty?
 
           issues.each do |issue|
@@ -115,7 +116,7 @@ module Kenna
         @repositories = extract_list(:jfrog_repository)
         @days_back = @options[:days_back].to_i
         @report_timeout = @options[:report_timeout].to_i
-        @issue_severity = extract_list(:jfrog_issue_severity, %w[None Low Medium High Critical])
+        @issue_severity = extract_list(:jfrog_issue_severity, [])
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
