@@ -152,8 +152,8 @@ module Kenna
                     if vuln_hsh[find_from["qid"].to_s].present?
                       diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
                       solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
-                      t["description"] = diagnosis
-                      t["solution"] = solution
+                      t["description"] = remove_html_tags(diagnosis) if diagnosis.present?
+                      t["solution"] = remove_html_tags(solution) if solution.present?
                     end
                     t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
                   end
