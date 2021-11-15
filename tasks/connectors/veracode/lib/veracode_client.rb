@@ -4,6 +4,8 @@ module Kenna
   module Toolkit
     module Veracode
       class Client
+        class ApiError < StandardError; end
+
         HOST = "api.veracode.com"
         APP_PATH = "/appsec/v1/applications"
         CAT_PATH = "/appsec/v1/categories"
@@ -91,10 +93,8 @@ module Kenna
             uri = URI.parse(next_page)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(next_page, hmac_auth_options(auth_path))
-            if response.nil?
-              print "Unable to retrieve data for #{next_page}. Continuing..."
-              return
-            end
+            raise ApiError, "Unable to retrieve data for #{next_page}. Please, check credentials." unless response
+
             result = JSON.parse(response.body)
             yield(result)
             next_page = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
