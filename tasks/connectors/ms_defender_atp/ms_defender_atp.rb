@@ -131,6 +131,8 @@ module Kenna
         max_retries = @options[:max_retries]
 
         set_client_data(atp_tenant_id, atp_client_id, atp_client_secret, atp_api_host, atp_oath_host, file_cleanup)
+        fail_task "Unable to retrieve auth token, please check credentials" unless valid_auth_token?
+
         asset_next_link = nil
         asset_json_response = atp_get_machines
         asset_next_link = asset_json_response.fetch("@odata.nextLink") if asset_json_response.key?("@odata.nextLink")

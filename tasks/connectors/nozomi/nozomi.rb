@@ -88,6 +88,7 @@ module Kenna
           pagenum += 1
 
           issue_json = nozomi_get_issues(nozomi_user, nozomi_password, nozomi_api_host, nozomi_node_types, nozomi_page_size, pagenum)
+          fail_task "Unable to retrieve issues, please check credentials" if issue_json.nil?
 
           print_debug "issue json = #{issue_json}"
 

@@ -88,6 +88,8 @@ module Kenna
         from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
 
         org_json = snyk_get_orgs(snyk_api_token)
+        fail_task "Unable to retrieve data from API, please check credentials" if org_json.nil?
+
         projects = []
         project_ids = []
         org_ids = []

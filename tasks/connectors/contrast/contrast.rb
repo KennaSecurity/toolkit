@@ -125,6 +125,7 @@ module Kenna
         if contrast_include_vulns == true
           # Fetch vulnerabilities from the Contrast API
           vulns = @client.get_vulns(contrast_application_tags, contrast_environments, contrast_severities)
+          fail_task "Unable to retrieve vulnerabilities, please check credentials" if vulns.nil?
 
           # Loop through the vulnerabilities found
           vulns.each_with_index do |v, i|
@@ -199,6 +200,7 @@ module Kenna
         if contrast_include_libs == true
           # Fetch a list of relevant applications
           apps = @client.get_application_ids(contrast_application_tags)
+          fail_task "Unable to retrieve applications, please check credentials" if apps.nil?
 
           # Convert to an array of strings
           apps = apps.map { |f| f["app_id"] }

@@ -93,7 +93,7 @@ module Kenna
         kdi_version = 2
 
         client = Kenna::Toolkit::Wiz::WizClient.new(client_id, client_secret, @output_directory, @options[:wiz_auth_endpoint], @options[:wiz_api_host])
-
+        fail_task "Unable to retrieve API token, please check credentials" unless client.valid_token?
         print_debug "report object types count #{report_object_types.size} and #{report_object_types}"
 
         # @create_report_variables[:input][:params][:vulnerabilities_since] = vulnerabilities_since if vulnerabilities_since != ""

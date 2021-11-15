@@ -6,6 +6,8 @@ module Kenna
   module Toolkit
     module Burp
       class BurpClient
+        class ApiError < StandardError; end
+
         def initialize(host, api_token)
           @endpoint = "#{host}/graphql/v1"
           @headers = { "content-type": "application/json", "Authorization": api_token }
@@ -13,6 +15,8 @@ module Kenna
 
         def get_last_schedule_scan(schedule_id)
           response = http_post(@endpoint, @headers, query(last_schedule_scan_query, schedule_id: schedule_id))
+          raise ApiError unless response
+
           JSON.parse(response)["data"]["scans"].first
         end
 

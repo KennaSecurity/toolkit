@@ -79,6 +79,12 @@ module Kenna
         json
       end
 
+      def valid_auth_token?
+        tvm_get_auth_token if @token.nil?
+
+        !@token.nil?
+      end
+
       def tvm_get_auth_token
         print_debug "Getting token"
         oauth_url = "https://#{@tvm_oath_url}/#{@tenant_id}/oauth2/token"

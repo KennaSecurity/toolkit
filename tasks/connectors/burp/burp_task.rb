@@ -95,6 +95,8 @@ module Kenna
           end
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::Burp::BurpClient::ApiError
+        fail_task "Unable to retrieve scan, please check credentials"
       end
 
       private

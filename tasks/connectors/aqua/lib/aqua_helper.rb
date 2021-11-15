@@ -19,21 +19,18 @@ module Kenna
           "password": password.to_s
         }
 
-        # print_debug "#{aqua_auth_api}"
-        # print_debug "#{auth_headers}"
-        # print_debug "#{auth_body}"
-        auth_response = http_post(aqua_auth_api, @headers, payload.to_json)
-        return nil unless auth_response
-
         begin
+          auth_response = http_post(aqua_auth_api, @headers, payload.to_json)
           auth_json = JSON.parse(auth_response.body)
+
+          token = auth_json["token"]
+          print_debug token.to_s
+          token
         rescue JSON::ParserError
           print_error "Unable to process Auth Token response!"
+        rescue StandardError => e
+          print_error "Failed to retrieve Auth Token #{e.message}"
         end
-
-        token = auth_json["token"]
-        print_debug token.to_s
-        token
       end
 
       def aqua_get_vuln(aqua_url, token, pagesize, pagenum)

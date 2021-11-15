@@ -54,6 +54,8 @@ module Kenna
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+            return unless response
+
             result = JSON.parse(response.body)
             applications = result["_embedded"]["applications"]
 
@@ -87,6 +89,8 @@ module Kenna
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+            return unless response
+
             result = JSON.parse(response.body)
             cwes = result["_embedded"]["cwes"]
 
@@ -107,6 +111,8 @@ module Kenna
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+            return unless response
+
             result = JSON.parse(response.body)
             categories = result["_embedded"]["categories"]
 

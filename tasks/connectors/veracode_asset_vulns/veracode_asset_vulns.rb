@@ -95,6 +95,7 @@ module Kenna
         client.cwe_recommendations(500)
 
         app_list = client.applications(page_size, custom_field_name, custom_field_value)
+        fail_task "Unable to retrieve data from API, please check credentials" if app_list.nil?
 
         app_list.each do |application|
           guid = application.fetch("guid")

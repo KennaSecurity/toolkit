@@ -85,6 +85,7 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
 
         token = aqua_get_token(aqua_url, username, password)
+        fail_task "Unable to authenticate with Aqua, please check credentials" unless token
 
         if container_data
           print_debug "Container_data flag set to true"

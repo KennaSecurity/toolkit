@@ -27,6 +27,11 @@ module Kenna
           http.request(request)
         end
 
+        if response.code != 200
+          print_debug response.message
+          return nil
+        end
+
         JSON.parse(response.body)["data"].last["token"]
       end
 
