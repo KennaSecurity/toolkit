@@ -91,6 +91,8 @@ module Kenna
           end
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::Acunetix360::Acunetix360Client::ApiError => e
+        fail_task e.message
       end
 
       private

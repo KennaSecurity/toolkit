@@ -103,6 +103,8 @@ module Kenna
           print_error "Reached max Bugcrowd API offset value of 9900" if offset > 9900
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::Bugcrowd::Client::ApiError => e
+        fail_task e.message
       end
 
       private
