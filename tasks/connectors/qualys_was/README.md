@@ -32,11 +32,9 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
-| qualys_was_console |hostname | true | QualysWas Console Address |
-| qualys_was_console_port | integer | false | QualysWas Console Port |
 | qualys_was_user |user | true | QualysWas Username |
 | qualys_was_password |password | true | QualysWas Password |
-| container_data |boolean | true | Flag to enable Container data |
+| qualys_was_base_api_url | Base Api URL | true | API URL specific to region |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
