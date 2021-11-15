@@ -80,28 +80,34 @@ module Kenna
         initialize_options
 
         client = Kenna::Toolkit::JFrog::JFrogClient.new(@hostname, @api_user, @api_token)
-        print "Creating a vulnerabilities report for #{@repositories} repositories, #{@issue_severity} severities and up to #{@days_back} days_back."
+        print "Creating a vulnerabilities report for #{@repositories} repositories, #{@issue_severity.present? ? @issue_severity : 'all'} severities and up to #{@days_back} days_back."
         vulns_report_id = client.execute_vulns_report(@repositories, @issue_severity, @days_back, @report_timeout)
         return unless vulns_report_id
 
         print_good "The vulnerabilities report was successfully created."
         page_num = 1
+        processed = 0
         loop do
-          response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @max_issues)
+          response_data = client.vulnerabilities_report_content(vulns_report_id, page_num, @batch_size)
           issues = response_data["rows"]
           total_issues = response_data["total_rows"].to_i
-          break if issues.empty?
+          print "Received page #{page_num} with #{issues.count} issues for a total of #{total_issues}."
 
-          issues.each do |issue|
-            asset = extract_asset(issue)
-            finding = extract_finding(issue)
-            definition = extract_definition(issue)
-            create_kdi_asset_finding(asset, finding)
-            create_kdi_vuln_def(definition)
+          unless issues.empty?
+            issues.each do |issue|
+              asset = extract_asset(issue)
+              finding = extract_finding(issue)
+              definition = extract_definition(issue)
+              create_kdi_asset_finding(asset, finding)
+              create_kdi_vuln_def(definition)
+            end
+            processed += issues.count
+            print_good("Processed #{processed} of #{total_issues} issues.")
+            kdi_upload(@output_directory, "jfrog_report_#{page_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
           end
-          print_good("Processed #{[page_num * @max_issues, total_issues].min} of #{total_issues} issues.")
-          kdi_upload(@output_directory, "jfrog_report_#{page_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+
           page_num += 1
+          break if processed >= total_issues
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
@@ -115,12 +121,12 @@ module Kenna
         @repositories = extract_list(:jfrog_repository)
         @days_back = @options[:days_back].to_i
         @report_timeout = @options[:report_timeout].to_i
-        @issue_severity = extract_list(:jfrog_issue_severity, %w[None Low Medium High Critical])
+        @issue_severity = extract_list(:jfrog_issue_severity, [])
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @max_issues = @options[:batch_size].to_i
+        @batch_size = @options[:batch_size].to_i
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2

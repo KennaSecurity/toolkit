@@ -31,7 +31,7 @@ Complete list of Options:
 | jfrog_api_user | true | JFrog API user | n/a |
 | jfrog_api_token | true | JFrog API token | n/a |
 | jfrog_repository | true | A list of JFrog Repository (comma separated) | n/a |
-| jfrog_issue_severity | false | A list of [None, Low, Medium, High, Critical] (comma separated) | [None, Low, Medium, High, Critical] |
+| jfrog_issue_severity | false | A list of [Low, Medium, High, Critical] (comma separated) | No filtering |
 | days_back | false | Get results n days back up to today. Default is one day. | 100 |
 | batch_size | false | Maximum number of issues to retrieve in batches | 100 |
 | report_timeout | false | Time (in seconds) to wait for JFrog report execution before timing out. Default is 5 minutes. | 300 |
