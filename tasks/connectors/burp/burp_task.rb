@@ -151,7 +151,8 @@ module Kenna
           "name" => issue["issue_type"]["name"],
           "description" => remove_html_tags(issue["issue_type"]["description_html"] || ""),
           "solution" => remove_html_tags(issue["issue_type"]["remediation_html"] || ""),
-          "scanner_type" => "BurpSuite"
+          "scanner_type" => "BurpSuite",
+          "cwe_identifiers" => remove_html_tags(issue["issue_type"]["vulnerability_classifications_html"] || "")[/(CWE-\d*)/]
         }.compact
       end
 
