@@ -85,6 +85,8 @@ module Kenna
 
         token = qualys_was_get_token(username, password)
         web_apps = qualys_was_get_webapp(token)
+        fail_task "Unable to retrieve webapps, please check credentials" unless web_apps
+
         vuln_hsh = {}
         total_count = 0
 
