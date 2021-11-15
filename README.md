@@ -157,7 +157,8 @@ These are the current tasks available:
 - upload_file: This task uploads a file to a specified connector
 - user_role_sync: This task creates users and assigns them to roles via the API
 - veracode_asset_vulns: This task pulls data from the Veracode API for the Asset and Vulns model of Kenna AppSec.
-- veracode_findings: This task pulls data from the Veracode API for the Findings model of Kenna AppSec. 
+- veracode_findings: This task pulls data from the Veracode API for the Findings model of Kenna AppSec.
+- qualys_was: This task pulls data from the Qualys Was API and pulls results into the Kenna Platform. 
 
 ## Advanced Usage
 
