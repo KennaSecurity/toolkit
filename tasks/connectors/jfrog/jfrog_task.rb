@@ -110,6 +110,8 @@ module Kenna
           break if processed >= total_issues
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::JFrog::JFrogClient::ApiError => e
+        fail_task e.message
       end
 
       private

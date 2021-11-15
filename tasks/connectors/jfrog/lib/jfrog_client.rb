@@ -6,6 +6,8 @@ module Kenna
   module Toolkit
     module JFrog
       class JFrogClient
+        class ApiError < StandardError; end
+
         def self.url(hostname)
           return hostname if hostname.downcase.start_with?("http")
 
@@ -39,6 +41,8 @@ module Kenna
 
         def vulnerabilities_report_content(vulns_report_id, page_num, num_of_rows)
           response = http_post("#{@endpoint}/v1/reports/vulnerabilities/#{vulns_report_id}?direction=asc&page_num=#{page_num}&num_of_rows=#{num_of_rows}&order_by=impacted_artifact", @headers, "")
+          raise ApiError, "Unable to to retrieve vulnerabilities report content." unless response
+
           JSON.parse(response)
         end
 
@@ -47,6 +51,8 @@ module Kenna
         def create_report(repositories, severities, days_back)
           payload = create_report_payload(repositories, severities, days_back)
           response = http_post("#{@endpoint}/v1/reports/vulnerabilities", @headers, payload)
+          raise ApiError, "Unable to create JFrog vulnerabilities report, please check credentials" unless response
+
           response_data = JSON.parse(response)
           response_data["report_id"]
         end
