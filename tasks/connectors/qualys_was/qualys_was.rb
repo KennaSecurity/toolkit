@@ -25,11 +25,11 @@ module Kenna
           name: "qualys_was Vulnerabilities",
           description: "Pulls assets and vulnerabilitiies from qualys_was",
           options: [
-            { name: "qualys_was_console",
+            { name: "qualys_was_base_api_url",
               type: "hostname",
               required: true,
               default: nil,
-              description: "Your qualys_was Console hostname (without protocol and port), e.g. app.qualys_wassecurity.com" },
+              description: "Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com/qps/rest/3.0/" },
             { name: "qualys_was_console_port",
               type: "integer",
               required: false,
@@ -77,18 +77,16 @@ module Kenna
       def run(opts)
         super # opts -> @options
 
-        username = @options[:qualys_was_user]
-        password = @options[:qualys_was_password]
-        @kenna_api_host = @options[:kenna_api_host]
-        @kenna_api_key = @options[:kenna_api_key]
-        @kenna_connector_id = @options[:kenna_connector_id]
+        initialize_options
 
-        token = qualys_was_get_token(username, password)
+        token = qualys_was_get_token(@username, @password)
         web_apps = qualys_was_get_webapp(token)
         vuln_hsh = {}
         total_count = 0
 
         web_apps.each do |individual_web_app|
+          next unless individual_web_app.present?
+
           individual_web_app["ServiceResponse"]["data"].each do |web_app|
             web_app_id = web_app["WebApp"]["id"]
             findings = qualys_was_get_webapp_findings(web_app_id, token)
@@ -129,7 +127,7 @@ module Kenna
                   details.compact!
 
                   # start finding section
-                  finding = {
+                  finding_data = {
                     "scanner_identifier" => find_from["id"],
                     "scanner_type" => "QualysWas",
                     "severity" => find_from["severity"].to_i * 2,
@@ -141,7 +139,7 @@ module Kenna
                     f["triage_state"] = STATUS[find_from["status"].downcase] if find_from["status"].present?
                   end
                   # in case any values are null, it's good to remove them
-                  finding.compact!
+                  finding_data.compact!
 
                   vuln_def = {
                     "name" => name(find_from),
@@ -152,8 +150,8 @@ module Kenna
                     if vuln_hsh[find_from["qid"].to_s].present?
                       diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
                       solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
-                      t["description"] = diagnosis
-                      t["solution"] = solution
+                      t["description"] = remove_html_tags(diagnosis) if diagnosis.present?
+                      t["solution"] = remove_html_tags(solution) if solution.present?
                     end
                     t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
                   end
@@ -161,7 +159,7 @@ module Kenna
                   vuln_def.compact!
 
                   # Create the KDI entries
-                  create_kdi_asset_finding(asset, finding)
+                  create_kdi_asset_finding(asset, finding_data)
                   create_kdi_vuln_def(vuln_def)
                 end
               end
@@ -172,7 +170,7 @@ module Kenna
             filename = "qualys_was_#{web_app_id}.json"
             print_good "Output is available at: #{output_dir}/#{filename}"
             print_good "Attempting to upload to Kenna API"
-            kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+            kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version
           end
         end
         print_debug "Total Finding of qualys was is #{total_count}"
@@ -182,6 +180,17 @@ module Kenna
       end
 
       private
+
+      def initialize_options
+        @username = @options[:qualys_was_user]
+        @password = @options[:qualys_was_password]
+        @qualys_was_base_api_url = @options[:qualys_was_base_api_url]
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @retries = 3
+        @kdi_version = 2
+      end
 
       def domain_detail(find_from)
         uri = URI.parse(find_from["webApp"]["url"])
