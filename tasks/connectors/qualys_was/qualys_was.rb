@@ -25,11 +25,11 @@ module Kenna
           name: "qualys_was Vulnerabilities",
           description: "Pulls assets and vulnerabilitiies from qualys_was",
           options: [
-            { name: "qualys_was_console",
+            { name: "qualys_was_base_api_url",
               type: "hostname",
-              required: false,
+              required: true,
               default: nil,
-              description: "Your qualys_was Console hostname (without protocol and port), e.g. app.qualys_wassecurity.com" },
+              description: "Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com/qps/rest/3.0/" },
             { name: "qualys_was_console_port",
               type: "integer",
               required: false,
@@ -184,6 +184,7 @@ module Kenna
       def initialize_options
         @username = @options[:qualys_was_user]
         @password = @options[:qualys_was_password]
+        @qualys_was_base_api_url = @options[:qualys_was_base_api_url]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]

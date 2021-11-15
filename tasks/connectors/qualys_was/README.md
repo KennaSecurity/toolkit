@@ -11,7 +11,7 @@
 
 - QualysWas Username (Required)
 - QualysWas Password (Required)
-- QualysWas Console Address (Required)
+- QualysWas Base Api URL (Required)
 - Kenna API Host (Optional but needed for automatic upload to Kenna)
 - Kenna API Key (Optional but needed for automatic upload to Kenna)
 - Kenna Connector ID (Optional but needed for automatic upload to Kenna)
@@ -47,8 +47,9 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 
 For extracting Image vulnerability data:
 
-    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx container_data=false kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx 
+    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx
+    qualys_was_base_api_url=qualysapi.qg3.apps.qualys.com/qps/rest/3.0/ container_data=false kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
 
 For extracting Container vulnerability data in addition to Images:
 
-    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx container_data=true kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
+    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx qualys_was_base_api_url=qualysapi.qg3.apps.qualys.com/qps/rest/3.0/ container_data=true kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx

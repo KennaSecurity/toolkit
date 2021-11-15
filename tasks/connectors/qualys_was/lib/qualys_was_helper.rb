@@ -9,14 +9,16 @@ require "base64"
 module Kenna
   module Toolkit
     module QualysWasHelper
+      attr_reader :qualys_was_base_api_url
+
       def qualys_was_get_token(username, password)
         auth_details = "#{username}:#{password}"
         Base64.encode64(auth_details)
       end
 
-      def qualys_was_get_webapp(token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+      def qualys_was_get_webapp(token)
         print_good "Getting Webapp \n"
-        qualys_was_auth_api = "https://#{qualys_was_url}search/was/webapp"
+        qualys_was_auth_api = "https://#{qualys_was_base_api_url}search/was/webapp"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -71,9 +73,9 @@ module Kenna
         response.flatten
       end
 
-      def qualys_was_get_webapp_findings(webapp_id, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+      def qualys_was_get_webapp_findings(webapp_id, token)
         print_good "Getting Webapp Findings For #{webapp_id} \n"
-        qualys_was_auth_api = "https://#{qualys_was_url}search/was/finding"
+        qualys_was_auth_api = "https://#{qualys_was_base_api_url}search/was/finding"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -132,9 +134,9 @@ module Kenna
         response.flatten
       end
 
-      def qualys_was_get_vuln(qids, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/api/2.0/fo/")
+      def qualys_was_get_vuln(qids, token)
         print_good "Getting VULN For Qids for findings \n"
-        qualys_was_auth_api = URI("https://#{qualys_was_url}knowledge_base/vuln/")
+        qualys_was_auth_api = URI("https://#{qualys_was_base_api_url.split('/').first}/api/2.0/fo/knowledge_base/vuln/")
 
         @headers = {
           "Content-Type" => "application/json",
