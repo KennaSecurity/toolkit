@@ -68,8 +68,6 @@ module Kenna
             print_error "Unable to process Auth Token response!"
           end
         end
-        print_good response
-        print_good "\n\n \n\n"
         response.flatten
       end
 
@@ -128,16 +126,14 @@ module Kenna
           rescue JSON::ParserError
             print_error "Unable to process Auth Token response!"
           end
-
-          print_good response
-          print_good "\n\n \n\n"
         end
 
+        # response.each { |r| print_debug r["ServiceResponse"]["count"] }
         response.flatten
       end
 
       def qualys_was_get_vuln(qids, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/api/2.0/fo/")
-        print_good "Getting VULN For #{qids} \n"
+        print_good "Getting VULN For Qids for findings \n"
         qualys_was_auth_api = URI("https://#{qualys_was_url}knowledge_base/vuln/")
 
         @headers = {
@@ -162,8 +158,6 @@ module Kenna
           print_error "Unable to process XML response!"
         end
 
-        print_good response
-        print_good "\n\n \n\n"
         response
       end
     end
