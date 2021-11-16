@@ -167,6 +167,53 @@ These are the current tasks available:
 Proxy:
 If you need to use a proxy with this container the suggested implementation is to use the built-in [Docker](https://docs.docker.com/network/proxy/) or [Podman](https://access.redhat.com/solutions/3939131) proxy support.
 
+## Toolkit Task Development
+
+---
+The `toolkit/tasks/connectors/_sample_task` folder contains a fully working example that you can clone to use as a
+starting point for your connector. We recommend you split the code into 2 sections: the `Task` itself and an `APIclient`.
+The API client is responsible only for interactions with the service (scanner) to obtain the data needed by the task.
+The `APIClient` can also format the obtained data in order to ease the `Task` process. The `Task` is responsible for the
+creation of Kenna objects, upload, and execution of Kenna processes.
+
+The following is a simplified and fully commented code snippet of the entire process and can be used as guideline:
+```ruby
+def run
+  initialize_options # Process set options from command line parameters
+  client = Client.new(user_id, user_token) # Instantiate the client using options passed as parameters
+  page = 1
+  loop do
+    page_data = client.get_page(page) # Get data from the client in batches
+    page_data.each do |issue| # For each resulting issue ...
+      asset = extract_asset(issue) # Builds an asset for Kenna
+      finding = extract_finding(issue) # Builds the finding (issue) object for Kenna
+      definition = extract_definition(issue) # Builds the issue definition (unique definitions)
+      create_kdi_asset_finding(asset, finding) # Creates the association in current Kenna batch
+      create_kdi_vuln_def(definition) # Creates the definition (deduplicated) in current Kenna batch
+    end
+    # Below line uploads current batch to Kenna
+    kdi_upload(@output_directory, "report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+    break if page_data.empty? # Stop loop if there is no more data
+    page += 1
+  end
+  # Below line starts the import process in Kenna for all uploaded batches
+  kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+rescue ApiError => e # Api exception handler for the entire process
+  fail_task e.message
+end
+
+```
+
+The methods `extract_asset`, `extract_finding` and `extract_definition` should return a hash with JSON data in the format
+specified by the [KDI Json Format](https://help.kennasecurity.com/hc/en-us/articles/360026413111-Kenna-Data-Importer-JSON-Connector-).
+
+Depending on the final destination for the data upload, you need to use one of `create_kdi_asset_finding` or `create_kdi_asset_vuln` methods.
+
+**Note that this process runs in a constrained environment and you must wisely use the memory and processor
+resources, making use of batching or pagination techniques.** 
+
+Please, refer to the provided sample for specific details on `Client` implementation, exception handling, and log tracing. 
+
 ## CONTRIBUTORS
 
 - @kenna-bmcdevitt (api client)
