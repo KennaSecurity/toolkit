@@ -179,7 +179,7 @@ creation of Kenna objects, upload, and execution of Kenna processes.
 The following is a simplified and fully commented code snippet of the entire process and can be used as guideline:
 ```ruby
 def run
-  initialize_options # Process set options from command line parameters
+  initialize_options # Process and set options from command line parameters
   client = Client.new(user_id, user_token) # Instantiate the client using options passed as parameters
   page = 1
   loop do
@@ -212,7 +212,7 @@ Depending on the final destination for the data upload, you need to use one of `
 **Note that this process runs in a constrained environment and you must wisely use the memory and processor
 resources, making use of batching or pagination techniques.** 
 
-Please, refer to the provided sample for specific details on `Client` implementation, exception handling, and log tracing. 
+Please, refer to the provided sample for specific details on `Client` implementation, exception handling, and tracing. 
 
 ## CONTRIBUTORS
 
