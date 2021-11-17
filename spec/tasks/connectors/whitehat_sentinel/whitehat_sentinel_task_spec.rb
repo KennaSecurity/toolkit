@@ -12,7 +12,8 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
     let(:valid) { true }
     let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5, description: { description: "text" }, solution: { solution: "text" } } }
     let(:asset) { { asset: { id: 12 } } }
-    let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: {}) }
+    let(:connector_run_success) { true }
+    let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
 
     before do
       allow(Kenna::Toolkit::WhitehatSentinel::ApiClient).to receive(:new) { api_client }
@@ -21,6 +22,13 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
 
     it "succeeds" do
       expect { task.run(options) }.to_not raise_error
+    end
+
+    context "when the connector run fails" do
+      let(:connector_run_success) { false }
+      it "exits the script" do
+        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+      end
     end
 
     context "when using an unknown scoring system" do
