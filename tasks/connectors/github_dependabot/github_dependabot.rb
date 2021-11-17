@@ -1,10 +1,10 @@
 # frozen_string_literal: true
+
 require "graphql/client"
 require "graphql/client/http"
 module Kenna
   module Toolkit
     class GithubDependabot < Kenna::Toolkit::BaseTask
-
       def self.metadata
         {
           id: "github_dependabot",
@@ -107,8 +107,8 @@ module Kenna
         repos = GithubDependabot.security_advisories.original_hash["data"]["organization"]["repositories"]["nodes"]
 
         repo_map = repos.each_with_object({}) do |repo, h|
-          advisories = repo["vulnerabilityAlerts"]["nodes"].map{|alert| alert["securityAdvisory"]}
-          h[repo["name"]] = advisories.reject{|ad| ad["identifiers"].last.has_value?("GHSA") }
+          advisories = repo["vulnerabilityAlerts"]["nodes"].map { |alert| alert["securityAdvisory"] }
+          h[repo["name"]] = advisories.reject { |ad| ad["identifiers"].last.value?("GHSA") }
         end
 
         kdi_hash = {
@@ -118,7 +118,7 @@ module Kenna
             repo_map.map do |repo|
               {
                 "application": repo.first,
-                "tags":[
+                "tags": [
                   "github_dependabot_kdi"
                 ],
                 "vulns": vulnerability_alerts_for(repo)
@@ -134,8 +134,7 @@ module Kenna
         # create full output path
         filename = "github_dependabot_kdi.json"
 
-
-        File.open("#{output_dir}/#{filename}","w") do |f|
+        File.open("#{output_dir}/#{filename}", "w") do |f|
           f.write(kdi_hash.to_json)
         end
         
@@ -154,12 +153,12 @@ module Kenna
       def vulnerability_alerts_for(repo)
         repo.last.map do |alert|
           {
-             "scanner_identifier": alert["identifiers"].last["value"],
-             "scanner_type": "Github Dependabot",
-             "scanner_score": alert["cvss"]["score"].to_i,
-             "last_seen_at": Time.now.utc,
-             "status": "open",
-             "vuln_def_name": alert["identifiers"].last["value"]
+            "scanner_identifier": alert["identifiers"].last["value"],
+            "scanner_type": "Github Dependabot",
+            "scanner_score": alert["cvss"]["score"].to_i,
+            "last_seen_at": Time.now.utc,
+            "status": "open",
+            "vuln_def_name": alert["identifiers"].last["value"]
           }
         end
       end
@@ -178,7 +177,6 @@ module Kenna
           }
         end
       end
-
     end
   end
 end
