@@ -233,9 +233,9 @@ module Kenna
 
       def application_names
         @application_names ||= begin
-                                 apps = @client.applications
-                                 apps.each_with_object({}) { |elem, index| index[elem["Id"]] = elem["Name"] }
-                               end
+          apps = @client.applications
+          apps.each_with_object({}) { |elem, index| index[elem["Id"]] = elem["Name"] }
+        end
       end
     end
   end
