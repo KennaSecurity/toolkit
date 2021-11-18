@@ -11,7 +11,8 @@
 
 - QualysWas Username (Required)
 - QualysWas Password (Required)
-- QualysWas Base Api URL (Required)
+- QualysWas domain (Required)
+- QualysWas API version url (Optional by default value is : "/qps/rest/3.0/")
 - Kenna API Host (Optional but needed for automatic upload to Kenna)
 - Kenna API Key (Optional but needed for automatic upload to Kenna)
 - Kenna Connector ID (Optional but needed for automatic upload to Kenna)
