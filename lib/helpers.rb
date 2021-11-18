@@ -151,9 +151,11 @@ module Kenna
         # upload it
         if connector_id && connector_id != -1
           kenna = Kenna::Api::Client.new(api_token, api_host)
-          kenna.run_files_on_connector(connector_id, upload_ids, max_retries)
+          result = kenna.run_files_on_connector(connector_id, upload_ids, max_retries)
+          fail_task "File upload failed" unless result
+          fail_task "Connector run (id #{result['id']}) failed" unless result["success"]
         else
-          print_error "Invalid Connector ID (#{connector_id}), unable to upload."
+          fail_task "Invalid Connector ID (#{connector_id}), unable to upload."
         end
       end
 
