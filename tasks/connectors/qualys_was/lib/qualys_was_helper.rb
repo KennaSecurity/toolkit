@@ -9,7 +9,7 @@ require "base64"
 module Kenna
   module Toolkit
     module QualysWasHelper
-      attr_reader :qualys_was_base_api_url
+      attr_reader :qualys_was_domain, :qualys_was_api_version_url, :base_url
 
       def qualys_was_get_token(username, password)
         auth_details = "#{username}:#{password}"
@@ -18,7 +18,7 @@ module Kenna
 
       def qualys_was_get_webapp(token)
         print_good "Getting Webapp \n"
-        qualys_was_auth_api = "https://#{qualys_was_base_api_url}search/was/webapp"
+        qualys_was_auth_api = "https://#{base_url}search/was/webapp"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -75,7 +75,7 @@ module Kenna
 
       def qualys_was_get_webapp_findings(webapp_id, token)
         print_good "Getting Webapp Findings For #{webapp_id} \n"
-        qualys_was_auth_api = "https://#{qualys_was_base_api_url}search/was/finding"
+        qualys_was_auth_api = "https://#{base_url}search/was/finding"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -136,7 +136,7 @@ module Kenna
 
       def qualys_was_get_vuln(qids, token)
         print_good "Getting VULN For Qids for findings \n"
-        qualys_was_auth_api = URI("https://#{qualys_was_base_api_url.split('/').first}/api/2.0/fo/knowledge_base/vuln/")
+        qualys_was_auth_api = URI("https://#{qualys_was_domain}/api/2.0/fo/knowledge_base/vuln/")
 
         @headers = {
           "Content-Type" => "application/json",

@@ -19,22 +19,28 @@ module Kenna
         "protected" => "remediated"
       }.freeze
 
+      IGNORE_STATUS = {
+        "false_positive" => "false positive",
+        "risk_accepted" => "risk accepted",
+        "not_applicable" => "not_a_security_issue"
+      }.freeze
+
       def self.metadata
         {
           id: "qualys_was",
           name: "qualys_was Vulnerabilities",
           description: "Pulls assets and vulnerabilitiies from qualys_was",
           options: [
-            { name: "qualys_was_base_api_url",
+            { name: "qualys_was_domain",
               type: "hostname",
               required: true,
               default: nil,
-              description: "Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com/qps/rest/3.0/" },
-            { name: "qualys_was_console_port",
+              description: "Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com" },
+            { name: "qualys_was_api_version_url",
               type: "integer",
               required: false,
               default: nil,
-              description: "Your qualys_was Console port, e.g. 8080" },
+              description: "Your qualys_was_api_version_url, e.g. /qps/rest/3.0/" },
             { name: "qualys_was_user",
               type: "user",
               required: true,
@@ -112,7 +118,7 @@ module Kenna
 
                   asset = {
                     "url" => find_from["webApp"]["url"],
-                    "application_identifier" => find_from["webApp"]["name"].presence || domain_detail(find_from)
+                    "application" => find_from["webApp"]["name"].presence || domain_detail(find_from)
                   }
                   asset.compact!
 
@@ -138,7 +144,7 @@ module Kenna
                     "additional_fields" => details,
                     "vuln_def_name" => name(find_from)
                   }.tap do |f|
-                    f["triage_state"] = STATUS[find_from["status"].downcase] if find_from["status"].present?
+                    f["triage_state"] = status(find_from) if find_from["status"].present?
                   end
                   # in case any values are null, it's good to remove them
                   finding_data.compact!
@@ -155,7 +161,7 @@ module Kenna
                       t["description"] = remove_html_tags(diagnosis) if diagnosis.present?
                       t["solution"] = remove_html_tags(solution) if solution.present?
                     end
-                    t["cwe_id"] = find_from["cwe"]["list"].first if find_from["cwe"].present?
+                    t["cwe_identifiers"] = "CWE-#{find_from['cwe']['list'].first}" if find_from["cwe"].present?
                   end
 
                   vuln_def.compact!
@@ -186,10 +192,12 @@ module Kenna
       def initialize_options
         @username = @options[:qualys_was_user]
         @password = @options[:qualys_was_password]
-        @qualys_was_base_api_url = @options[:qualys_was_base_api_url]
+        @qualys_was_domain = @options[:qualys_was_domain]
+        @qualys_was_api_version_url = @options[:qualys_was_api_version_url] || "/qps/rest/3.0/"
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        @base_url = @qualys_was_domain + @qualys_was_api_version_url
         @retries = 3
         @kdi_version = 2
       end
@@ -201,6 +209,14 @@ module Kenna
 
       def name(find_from)
         "#{find_from['qid']}-#{find_from['name']}"
+      end
+
+      def status(find_from)
+        if find_from["isIgnored"] == "true"
+          IGNORE_STATUS[find_from["ignoredReason"].downcase]
+        else
+          STATUS[find_from["status"].downcase]
+        end
       end
     end
   end
