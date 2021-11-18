@@ -184,7 +184,7 @@ module Kenna
           "Severity Source" => issue["severity_source"],
           "Cves" => issue["cves"].count == 1 ? issue["cves"].first : issue["cves"],
           "cvss2 max score" => issue["cvss2_max_score"],
-          "cvss3 max score" => issue["cvss2_max_score"],
+          "cvss3 max score" => issue["cvss3_max_score"],
           "Vulnerable Component" => issue["vulnerable_component"],
           "Impacted Artifact" => issue["impacted_artifact"],
           "Impact Path" => issue["impact_path"],
