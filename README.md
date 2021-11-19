@@ -159,6 +159,7 @@ These are the current tasks available:
 - veracode_asset_vulns: This task pulls data from the Veracode API for the Asset and Vulns model of Kenna AppSec.
 - veracode_findings: This task pulls data from the Veracode API for the Findings model of Kenna AppSec.
 - qualys_was: This task pulls data from the Qualys Was API and push results into the Kenna Platform. 
+- github_dependabot: This task pulls data from the github for all repositories vulnerabilities using graphql and push results into the Kenna Platform.
 
 ## Advanced Usage
 

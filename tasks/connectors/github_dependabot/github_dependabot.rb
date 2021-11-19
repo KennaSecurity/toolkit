@@ -40,6 +40,8 @@ module Kenna
         }
       end
 
+      # Github graphql configuration
+
       http = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
         def headers(_context)
           { "Authorization": "Bearer #{GITHUB_DEPENDABOT_TOKEN}" }
@@ -49,6 +51,8 @@ module Kenna
       Schema = GraphQL::Client.load_schema(http)
 
       Client = GraphQL::Client.new(schema: Schema, execute: http)
+
+      # Graphql query
 
       SECURITY_ADVISORY_QUERY = Client.parse <<-'GRAPHQL'
         query {
@@ -95,14 +99,14 @@ module Kenna
       end
 
       def run(opts)
-        super
+        super # opts -> @options
 
         @github_access_token = @options[:github_access_token]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
 
-        repos = GithubDependabot.security_advisories.original_hash["data"]["organization"]["repositories"]["nodes"]
+        repos = GithubDependabot.security_advisories.original_hash["data"]["organization"]["repositories"]["nodes"] # get the response from graphql query
 
         repo_map = repos.each_with_object({}) do |repo, h|
           advisories = repo["vulnerabilityAlerts"]["nodes"].map { |alert| alert["securityAdvisory"] }
