@@ -40,19 +40,17 @@ module Kenna
         }
       end
 
-      def self.github_graphql_client
-        http = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
-          def headers(context)
-            { "Authorization": "Bearer #{GITHUB_DEPENDABOT_TOKEN}" }
-          end
+      http = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
+        def headers(_context)
+          { "Authorization": "Bearer #{GITHUB_DEPENDABOT_TOKEN}" }
         end
-
-        schema = GraphQL::Client.load_schema(http)
-
-        GraphQL::Client.new(schema: schema, execute: http)
       end
 
-      SECURITY_ADVISORY_QUERY = github_graphql_client.parse <<-'GRAPHQL'
+      Schema = GraphQL::Client.load_schema(http)
+
+      Client = GraphQL::Client.new(schema: Schema, execute: http)
+
+      SECURITY_ADVISORY_QUERY = Client.parse <<-'GRAPHQL'
         query {
           organization(login: "KennaSecurity") {
             repositories(orderBy: {field: UPDATED_AT, direction: DESC}, first: 50) {
@@ -93,7 +91,7 @@ module Kenna
       GRAPHQL
 
       def self.security_advisories
-        github_graphql_client.query(SECURITY_ADVISORY_QUERY)
+        GithubDependabot::Client.query(SECURITY_ADVISORY_QUERY)
       end
 
       def run(opts)
@@ -137,7 +135,6 @@ module Kenna
         File.open("#{output_dir}/#{filename}", "w") do |f|
           f.write(kdi_hash.to_json)
         end
-        
         print_good "Output is available at: #{output_dir}/#{filename}"
 
         ####
@@ -147,7 +144,6 @@ module Kenna
 
         print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
         upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
-        
       end
 
       def vulnerability_alerts_for(repo)
@@ -164,9 +160,7 @@ module Kenna
       end
 
       def vulnerability_definitions(repo_map)
-        all_vulns = repo_map.flat_map do |repo|
-          repo.last
-        end
+        all_vulns = repo_map.flat_map(&:last)
 
         all_vulns.map do |advisory|
           {

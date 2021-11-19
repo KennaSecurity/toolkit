@@ -17,7 +17,7 @@ gem "json"
 gem "json-write-stream"
 gem "rest-client"
 gem "sanitize"
-gem 'graphql-client'
+gem "graphql-client"
 gem "tty-pager"
 gem "httparty"
 gem "rexml", ">= 3.2.5"
