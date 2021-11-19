@@ -103,6 +103,8 @@ module Kenna
           print_error "Reached max Bugcrowd API offset value of 9900" if offset > 9900
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::Bugcrowd::Client::ApiError => e
+        fail_task e.message
       end
 
       private
@@ -179,7 +181,7 @@ module Kenna
       def extract_definition(issue)
         {
           "name" => issue["attributes"]["vrt_id"],
-          "description" => CGI.escapeHTML("#{issue['attributes']['title']}\n\n#{issue['attributes']['description']}"),
+          "description" => CGI.escapeHTML("#{Sanitize.fragment(issue['attributes']['title'])}\n\n#{Sanitize.fragment(issue['attributes']['description'])}"),
           "solution" => issue["attributes"]["remediation_advice"],
           "scanner_type" => "Bugcrowd"
         }.compact
@@ -187,13 +189,13 @@ module Kenna
 
       def extract_additional_fields(issue)
         fields = {}
-        fields[:custom_fields] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].empty?
-        fields[:extra_info] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].nil? || issue["attributes"]["extra_info"].empty?
-        fields[:http_request] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].nil? || issue["attributes"]["http_request"].empty?
-        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"].split("* ").join("\n") unless issue["attributes"]["vulnerability_references"].nil? || issue["attributes"]["vulnerability_references"].empty?
-        fields[:source] = issue["attributes"]["source"] unless issue["attributes"]["source"].nil?
-        fields[:program] = issue["program"] unless issue["program"]["name"]
-        fields[:organization] = issue["organization"] unless issue["organization"]["name"]
+        fields[:custom_fields] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].blank?
+        fields[:extra_info] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].blank?
+        fields[:http_request] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].blank?
+        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"].split("* ").select(&:present?).map { |link| link[/\[(.*)\]/, 1] }.join("\n\n") unless issue["attributes"]["vulnerability_references"].blank?
+        fields[:source] = issue["attributes"]["source"] unless issue["attributes"]["source"].blank?
+        fields[:program] = issue["program"] unless issue["program"]["name"].blank?
+        fields[:organization] = issue["organization"] unless issue["organization"]["name"].blank?
         fields
       end
 

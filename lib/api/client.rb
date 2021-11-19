@@ -263,6 +263,13 @@ module Kenna
             # check our value to see if we need to keep going
             running = connector_check_json["running"]
           end
+
+          connector_run_status_response = RestClient::Request.execute(
+            method: :get,
+            url: "#{connector_check_endpoint}/connector_runs/#{query_response_json['connector_run_id']}",
+            headers: headers
+          )
+          connector_run_status_json = JSON.parse(connector_run_status_response)
         rescue RestClient::Exceptions::OpenTimeout => e
           print_error "Timeout: #{e.message}..."
         rescue RestClient::UnprocessableEntity => e
@@ -289,7 +296,7 @@ module Kenna
         end
 
         print_good "Done!"
-        query_response_json
+        connector_run_status_json
       end
 
       private

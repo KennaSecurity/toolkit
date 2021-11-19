@@ -9,14 +9,16 @@ require "base64"
 module Kenna
   module Toolkit
     module QualysWasHelper
+      attr_reader :qualys_was_domain, :qualys_was_api_version_url, :base_url
+
       def qualys_was_get_token(username, password)
         auth_details = "#{username}:#{password}"
         Base64.encode64(auth_details)
       end
 
-      def qualys_was_get_webapp(token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+      def qualys_was_get_webapp(token)
         print_good "Getting Webapp \n"
-        qualys_was_auth_api = "https://#{qualys_was_url}search/was/webapp"
+        qualys_was_auth_api = "https://#{base_url}search/was/webapp"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -68,14 +70,12 @@ module Kenna
             print_error "Unable to process Auth Token response!"
           end
         end
-        print_good response
-        print_good "\n\n \n\n"
         response.flatten
       end
 
-      def qualys_was_get_webapp_findings(webapp_id, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/qps/rest/3.0/")
+      def qualys_was_get_webapp_findings(webapp_id, token)
         print_good "Getting Webapp Findings For #{webapp_id} \n"
-        qualys_was_auth_api = "https://#{qualys_was_url}search/was/finding"
+        qualys_was_auth_api = "https://#{base_url}search/was/finding"
 
         @headers = {
           "Content-Type" => "application/json",
@@ -128,17 +128,15 @@ module Kenna
           rescue JSON::ParserError
             print_error "Unable to process Auth Token response!"
           end
-
-          print_good response
-          print_good "\n\n \n\n"
         end
 
+        # response.each { |r| print_debug r["ServiceResponse"]["count"] }
         response.flatten
       end
 
-      def qualys_was_get_vuln(qids, token, qualys_was_url = "qualysapi.qg3.apps.qualys.com/api/2.0/fo/")
-        print_good "Getting VULN For #{qids} \n"
-        qualys_was_auth_api = URI("https://#{qualys_was_url}knowledge_base/vuln/")
+      def qualys_was_get_vuln(qids, token)
+        print_good "Getting VULN For Qids for findings \n"
+        qualys_was_auth_api = URI("https://#{qualys_was_domain}/api/2.0/fo/knowledge_base/vuln/")
 
         @headers = {
           "Content-Type" => "application/json",
@@ -162,8 +160,6 @@ module Kenna
           print_error "Unable to process XML response!"
         end
 
-        print_good response
-        print_good "\n\n \n\n"
         response
       end
     end

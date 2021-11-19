@@ -110,6 +110,8 @@ module Kenna
           break if processed >= total_issues
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+      rescue Kenna::Toolkit::JFrog::JFrogClient::ApiError => e
+        fail_task e.message
       end
 
       private
@@ -182,7 +184,7 @@ module Kenna
           "Severity Source" => issue["severity_source"],
           "Cves" => issue["cves"].count == 1 ? issue["cves"].first : issue["cves"],
           "cvss2 max score" => issue["cvss2_max_score"],
-          "cvss3 max score" => issue["cvss2_max_score"],
+          "cvss3 max score" => issue["cvss3_max_score"],
           "Vulnerable Component" => issue["vulnerable_component"],
           "Impacted Artifact" => issue["impacted_artifact"],
           "Impact Path" => issue["impact_path"],

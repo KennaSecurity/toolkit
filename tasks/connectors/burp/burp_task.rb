@@ -95,8 +95,8 @@ module Kenna
           end
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
-      rescue Kenna::Toolkit::Burp::BurpClient::ApiError
-        fail_task "Unable to retrieve scan, please check credentials"
+      rescue Kenna::Toolkit::Burp::BurpClient::ApiError => e
+        fail_task e.message
       end
 
       private
@@ -151,7 +151,8 @@ module Kenna
           "name" => issue["issue_type"]["name"],
           "description" => remove_html_tags(issue["issue_type"]["description_html"] || ""),
           "solution" => remove_html_tags(issue["issue_type"]["remediation_html"] || ""),
-          "scanner_type" => "BurpSuite"
+          "scanner_type" => "BurpSuite",
+          "cwe_identifiers" => (issue["issue_type"]["vulnerability_classifications_html"] || "").scan(/CWE-\d*/).join(", ")
         }.compact
       end
 

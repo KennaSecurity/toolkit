@@ -6,6 +6,8 @@ module Kenna
   module Toolkit
     module Bugcrowd
       class Client
+        class ApiError < StandardError; end
+
         BUGCROWD_VERSION = "2021-10-28"
 
         def initialize(host, api_user, api_password)
@@ -19,6 +21,8 @@ module Kenna
         def get_submissions(offset = 0, limit = 100, options = {})
           url = submissions_url(options.merge(offset: offset, limit: limit))
           response = http_get(url, @headers, 2)
+          raise ApiError, "Unable to retrieve submissions, please check credentials." unless response
+
           build_issues(JSON.parse(response))
         end
 

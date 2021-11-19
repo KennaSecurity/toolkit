@@ -87,9 +87,10 @@ module Kenna
             tags = application.fetch("tags")
             owner = application.fetch("owner")
             import_application_issues(guid, appname, tags, owner)
-
-            kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
           end
+          kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+        rescue Kenna::Toolkit::Veracode::Client::ApiError => e
+          fail_task e.message
         end
 
         private

@@ -149,7 +149,8 @@ module Kenna
           "name" => issue["Name"],
           "description" => remove_html_tags(issue["Description"]),
           "solution" => remove_html_tags(issue["RemedialProcedure"]),
-          "scanner_type" => "Netsparker"
+          "scanner_type" => "Netsparker",
+          "cwe_identifiers" => issue["Classification"]["Cwe"].split(",").map { |id| "CWE-#{id.strip}" }.join(", ")
         }.compact
       end
 
