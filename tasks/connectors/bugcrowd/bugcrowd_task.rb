@@ -181,7 +181,6 @@ module Kenna
       def extract_definition(issue)
         {
           "name" => issue["attributes"]["vrt_id"],
-          "description" => CGI.escapeHTML("#{Sanitize.fragment(issue['attributes']['title'])}\n\n#{Sanitize.fragment(issue['attributes']['description'])}"),
           "solution" => issue["attributes"]["remediation_advice"],
           "scanner_type" => "Bugcrowd"
         }.compact
@@ -189,13 +188,15 @@ module Kenna
 
       def extract_additional_fields(issue)
         fields = {}
-        fields[:custom_fields] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].blank?
-        fields[:extra_info] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].blank?
-        fields[:http_request] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].blank?
-        fields[:vulnerability_references] = issue["attributes"]["vulnerability_references"].split("* ").select(&:present?).map { |link| link[/\[(.*)\]/, 1] }.join("\n\n") unless issue["attributes"]["vulnerability_references"].blank?
-        fields[:source] = issue["attributes"]["source"] unless issue["attributes"]["source"].blank?
-        fields[:program] = issue["program"] unless issue["program"]["name"].blank?
-        fields[:organization] = issue["organization"] unless issue["organization"]["name"].blank?
+        fields["Title"] = issue["attributes"]["title"]
+        fields["Description"] = Sanitize.fragment(issue["attributes"]["description"])
+        fields["Custom Fields"] = issue["attributes"]["custom_fields"] unless issue["attributes"]["custom_fields"].blank?
+        fields["Extra Info"] = issue["attributes"]["extra_info"] unless issue["attributes"]["extra_info"].blank?
+        fields["HTTP Request"] = issue["attributes"]["http_request"] unless issue["attributes"]["http_request"].blank?
+        fields["Vulnerability References"] = issue["attributes"]["vulnerability_references"].split("* ").select(&:present?).map { |link| link[/\[(.*)\]/, 1] }.join("\n\n") unless issue["attributes"]["vulnerability_references"].blank?
+        fields["Source"] = issue["attributes"]["source"] unless issue["attributes"]["source"].blank?
+        fields["Program"] = issue["program"] unless issue["program"]["name"].blank?
+        fields["Organization"] = issue["organization"] unless issue["organization"]["name"].blank?
         fields
       end
 
