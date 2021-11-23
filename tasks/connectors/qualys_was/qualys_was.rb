@@ -93,6 +93,7 @@ module Kenna
         web_apps = qualys_was_get_webapp(token)
         vuln_hsh = {}
         total_count = 0
+        json_file_total_counting = 0
 
         web_apps.each do |individual_web_app|
           next unless individual_web_app.present?
@@ -159,7 +160,7 @@ module Kenna
                   vuln_def.tap do |t|
                     if vuln_hsh[find_from["qid"].to_s].present?
                       diagnosis = vuln_hsh[find_from["qid"].to_s].last["DIAGNOSIS"]
-                      solution = vuln_hsh[find_from["qid"].to_s].last["solution"]
+                      solution = vuln_hsh[find_from["qid"].to_s].last["SOLUTION"]
                       t["description"] = remove_html_tags(diagnosis) if diagnosis.present?
                       t["solution"] = remove_html_tags(solution) if solution.present?
                     end
@@ -178,12 +179,18 @@ module Kenna
             ### Write KDI format
             output_dir = "#{$basedir}/#{@options[:output_directory]}"
             filename = "qualys_was_#{web_app_id}.json"
+            file = File.read("#{output_dir}/#{filename}")
+            hsh = JSON.parse(file)
+            json_file_total_counting += hsh["assets"][0]["findings"].count
+
             print_good "Output is available at: #{output_dir}/#{filename}"
             print_good "Attempting to upload to Kenna API"
+            print_debug "Total Finding for #{web_app_id} in JSON file #{hsh['assets'][0]['findings'].count}"
             kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version
           end
         end
         print_debug "Total Finding of qualys was is #{total_count}"
+        print_debug "Total Finding in all json files #{json_file_total_counting}"
         # Total count of findings
         # this method will automatically use the stored array of uploaded files when calling the connector
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
