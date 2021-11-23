@@ -82,7 +82,7 @@ module Kenna
       def run(opts)
         super
         initialize_options
-        client = Kenna::Toolkit::Bugcrowd::Client.new(@host, @api_user, @api_password)
+        initialize_client
         offset = 0
         loop do
           response = client.get_submissions(offset, @batch_size, submissions_filter)
@@ -108,6 +108,12 @@ module Kenna
       end
 
       private
+
+      attr_reader :client
+
+      def initialize_client
+        @client = Kenna::Toolkit::Bugcrowd::Client.new(@host, @api_user, @api_password)
+      end
 
       def initialize_options
         @host = @options[:bugcrowd_api_host]
@@ -182,7 +188,8 @@ module Kenna
         {
           "name" => issue["attributes"]["vrt_id"],
           "solution" => issue["attributes"]["remediation_advice"],
-          "scanner_type" => "Bugcrowd"
+          "scanner_type" => "Bugcrowd",
+          "cwe_identifiers" => extract_cwe_identifiers(issue)
         }.compact
       end
 
@@ -198,6 +205,16 @@ module Kenna
         fields["Program"] = issue["program"] unless issue["program"]["name"].blank?
         fields["Organization"] = issue["organization"] unless issue["organization"]["name"].blank?
         fields
+      end
+
+      def extract_cwe_identifiers(issue)
+        tokens = issue["attributes"]["vrt_id"].split(".")
+        cwe = nil
+        while !tokens.empty? && cwe.nil?
+          cwe = client.cwe_map[tokens.join(".")]
+          tokens.pop
+        end
+        cwe&.join(", ")
       end
 
       def map_state_to_triage_state(bugcrowd_state)

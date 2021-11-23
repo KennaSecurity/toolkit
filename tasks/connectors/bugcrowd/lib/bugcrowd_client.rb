@@ -9,6 +9,7 @@ module Kenna
         class ApiError < StandardError; end
 
         BUGCROWD_VERSION = "2021-10-28"
+        CWE_JSON_URL = "https://raw.githubusercontent.com/bugcrowd/vulnerability-rating-taxonomy/master/mappings/cwe/cwe.json"
 
         def initialize(host, api_user, api_password)
           @endpoint = host.start_with?("http") ? host : "https://#{host}"
@@ -24,6 +25,10 @@ module Kenna
           raise ApiError, "Unable to retrieve submissions, please check credentials." unless response
 
           build_issues(JSON.parse(response))
+        end
+
+        def cwe_map
+          @cwe_map ||= build_cwe_map
         end
 
         private
@@ -75,6 +80,29 @@ module Kenna
             total_hits: api_data["meta"]["total_hits"],
             count: api_data["meta"]["count"]
           }
+        end
+
+        def build_cwe_map
+          print "Attempting to download CWE map from #{CWE_JSON_URL}"
+          response = http_get(CWE_JSON_URL, {}, 0)
+          if response.nil?
+            print_error "CWE map not found. Please check if it was moved. Using local copy instead, but, it could be outdated."
+            response = File.read(File.expand_path("cwe.json", __dir__))
+          else
+            print_good "Successfully downloaded CWE map."
+          end
+          json = JSON.parse(response, symbolize_names: true)
+          map = {}
+          visit_cwe_nodes(json[:content], "", map)
+          map
+        end
+
+        def visit_cwe_nodes(nodes, path, map)
+          nodes.each do |node|
+            key = path.present? ? "#{path}.#{node[:id]}" : node[:id]
+            map[key] = node[:cwe] if node[:cwe]
+            visit_cwe_nodes(node[:children] || [], key, map)
+          end
         end
       end
     end
