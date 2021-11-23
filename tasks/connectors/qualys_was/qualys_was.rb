@@ -21,7 +21,7 @@ module Kenna
 
       IGNORE_STATUS = {
         "false_positive" => "false positive",
-        "risk_accepted" => "new", #TODO Changes the as per the status
+        "risk_accepted" => "new", # TODO: Changes the as per the status
         "not_applicable" => "not_a_security_issue"
       }.freeze
 
