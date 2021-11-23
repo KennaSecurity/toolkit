@@ -21,7 +21,7 @@ module Kenna
 
       IGNORE_STATUS = {
         "false_positive" => "false positive",
-        "risk_accepted" => "risk accepted",
+        "risk_accepted" => "new", #TODO Changes the as per the status
         "not_applicable" => "not_a_security_issue"
       }.freeze
 
@@ -39,7 +39,7 @@ module Kenna
             { name: "qualys_was_api_version_url",
               type: "integer",
               required: false,
-              default: nil,
+              default: "/qps/rest/3.0/",
               description: "Your qualys_was_api_version_url, e.g. /qps/rest/3.0/" },
             { name: "qualys_was_user",
               type: "user",
@@ -56,6 +56,10 @@ module Kenna
               required: false,
               default: "false",
               description: "Optional filter to limit vulnerabilities using a comma separated list of severities (e.g. CRITICAL,HIGH)" },
+            { name: "score",
+              type: "integer",
+              required: false,
+              description: "Optional filter to limit vulnerabilities using a greater operator on score field ranges from 0 to 5" },
             { name: "kenna_api_key",
               type: "api_key",
               required: false,
@@ -195,6 +199,7 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        @score = @options[:score]
         @base_url = @qualys_was_domain + @qualys_was_api_version_url
         @retries = 3
         @kdi_version = 2

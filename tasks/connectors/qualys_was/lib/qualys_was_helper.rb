@@ -9,7 +9,7 @@ require "base64"
 module Kenna
   module Toolkit
     module QualysWasHelper
-      attr_reader :qualys_was_domain, :qualys_was_api_version_url, :base_url
+      attr_reader :qualys_was_domain, :qualys_was_api_version_url, :base_url, :score
 
       def qualys_was_get_token(username, password)
         auth_details = "#{username}:#{password}"
@@ -111,6 +111,14 @@ module Kenna
               "field": "id",
               "operator": "GREATER",
               "value": last_id.to_s
+            }
+          end
+
+          if score.present?
+            payload[:ServiceRequest][:filters]["Criteria"] = {
+              "field": "severity",
+              "operator": "GREATER",
+              "value": score.to_i
             }
           end
 
