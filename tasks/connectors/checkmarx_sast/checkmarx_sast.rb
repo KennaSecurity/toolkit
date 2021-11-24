@@ -106,12 +106,10 @@ module Kenna
         @scope = @options[:scope]
         @client_id = @options[:client_id]
         @client_secret = @options[:client_secret]
-        checkmarx_sast_port = @options[:checkmarx_sast_console_port]
-        checkmarx_sast_console = @options[:checkmarx_sast_console]
-        @checkmarx_sast_url = if checkmarx_sast_port
-                                "#{checkmarx_sast_console}:#{checkmarx_sast_port}"
+        @checkmarx_sast_url = if @options[:checkmarx_sast_console_port]
+                                "#{@options[:checkmarx_sast_console]}:#{@options[:checkmarx_sast_console_port]}"
                               else
-                                checkmarx_sast_console
+                                @options[:checkmarx_sast_console]
                               end
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
