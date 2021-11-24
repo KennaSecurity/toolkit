@@ -18,8 +18,7 @@ Start here to learn how to get personal access token:
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
 | github_access_token | true | Github access token | n/a |
-| atp_api_host | false | url to retrieve Defender hosts and vulns | https://api.securitycenter.microsoft.com |
-| atp_oath_host | false | url for Defender authentication | https://login.windows.net |
+| github_organization_name | true | Github organization name | n/a |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |

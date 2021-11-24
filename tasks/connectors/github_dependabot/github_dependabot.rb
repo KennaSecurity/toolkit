@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require "graphql/client"
-require "graphql/client/http"
+require_relative "lib/github_dependabot_client"
 module Kenna
   module Toolkit
     class GithubDependabot < Kenna::Toolkit::BaseTask
@@ -11,6 +10,11 @@ module Kenna
           name: "github_dependabot Vulnerabilities",
           description: "Pulls assets and vulnerabilitiies from github_dependabot",
           options: [
+            { name: "github_organization_name",
+              type: "string",
+              required: true,
+              default: nil,
+              description: "github organization name" },
             { name: "github_access_token",
               type: "api_key",
               required: true,
@@ -40,73 +44,12 @@ module Kenna
         }
       end
 
-      # Github graphql configuration
-
-      http = GraphQL::Client::HTTP.new("https://api.github.com/graphql") do
-        def headers(_context)
-          { "Authorization": "Bearer #{GITHUB_DEPENDABOT_TOKEN}" }
-        end
-      end
-
-      Schema = GraphQL::Client.load_schema(http)
-
-      Client = GraphQL::Client.new(schema: Schema, execute: http)
-
-      # Graphql query
-
-      SECURITY_ADVISORY_QUERY = Client.parse <<-'GRAPHQL'
-        query {
-          organization(login: "KennaSecurity") {
-            repositories(orderBy: {field: UPDATED_AT, direction: DESC}, first: 50) {
-              nodes {
-              name
-                vulnerabilityAlerts(last: 50) {
-                  nodes {
-                    id
-                    securityAdvisory {
-                      description
-                      cvss {
-                        score
-                      }
-                      severity
-                      identifiers {
-                        type
-                        value
-                      }
-                      summary
-                      vulnerabilities(last: 50) {
-                        nodes {
-                          package {
-                            name
-                          }
-                          severity
-                          firstPatchedVersion {
-                            identifier
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      GRAPHQL
-
-      def self.security_advisories
-        GithubDependabot::Client.query(SECURITY_ADVISORY_QUERY)
-      end
-
       def run(opts)
         super # opts -> @options
+        initialize_options
 
-        @github_access_token = @options[:github_access_token]
-        @kenna_api_host = @options[:kenna_api_host]
-        @kenna_api_key = @options[:kenna_api_key]
-        @kenna_connector_id = @options[:kenna_connector_id]
-
-        repos = GithubDependabot.security_advisories.original_hash["data"]["organization"]["repositories"]["nodes"] # get the response from graphql query
+        client = Kenna::Toolkit::GithubDependabotModule::GithubDependabotClient.new(@github_organization_name, @github_access_token)
+        repos = client.security_advisory_response
 
         repo_map = repos.each_with_object({}) do |repo, h|
           advisories = repo["vulnerabilityAlerts"]["nodes"].map { |alert| alert["securityAdvisory"] }
@@ -129,7 +72,6 @@ module Kenna
           "vuln_defs": vulnerability_definitions(repo_map)
         }
 
-        # create output dir
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         FileUtils.mkdir_p output_dir
 
@@ -146,8 +88,23 @@ module Kenna
         ####
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-        upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
+        # print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
+        # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
+      end
+
+      private
+
+      def initialize_options
+        @github_organization_name = @options[:github_organization_name]
+        @github_access_token = @options[:github_access_token]
+        @output_directory = @options[:output_directory]
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @max_issues = @options[:batch_size].to_i
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
       end
 
       def vulnerability_alerts_for(repo)

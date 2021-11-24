@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
+# all dependencies
+require_relative "lib/toolkit"
 require_relative "lib/params_helper"
 
 # First split up whatever we got
@@ -29,11 +31,6 @@ args_array.each do |arg|
   args[arg_name] = arg_value
 end
 
-# constant set for graphql which is used in github dependabot connector
-GITHUB_DEPENDABOT_TOKEN = args[:github_access_token]
-
-# all dependencies
-require_relative "lib/toolkit"
 # Fail if we didnt get a task
 unless args[:task]
   print_error "FATAL! Missing required argument: 'task'"
