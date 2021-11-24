@@ -5,20 +5,23 @@ require "json"
 module Kenna
   module Toolkit
     module CheckmarxSastHelper
+      attr_reader :username, :password, :grant_type, :scope, :checkmarx_sast_url, :client_id, :client_secret
 
       # Method for generating token using username & pwd , client ID and secret
-      def request_checkmarx_sast_token(checkmarx_sast_url, username, password)
+      def request_checkmarx_sast_token
         print_debug "Getting Auth Token"
         checkmarx_sast_auth_api_url = "https://#{checkmarx_sast_url}/cxrestapi/auth/identity/connect/token"
-        grant_type = "password"
-        scope = "access_control_api sast_api"
-        #TODO=> For now client_id & client_secret are static
-        client_id = "resource_owner_sast_client"
-        client_secret = "014DF517-39D1-4453-B7B3-9930C563627C"
-
         # Retrieve an OAuth access token to be used against Checkmarx SAST API"
         headers = { "content-type" => "application/x-www-form-urlencoded" }
-        payload = "grant_type=password&scope=access_control_api sast_api&username=#{username}&password=#{password}&client_id=#{client_id}&client_secret=#{client_secret}"
+        payload = {
+          grant_type: grant_type,
+          scope: scope,
+          username: username,
+          password: password,
+          client_id: client_id,
+          client_secret: client_secret
+        }
+
         begin
           auth_response = http_post(checkmarx_sast_auth_api_url, headers, payload)
           return unless auth_response
@@ -34,7 +37,7 @@ module Kenna
       end
 
       # method to get all projects using user credentials
-      def fetch_checkmarx_sast_projects(checkmarx_sast_url, token)
+      def fetch_checkmarx_sast_projects(token)
         print_good "Getting Projects \n"
         checkmarx_sast_projects_api_url = "https://#{checkmarx_sast_url}/cxrestapi/projects"
         headers = {
@@ -54,7 +57,7 @@ module Kenna
       end
 
       # method to fetch all scans of each project
-      def fetch_all_scans_of_project(checkmarx_sast_url, token, project_id)
+      def fetch_all_scans_of_project(token, project_id)
         print_good "\n"
         print_good "Getting All Scans of Project ID: #{project_id} \n"
         checkmarx_sast_scans_api_url = "https://#{checkmarx_sast_url}/cxrestapi/sast/scans?projectId=#{project_id}"
