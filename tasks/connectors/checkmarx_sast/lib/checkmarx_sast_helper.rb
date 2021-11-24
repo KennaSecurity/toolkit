@@ -72,13 +72,12 @@ module Kenna
         begin
           scan_results = JSON.parse(auth_response.body)
           print_good "Scan Results: \n"
-          print_good "#{scan_results}"
+          print_good scan_results.to_s
         rescue JSON::ParserError
           print_error "Unable to process scans response!"
         end
         scan_results
       end
-
     end
   end
 end

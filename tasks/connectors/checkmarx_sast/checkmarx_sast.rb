@@ -94,7 +94,7 @@ module Kenna
           print_good "Project Name: #{project['name']}"
           project_id = project["id"]
           # Request checkmarx sast api to fetch all scans of each project
-          all_scans = fetch_all_scans_of_project(token, project_id)
+          fetch_all_scans_of_project(token, project_id)
         end
         print_good "\n"
       end
