@@ -20,8 +20,8 @@ module Kenna
       }.freeze
 
       IGNORE_STATUS = {
-        "false_positive" => "false positive",
-        "risk_accepted" => "new", # TODO: Changes the as per the status
+        "false_positive" => "false_positive",
+        "risk_accepted" => "risk_accepted",
         "not_applicable" => "not_a_security_issue"
       }.freeze
 
