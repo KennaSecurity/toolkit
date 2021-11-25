@@ -56,21 +56,26 @@ module Kenna
           h[repo["name"]] = advisories.reject { |ad| ad["identifiers"].last.value?("GHSA") }
         end
 
-        kdi_hash = {
-          "skip_autoclose": false,
-          "version": 2,
-          "assets":
-            repo_map.map do |repo|
-              {
-                "application": repo.first,
-                "tags": [
-                  "github_dependabot_kdi"
-                ],
-                "vulns": vulnerability_alerts_for(repo)
-              }
-            end,
-          "vuln_defs": vulnerability_definitions(repo_map)
-        }
+        repo_map.map.each do |repo|
+          repo.last.map do |alert|
+            asset = { "application" => repo.first, "tags" => ["github_dependabot_kdi"] }
+            asset.compact!
+            vuln = {
+              "scanner_identifier" => alert["identifiers"].last["value"],
+              "scanner_type" => "Github Dependabot",
+              "scanner_score" => alert["cvss"]["score"].to_i,
+              "last_seen_at" => Time.now.utc,
+              "status" => "open",
+              "vuln_def_name" => alert["identifiers"].last["value"]
+            }
+            vuln.compact!
+            create_kdi_asset_vuln(asset, vuln)
+          end
+        end
+
+        vulnerability_definitions(repo_map).each do |vuln_def|
+          create_kdi_vuln_def(vuln_def)
+        end
 
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         FileUtils.mkdir_p output_dir
@@ -78,9 +83,8 @@ module Kenna
         # create full output path
         filename = "github_dependabot_kdi.json"
 
-        File.open("#{output_dir}/#{filename}", "w") do |f|
-          f.write(kdi_hash.to_json)
-        end
+        kdi_upload(@output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+
         print_good "Output is available at: #{output_dir}/#{filename}"
 
         ####
@@ -88,8 +92,7 @@ module Kenna
         ####
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
-        # print_good "Attempting to upload to Kenna API at #{@kenna_api_host}"
-        # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}"
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       private
@@ -107,28 +110,15 @@ module Kenna
         @kdi_version = 2
       end
 
-      def vulnerability_alerts_for(repo)
-        repo.last.map do |alert|
-          {
-            "scanner_identifier": alert["identifiers"].last["value"],
-            "scanner_type": "Github Dependabot",
-            "scanner_score": alert["cvss"]["score"].to_i,
-            "last_seen_at": Time.now.utc,
-            "status": "open",
-            "vuln_def_name": alert["identifiers"].last["value"]
-          }
-        end
-      end
-
       def vulnerability_definitions(repo_map)
         all_vulns = repo_map.flat_map(&:last)
 
         all_vulns.map do |advisory|
           {
-            "scanner_type": "Github Dependabot",
-            "name": advisory["identifiers"].last["value"],
-            "cve_identifiers": advisory["identifiers"].last["value"],
-            "description": advisory["description"]
+            "scanner_type" => "Github Dependabot",
+            "name" => advisory["identifiers"].last["value"],
+            "cve_identifiers" => advisory["identifiers"].last["value"],
+            "description" => advisory["description"]
           }
         end
       end
