@@ -167,6 +167,12 @@ These are the current tasks available:
 Proxy:
 If you need to use a proxy with this container the suggested implementation is to use the built-in [Docker](https://docs.docker.com/network/proxy/) or [Podman](https://access.redhat.com/solutions/3939131) proxy support.
 
+## Development
+
+---
+
+You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation)
+
 ## CONTRIBUTORS
 
 - @kenna-bmcdevitt (api client)
