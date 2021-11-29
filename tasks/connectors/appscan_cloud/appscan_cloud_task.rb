@@ -30,7 +30,7 @@ module Kenna
               required: false,
               default: nil,
               description: "A list of ['Undetermined', 'Informational', 'Low', 'Medium', 'High', 'Critical'] (comma separated)" },
-            { name: "batch_size",
+            { name: "page_size",
               type: "integer",
               required: false,
               default: 500,
@@ -67,7 +67,7 @@ module Kenna
         @applications.each do |application_id|
           pos = 0
           loop do
-            issues_data = @client.issues(application_id, pos, @batch_size, @severities)
+            issues_data = @client.issues(application_id, pos, @page_size, @severities)
             issues = issues_data.fetch("Items")
             total_issues = issues_data.fetch("Count")
             issues.each do |issue|
@@ -78,9 +78,9 @@ module Kenna
               create_kdi_asset_finding(asset, finding)
               create_kdi_vuln_def(definition)
             end
-            print_good("Processed #{[pos + @batch_size, total_issues].min} of #{total_issues} issues for application ##{application_names[application_id]}.")
+            print_good("Processed #{[pos + @page_size, total_issues].min} of #{total_issues} issues for application ##{application_names[application_id]}.")
             kdi_upload(@output_directory, "appscan_cloud_application_#{application_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            pos += @batch_size
+            pos += @page_size
             break if pos >= total_issues
           end
         end
@@ -104,7 +104,7 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @batch_size = @options[:batch_size].to_i
+        @page_size = @options[:page_size].to_i
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2

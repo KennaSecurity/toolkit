@@ -31,7 +31,7 @@ Complete list of Options:
 | appscan_cloud_key_secret | true | AppScan on Cloud API Key Secret | n/a |
 | appscan_cloud_applications | true | A list of AppScan on Cloud Application ID's (comma separated) | n/a |
 | appscan_cloud_severities | false | Filter issues using list of ['Undetermined', 'Informational', 'Low', 'Medium', 'High', 'Critical'] (comma separated) | No filtering |
-| batch_size | false | Maximum number of issues to retrieve in batches | 100 |
+| page_size | false | Maximum number of issues to retrieve in batches | 100 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
