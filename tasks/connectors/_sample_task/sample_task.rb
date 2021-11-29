@@ -4,6 +4,7 @@ require_relative "lib/sample_client"
 module Kenna
   module Toolkit
     class SampleTask < Kenna::Toolkit::BaseTask
+      SCANNER_TYPE = "Sample"
       def self.metadata
         {
           id: "sample",
@@ -79,14 +80,26 @@ module Kenna
               issues = last_scan["issues"]
               issues.each do |issue|
                 asset = extract_asset(issue)
+                # Extract vuln or finding
+                # vuln = extract_vuln(issue)
                 finding = extract_finding(issue)
                 definition = extract_definition(issue)
 
+                # Use #create_kdi_asset_vuln for vulnerabilities or create_kdi_asset_finding for findings
+                # create_kdi_asset_vuln(asset, vuln)
                 create_kdi_asset_finding(asset, finding)
+
+                # if processing items by assets and you want to create an asset with no vulns
+                # find_or_create_kdi_asset(asset)
+
+                # create the KDI vuln def entry
                 create_kdi_vuln_def(definition)
               end
 
               print_good("Processed #{[pos + @batch_size, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
+              # Next #kdi_upload call will efficiently write out the KDI file, upload to kenna if connector
+              # information has been provided, and delete the file if debug = false and upload completes
+              # it also saves the returned file id in an array for later
               kdi_upload(@output_directory, "sample_scan_#{scan_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
               pos += @batch_size
             end
@@ -94,6 +107,8 @@ module Kenna
             print("No scan found for schedule #{schedule_id}")
           end
         end
+        # Next #kdi_connector_kickoff call will automatically use the stored array of uploaded files when calling the connector
+        # It should be called once only
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       rescue Kenna::Toolkit::Sample::Client::ApiError => e
         fail_task e.message
@@ -121,6 +136,7 @@ module Kenna
         list.empty? ? default : list
       end
 
+      # Map needed when the source data value isn't in the range 0 - 10
       SEVERITY_VALUE = {
         "info" => 0,
         "low" => 3,
@@ -129,16 +145,42 @@ module Kenna
       }.freeze
 
       def extract_asset(issue)
-        {
-          "url" => "#{issue['origin']}#{issue['path']}",
-          "application" => issue["origin"].gsub(%r{https://|http://}, "")
-        }.compact
+        asset = {
+          # When used for AppSec/finding assets
+          "url" => "#{issue.fetch('origin')}#{issue.fetch('path')}",
+          "file" => issue.fetch("file_from_scanner"),
+          "application" => issue.fetch("origin").gsub(%r{https://|http://}, ""),
+
+          # Or when used for VM assets primarily ...
+          #   "fqdn" => issue.fetch("fqdn_from_scanner"),
+          #   "ip_address" => issue.fetch("ip_address_from_scanner"),
+          #   "mac_address" => issue.fetch("mac_address_from_scanner"),
+          #   "hostname" => issue.fetch("hostname_from_scanner"),
+          #   "netbios" => issue.fetch("netbios_from_scanner"),
+
+          # Or when uses for images & containers in VM
+          # "asset_type" => image_or_container,
+          # "image_id" => issue.fetch("image_id_from_scanner"),
+          # "container_id" => issue.fetch("container_id_from_scanner"),
+
+          # If asset meta data is present
+          "owner" => issue.fetch("owner_from_scanner"),
+          "tags" => issue.fetch("tags_from_scanner"),
+          "os" => issue.fetch("os_from_scanner"),
+          "os_version" => issue.fetch("os_version_from_scanner"),
+          "priority" => issue.fetch("priority_from_scanner"),
+
+          # An external_id may be used for either VM or Findings model
+          "external_id" => issue.fetch("external_id_from_scanner")
+        }
+        # in case any values are nil, it's good to remove them
+        asset.compact
       end
 
       def extract_finding(issue)
         {
           "scanner_identifier" => issue["serial_number"],
-          "scanner_type" => "Sample",
+          "scanner_type" => SCANNER_TYPE,
           "vuln_def_name" => issue["issue_type"]["name"],
           "severity" => SEVERITY_VALUE[issue["severity"]],
           "triage_state" => triage_value(issue["confidence"]),
@@ -146,14 +188,42 @@ module Kenna
         }.compact
       end
 
+      # def extract_vuln(issue)
+      #   vuln = {
+      #     "scanner_type" => SCANNER_TYPE,
+      #     "scanner_identifier" => issue.fetch("scanner_id_from_scanner"),
+      #     # next is only needed for KDI V2 = vuln short name, text name, or cve or cwe name
+      #     "vuln_def_name" => issue.fetch("some_vuln_name"),
+      #     "created_at" => issue.fetch("created_from_scanner"),
+      #     "scanner_score" => vuln_score,
+      #     "last_fixed_on" => issue.fetch("last_fixed_from_scanner"),
+      #     "last_seen_at" => issue.fetch("last_seen_from_scanner"),
+      #     "status" => issue.fetch("status_from_scanner"),
+      #     "closed" => issue.fetch("closed_from_scanner"),
+      #     "port" => issue.fetch("port_from_scanner"),
+      #     # JSON pretty used for details under vulns only to help with formatting
+      #     "details" => JSON.pretty_generate(details_additional_fields)
+      #   }
+      #   # in case any values are nil, it's good to remove them
+      #   issue.compact
+      # end
+
       def extract_definition(issue)
-        {
-          "name" => issue["issue_type"]["name"],
+        definition = {
+          # PICK (CVE OR CWE OR WASC) OR none but not all three
+          # "cve_identifiers" => issue_cve,
+          # "wasc_identifiers" => vuln.fetch("wasc_id_from_scanner"),
+          "cwe_identifiers" => (issue["issue_type"]["vulnerability_classifications_html"] || "").scan(/CWE-\d*/).join(", "),
+
+          # desc & solution can be left blank for cve and cwe and Kenna will pull in data
           "description" => remove_html_tags(issue["issue_type"]["description_html"] || ""),
           "solution" => remove_html_tags(issue["issue_type"]["remediation_html"] || ""),
-          "scanner_type" => "Sample",
-          "cwe_identifiers" => (issue["issue_type"]["vulnerability_classifications_html"] || "").scan(/CWE-\d*/).join(", ")
-        }.compact
+          "scanner_type" => SCANNER_TYPE,
+          # FOR KDI V2 matches vuln_def_name in vuln / MAY still be present in KDI V1
+          "name" => issue["issue_type"]["name"]
+        }
+        # in case any values are null, it's good to remove them
+        definition.compact
       end
 
       def extract_additional_fields(issue)
