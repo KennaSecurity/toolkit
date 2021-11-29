@@ -19,6 +19,8 @@ gem "rest-client"
 gem "sanitize"
 gem "tty-pager"
 gem "httparty"
+gem "byebug"
+gem "open-uri"
 gem "rexml", ">= 3.2.5"
 
 group :development, :test do
