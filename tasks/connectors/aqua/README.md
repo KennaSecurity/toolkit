@@ -32,11 +32,12 @@ Run the Aqua task following the guidelines on the main [toolkit help page](https
 
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
-| aqua_console |hostname | true | Aqua Console Address |
+| aqua_console | hostname | true | Aqua Console Address |
 | aqua_console_port | integer | false | Aqua Console Port |
 | aqua_user |user | true | Aqua Username |
-| aqua_password |password | true | Aqua Password |
-| container_data |boolean | true | Flag to enable Container data |
+| aqua_password | password | true | Aqua Password |
+| container_data | boolean | true | Flag to enable Container data |
+| batch_pages_count | integer | false | Number of pages from Aqua (500 default) that should be batched to Kenna |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
