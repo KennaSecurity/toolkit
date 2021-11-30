@@ -2,13 +2,10 @@
 name: Native-Ruby-Test
 
 on:
-  schedule:
-    - cron: "* 8 * * *"
-    # Schedule Configuration From Github Actions. 
-    # https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#scheduled-events
   push:
-    branches:
-      - main
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
   
 jobs:
    Native-Ruby-Test:
