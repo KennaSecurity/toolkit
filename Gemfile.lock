@@ -165,6 +165,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  activesupport
   addressable
   aws-sdk-guardduty
   aws-sdk-inspector
@@ -186,4 +187,4 @@ DEPENDENCIES
   tty-pager
 
 BUNDLED WITH
-   2.2.11
+   2.2.26

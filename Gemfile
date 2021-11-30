@@ -21,6 +21,10 @@ gem "tty-pager"
 gem "httparty"
 gem "rexml", ">= 3.2.5"
 
+### Adding to fix Ruby Issues
+
+gem 'activesupport'
+
 group :development, :test do
   gem "pry"
   gem "pry-byebug"
