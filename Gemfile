@@ -21,7 +21,6 @@ gem "tty-pager"
 gem "httparty"
 gem "rexml", ">= 3.2.5"
 
-
 group :development, :test do
   gem "pry"
   gem "pry-byebug"
