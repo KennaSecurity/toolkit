@@ -22,5 +22,5 @@ jobs:
     - name: Install dependencies
       run: bundle install --without development test
     - name:  Run Toolkit
-      run : exec bundle exec ruby toolkit.rb 
+      run : ruby toolkit.rb task=help
       
