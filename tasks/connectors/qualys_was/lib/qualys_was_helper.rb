@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "json"
-require "active_support"
-require "active_support/core_ext"
+# require "active_support"
+# require "active_support/core_ext"
 require "rest_client"
 require "base64"
 
