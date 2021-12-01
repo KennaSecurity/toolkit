@@ -163,9 +163,11 @@ GEM
     zeitwerk (2.5.1)
 
 PLATFORMS
+  universal-darwin-21
   x86_64-linux
 
 DEPENDENCIES
+  activesupport
   addressable
   aws-sdk-guardduty
   aws-sdk-inspector
@@ -187,4 +189,4 @@ DEPENDENCIES
   tty-pager
 
 BUNDLED WITH
-   2.2.26
+   2.2.27
