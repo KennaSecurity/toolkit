@@ -51,6 +51,11 @@ module Kenna
                 required: false,
                 default: ",",
                 description: "Optional parameter to allow for filtering apps by a custom field. Comma-delimited 'name,value'. " },
+              { name: "batch_size",
+                type: "integer",
+                required: false,
+                default: 500,
+                description: "The maximum number of issues to submit to Kenna in each batch." },
               { name: "kenna_api_key",
                 type: "api_key",
                 required: false,
@@ -104,6 +109,7 @@ module Kenna
           @veracode_scan_types = options[:veracode_scan_types].split(",").map(&:strip)
           @veracode_score_mapping = options[:veracode_score_mapping]
           @page_size = options[:veracode_page_size].to_i
+          @batch_size = options[:batch_size].to_i
           @kenna_api_host = options[:kenna_api_host]
           @kenna_api_key = options[:kenna_api_key]
           @kenna_connector_id = options[:kenna_connector_id]
@@ -111,6 +117,7 @@ module Kenna
           @filename = ".json"
           @custom_field_name = options[:veracode_custom_field_filter].split(",")[0].to_s
           @custom_field_value = options[:veracode_custom_field_filter].split(",")[1].to_s
+          @file_count = 0
 
           # rubocop: disable Style/GuardClause
           if @page_size > 500 || @page_size <= 0
@@ -137,30 +144,41 @@ module Kenna
         end
 
         def import_application_issues(guid, app_name, tags, owner)
+          @veracode_assets = [] # Used to keep track of all imported assets between file upload batches
           @veracode_scan_types.each do |scan_type|
             import_issues(guid, app_name, tags, owner, scan_type)
           end
 
-          if @kenna_api_host && @kenna_api_key && @kenna_connector_id
-            print "Importing missing kenna assets."
-            import_missing_kenna_assets(app_name)
-          else
-            print "Warning: not connected to Kenna, cannot import missing assets."
-          end
-
-          # Fix for slashes in the app_name and limit length. Won't work for filenames
-          fname = app_name[0..175].tr("/\s", "_")
-          if @assets.nil? || @assets.empty?
-            print_good "No data for #{app_name}. Skipping Upload."
-          else
-            kdi_upload(@output_dir, "veracode_#{fname}_#{options[:import_type]}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2)
-          end
+          import_missing_kenna_assets(app_name, @veracode_assets)
+          # If some assets were generated in the previous step, upload them
+          upload_file_for_app(app_name)
         end
 
         def import_issues(app_guid, app_name, tags, owner, scan_type)
-          @client.import_issues(app_guid, app_name, scan_type) do |issue|
-            import(issue, app_name, tags, owner)
+          count = 0
+          @client.process_paged_findings(app_guid, scan_type) do |result|
+            issues = (result["_embedded"]["findings"] if result.dig("_embedded", "findings")) || []
+
+            print "Processing #{issues.count} #{scan_type} issues for #{app_name}."
+            issues.each do |issue|
+              import(issue, app_name, tags, owner)
+              count += 1
+              next unless count >= @batch_size
+
+              @veracode_assets.concat(@assets)
+              upload_file_for_app(app_name)
+              count = 0
+            end
           end
+          # At this point, maybe there are some issues not uploaded yet
+          @veracode_assets.concat(@assets)
+          upload_file_for_app(app_name)
+        end
+
+        def upload_file_for_app(app_name)
+          # Fix for slashes in the app_name and limit length. Won't work for filenames
+          fname = app_name[0..175].tr("/\s", "_")
+          kdi_upload(@output_dir, "veracode_#{fname}_#{options[:import_type]}_#{@file_count += 1}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2) if @assets.present?
         end
 
         def import(issue, app_name, tags, owner)
@@ -198,7 +216,10 @@ module Kenna
         # This method checks for missing assets in the current import job,
         # if missing assets are found, then a new entry for each one is created
         # in order to auto(close) all pending issues.
-        def import_missing_kenna_assets(application)
+        def import_missing_kenna_assets(application, veracode_assets = [])
+          return print "Warning: not connected to Kenna, cannot import missing assets." unless @kenna_api_host && @kenna_api_key && @kenna_connector_id
+
+          print "Importing missing kenna assets."
           app_name = application.dup
 
           # Pull assets for application from Kenna
@@ -206,13 +227,15 @@ module Kenna
           query = "application:\"#{app_name}\""
 
           response = api_client.get_assets_with_query(query)
+          kenna_assets = response[:results]["assets"]
+          print_good "Received #{kenna_assets.count} Kenna assets."
 
           # Check for existence in the assets pulled from Veracode
           # If not found add asset skeleton to current asset list.
-          response[:results]["assets"].each do |a|
+          kenna_assets.each do |a|
             if a["file"]
               # Look for file in @assets
-              if @assets.none? { |new_assets| new_assets["file"] == a["file"] }
+              if veracode_assets.none? { |new_assets| new_assets["file"] == a["file"] }
 
                 # Build and create asset w/no vulns.
                 asset = {
@@ -226,8 +249,8 @@ module Kenna
                 find_or_create_kdi_asset(asset)
               end
             elsif a["url"]
-              # Look for URL in @assets
-              if @assets.none? { |new_assets| new_assets["url"] == a["url"] }
+              # Look for URL in veracode_assets
+              if veracode_assets.none? { |new_assets| new_assets["url"] == a["url"] }
                 # Build and create asset w/no vulns.
                 asset = {
                   "url" => a["url"],
