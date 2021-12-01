@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "lib/qualys_was_helper"
-require "json"
-require "pry"
-require "uri"
 
 module Kenna
   module Toolkit
@@ -32,12 +29,12 @@ module Kenna
           description: "Pulls assets and vulnerabilitiies from qualys_was",
           options: [
             { name: "qualys_was_domain",
-              type: "hostname",
+              type: "string",
               required: true,
               default: nil,
               description: "Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com" },
             { name: "qualys_was_api_version_url",
-              type: "integer",
+              type: "string",
               required: false,
               default: "/qps/rest/3.0/",
               description: "Your qualys_was_api_version_url, e.g. /qps/rest/3.0/" },
@@ -51,12 +48,7 @@ module Kenna
               required: true,
               default: nil,
               description: "qualys_was Password" },
-            { name: "container_data",
-              type: "boolean",
-              required: false,
-              default: "false",
-              description: "Optional filter to limit vulnerabilities using a comma separated list of severities (e.g. CRITICAL,HIGH)" },
-            { name: "score",
+            { name: "qualys_was_score_filter",
               type: "integer",
               required: false,
               description: "Optional filter to limit vulnerabilities using a greater operator on score field ranges from 0 to 5" },
@@ -95,7 +87,6 @@ module Kenna
 
         vuln_hsh = {}
         total_count = 0
-        json_file_total_counting = 0
 
         web_apps.each do |individual_web_app|
           next unless individual_web_app.present?
@@ -112,15 +103,11 @@ module Kenna
                 vulns = JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"].group_by do |vuln|
                   vuln["QID"]
                 end
-
                 vuln_hsh.merge!(vulns)
-                web_app_finding_count = finding["data"].try(:count).to_i
-                print_debug "Total Finding for #{web_app_id} is #{web_app_finding_count}"
-                total_count += web_app_finding_count
 
                 finding["data"].each do |data|
                   find_from = data["Finding"]
-
+                  total_count += 1
                   asset = {
                     "url" => find_from["webApp"]["url"],
                     "application" => find_from["webApp"]["name"].presence || domain_detail(find_from)
@@ -128,9 +115,9 @@ module Kenna
                   asset.compact!
 
                   details = {
-                    "potential" => find_from["potential"]
+                    "potential" => find_from["potential"].to_s
                   }.tap do |d|
-                    d["result_list"] = find_from["resultList"]["list"].to_json if find_from["resultList"]["list"].present?
+                    d["result_list"] = JSON.pretty_generate(remove_html_tags(find_from["resultList"]["list"].to_s)) if find_from["resultList"]["list"].present?
                   end
 
                   details.tap do |t|
@@ -141,7 +128,7 @@ module Kenna
 
                   # start finding section
                   finding_data = {
-                    "scanner_identifier" => find_from["id"],
+                    "scanner_identifier" => find_from["uniqueId"],
                     "scanner_type" => "QualysWas",
                     "severity" => find_from["severity"].to_i * 2,
                     "created_at" => find_from["firstDetectedDate"],
@@ -166,7 +153,7 @@ module Kenna
                       t["description"] = remove_html_tags(diagnosis) if diagnosis.present?
                       t["solution"] = remove_html_tags(solution) if solution.present?
                     end
-                    t["cwe_identifiers"] = "CWE-#{find_from['cwe']['list'].first}" if find_from["cwe"].present?
+                    t["cwe_identifiers"] = "CWE-#{find_from['cwe']['list'].join(',CWE-')}" if find_from["cwe"].present?
                   end
 
                   vuln_def.compact!
@@ -179,22 +166,11 @@ module Kenna
             end
 
             ### Write KDI format
-            output_dir = "#{$basedir}/#{@options[:output_directory]}"
             filename = "qualys_was_#{web_app_id}.json"
-            file = File.read("#{output_dir}/#{filename}")
-            hsh = JSON.parse(file)
-            json_file_total_counting += hsh["assets"][0]["findings"].count
-
-            print_good "Output is available at: #{output_dir}/#{filename}"
-            print_good "Attempting to upload to Kenna API"
-            print_debug "Total Finding for #{web_app_id} in JSON file #{hsh['assets'][0]['findings'].count}"
-            kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version
+            kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version
           end
         end
-        print_debug "Total Finding of qualys was is #{total_count}"
-        print_debug "Total Finding in all json files #{json_file_total_counting}"
-        # Total count of findings
-        # this method will automatically use the stored array of uploaded files when calling the connector
+        print_debug "Total count of findings = #{total_count}"
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
@@ -208,8 +184,9 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @score = @options[:score]
+        @score = @options[:qualys_was_score_filter]
         @base_url = @qualys_was_domain + @qualys_was_api_version_url
+        @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @retries = 3
         @kdi_version = 2
       end
