@@ -10,6 +10,7 @@ source "https://rubygems.org"
 # Only required for file upload types (Guardium and Qualys to Kenna Direct), comment out if unneeded:
 # gem 'nokogiri'
 
+gem "activesupport"
 gem "addressable"
 gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
