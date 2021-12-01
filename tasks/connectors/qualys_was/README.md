@@ -13,6 +13,7 @@
 - QualysWas Password (Required)
 - QualysWas domain (Required)
 - QualysWas API version url (Optional by default value is : "/qps/rest/3.0/")
+- QualysWas Score Filter (Optional. Only add items greater than the integer provided.)
 - Kenna API Host (Optional but needed for automatic upload to Kenna)
 - Kenna API Key (Optional but needed for automatic upload to Kenna)
 - Kenna Connector ID (Optional but needed for automatic upload to Kenna)
@@ -35,7 +36,9 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 | ---- | ---- | ---- | ---- |
 | qualys_was_user |user | true | QualysWas Username |
 | qualys_was_password |password | true | QualysWas Password |
-| qualys_was_base_api_url | Base Api URL | true | API URL specific to region |
+| qualys_was_domain | string | true | Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com |
+| qualys_was_api_version_url | string | false | Your qualys_was_api_version_url, e.g. /qps/rest/3.0/ |
+| qualys_was_score_filter | integer | false | Optional filter to limit vulnerabilities using a greater operator on score field ranges from 0 to 5 |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
@@ -44,11 +47,5 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 
 ## Example Command Line:
 
-For extracting Image vulnerability data:
-
-    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx
-    qualys_was_base_api_url=qualysapi.qg3.apps.qualys.com/qps/rest/3.0/ container_data=false kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
-
-For extracting Container vulnerability data in addition to Images:
-
-    toolkit:latest task=qualys_was qualys_was_console=xxx qualys_was_user=xxx qualys_was_password=xxx qualys_was_base_api_url=qualysapi.qg3.apps.qualys.com/qps/rest/3.0/ container_data=true kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
+    toolkit:latest task=qualys_was qualys_was_domain=qualysapi.qg3.apps.qualys.com qualys_was_user=xxx qualys_was_password=xxx
+    qualys_was_api_version_url=/qps/rest/3.0/ qualys_was_score_filter=2 kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
