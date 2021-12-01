@@ -195,15 +195,6 @@ module Kenna
           import_type.extract_definition(issue, scan_type, cwe_recommendations)
         end
 
-        # Must be implement in subclasses
-        def create_kdi_issue(_asset, _finding)
-          raise "Subclass responsibility"
-        end
-
-        def sca_issue?(issue)
-          issue["scan_type"] == "SCA"
-        end
-
         # This method checks for missing assets in the current import job,
         # if missing assets are found, then a new entry for each one is created
         # in order to auto(close) all pending issues.
