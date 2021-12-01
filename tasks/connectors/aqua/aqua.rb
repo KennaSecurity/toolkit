@@ -34,6 +34,11 @@ module Kenna
               required: true,
               default: nil,
               description: "Aqua Password" },
+            { name: "batch_pages_count",
+              type: "integer",
+              required: false,
+              default: 10,
+              description: "Number of pages from Aqua (500 default) that should be batched to Kenna" },
             { name: "container_data",
               type: "boolean",
               required: true,
@@ -76,10 +81,13 @@ module Kenna
                      aqua_console
                    end
         container_data = @options[:container_data]
+        max_batch_size = @options[:batch_pages_count]
 
         cont_pagenum = 0
         pagenum = 0
-
+        batch_count = 0
+        page_size = 500
+        @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
@@ -94,7 +102,8 @@ module Kenna
           while contpages
 
             cont_pagenum += 1
-            cont_json = aqua_get_containers(aqua_url, token, 500, cont_pagenum)
+            batch_count += 1
+            cont_json = aqua_get_containers(aqua_url, token, page_size, cont_pagenum)
 
             if cont_json.nil? || cont_json.empty? || cont_json.length.zero?
               contpages = false
@@ -104,19 +113,13 @@ module Kenna
             cont_json.each do |cont_obj|
               cont_id = cont_obj["id"]
               cont_name = cont_obj["name"]
-              # host_name = cont_obj["host_name"]
-              img_id = cont_obj.fetch("image_id")
-              # img_name = cont_obj["image_name"]
               cont_status = cont_obj["status"]
+              img_id = cont_obj.fetch("image_id")
               sys_cont = cont_obj["system_container"]
               cont_type = cont_obj["container_type"]
               enforcer_group = cont_obj["host_enforcer_group"]
               compliant = cont_obj["compliant"]
               img_compliant = cont_obj["image_assurance_compliant"]
-
-              # cont_locator = {
-              #   "container_id" => cont_id
-              # }
 
               cont_asset = {
                 "container_id" => cont_id,
@@ -130,24 +133,35 @@ module Kenna
                            "containerCompliance: #{compliant}",
                            "imageCompliance: #{img_compliant}"]
               }
+              cont_asset.compact
               print_debug "Creating a Container HashMap"
               containers.store(img_id, cont_id)
               print_debug "Creating Container asset"
               create_kdi_asset(cont_asset)
             end
+            filename = "aqua_kdi_containers_#{cont_pagenum}.json"
+            if batch_count == max_batch_size
+              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+              batch_count = 0
+            end
           end
+          # catch any stragglers
+          filename = "aqua_kdi_containers_#{cont_pagenum}.json"
+          kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
 
         morepages = true
+        batch_count = 0
         while morepages
 
           pagenum += 1
-          vuln_json = aqua_get_vuln(aqua_url, token, 500, pagenum)
+          batch_count += 1
+          vuln_json = aqua_get_vuln(aqua_url, token, page_size, pagenum)
 
           # print_debug "vuln json = #{vuln_json}"
           print_debug "Page: #{pagenum}"
           vuln_json.to_json
-          # print_debug "vuln result json: #{vuln_result_json}"
+          print_debug "vuln result json: #{vuln_json}"
 
           if vuln_json.nil? || vuln_json.empty? || vuln_json.length.zero?
             morepages = false
@@ -159,6 +173,13 @@ module Kenna
           vuln_json.each do |vuln_obj|
             vuln_name = vuln_obj["name"]
             identifiers = vuln_obj["name"]
+            if vuln_name.match(/^DSA/) && vuln_obj.key?("referenced_vulnerabilities")
+              cves = []
+              vuln_obj["referenced_vulnerabilities"].each do |cve|
+                cves << cve["name"]
+              end
+              identifiers = cves.join(",")
+            end
             resource_obj = vuln_obj["resource"]
             package_manager = resource_obj.fetch("format") if resource_obj.key?("format")
             package = resource_obj.fetch("name") if resource_obj.key?("name")
@@ -173,9 +194,9 @@ module Kenna
             aqua_score = (vuln_obj["aqua_score"]).ceil
             print_debug "Vuln name: #{vuln_name}"
 
-            # locator = {
-            #   "image_id" => image_id
-            # }
+            vuln_details = {
+              "resource" => resource_obj
+            }
 
             img_asset = {
 
@@ -191,7 +212,7 @@ module Kenna
                          "acknowledged_date: #{ack_date}"]
             }
             # print_debug asset
-
+            img_asset.compact!
             scanner_score = aqua_score
             description = vuln_obj.fetch("description") if vuln_obj.key?("description")
             solution = vuln_obj.fetch("solution") if vuln_obj.key?("solution")
@@ -210,13 +231,14 @@ module Kenna
 
             # craft the vuln hash
             vuln = {
-              "scanner_identifier" => identifiers,
+              "scanner_identifier" => vuln_name,
               "scanner_type" => "Aqua",
               "scanner_score" => scanner_score,
               "created_at" => vuln_obj.fetch("first_found_date"),
               "last_seen_at" => vuln_obj.fetch("last_found_date"),
               "status" => "open",
-              "vuln_def_name" => vuln_name
+              "vuln_def_name" => vuln_name,
+              "details" => JSON.pretty_generate(vuln_details)
             }
 
             vuln.compact!
@@ -236,16 +258,18 @@ module Kenna
             print_debug "Creating Asset-Vuln in KDI"
             create_kdi_vuln_def(vuln_def)
           end
+          output_dir = "#{$basedir}/#{@options[:output_directory]}"
+          filename = "aqua_kdi_vulns_#{pagenum}.json"
+          if batch_count == max_batch_size
+            kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+            batch_count = 0
+          end
         end
-
-        ### Write KDI format
+        # catch any stragglers
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        filename = "aqua_kdi.json"
-        # write_file_stream(output_dir, filename, false, @assets, @vuln_defs, 1)
-        # print_good "Output is available at: #{output_dir}/#{filename}"
-        # print_good "Attempting to upload to Kenna API"
-        # upload_file_to_kenna_connector @kenna_connector_id, @kenna_api_host, @kenna_api_key, "#{output_dir}/#{filename}", true
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 1
+        filename = "aqua_kdi_vulns_#{pagenum}.json"
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+        # kick off the connector
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
       end
     end

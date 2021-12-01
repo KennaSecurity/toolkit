@@ -23,9 +23,7 @@ module Kenna
           auth_response = http_post(aqua_auth_api, @headers, payload.to_json)
           auth_json = JSON.parse(auth_response.body)
 
-          token = auth_json["token"]
-          print_debug token.to_s
-          token
+          auth_json["token"]
         rescue JSON::ParserError
           print_error "Unable to process Auth Token response!"
         rescue StandardError => e
