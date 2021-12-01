@@ -73,16 +73,10 @@ module Kenna
           cat_rec_list
         end
 
-        def import_issues(app_guid, app_name, scan_type, &block)
-          print "Pulling #{scan_type} issues for #{app_name}"
+        def process_paged_findings(app_guid, scan_type, &block)
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{@page_size}&scan_type=#{scan_type}"
           url = "https://#{HOST}#{app_request}"
-          get_paged_results(url) do |result|
-            issues = result["_embedded"]["findings"] if result.dig("_embedded", "findings")
-            return if issues.nil?
-
-            issues.each(&block)
-          end
+          get_paged_results(url, &block)
         end
 
         private

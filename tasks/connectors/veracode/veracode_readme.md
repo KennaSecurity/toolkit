@@ -24,7 +24,8 @@ Complete list of Options:
 | veracode_id | true | Veracode ID | n/a |
 | veracode_key | true | Veracode API Key | n/a |
 | veracode_page_size | false | Number of records to bring back with each page request from Veracode. This has a max of 500. | 500 |
-| kenna_api_key | false | Kenna API Key for use with connector option | n/a |
+| batch_size | false | The maximum number of issues to submit to Kenna in each batch. | 500 |
+| import_type | false | What to import, "vulns" or "findings". By default "vulns". | vulns |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/veracode |
