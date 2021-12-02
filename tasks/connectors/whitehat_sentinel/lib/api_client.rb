@@ -57,7 +57,7 @@ module Kenna
         private
 
         def paginated(endpoint, query, &block)
-          return to_enum(__method__, endpoint, query) unless block_given?
+          return to_enum(__method__, endpoint, query) unless block
 
           query["page:limit"] = page_size
           offset = 0

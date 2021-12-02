@@ -178,8 +178,8 @@ module Kenna
               finding_tags << "veracode_app: #{app_name}" unless finding_tags.include? "veracode_app: #{app_name}"
 
               # finding_cat = finding["finding_details"]["finding_category"].fetch("name")
-              finding_rec = @category_recommendations.select { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
-              cwe_rec = @cwe_recommendations.select { |r| r["id"] == finding["finding_details"]["cwe"].fetch("id") }[0]["recommendation"]
+              finding_rec = @category_recommendations.find { |r| r["id"] == finding["finding_details"]["finding_category"].fetch("id") }["recommendation"]
+              cwe_rec = @cwe_recommendations.find { |r| r["id"] == finding["finding_details"]["cwe"].fetch("id") }["recommendation"]
               cwe_rec = "No CWE recommendation provided by Veracode. See category recommendation on Details tab." if cwe_rec == ""
               scanner_score = finding["finding_details"].fetch("severity")
               issue_id = finding["issue_id"] if finding["issue_id"]
