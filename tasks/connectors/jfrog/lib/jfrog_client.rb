@@ -57,7 +57,7 @@ module Kenna
 
         def create_report_payload(repositories, severities, days_back)
           {
-            name: "kenna-connector-vulns-report-#{DateTime.now.iso8601.tr(':', '.')}",
+            name: "kenna-connector-vulns-report-#{SecureRandom.uuid}",
             resources: {
               repositories: repositories.map { |repo| { "name": repo } }
             },
