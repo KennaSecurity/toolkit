@@ -32,18 +32,18 @@ module Kenna
         end
 
         def vuln_details(issue, category_recommendations)
-          finding_rec = category_recommendations.select { |r| r["id"] == issue["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
+          finding_rec = category_recommendations.find { |r| r["id"] == issue["finding_details"]["finding_category"].fetch("id") }["recommendation"]
           "Recommendation:\n\n#{finding_rec}\n\n===============\n\n#{JSON.pretty_generate(extract_additional_information(issue))}"
         end
 
         def finding_additional_fields(issue, category_recommendations)
-          finding_rec = category_recommendations.select { |r| r["id"] == issue["finding_details"]["finding_category"].fetch("id") }[0]["recommendation"]
+          finding_rec = category_recommendations.find { |r| r["id"] == issue["finding_details"]["finding_category"].fetch("id") }["recommendation"]
           extract_additional_information(issue, finding_rec)
         end
 
         def extract_definition(issue, cwe_recommendations)
           cwe = cwe(issue)
-          cwe_rec = cwe_recommendations.select { |r| r["id"] == issue["finding_details"]["cwe"].fetch("id") }[0]["recommendation"]
+          cwe_rec = cwe_recommendations.find { |r| r["id"] == issue["finding_details"]["cwe"].fetch("id") }["recommendation"]
           cwe_rec = "No CWE recommendation provided by Veracode. See category recommendation on Details tab." if cwe_rec == ""
           { "name" => cwe,
             "scanner_type" => "veracode",
