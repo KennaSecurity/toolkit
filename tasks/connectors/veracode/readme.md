@@ -27,6 +27,7 @@ Complete list of Options:
 | batch_size | false | The maximum number of issues to submit to Kenna in each batch. | 500 |
 | import_type | false | What to import, "vulns" or "findings". By default "vulns". | vulns |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
+| kenna_api_key | false | Kenna API key | n/a |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/veracode |
 | veracode_scan_types | false | Optional parameter. Veracode scan types to include. Comma-delimited list of the scan types. | STATIC,DYNAMIC,MANUAL,SCA |
