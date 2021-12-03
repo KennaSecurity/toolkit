@@ -14,7 +14,6 @@ module Kenna
       end
 
       def qualys_was_get_webapp_findings(token, page_size, page)
-        next_page = false
         # print_good "Getting Webapp Findings For #{webapp_id} \n"
         qualys_was_auth_api = "https://#{base_url}search/was/finding"
 
