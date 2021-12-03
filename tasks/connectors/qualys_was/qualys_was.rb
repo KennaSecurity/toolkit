@@ -110,7 +110,7 @@ module Kenna
             findg.map do |_, finding|
               qids = findg["ServiceResponse"]["data"].map { |x| x["Finding"]["qid"] }.uniq
               vulns = qualys_was_get_vuln(qids, token)
-              vulns = JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"].group_by do |vuln|
+              vulns = Array.wrap(JSON.parse(vulns)["KNOWLEDGE_BASE_VULN_LIST_OUTPUT"]["RESPONSE"]["VULN_LIST"]["VULN"]).group_by do |vuln|
                 vuln["QID"]
               end
               vuln_hsh.merge!(vulns)
