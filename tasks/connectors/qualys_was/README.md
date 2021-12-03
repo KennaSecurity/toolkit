@@ -2,8 +2,7 @@
 
 ## This Task will use the QualysWas API to
 
-- Get a list of webApp currently present in the user's QualysWas account
-- Get a list of Findings in the user's QualysWas account associated with each WebApp
+- Get a list of Findings in the user's QualysWas account
 - Output a json file in the Kenna Data Importer (KDI) format.
 - Post the file to Kenna if API Key and Connector ID are provided
 
@@ -52,4 +51,4 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 ## Example Command Line:
 
     toolkit:latest task=qualys_was qualys_was_domain=qualysapi.qg3.apps.qualys.com qualys_was_user=xxx qualys_was_password=xxx
-    qualys_was_api_version_url=/qps/rest/3.0/ qualys_was_score_filter=2 kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
+    qualys_was_api_version_url=/qps/rest/3.0/ qualys_was_score_filter=2 kenna_connector_id=15xxxx kenna_api_host=api.kennasecurity.com kenna_api_key=xxx
