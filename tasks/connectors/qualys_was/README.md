@@ -14,6 +14,8 @@
 - QualysWas domain (Required)
 - QualysWas API version url (Optional by default value is : "/qps/rest/3.0/")
 - QualysWas Score Filter (Optional. Only add items greater than the integer provided.)
+- QualysWas Page size (Optional. Default is 100 rows max is 1000)
+- Kenna Batch Size (Optional. Default is 500. How many findings to collect before sending to Kenna)
 - Kenna API Host (Optional but needed for automatic upload to Kenna)
 - Kenna API Key (Optional but needed for automatic upload to Kenna)
 - Kenna Connector ID (Optional but needed for automatic upload to Kenna)
@@ -39,6 +41,8 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 | qualys_was_domain | string | true | Your qualys_was api base url (with protocol and port), e.g. qualysapi.qg3.apps.qualys.com |
 | qualys_was_api_version_url | string | false | Your qualys_was_api_version_url, e.g. /qps/rest/3.0/ |
 | qualys_was_score_filter | integer | false | Optional filter to limit vulnerabilities using a greater operator on score field ranges from 0 to 5 |
+| qualys_page_size | integer | false | Qualys retrieval page size |
+| kenna_batch_size | integer | false | Kenna post batch size |
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
