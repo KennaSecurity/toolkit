@@ -149,7 +149,7 @@ module Kenna
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
-                  "last_seen_at" => find_from["lastTestedDatee"],
+                  "last_seen_at" => find_from["lastTestedDate"],
                   "additional_fields" => details,
                   "vuln_def_name" => name(find_from)
                 }.tap do |f|
