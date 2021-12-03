@@ -31,7 +31,7 @@ Complete list of Options:
 | netsparker_api_token | true | Netsparker API token | n/a |
 | netsparker_schedule_id | true | A list of Netsparker Schedule ID (comma separated) | n/a |
 | netsparker_issue_severity | false | A list of [BestPractice, Information, Low, Medium, High, Critical] (comma separated) | [BestPractice, Information, Low, Medium, High, Critical] |
-| batch_size | false | Maximum number of issues to retrieve in batches | 100 |
+| batch_size | false | Maximum number of issues to retrieve in batches | 500 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
