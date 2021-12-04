@@ -1,0 +1,26 @@
+
+name: Native-Ruby-Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  
+jobs:
+   Native-Ruby-Test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Toolkit Repo
+      uses: actions/checkout@v2
+      with:
+        repository: KennaPublicSamples/toolkit
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.6
+    - name: Install dependencies
+      run: bundle install --without development test
+    - name:  Run Toolkit
+      run : ruby toolkit.rb task=help
+      
