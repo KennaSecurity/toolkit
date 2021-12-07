@@ -1,1 +1,0 @@
-This task connects to the expanse api and pulls digital footprinting data. 
