@@ -2,7 +2,7 @@
 
 module Kenna
   module Toolkit
-    module WhitehatSentinel
+    module NTTSentinelDynamic
       class ApiClient
         class Error < StandardError; end
 
