@@ -102,65 +102,61 @@ module Kenna
             report_id = generate_report_id_from_scan(token, scan["id"])
             sleep(10)
             scan_reports = fetch_scan_reports(token, report_id)
-            
-            scan_reports.values.each do |scan_report|
+
+            scan_reports.each_value do |scan_report|
               application = scan_report.fetch("ProjectName")
               report_queries = scan_report.fetch("Query")
               report_queries.each do |query|
                 report_results = query.fetch("Result")
                 report_results.each do |result|
-                  print result
-                  if result.class == Hash
-                    filename = result["Path"]["PathNode"]["FileName"] if result["Path"].present?
-                    status = result["Status"] if result["Status"].present?
-                    scanner_id = result["NodeId"]
-                    severity = result["Severity"] if result["Severity"].present?
-                    unique_identifier = query["QueryVersionCode"]
-                    scanner_vulnerability = query["name"].to_s
-                    vuln_title = query["cweId"].to_s + '-' + scanner_vulnerability
-                    cwe = "CWE-#{query["cweId"]}"
-                    found_date = DateTime.strptime(result["DetectionDate"],"%m/%d/%Y %k:%M:%S %p").strftime("%Y-%m-%d-%H:%M:%S") if result["DetectionDate"].present?
-                    description = query["DeepLink"]
+                  next unless result.instance_of?(Hash)
 
-                    asset = {
-                      "file" => filename,
-                      "application" => application
-                    }
-                    asset.compact!
+                  filename = result["Path"]["PathNode"]["FileName"] if result["Path"].present?
+                  scanner_id = result["NodeId"]
+                  severity = result["Severity"] if result["Severity"].present?
+                  scanner_vulnerability = query["name"].to_s
+                  cwe = "CWE-#{query['cweId']}"
+                  found_date = formatted_date(result["DetectionDate"]) if result["DetectionDate"].present?
+                  description = query["DeepLink"]
 
-                    additional_fields = {
-                      "Team" => scan_report.fetch("Team"),
-                      "group" => query.fetch("group"),
-                      "Language" => query.fetch("Language")
-                    }
-                    additional_fields.compact!
+                  asset = {
+                    "file" => filename,
+                    "application" => application
+                  }
+                  asset.compact!
 
-                    scanner_score = vuln_severity.fetch(severity)
+                  additional_fields = {
+                    "Team" => scan_report.fetch("Team"),
+                    "group" => query.fetch("group"),
+                    "Language" => query.fetch("Language"),
+                    "Path" => result.fetch("Path")
+                  }
+                  additional_fields.compact!
 
-                    # craft the vuln hash
-                    finding = {
-                      "scanner_identifier" => scanner_id,
-                      "scanner_type" => "CheckmarxSast",
-                      "created_at" => found_date,
-                      "severity" => scanner_score,
-                      "additional_fields" => additional_fields,
-                      "vuln_def_name" => scanner_vulnerability
-                    }
+                  scanner_score = vuln_severity.fetch(severity)
 
-                    finding.compact!
+                  # craft the vuln hash
+                  finding = {
+                    "scanner_identifier" => scanner_id,
+                    "scanner_type" => "CheckmarxSast",
+                    "created_at" => found_date,
+                    "severity" => scanner_score,
+                    "vuln_def_name" => scanner_vulnerability,
+                    "additional_fields" => additional_fields
+                  }
+                  finding.compact!
 
-                    vuln_def = {
-                      "scanner_type" => "CheckmarxSast",
-                      "name" => scanner_vulnerability,
-                      "description" => description,
-                      "cwe_identifiers" => cwe
-                    }
-                    vuln_def.compact!
+                  vuln_def = {
+                    "scanner_type" => "CheckmarxSast",
+                    "name" => scanner_vulnerability,
+                    "description" => description,
+                    "cwe_identifiers" => cwe
+                  }
+                  vuln_def.compact!
 
-                    # Create the KDI entries
-                    create_kdi_asset_finding(asset, finding)
-                    create_kdi_vuln_def(vuln_def)
-                  end
+                  # Create the KDI entries
+                  create_kdi_asset_finding(asset, finding)
+                  create_kdi_vuln_def(vuln_def)
                 end
               end
             end
@@ -173,6 +169,8 @@ module Kenna
         end
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
       end
+
+      private
 
       def initialze_options
         @username = @options[:checkmarx_sast_user]
@@ -191,6 +189,10 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
         @retries = 3
         @kdi_version = 2
+      end
+
+      def formatted_date(detection_date)
+        DateTime.strptime(detection_date, "%m/%d/%Y %k:%M:%S %p").strftime("%Y-%m-%d-%H:%M:%S")
       end
     end
   end

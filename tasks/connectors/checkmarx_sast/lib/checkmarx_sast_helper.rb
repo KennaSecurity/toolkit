@@ -102,6 +102,7 @@ module Kenna
       end
 
       private
+
       def bearer_token_headers(token)
         {
           "Content-Type" => "application/json",
