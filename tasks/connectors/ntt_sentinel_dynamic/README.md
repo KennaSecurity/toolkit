@@ -1,4 +1,4 @@
-# NTT Sentinel Dynamic Toolkit Task to Kenna.AppSec
+# NTT Sentinel Dynamic Toolkit Task to Kenna.AppSec Findings
 
 ## This Task will use the NTT Sentinel Dynamic (formerly Whitehat) API to
 
