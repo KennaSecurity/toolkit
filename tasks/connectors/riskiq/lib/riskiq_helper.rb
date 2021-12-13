@@ -39,12 +39,6 @@ module Kenna
         }
       end
 
-      def connector_kickoff
-        print_good "Attempting to run to Kenna Connector at #{@kenna_api_host}"
-        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
-      end
-
-      ##
       def ssl_cert_query
         query_string = ""
         query_string += "{"
