@@ -108,6 +108,7 @@ module Kenna
             print_good "Fetching Scan Reports..."
             scan_reports = fetch_scan_reports(token, report_id)
             print_good "Found Scan reports!!"
+            print_good "\n"
 
             scan_reports.each_value do |scan_report|
               application = scan_report.fetch("ProjectName")
@@ -118,8 +119,8 @@ module Kenna
                   next unless result.instance_of?(Hash)
 
                   path = result["Path"]
-                  filename = fetch_filename(path) if path.present?
                   path_node = path.fetch("PathNode")
+                  filename = fetch_pathnode_info(path_node, "FileName") if path.present?
                   scanner_id = result["NodeId"]
                   severity = result["Severity"] if result["Severity"].present?
                   scanner_vulnerability = query["name"].to_s
@@ -205,20 +206,15 @@ module Kenna
         @kdi_version = 2
       end
 
+      # method to format date
       def formatted_date(detection_date)
         DateTime.strptime(detection_date, "%m/%d/%Y %k:%M:%S %p").strftime("%Y-%m-%d-%H:%M:%S")
       end
 
-      def fetch_filename(path)
-        path_node = path.fetch("PathNode")
-        filename = path_node.fetch("FileName") if path_node.class == Hash
-        filename = path_node[0].fetch("FileName") if path_node.class == Array
-        filename
-      end
-
+      # method to return pathnode information
       def fetch_pathnode_info(path_node, additional_field)
-        pathnode_info = path_node.fetch(additional_field) if path_node.class == Hash
-        pathnode_info = path_node[0].fetch(additional_field) if path_node.class == Array
+        pathnode_info = path_node.fetch(additional_field) if path_node.instance_of?(Hash)
+        pathnode_info = path_node[0].fetch(additional_field) if path_node.instance_of?(Array)
         pathnode_info
       end
     end
