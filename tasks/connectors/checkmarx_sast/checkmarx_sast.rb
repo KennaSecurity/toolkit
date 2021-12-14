@@ -88,7 +88,10 @@ module Kenna
         fail_task "Unable to authenticate with checkmarx_sast, please check credentials" unless token
 
         # Request checkmarx sast api to fetch projects using token
+        print_good "Fetching Projects..."
         projects = fetch_checkmarx_sast_projects(token)
+        print_good "Found Projects - #{projects.try(:size)}"
+        print_good "\n"
 
         projects.each do |project|
           print_good "Project Name: #{project['name']}"
@@ -96,12 +99,15 @@ module Kenna
 
           # Request checkmarx sast api to fetch all scans of each project
           scan_results = fetch_all_scans_of_project(token, project_id)
+          print_good "No Scan Results found for the project - #{project['name']}" unless scan_results.present?
 
           vuln_severity = { "High" => 9, "Medium" => 6, "Low" => 3, "Informational" => 0 }
           scan_results.each do |scan|
             report_id = generate_report_id_from_scan(token, scan["id"])
             sleep(10)
+            print_good "Fetching Scan Reports..."
             scan_reports = fetch_scan_reports(token, report_id)
+            print_good "Found Scan reports!!"
 
             scan_reports.each_value do |scan_report|
               application = scan_report.fetch("ProjectName")
@@ -111,13 +117,14 @@ module Kenna
                 report_results.each do |result|
                   next unless result.instance_of?(Hash)
 
-                  filename = result["Path"]["PathNode"]["FileName"] if result["Path"].present?
+                  path = result["Path"]
+                  filename = fetch_filename(path) if path.present?
+                  path_node = path.fetch("PathNode")
                   scanner_id = result["NodeId"]
                   severity = result["Severity"] if result["Severity"].present?
                   scanner_vulnerability = query["name"].to_s
                   cwe = "CWE-#{query['cweId']}"
                   found_date = formatted_date(result["DetectionDate"]) if result["DetectionDate"].present?
-                  description = query["DeepLink"]
 
                   asset = {
                     "file" => filename,
@@ -129,7 +136,14 @@ module Kenna
                     "Team" => scan_report.fetch("Team"),
                     "group" => query.fetch("group"),
                     "Language" => query.fetch("Language"),
-                    "Path" => result.fetch("Path")
+                    "DeepLink" => result.fetch("DeepLink"),
+                    "Line" => fetch_pathnode_info(path_node, "Line"),
+                    "Column" => fetch_pathnode_info(path_node, "Column"),
+                    "NodeId" => fetch_pathnode_info(path_node, "NodeId"),
+                    "Name" => fetch_pathnode_info(path_node, "Name"),
+                    "Type" => fetch_pathnode_info(path_node, "Type"),
+                    "Length" => fetch_pathnode_info(path_node, "Length"),
+                    "Snippet" => fetch_pathnode_info(path_node, "Snippet")
                   }
                   additional_fields.compact!
 
@@ -149,7 +163,6 @@ module Kenna
                   vuln_def = {
                     "scanner_type" => "CheckmarxSast",
                     "name" => scanner_vulnerability,
-                    "description" => description,
                     "cwe_identifiers" => cwe
                   }
                   vuln_def.compact!
@@ -166,6 +179,7 @@ module Kenna
           output_dir = "#{$basedir}/#{@options[:output_directory]}"
           filename = "checkmarx_sast_kdi_#{project_id}.json"
           kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version
+          print_good "\n"
         end
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key
       end
@@ -193,6 +207,19 @@ module Kenna
 
       def formatted_date(detection_date)
         DateTime.strptime(detection_date, "%m/%d/%Y %k:%M:%S %p").strftime("%Y-%m-%d-%H:%M:%S")
+      end
+
+      def fetch_filename(path)
+        path_node = path.fetch("PathNode")
+        filename = path_node.fetch("FileName") if path_node.class == Hash
+        filename = path_node[0].fetch("FileName") if path_node.class == Array
+        filename
+      end
+
+      def fetch_pathnode_info(path_node, additional_field)
+        pathnode_info = path_node.fetch(additional_field) if path_node.class == Hash
+        pathnode_info = path_node[0].fetch(additional_field) if path_node.class == Array
+        pathnode_info
       end
     end
   end

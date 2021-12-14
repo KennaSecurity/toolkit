@@ -38,7 +38,6 @@ module Kenna
 
       # method to get all projects using user credentials
       def fetch_checkmarx_sast_projects(token)
-        print_good "Getting Projects \n"
         checkmarx_sast_projects_api_url = "https://#{checkmarx_sast_url}/cxrestapi/projects"
         headers = bearer_token_headers(token)
         auth_response = http_get(checkmarx_sast_projects_api_url, headers)
@@ -54,7 +53,6 @@ module Kenna
 
       # method to fetch all scans of each project
       def fetch_all_scans_of_project(token, project_id)
-        print_good "\n"
         print_good "Getting All Scans of Project ID: #{project_id} \n"
         checkmarx_sast_scans_api_url = "https://#{checkmarx_sast_url}/cxrestapi/sast/scans?last=1&scanStatus=Finished&projectId=#{project_id}"
         headers = bearer_token_headers(token)
