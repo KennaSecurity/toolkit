@@ -66,30 +66,6 @@ module Kenna
             out
           end
 
-          def df_mapping_stats
-            stats = {}
-            stats[:bitsight] = []
-            stats[:expanse] = []
-            stats[:intrigue] = []
-            stats[:riskiq] = []
-            stats[:ssc] = []
-
-            # Collect the count
-            _mapping_data("", "").each do |map|
-              map[:matches].each do |m|
-                stats[:bitsight] << m[:vuln_id] if m[:source] == "Bitsight"
-                stats[:expanse]  << m[:vuln_id] if m[:source] == "Expanse"
-                stats[:intrigue] << m[:vuln_id] if m[:source] == "Intrigue"
-                stats[:riskiq] << m[:vuln_id] if m[:source] == "RiskIQ"
-                stats[:ssc] << m[:vuln_id] if m[:source] == "SecurityScorecard"
-              end
-            end
-
-            stats.each { |k, v| puts "#{k} #{v.count}" }
-
-            stats
-          end
-
           def custom_mapping_data
             data_mapping = []
             csv_holder = []
