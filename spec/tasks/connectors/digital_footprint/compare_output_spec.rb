@@ -37,7 +37,7 @@ RSpec.describe "compare output" do
       expect(new_assets.count).to eq(old_assets.count)
       expect(new_assets.keys).to match_array(old_assets.keys)
       old_assets.each do |key, value|
-        expect(new_assets[key].to_json.length).to eq(value.to_json.length)
+        expect(new_assets[key].count).to eq(value.count)
       end
     end
   end
