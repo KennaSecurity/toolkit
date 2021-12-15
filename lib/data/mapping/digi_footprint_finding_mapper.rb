@@ -25,7 +25,7 @@ module Kenna
             done = false
             # Do the mapping
             ###################
-            map_data.each do |map|
+            mappings.each do |map|
               break if done
 
               map[:matches].each do |match|
@@ -73,15 +73,15 @@ module Kenna
             raise "Mappings file not found: #{mapping_file_path}" unless File.exist?(mapping_file_path)
           end
 
+          def mappings
+            @mappings ||= build_mappings
+          end
+
           def mapping_file_path
             "#{@input_directory}/#{@mapping_file}"
           end
 
-          def map_data
-            @map_data ||= build_mapping_data
-          end
-
-          def build_mapping_data
+          def build_mappings
             mappings = []
             rows = CSV.parse(File.open(mapping_file_path, "r:iso-8859-1:utf-8", &:read), headers: true)
             definitions = rows.select { |row| row["type"] == "definition" }
