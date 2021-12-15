@@ -13,48 +13,32 @@ module Kenna
             validate_options
           end
 
-          def get_canonical_vuln_details(orig_source, specific_details, description = "", remediation = "")
-            ###
-            ### Transform the identifier from the upstream source downcasing and
-            ### then removing spaces and dashes in favor of an underscore
-            ###
+          def get_canonical_vuln_details(orig_source, specific_details, port = nil)
             orig_vuln_id = (specific_details["scanner_identifier"]).to_s.downcase.tr(" ", "_").tr("-", "_")
-            # orig_description = specific_details["description"]
-            # orig_recommendation = specific_details["recommendation"]
             out = {}
-            done = false
-            # Do the mapping
-            ###################
-            mappings.each do |map|
-              break if done
 
-              map[:matches].each do |match|
-                break if done
+            # If the port id provided, search including port in the condition
+            mapping = find_mapping(orig_source, orig_vuln_id, port) if port
+            # If no mapping found then search definition ignoring port
+            mapping ||= find_mapping(orig_source, orig_vuln_id)
 
-                next unless match[:source] == orig_source
-
-                next unless match[:vuln_id]&.match?(orig_vuln_id)
-
-                out = {
-                  scanner_type: orig_source,
-                  scanner_identifier: orig_vuln_id,
-                  source: "#{orig_source} (Kenna Normalized)",
-                  scanner_score: (map[:score] / 10).to_i,
-                  override_score: (map[:score]).to_i,
-                  name: map[:name],
-                  description: "#{map[:description]}\n\n #{description}".strip,
-                  recommendation: "#{map[:recommendation]}\n\n #{remediation}".strip
-                }
-                out.compact!
-                out = out.stringify_keys
-                done = true
-              end
+            if mapping
+              out = {
+                scanner_type: orig_source,
+                scanner_identifier: orig_vuln_id,
+                source: "#{orig_source} (Kenna Normalized)",
+                scanner_score: (mapping[:score] / 10).to_i,
+                override_score: (mapping[:score]).to_i,
+                name: mapping[:name],
+                description: (mapping[:description] || "").strip,
+                recommendation: (mapping[:recommendation] || "").strip
+              }
+              out.compact!
+              out = out.stringify_keys
             end
             # we didnt map it, so just pass it back
             if out.empty?
-              print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
-              @missing_mappings << [orig_vuln_id, orig_source]
-              write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.map(&:to_csv).join) unless @missing_mappings.nil?
+              log_missing(orig_vuln_id, orig_source)
               out = {
                 scanner_identifier: orig_vuln_id,
                 scanner_type: orig_source,
@@ -90,8 +74,8 @@ module Kenna
                 name: row[1],
                 cwe: row[2],
                 score: row[3].to_i,
-                description: row[4],
-                recommendation: row[5]
+                description: row[5],
+                recommendation: row[6]
               }
               mappings << mapping
             end
@@ -103,11 +87,26 @@ module Kenna
 
               matcher = {
                 source: row[2],
-                vuln_id: row[3]
+                vuln_id: row[3],
+                ports: (row[4] || "").split(",").map { |p| p.strip.to_i if p.strip.present? }.compact
               }
               (mapping[:matches] ||= []) << matcher
             end
             mappings
+          end
+
+          def find_mapping(source, vuln_id, port = nil)
+            mappings.find do |mapping|
+              mapping[:matches].find do |match|
+                match[:source] == source && match[:vuln_id]&.match?(vuln_id) && (port.blank? ? true : match[:ports].include?(port))
+              end
+            end
+          end
+
+          def log_missing(orig_vuln_id, orig_source)
+            print_debug "WARNING! Unable to map canonical vuln for type: #{orig_vuln_id}"
+            @missing_mappings << [orig_vuln_id, orig_source]
+            write_file(@output_dir, "missing_mappings_#{DateTime.now.strftime('%Y-%m-%d')}.csv", @missing_mappings.map(&:to_csv).join) unless @missing_mappings.empty?
           end
         end
       end
