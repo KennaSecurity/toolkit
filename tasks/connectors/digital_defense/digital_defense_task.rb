@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "lib/digital_defense_client"
-require "pry"
+
 module Kenna
   module Toolkit
     class DigitalDefenseTask < Kenna::Toolkit::BaseTask
