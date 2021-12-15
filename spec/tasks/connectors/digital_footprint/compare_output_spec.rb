@@ -23,8 +23,11 @@ RSpec.describe "compare output" do
     it "is the same output" do
       expect(new_assets.count).to eq(old_assets.count)
       expect(new_assets.keys).to match_array(old_assets.keys)
-      old_assets.each do |key, value|
-        expect(new_assets[key].to_json.length).to eq(value.to_json.length)
+      old_assets.each do |key, old_array|
+        new_array = new_assets[key]
+        expect(new_array.count).to eq(old_array.count)
+        expect(new_array.map { |hash| hash.except("vulns") }.to_json.length).to eq(old_array.map { |hash| hash.except("vulns") }.to_json.length)
+        expect(new_array.map { |hash| hash["vulns"] }.flatten.map { |hash| hash.except("details") }.to_json.length).to eq(old_array.map { |hash| hash["vulns"] }.flatten.map { |hash| hash.except("details") }.to_json.length)
       end
     end
   end
