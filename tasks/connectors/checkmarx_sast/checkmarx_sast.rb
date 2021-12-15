@@ -144,7 +144,7 @@ module Kenna
                     "Name" => fetch_pathnode_info(path_node, "Name"),
                     "Type" => fetch_pathnode_info(path_node, "Type"),
                     "Length" => fetch_pathnode_info(path_node, "Length"),
-                    "Snippet" => fetch_pathnode_info(path_node, "Snippet")
+                    "Snippet" => fetch_snippet(path_node)
                   }
                   additional_fields.compact!
 
@@ -216,6 +216,12 @@ module Kenna
         pathnode_info = path_node.fetch(additional_field) if path_node.instance_of?(Hash)
         pathnode_info = path_node[0].fetch(additional_field) if path_node.instance_of?(Array)
         pathnode_info
+      end
+
+      def fetch_snippet(path_node)
+        snippet = fetch_pathnode_info(path_node, "Snippet")
+        snippet["Line"]["Code"].strip!
+        snippet
       end
     end
   end
