@@ -64,7 +64,7 @@ module Kenna
                 next
               end
               # map fields for those expsures
-              result = issues.map do |i|
+              result = issues.sort_by { |issue| issue["id"] }.map do |i|
                 map_issue_fields(it, i)
               end
               print_debug "Mapped #{result.count} issues"
@@ -148,7 +148,7 @@ module Kenna
             ],
             "vuln" => [
               { action: "proc", target: "vuln_def_name", proc: ->(_x) { issue_type } },
-              { action: "proc", target: "scanner_identifier", proc: ->(_x) { issue_type } },
+              { action: "proc", target: "scanner_identifier", proc: ->(x) { x["id"] } },
               { action: "proc", target: "created_at", proc: ->(x) { x["initialEvidence"]["timestamp"] } },
               { action: "proc", target: "last_seen_at", proc: ->(x) { x["latestEvidence"]["timestamp"] } },
               { action: "proc", target: "port", proc: ->(x) { (x["portNumber"] || x["initialEvidence"]["portNumber"]).to_i } },
