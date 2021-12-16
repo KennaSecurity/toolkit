@@ -95,7 +95,7 @@ module Kenna
 
         # create an api client
         @client = Kenna::Toolkit::ExpanseIssues::ExpanseIssuesClient.new(expanse_api_key)
-        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename]) if @options[:input_directory] && @options[:df_mapping_filename]
 
         @assets = []
         @vuln_defs = []
