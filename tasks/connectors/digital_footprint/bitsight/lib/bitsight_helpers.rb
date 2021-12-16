@@ -211,7 +211,7 @@ module Kenna
 
         # get our mapped vuln
         # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
-        cvd = dfm.get_canonical_vuln_details("Bitsight", vd)
+        cvd = dfm.get_canonical_vuln_details("Bitsight", vd, port_number)
         details = "Full Finding Record\n\n#{JSON.pretty_generate(finding)}"
         details = "Solutions\n\n#{JSON.pretty_generate(finding['details']['remediations'])}\n\n#{details}" if finding.key?("details") && finding["details"].key?("remediations")
         # then create each vuln for this asset

@@ -72,7 +72,7 @@ module Kenna
               # convert to KDI
               result.each do |r|
                 # NORMALIZE
-                cvd = dfm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"])
+                cvd = dfm.get_canonical_vuln_details("Expanse_issues", r["vuln_def"], r["vuln"]["port"])
                 ### Setup basic vuln attributes
                 vuln_attributes = r["vuln"]
 

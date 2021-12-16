@@ -178,7 +178,7 @@ module Kenna
           ###
 
           # fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper
-          vuln_def_attributes = @fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes)
+          vuln_def_attributes = @fm.get_canonical_vuln_details("SecurityScorecard", temp_vuln_def_attributes, port)
 
           vuln_attributes = {
             "scanner_identifier" => issue_type,

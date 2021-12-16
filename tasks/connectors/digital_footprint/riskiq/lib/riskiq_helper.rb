@@ -333,7 +333,7 @@ module Kenna
           "scanner_type" => "RiskIQ"
         }
 
-        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd, port_number)
 
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
