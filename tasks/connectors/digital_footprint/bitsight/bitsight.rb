@@ -87,7 +87,7 @@ module Kenna
         else
           fail_task "Unable to proceed, invalid key for Bitsight?"
         end
-        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename])
+        fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_dir, @options[:input_directory], @options[:df_mapping_filename]) if @options[:input_directory] && @options[:df_mapping_filename]
         bitsight_findings_and_create_kdi(bitsight_create_benign_findings, benign_finding_grades, company_guids, fm, @options[:bitsight_lookback])
 
         ### Write KDI format
