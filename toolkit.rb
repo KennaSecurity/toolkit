@@ -10,10 +10,8 @@ args_array = Kenna::Toolkit::ParamsHelper.build_params(ARGV)
 args = {}
 
 # Parse TOOLKIT prefixed environment variables into arg hash
-ENV.each do |k,v|
-  if k.start_with? "TOOLKIT" and not v.empty?
-    args[k.split('_', 2).last.to_sym] = v
-  end
+ENV.each do |k, v|
+    args[k.split("_", 2).last.to_sym] = v if k.start_with? "TOOLKIT" && !v.empty?
 end
 
 # Then split up this into a hash
