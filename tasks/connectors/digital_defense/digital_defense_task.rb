@@ -7,7 +7,8 @@ module Kenna
     class DigitalDefenseTask < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "digital_defense"
       STATUS = {
-        "new" => "open"
+        "new" => "open",
+        "recurred" => "triaged"
       }.freeze
       def self.metadata
         {
