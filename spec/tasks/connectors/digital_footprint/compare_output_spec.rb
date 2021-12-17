@@ -3,7 +3,7 @@
 require "rspec_helper"
 
 RSpec.describe "compare output" do
-  describe "bitsight output" do
+  xdescribe "bitsight output" do
     let(:old_assets) { build_assets("output/bitsight_0/*.json") }
     let(:new_assets) { build_assets("output/bitsight/*.json") }
 
@@ -16,7 +16,7 @@ RSpec.describe "compare output" do
     end
   end
 
-  describe "expanse output" do
+  xdescribe "expanse output" do
     let(:old_assets) { build_assets("output/expanse_0/*.json") }
     let(:new_assets) { build_assets("output/expanse/*.json") }
 
@@ -32,7 +32,7 @@ RSpec.describe "compare output" do
     end
   end
 
-  describe "riskiq output" do
+  xdescribe "riskiq output" do
     let(:old_assets) { build_assets("output/riskiq_0/*.json") }
     let(:new_assets) { build_assets("output/riskiq/*.json") }
 
@@ -45,7 +45,7 @@ RSpec.describe "compare output" do
     end
   end
 
-  describe "security scorecard output" do
+  xdescribe "security scorecard output" do
     let(:old_assets) { build_assets("output/security_scorecard_0/*.json") }
     let(:new_assets) { build_assets("output/security_scorecard/*.json") }
 
