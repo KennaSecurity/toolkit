@@ -40,8 +40,8 @@ module Kenna
       end
 
       def ssl_cert_query
-        query_string = ""
-        query_string += "{"
+        query_string = +""
+        query_string << "{"
         query_string << "  \"filters\": {"
         query_string << "  \"condition\": \"AND\","
         query_string << "   \"value\": ["
@@ -76,8 +76,8 @@ module Kenna
       end
 
       def expired_ssl_cert_query(cert_expiration)
-        query_string = ""
-        query_string += "{"
+        query_string = +""
+        query_string << "{"
         query_string << "  \"filters\": {"
         query_string << "  \"condition\": \"AND\","
         query_string << "   \"value\": ["
@@ -263,7 +263,7 @@ module Kenna
           "scanner_type" => "RiskIQ"
         }
         asset["last_seen_at"] = last_seen
-        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln_def = @fm.present? ? @fm.get_canonical_vuln_details("RiskIQ", vd) : default_self_signed_certificate_vuln_def
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         vuln["override_score"] = vuln_def.fetch("override_score") if vuln_def.key?("override_score")
@@ -290,7 +290,7 @@ module Kenna
           "scanner_type" => "RiskIQ"
         }
         asset["last_seen_at"] = last_seen
-        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd)
+        vuln_def = @fm.present? ? @fm.get_canonical_vuln_details("RiskIQ", vd) : default_expired_cert_vuln_def
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
         vuln["override_score"] = vuln_def.fetch("override_score") if vuln_def.key?("override_score")
@@ -333,7 +333,7 @@ module Kenna
           "scanner_type" => "RiskIQ"
         }
 
-        vuln_def = @fm.get_canonical_vuln_details("RiskIQ", vd, port_number)
+        vuln_def = @fm.present? ? @fm.get_canonical_vuln_details("RiskIQ", vd, port_number) : default_open_ports_vuln_def
 
         vuln["scanner_score"] = vuln_def.fetch("scanner_score") if vuln_def.key?("scanner_score")
         vuln["vuln_def_name"] = vuln_def.fetch("name") if vuln_def.key?("name")
@@ -355,7 +355,7 @@ module Kenna
         return output unless data_items
 
         # kdi_initialize
-        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory, @options[:input_directory], @options[:df_mapping_filename])
+        @fm = Kenna::Toolkit::Data::Mapping::DigiFootprintFindingMapper.new(@output_directory, @options[:input_directory], @options[:df_mapping_filename]) if @options[:input_directory] && @options[:df_mapping_filename]
 
         # print_debug "Working on on #{data_items.count} items" if @debug
         data_items.lazy.each do |item|
@@ -504,6 +504,41 @@ module Kenna
             end
           end
         end
+      end
+
+      def default_expired_cert_vuln_def
+        {
+          "scanner_type" => "RiskIQ",
+          "scanner_score" => 4,
+          "override_score" => 40,
+          "name" => "Expired Certificate",
+          "description" => "Certificate validity periods are an important way to ensure that keys are still uniquely associated with the entity to which they are issued. Expired certificates are frequently an indication that a system may not be under active management and that other software components on that system may also be out of date, and cannot be trusted because the Certificate Revocation List does not maintain revocation status for expired certificates.",
+          "recommendation" => "Please confirm the system is still required and reissue the certificate with an industry certificate authority as soon as possible.",
+          "cwe_identifiers" => "CWE-672"
+        }
+      end
+
+      def default_open_ports_vuln_def
+        {
+          "scanner_type" => "RiskIQ",
+          "scanner_score" => 6,
+          "override_score" => 60,
+          "name" => "Potentially Sensitive Open Ports Detected",
+          "description" => "A potentially sensitive open port is visible from the internet at this location",
+          "recommendation" => "Please refer to the details provided and remediate these vulnerabilities as soon as possible by closing the affected ports, removing the instance if it is no longer needed, or implementing appropriate security controls to limit visibility.",
+          "cwe_identifiers" => "CWE-693"
+        }
+      end
+
+      def default_self_signed_certificate_vuln_def
+        {
+          "scanner_type" => "RiskIQ",
+          "scanner_score" => 4,
+          "override_score" => 40,
+          "name" => "Self-Signed Certificate Detected",
+          "description" => "A self-signed certificate is signed by the private key of the identity it certifies, rather than by a trusted Certificate Authority. Self-signed certificates do not provide any trust to clients connecting to the systems they reside on that the client is connecting with the system they intended to. Additionally, self-signed certificates are frequently associated with systems that were intended to be used for development or testing purposes, and thus not hardened to production security standards.",
+          "cwe_identifiers" => "CWE-672"
+        }
       end
     end
   end
