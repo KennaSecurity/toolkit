@@ -138,7 +138,6 @@ module Kenna
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
 
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
-
       rescue Kenna::Toolkit::RiskIQHelper::ApiError
         fail_task "Unable to retrieve data from API, please check credentials"
       end

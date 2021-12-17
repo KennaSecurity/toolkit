@@ -137,7 +137,7 @@ module Kenna
         issue_type = issue["type"]
 
         # handle patching cadence differently, these will have CVEs
-        if issue_type =~ /patching_cadence/ || issue_type =~ /service_vuln/
+        if issue_type.include?("patching_cadence") || issue_type.include?("service_vuln")
 
           vuln_attributes = {
             "scanner_identifier" => issue["vulnerability_id"] || issue["cve"],
