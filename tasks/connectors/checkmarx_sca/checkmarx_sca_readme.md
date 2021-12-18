@@ -42,5 +42,4 @@ Complete list of Options:
 
 For extracting Image vulnerability data:
 
-   toolkit:latest task=github_dependabot github_access_token=v954xxxxxx kenna_connector_id=15xxxx kenna_api_host=api.sandbox.us.kennasecurity.com kenna_api_key=xxx
-   toolkit:latest task="checkmarx_sca" checkmarx_sca_user="****" checkmarx_sca_password="****" acr_values="****" scope="sca_api" client_id="sca_resource_owner" grant_type="password" kenna_api_key="******" kenna_connector_id="****" kenna_api_host="api.sandbox.us.kennasecurity.com"
+   toolkit:latest task="checkmarx_sca" checkmarx_sca_user="****" checkmarx_sca_password="****" tenant_id="****" kenna_api_key="******" kenna_connector_id="****" kenna_api_host="api.sandbox.us.kennasecurity.com"
