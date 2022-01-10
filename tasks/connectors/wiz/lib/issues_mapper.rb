@@ -3,7 +3,7 @@
 require_relative "mapper"
 module Kenna
   module Toolkit
-    module WizV2
+    module Wiz
       class IssuesMapper < Mapper
         STATUS_MAP = {
           "open" => "open",
