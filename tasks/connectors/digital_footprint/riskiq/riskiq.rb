@@ -132,6 +132,7 @@ module Kenna
         if @riq_create_ssl_misconfigs
           print_good "Getting ssl information from footprint"
           search_global_inventory(ssl_cert_query, @batch_page_size, @options[:riskiq_page_size])
+          print_good "Getting expired ssl information from footprint"
           search_global_inventory(expired_ssl_cert_query("[\"Expired\",\"Expires30\"]"), @batch_page_size, @options[:riskiq_page_size])
         end
 

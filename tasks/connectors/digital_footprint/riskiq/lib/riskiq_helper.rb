@@ -199,7 +199,10 @@ module Kenna
           end
 
           # prepare the next request
-          return if result["numberOfElements"].zero?
+          if result["numberOfElements"].zero?
+            print "[Warning] Search returned 0 elements." if current_page.zero?
+            return
+          end
 
           mark = ""
           mark = result["mark"]
