@@ -2,7 +2,7 @@
 
 require "rspec_helper"
 
-RSpec.describe Kenna::Toolkit::WhitehatSentinel::ApiClient do
+RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
   subject(:api_client) { described_class.new(api_key: "0xdeadbeef") }
 
   describe "#vulns" do
