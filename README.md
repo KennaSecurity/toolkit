@@ -32,6 +32,12 @@ In this case, the expanse task:
 
     docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
 
+## Running on GitHub Actions
+
+You can run the Toolkit on GitHub Actions using your CI/CD available minutes.
+
+Please, refer to these [detailed instructions](https://github.com/KennaSecurity/All_Samples/tree/master/no_server_toolkit_run_git_actions).
+
 ## Building your own Image
 
 ---
