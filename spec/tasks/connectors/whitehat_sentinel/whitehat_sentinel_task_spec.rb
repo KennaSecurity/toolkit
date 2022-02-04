@@ -2,13 +2,13 @@
 
 require "rspec_helper"
 
-RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
+RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Task do
   subject(:task) { described_class.new }
 
   describe "#run" do
-    let(:api_client) { instance_double(Kenna::Toolkit::WhitehatSentinel::ApiClient, api_key_valid?: valid, vulns: [vuln], assets: [asset]) }
+    let(:api_client) { instance_double(Kenna::Toolkit::NTTSentinelDynamic::ApiClient, api_key_valid?: valid, vulns: [vuln], assets: [asset]) }
     let(:key) { "0xdeadbeef" }
-    let(:options) { { whitehat_api_key: key, kenna_api_key: "api_key", kenna_api_host: "kenna.example.com", kenna_connector_id: "12" } }
+    let(:options) { { whitehat_api_key: key, kenna_api_key: "api_key", kenna_api_host: "kenna.example.com", kenna_connector_id: "12", sentinel_api_key: "api_key" } }
     let(:valid) { true }
     let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5, description: { description: "text" }, solution: { solution: "text" } } }
     let(:asset) { { asset: { id: 12 } } }
@@ -16,7 +16,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
 
     before do
-      allow(Kenna::Toolkit::WhitehatSentinel::ApiClient).to receive(:new) { api_client }
+      allow(Kenna::Toolkit::NTTSentinelDynamic::ApiClient).to receive(:new) { api_client }
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
     end
 
@@ -33,7 +33,7 @@ RSpec.describe Kenna::Toolkit::WhitehatSentinelTask do
 
     context "when using an unknown scoring system" do
       before do
-        options[:whitehat_scoring] = "kenna"
+        options[:sentinel_scoring_type] = "kenna"
       end
 
       it "exits the script" do
