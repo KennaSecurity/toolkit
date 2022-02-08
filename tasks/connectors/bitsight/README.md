@@ -41,4 +41,4 @@ Complete list of Options:
 
 Example call: 
 
-    toolkit:latest task=task=bitsight bitsight_api_key=XXXXX bitsight_create_benign_findings=true bitsight_benign_finding_grades=GOOD kenna_api_key=xxxxxx kenna_connector_id=xxxxx 
+    toolkit:latest task=bitsight bitsight_api_key=XXXXX bitsight_create_benign_findings=true bitsight_benign_finding_grades=GOOD kenna_api_key=xxxxxx kenna_connector_id=xxxxx 
