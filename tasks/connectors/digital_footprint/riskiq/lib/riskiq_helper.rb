@@ -186,7 +186,7 @@ module Kenna
         print_debug query if @debug
         mark = "*"
         while mark
-          print_debug "DEBUG Getting page #{current_page} of #{total_pages} with mark: #{mark}" if @debug
+          print_debug "DEBUG Getting page #{current_page} of #{total_pages} with mark: #{mark}" if @debug && current_page.positive?
 
           endpoint = "#{@api_url}globalinventory/search?size=#{riskiq_page_size}&recent=true&mark=#{mark}"
           response = http_post(endpoint, @headers, query)
@@ -485,7 +485,7 @@ module Kenna
                 "webComponentName" => wc.fetch("webComponentName"),
                 "webComponentCategory" => wc.fetch("webComponentCategory")
               }
-              print_debug "cves = #{wc.fetch('cves')}"
+              # print_debug "cves = #{wc.fetch('cves')}"
               vuln = {
                 "scanner_identifier" => (cve["name"]).to_s,
                 "scanner_type" => "RiskIQ",

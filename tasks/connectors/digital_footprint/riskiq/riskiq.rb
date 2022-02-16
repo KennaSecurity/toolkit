@@ -140,7 +140,7 @@ module Kenna
 
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       rescue Kenna::Toolkit::RiskIQHelper::ApiError
-        fail_task "Unable to retrieve data from API, please check credentials"
+        fail_task "Unable to retrieve data from API, please check credentials or increase riskiq_port_last_seen"
       end
     end
   end
