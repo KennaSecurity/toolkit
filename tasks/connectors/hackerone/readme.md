@@ -1,4 +1,4 @@
-## Running the Burp task 
+## Running the HackerOne task 
 
 This toolkit brings in data from Hackerone
 
