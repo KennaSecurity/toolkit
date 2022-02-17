@@ -18,7 +18,7 @@ module Kenna
           description: "This task connects to the Expanse API and pulls results into the Kenna Platform.",
           options: [
             { name: "expanse_api_key",
-              type: "string",
+              type: "api_key",
               required: true,
               default: "",
               description: "This is the Expanse key used to query the API." },

@@ -24,7 +24,7 @@ module Kenna
           description: "This task connects to the Security Scorecard API and pulls results into the Kenna Platform.",
           options: [
             { name: "ssc_api_key",
-              type: "string",
+              type: "api_key",
               required: true,
               default: "",
               description: "This is the Security Scorecard key used to query the API." },
