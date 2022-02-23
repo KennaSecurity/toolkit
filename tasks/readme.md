@@ -11,19 +11,19 @@
 
 | 3rd Party Product | Release Status | Maintained By |
 | --- | --- | --- |
-| Acunetix360 | Pre-Release/Beta | - |
-| AppScan Cloud | Pre-Release/Beta | - |
-| AppScan Enterprise | Pre-Release/Beta | - |
-| Aqua | Pre-Release/Beta | Aqua |
-| AWS_guardduty | Pre-Release/Beta | Kenna |
-| AWS_inspector | Pre-Release/Beta | Kenna |
-| Bitsight | Released | Kenna |
-| Bugcrowd | Pre-Release/Beta | - |
-| Burp | Pre-Release/Beta | - |
-| CarbonBlack | Pre-Release/Beta | - |
-| Checkmarx Sast | Pre-Release/Beta | - |
-| Checkmarx SCA | Pre-Release/Beta | - |
-| Cobaltio | Pre-Release/Beta | Cobalt.io |
+| [Acunetix360](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/acunetix360/readme.md) | Pre-Release/Beta | - |
+| [AppScan Cloud](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/appscan_cloud/readme.md) | Pre-Release/Beta | - |
+| [AppScan Enterprise](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/appscan_enterprise/readme.md) | Pre-Release/Beta | - |
+| [Aqua](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aqua/README.md) | Pre-Release/Beta | Aqua |
+| [AWS_guardduty](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/aws_guardduty/ReadME.md) | Pre-Release/Beta | Kenna |
+| [AWS_inspector](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aws_inspector) | Pre-Release/Beta | Kenna |
+| [Bitsight](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/bitsight/README.md) | Released | Kenna |
+| [Bugcrowd](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/bugcrowd/readme.md) | Pre-Release/Beta | - |
+| [Burp](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/burp/readme.md) | Pre-Release/Beta | - |
+| [CarbonBlack](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/carbon_black/readme.md) | Pre-Release/Beta | - |
+| [Checkmarx Sast](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/checkmarx_sast/README.md) | Pre-Release/Beta | - |
+| [Checkmarx SCA](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/checkmarx_sca/readme.md) | Pre-Release/Beta | - |
+| [Cobaltio](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/cobaltio/readme.md) | Pre-Release/Beta | Cobalt.io |
 | Contrast | Pre-Release/Beta | Contrast Security |
 | DigitalDefense | Pre-Release/Beta | - |
 | Edgescan | Pre-Release/Beta | Edgescan |
