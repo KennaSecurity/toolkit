@@ -34,18 +34,18 @@
 | [HackerOne](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/hackerone/readme.md) | Pre-Release/Beta | - |
 | [InsightAppSec](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/insight_appsec/readme.md) | Pre-Release/Beta | - |
 | [JFrog Xray](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/jfrog/readme.md) | Pre-Release/Beta | - |
-| Lacework | Pre-Release/Beta | - |
-| MS_defender_atp | Released | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
-| MS_defender_tvm | Pre-Released/Beta | Kenna and [MS Defender TVM](https://securitycenter.windows.com/) |
-| Netsparker | Pre-Release/Beta | Kenna |
-| Nozomi | Released | Kenna and [Nozomi](https://www.nozominetworks.com/) |
-| NTT (WhiteHat) Sentinel Dynamic | Pre-Release/Beta | - |
-| QualysWAS | Pre-Release/Beta | - |
-| Riskiq | Released | Kenna |
-| Security_scorecard | Released | Kenna |
-| Snyk_v2 | Pre-Release/Beta | Kenna and [Snyk](https://snyk.io/) |
-| SysDig | Pre-Release/Beta | - |
-| Veracode_asset_vulns | Released | Kenna |
-| Veracode_findings | Released | Kenna |
-| WhiteSource | Pre-Release/Beta | - |
-| Wiz | Released | - |
+| [Lacework](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/lacework/readme.md) | Pre-Release/Beta | - |
+| [MS_defender_atp](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ms_defender_atp/readme.md) | Released | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
+| [MS_defender_tvm](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ms_defender_tvm/readme.md) | Pre-Released/Beta | Kenna and [MS Defender TVM](https://securitycenter.windows.com/) |
+| [Netsparker](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/netsparker/readme.md) | Pre-Release/Beta | Kenna |
+| [Nozomi](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/nozomi/ReadME.md) | Released | Kenna and [Nozomi](https://www.nozominetworks.com/) |
+| [NTT (WhiteHat) Sentinel Dynamic](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ntt_sentinel_dynamic/README.md) | Pre-Release/Beta | - |
+| [QualysWAS](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/qualys_was/README.md) | Pre-Release/Beta | - |
+| [Riskiq](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/riskiq/README.md) | Released | Kenna |
+| [Security_scorecard](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/security_scorecard/README.md) | Released | Kenna |
+| [Snyk_v2](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/snyk_v2/readme.md) | Pre-Release/Beta | Kenna and [Snyk](https://snyk.io/) |
+| [SysDig](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/sysdig/readme.md) | Pre-Release/Beta | - |
+| [Veracode_asset_vulns](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/veracode_asset_vulns/readme.md) | Released | Kenna |
+| [Veracode_findings](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/veracode_findings/readme.md) | Released | Kenna |
+| [WhiteSource](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/whitesource/readme.md) | Pre-Release/Beta | - |
+| [Wiz](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/wiz) | Released | - |
