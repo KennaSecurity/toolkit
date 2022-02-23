@@ -24,16 +24,16 @@
 | [Checkmarx Sast](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/checkmarx_sast/README.md) | Pre-Release/Beta | - |
 | [Checkmarx SCA](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/checkmarx_sca/readme.md) | Pre-Release/Beta | - |
 | [Cobaltio](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/cobaltio/readme.md) | Pre-Release/Beta | Cobalt.io |
-| Contrast | Pre-Release/Beta | Contrast Security |
-| DigitalDefense | Pre-Release/Beta | - |
-| Edgescan | Pre-Release/Beta | Edgescan |
+| [Contrast](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/contrast/readme.md) | Pre-Release/Beta | Contrast Security |
+| [DigitalDefense](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_defense/readme.md) | Pre-Release/Beta | - |
+| [Edgescan](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/edgescan/README.md) | Pre-Release/Beta | Edgescan |
 | Expanse | Pre-Released/Beta | Kenna |
-| Expanse_issues | Released | Kenna | 
-| GitHub Code Scanning | Pre-Release/Beta | - |
-| GitHub Dependabot | Released | - |
-| HackerOne | Pre-Release/Beta | - |
-| InsightAppSec | Pre-Release/Beta | - |
-| JFrog Xray | Pre-Release/Beta | - |
+| [Expanse_issues](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/expanse_issues/README.md) | Released | Kenna | 
+| [GitHub Code Scanning](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/github_code_scanning/readme.md) | Pre-Release/Beta | - |
+| [GitHub Dependabot](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/github_dependabot/readme.md) | Released | - |
+| [HackerOne](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/hackerone/readme.md) | Pre-Release/Beta | - |
+| [InsightAppSec](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/insight_appsec/readme.md) | Pre-Release/Beta | - |
+| [JFrog Xray](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/jfrog/readme.md) | Pre-Release/Beta | - |
 | Lacework | Pre-Release/Beta | - |
 | MS_defender_atp | Released | Kenna and [MS Defender ATP](https://securitycenter.windows.com/) |
 | MS_defender_tvm | Pre-Released/Beta | Kenna and [MS Defender TVM](https://securitycenter.windows.com/) |
