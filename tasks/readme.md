@@ -26,7 +26,7 @@
 | Cobaltio | Pre-Release/Beta | Cobalt.io |
 | Contrast | Pre-Release/Beta | Contrast Security |
 | DigitalDefense | Pre-Release/Beta | - |
-| Edgescan | Pre-Release/Beta | edgescan |
+| Edgescan | Pre-Release/Beta | Edgescan |
 | Expanse | Pre-Released/Beta | Kenna |
 | Expanse_issues | Released | Kenna | 
 | GitHub Code Scanning | Pre-Release/Beta | - |
