@@ -12,7 +12,7 @@ module Kenna
             verify_ssl: verify_ssl
           )
         rescue RestClient::TooManyRequests => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -21,9 +21,9 @@ module Kenna
             retry
           end
         rescue RestClient::UnprocessableEntity => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::BadRequest => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::InternalServerError => e
           retries ||= 0
           if retries < max_retries
@@ -32,11 +32,11 @@ module Kenna
             puts "Retrying!"
             retry
           end
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::ServerBrokeConnection => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::ExceptionWithResponse => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -45,9 +45,9 @@ module Kenna
             retry
           end
         rescue RestClient::NotFound => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::Exception => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -56,7 +56,7 @@ module Kenna
             retry
           end
         rescue Errno::ECONNREFUSED => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -75,7 +75,7 @@ module Kenna
             verify_ssl: verify_ssl
           )
         rescue RestClient::TooManyRequests => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -84,11 +84,11 @@ module Kenna
             retry
           end
         rescue RestClient::UnprocessableEntity => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::BadRequest => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::InternalServerError => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -97,9 +97,9 @@ module Kenna
             retry
           end
         rescue RestClient::ServerBrokeConnection => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::ExceptionWithResponse => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -108,9 +108,9 @@ module Kenna
             retry
           end
         rescue RestClient::NotFound => e
-          puts "Exception! #{e}"
+          log_exception(e)
         rescue RestClient::Exception => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -119,7 +119,7 @@ module Kenna
             retry
           end
         rescue Errno::ECONNREFUSED => e
-          puts "Exception! #{e}"
+          log_exception(e)
           retries ||= 0
           if retries < max_retries
             retries += 1
@@ -127,6 +127,13 @@ module Kenna
             sleep(15)
             retry
           end
+        end
+
+        def log_exception(e)
+          puts "Exception! #{e}"
+          puts "#{e.response.request.method} #{e.response.request.url}"
+          puts "request payload: #{e.response.request.payload}" 
+          puts "server response: #{e.response.body}"
         end
       end
     end
