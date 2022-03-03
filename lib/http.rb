@@ -132,7 +132,7 @@ module Kenna
         def log_exception(error)
           puts "Exception! #{error}"
           puts "#{error.response.request.method} #{error.response.request.url}"
-          puts "request payload: #{error.response.request.payload}" 
+          puts "request payload: #{error.response.request.payload}"
           puts "server response: #{error.response.body}"
         end
       end
