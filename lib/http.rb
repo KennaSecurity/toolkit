@@ -129,11 +129,11 @@ module Kenna
           end
         end
 
-        def log_exception(e)
-          puts "Exception! #{e}"
-          puts "#{e.response.request.method} #{e.response.request.url}"
-          puts "request payload: #{e.response.request.payload}" 
-          puts "server response: #{e.response.body}"
+        def log_exception(error)
+          puts "Exception! #{error}"
+          puts "#{error.response.request.method} #{error.response.request.url}"
+          puts "request payload: #{error.response.request.payload}" 
+          puts "server response: #{error.response.body}"
         end
       end
     end
