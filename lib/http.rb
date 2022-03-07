@@ -17,7 +17,7 @@ module Kenna
           if retries < max_retries
             retries += 1
             sleep(15)
-            puts "Retrying!"
+            print "Retrying!"
             retry
           end
         rescue RestClient::UnprocessableEntity => e
@@ -29,7 +29,7 @@ module Kenna
           if retries < max_retries
             retries += 1
             sleep(15)
-            puts "Retrying!"
+            print "Retrying!"
             retry
           end
           log_exception(e)
@@ -40,7 +40,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -52,7 +52,7 @@ module Kenna
           if retries < max_retries
             retries += 1
             sleep(15)
-            puts "Retrying!"
+            print "Retrying!"
             retry
           end
         rescue Errno::ECONNREFUSED => e
@@ -60,7 +60,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -79,7 +79,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -92,7 +92,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -103,7 +103,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -114,7 +114,7 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
@@ -123,17 +123,23 @@ module Kenna
           retries ||= 0
           if retries < max_retries
             retries += 1
-            puts "Retrying!"
+            print "Retrying!"
             sleep(15)
             retry
           end
         end
 
         def log_exception(error)
-          puts "Exception! #{error}"
-          puts "#{error.response.request.method} #{error.response.request.url}"
-          puts "request payload: #{error.response.request.payload}"
-          puts "server response: #{error.response.body}"
+          print_error "Exception! #{error}"
+          return unless log_request?
+
+          print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
+          print_debug "Request Payload: #{error.response.request.payload}"
+          print_debug "Server Response: #{error.response.body}"
+        end
+
+        def log_request?
+          debug? && running_local?
         end
       end
     end
