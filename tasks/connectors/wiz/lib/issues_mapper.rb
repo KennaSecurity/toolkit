@@ -28,7 +28,7 @@ module Kenna
         def extract_asset(issue)
           {
             "external_id" => extract_external_id(issue),
-            "owner" => issue["entitySnapshot"]["subscriptionId"],
+            "owner" => issue["entitySnapshot"]["subscriptionExternalId"] || issue["entitySnapshot"]["subscriptionId"],
             "tags" => extract_tags(issue)
           }.compact
         end
