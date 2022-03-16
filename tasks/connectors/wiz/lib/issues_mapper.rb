@@ -24,6 +24,7 @@ module Kenna
           {
             "external_id" => extract_external_id(issue),
             "hostname" => (issue["entitySnapshot"]["name"] if issue.dig("entitySnapshot", "type") == "VIRTUAL_MACHINE"),
+            "container_id" => (issue["entitySnapshot"]["name"] if issue.dig("entitySnapshot", "type") != "VIRTUAL_MACHINE"),
             "owner" => issue["entitySnapshot"]["subscriptionExternalId"] || issue["entitySnapshot"]["subscriptionId"],
             "tags" => extract_tags(issue)
           }.compact

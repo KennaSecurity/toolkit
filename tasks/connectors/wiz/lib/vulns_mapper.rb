@@ -19,6 +19,7 @@ module Kenna
             "owner" => vuln["vulnerableAsset"]["subscriptionExternalId"],
             "image_id" => (vuln["vulnerableAsset"]["imageId"] if vuln["vulnerableAsset"]["imageId"].present?),
             "hostname" => (vuln["vulnerableAsset"]["name"] if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
+            "container_id" => (vuln["vulnerableAsset"]["name"] if vuln["vulnerableAsset"]["type"] != "VIRTUAL_MACHINE"),
             "os" => (vuln["vulnerableAsset"]["operatingSystem"] if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
             "ip_address" => ((vuln["vulnerableAsset"]["ipAddresses"] || []).first if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
             "tags" => extract_tags(vuln)
