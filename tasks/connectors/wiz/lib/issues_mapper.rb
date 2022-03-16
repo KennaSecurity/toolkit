@@ -12,11 +12,6 @@ module Kenna
           "rejected" => "closed"
         }.freeze
 
-        def initialize(external_id_attr = "providerId")
-          super()
-          @external_id_attr = external_id_attr
-        end
-
         def name
           "Issue"
         end
@@ -28,21 +23,22 @@ module Kenna
         def extract_asset(issue)
           {
             "external_id" => extract_external_id(issue),
-            "owner" => issue["entitySnapshot"]["subscriptionId"],
+            "hostname" => (issue["entitySnapshot"]["name"] if issue.dig("entitySnapshot", "type") == "VIRTUAL_MACHINE"),
+            "owner" => issue["entitySnapshot"]["subscriptionExternalId"] || issue["entitySnapshot"]["subscriptionId"],
             "tags" => extract_tags(issue)
           }.compact
         end
 
         def extract_tags(issue)
-          tags = issue["entitySnapshot"]["tags"].map { |k, v| "#{k}:#{v}" }
-          tags << "WizEntityType:#{issue['entitySnapshot']['type']}" if issue["entitySnapshot"]["type"].present?
+          tags = (issue["entitySnapshot"]["tags"] || []).map { |k, v| "#{k}:#{v}" }
+          tags << "WizAssetType:#{issue['entitySnapshot']['type']}" if issue["entitySnapshot"]["type"].present?
           tags << "Region:#{issue['entitySnapshot']['region']}" if issue["entitySnapshot"]["region"].present?
           tags << "CloudPlatform:#{issue['entitySnapshot']['cloudPlatform']}" if issue["entitySnapshot"]["cloudPlatform"].present?
         end
 
         def extract_vuln(issue)
           vuln = {
-            "scanner_identifier" => issue["entitySnapshot"]["id"],
+            "scanner_identifier" => issue["id"],
             "scanner_type" => SCANNER_TYPE,
             "vuln_def_name" => extract_vuln_def_name(issue),
             "scanner_score" => SEVERITY_MAP[issue["severity"].downcase],
@@ -83,7 +79,7 @@ module Kenna
           if issue["entitySnapshot"][@external_id_attr].present?
             issue["entitySnapshot"][@external_id_attr]
           else
-            issue["entitySnapshot"]["providerId"]
+            issue["entitySnapshot"]["id"]
           end
         end
       end
