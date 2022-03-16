@@ -169,12 +169,11 @@ module Kenna
       end
 
       def extract_definition(issue)
-        {
-          "name" => (issue["cves"].first || {})["cve"] || issue["summary"],
-          "cve_identifiers" => issue["cves"].map { |each| each["cve"] }.join(", "),
-          "description" => issue["description"],
-          "scanner_type" => "JFrog"
-        }.compact
+        definition = { "name" => (issue["cves"].first || {})["cve"] || issue["summary"],
+                       "description" => issue["description"],
+                       "scanner_type" => "JFrog"}.compact
+        definition["cve_identifiers"] = issue["cves"].map { |each| each["cve"] }.join(", ") if issue["cves"].present?
+        definition
       end
 
       def extract_additional_fields(issue)
