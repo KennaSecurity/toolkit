@@ -66,7 +66,7 @@ module Kenna
 
         client = Kenna::Toolkit::Netsparker::NetsparkerClient.new(@api_user, @api_token)
 
-        @schedule_ids = client.receive_all_schedule_ids if @schedule_ids == ["*"]
+        @schedule_ids = client.retrieve_all_scheduled_ids if @schedule_ids == ["*"]
 
         @schedule_ids.each do |schedule_id|
           response_data = client.get_last_scan_vulnerabilities(schedule_id)
