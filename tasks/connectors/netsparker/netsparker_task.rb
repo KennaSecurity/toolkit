@@ -63,8 +63,7 @@ module Kenna
         super
 
         initialize_options
-
-        client = Kenna::Toolkit::Netsparker::NetsparkerClient.new(@api_user, @api_token)
+        initialize_client
 
         @schedule_ids = client.retrieve_all_scheduled_ids if @schedule_ids == ["*"]
 
@@ -76,8 +75,10 @@ module Kenna
           total_issues = issues.count
           target = response_data["Target"]
           scan_id = target["ScanId"]
+
           print_good("Found scan ##{scan_id} for schedule ##{schedule_id} with #{total_issues} issues with severity #{@issue_severity}.")
           pos = 0
+
           while pos < total_issues
             issues[pos..pos + @max_issues].each do |issue|
               asset = extract_asset(issue, target)
@@ -96,6 +97,12 @@ module Kenna
       end
 
       private
+
+      attr_reader :client
+
+      def initialize_client
+        @client = Kenna::Toolkit::Netsparker::NetsparkerClient.new(@api_user, @api_token)
+      end
 
       def initialize_options
         @api_user = @options[:netsparker_api_user]

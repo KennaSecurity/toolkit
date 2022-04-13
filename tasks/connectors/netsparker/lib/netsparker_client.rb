@@ -5,6 +5,7 @@ module Kenna
     module Netsparker
       class NetsparkerClient
         HOST = "https://www.netsparkercloud.com"
+
         def initialize(user_id, token)
           auth_token = Base64.strict_encode64("#{user_id}:#{token}")
           @endpoint = "#{HOST}/api/1.0"
@@ -26,14 +27,16 @@ module Kenna
         def retrieve_all_scheduled_ids
           page = 1
           schedule_ids = []
+          response = http_get(list_scheduled_url(page), @headers)
+          scheduled_scan_result = JSON.parse(response)
+
           loop do
-            response = http_get(list_scheduled_url(page), @headers)
-            scheduled_scan_result = JSON.parse(response)
             schedule_ids.push(*scheduled_scan_result.fetch("List").map { |scan| scan.fetch("Id") })
             break if scheduled_scan_result["IsLastPage"]
 
             page += 1
           end
+
           schedule_ids.uniq
         rescue KeyError
           fail_task "There are no scheduled scans"
@@ -44,14 +47,16 @@ module Kenna
         def get_last_scan_id(schedule_id)
           found = nil
           page = 1
+          response = http_get(list_scheduled_url(page), @headers)
+          scheduled_scan_result = JSON.parse(response)
+
           loop do
-            response = http_get(list_scheduled_url(page), @headers)
-            scheduled_scan_result = JSON.parse(response)
             found = scheduled_scan_result["List"].detect { |scheduled_scan| scheduled_scan["Id"] == schedule_id }
             break if found || scheduled_scan_result["IsLastPage"]
 
             page += 1
           end
+
           if found
             found["LastExecutedScanTaskId"]
           else
