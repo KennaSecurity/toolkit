@@ -151,8 +151,7 @@ module Kenna
           "scanner_identifier" => issue["LookupId"],
           "scanner_type" => "Netsparker",
           "vuln_def_name" => issue["Name"],
-          "severity" => SEVERITY_VALUE[issue["Severity"]],        # which one is correct?
-          "scanner_score" => SEVERITY_VALUE[issue["Severity"]],   # which one is correct?
+          "severity" => SEVERITY_VALUE[issue["Severity"]],
           "created_at" => convert_date(issue["FirstSeenDate"]),
           "last_seen_at" => convert_date(issue["LastSeenDate"]),
           "triage_state" => map_state_to_triage_state(issue["State"]),
