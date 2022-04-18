@@ -65,10 +65,11 @@ module Kenna
         initialize_options
         initialize_client
 
-        @schedule_ids = client.retrieve_all_scheduled_ids if @schedule_ids == ["*"]
+        schedule_scans = client.retrieve_all_scheduled_scans
+        @schedule_ids = schedule_scans.map { |scan| scan.fetch("Id") } if @schedule_ids == ["*"]
 
         @schedule_ids.each do |schedule_id|
-          response_data = client.get_last_scan_vulnerabilities(schedule_id)
+          response_data = client.get_last_scan_vulnerabilities(schedule_id, schedule_scans)
           next unless response_data
 
           issues = response_data["Vulnerabilities"].select { |issue| @issue_severity.include?(issue["Severity"]) }
@@ -77,21 +78,8 @@ module Kenna
           scan_id = target["ScanId"]
 
           print_good("Found scan ##{scan_id} for schedule ##{schedule_id} with #{total_issues} issues with severity #{@issue_severity}.")
-          pos = 0
 
-          while pos < total_issues
-            issues[pos..pos + @max_issues].each do |issue|
-              asset = extract_asset(issue, target)
-              finding = extract_finding(issue)
-              definition = extract_definition(issue)
-
-              create_kdi_asset_finding(asset, finding)
-              create_kdi_vuln_def(definition)
-            end
-            print_good("Processed #{[pos + @max_issues, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
-            kdi_upload(@output_directory, "netsparker_scan_#{scan_id}_report_#{pos}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            pos += @max_issues
-          end
+          batch_and_upload(total_issues, issues, target, scan_id)
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
@@ -113,10 +101,28 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @max_issues = @options[:batch_size].to_i
+        @batch_size = @options[:batch_size].to_i
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
+      end
+
+      def batch_and_upload(total_issues, issues, target, scan_id)
+        position = 0
+
+        while position < total_issues
+          issues[position..position + @batch_size].each do |issue|
+            asset = extract_asset(issue, target)
+            finding = extract_finding(issue)
+            definition = extract_definition(issue)
+
+            create_kdi_asset_finding(asset, finding)
+            create_kdi_vuln_def(definition)
+          end
+          print_good("Processed #{[position + @batch_size, total_issues].min} of #{total_issues} issues for scan ##{scan_id}.")
+          kdi_upload(@output_directory, "netsparker_scan_#{scan_id}_report_#{position}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+          position += @batch_size
+        end
       end
 
       def extract_list(key, default = nil)
@@ -145,7 +151,8 @@ module Kenna
           "scanner_identifier" => issue["LookupId"],
           "scanner_type" => "Netsparker",
           "vuln_def_name" => issue["Name"],
-          "severity" => SEVERITY_VALUE[issue["Severity"]],
+          "severity" => SEVERITY_VALUE[issue["Severity"]],        # which one is correct?
+          "scanner_score" => SEVERITY_VALUE[issue["Severity"]],   # which one is correct?
           "created_at" => convert_date(issue["FirstSeenDate"]),
           "last_seen_at" => convert_date(issue["LastSeenDate"]),
           "triage_state" => map_state_to_triage_state(issue["State"]),

@@ -16,52 +16,45 @@ module Kenna
           }
         end
 
-        def get_last_scan_vulnerabilities(schedule_id)
-          id = get_last_scan_id(schedule_id)
+        def get_last_scan_vulnerabilities(schedule_id, schedule_scans)
+          id = get_last_scan_id(schedule_id, schedule_scans)
           return unless id
 
           response = http_get(get_vulnerabilities_url(id), @headers)
           JSON.parse(response)
         end
 
-        def retrieve_all_scheduled_ids
+        def retrieve_all_scheduled_scans
           page = 1
-          schedule_ids = []
-          response = http_get(list_scheduled_url(page), @headers)
-          scheduled_scan_result = JSON.parse(response)
+          scheduled_scan_result = scheduled_scan_result(page)
+          schedule_scans = []
 
           loop do
-            schedule_ids.push(*scheduled_scan_result.fetch("List").map { |scan| scan.fetch("Id") })
+            schedule_scans.push(*scheduled_scan_result.fetch("List"))
             break if scheduled_scan_result["IsLastPage"]
 
             page += 1
           end
 
-          schedule_ids.uniq
+          schedule_scans.uniq
         rescue KeyError
           fail_task "There are no scheduled scans"
         end
 
         private
 
-        def get_last_scan_id(schedule_id)
-          found = nil
-          page = 1
+        def scheduled_scan_result(page)
           response = http_get(list_scheduled_url(page), @headers)
-          scheduled_scan_result = JSON.parse(response)
+          JSON.parse(response)
+        end
 
-          loop do
-            found = scheduled_scan_result["List"].detect { |scheduled_scan| scheduled_scan["Id"] == schedule_id }
-            break if found || scheduled_scan_result["IsLastPage"]
-
-            page += 1
-          end
+        def get_last_scan_id(schedule_id, schedule_scans)
+          found = schedule_scans.detect { |scheduled_scan| scheduled_scan["Id"] == schedule_id }
 
           if found
             found["LastExecutedScanTaskId"]
           else
-            print_error "Not found scheduled scan with ID #{schedule_id}"
-            nil
+            fail_task "Not found scheduled scan with ID #{schedule_id}"
           end
         end
 
