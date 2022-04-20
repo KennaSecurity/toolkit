@@ -11,6 +11,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - bin/**/*
+    - vendor/**/*
 
 Bundler/DuplicatedGem:
   Enabled: true

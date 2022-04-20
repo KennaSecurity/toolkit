@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+gemspec
+
+gem "json_pure", path: "./vendor/json-1.8.6"
+
+group :development, :test do
+  gem "pry-byebug"
+  gem "rake"
+end
+
+group :test do
+  gem "rspec"
+end
