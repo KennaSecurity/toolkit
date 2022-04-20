@@ -18,9 +18,9 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.6
+        ruby-version: 3.1
     - name: Install dependencies
-      run: bundle install --without development test
+      run: bundle config set without 'test development'
     - name:  Run Toolkit
       run : ruby toolkit.rb task=help
       

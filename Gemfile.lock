@@ -176,8 +176,8 @@ DEPENDENCIES
   rest-client
   rexml (>= 3.2.5)
   rspec
-  rubocop (~> 1.25)
-  rubocop-github (~> 0.17)
+  rubocop
+  rubocop-github
   rubocop-performance
   rubocop-rails
   sanitize
@@ -189,4 +189,4 @@ RUBY VERSION
    ruby 3.1.2p20
 
 BUNDLED WITH
-   2.3.7
+   2.3.11

@@ -27,8 +27,8 @@ group :development, :test do
   gem "pry"
   gem "pry-byebug"
   gem "rspec"
-  gem "rubocop", "~> 1.25", require: false
-  gem "rubocop-github", "~> 0.17"
+  gem "rubocop", require: false
+  gem "rubocop-github"
   gem "rubocop-performance", require: false
   gem "rubocop-rails", require: false
   gem "solargraph", require: false
