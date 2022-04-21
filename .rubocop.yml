@@ -11,7 +11,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - bin/**/*
-    - vendor/**/*
+    - vendor/json_write_stream/vendor/**/*
 
 Bundler/DuplicatedGem:
   Enabled: true

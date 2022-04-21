@@ -13,7 +13,7 @@ class JsonWriteStream
 
     def after_initialize; end
 
-    def write_object(comma_written = false)
+    def write_object(comma_written: false)
       unless comma_written
         write_comma
         increment
@@ -23,7 +23,7 @@ class JsonWriteStream
       writer.close
     end
 
-    def write_array(comma_written = false)
+    def write_array(comma_written: false)
       unless comma_written
         write_comma
         increment

@@ -12,7 +12,7 @@ An easy, streaming way to generate JSON.
 ## Usage
 
 ```ruby
-require 'json-write-stream'
+require 'json_write_stream'
 ```
 
 ### Examples for the Impatient

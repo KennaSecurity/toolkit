@@ -6,7 +6,7 @@ require "bundler"
 require "rspec/core/rake_task"
 require "rubygems/package_task"
 
-require "./lib/json-write-stream"
+require "./lib/json_write_stream"
 
 Bundler::GemHelper.install_tasks
 

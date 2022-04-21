@@ -1,7 +1,7 @@
 PATH
-  remote: vendor/json-write-stream
+  remote: vendor/json_write_stream
   specs:
-    json-write-stream (2.0.0)
+    json_write_stream (2.0.0)
 
 GEM
   remote: https://rubygems.org/
@@ -172,7 +172,7 @@ DEPENDENCIES
   aws-sdk-inspector
   httparty
   json
-  json-write-stream!
+  json_write_stream!
   pry
   pry-byebug
   rest-client

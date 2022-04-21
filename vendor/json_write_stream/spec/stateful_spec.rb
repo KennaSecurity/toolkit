@@ -31,22 +31,22 @@ describe JsonWriteStream::YieldingWriter do
       stream_writer.write_array
       stream_writer.write_element("foo")
       stream_writer.close
-      expect(stream.string).to eq(<<~END.strip)
+      expect(stream.string).to eq(<<~JSON.strip)
         [
           "foo"
         ]
-      END
+      JSON
     end
 
     it "prettifies a basic object" do
       stream_writer.write_object
       stream_writer.write_key_value("foo", "bar")
       stream_writer.close
-      expect(stream.string).to eq(<<~END.strip)
+      expect(stream.string).to eq(<<~JSON.strip)
         {
           "foo": "bar"
         }
-      END
+      JSON
     end
 
     it "prettifies a complex structure" do
@@ -66,7 +66,7 @@ describe JsonWriteStream::YieldingWriter do
       stream_writer.write_array
       stream_writer.write_element("john")
       stream_writer.close
-      expect(stream.string).to eq(<<~END.strip)
+      expect(stream.string).to eq(<<~JSON.strip)
         {
           "foo": [
             "bar",
@@ -85,7 +85,7 @@ describe JsonWriteStream::YieldingWriter do
             ]
           ]
         }
-      END
+      JSON
     end
 
     context "and the indent_size option" do
@@ -95,11 +95,11 @@ describe JsonWriteStream::YieldingWriter do
         stream_writer.write_object
         stream_writer.write_key_value("foo", "bar")
         stream_writer.close
-        expect(stream.string).to eq(<<~END.strip)
+        expect(stream.string).to eq(<<~JSON.strip)
           {
               "foo": "bar"
           }
-        END
+        JSON
       end
 
       it "indents a more complicated object correctly" do
@@ -109,7 +109,7 @@ describe JsonWriteStream::YieldingWriter do
         stream_writer.write_object
         stream_writer.write_key_value("baz", "moo")
         stream_writer.close
-        expect(stream.string).to eq(<<~END.strip)
+        expect(stream.string).to eq(<<~JSON.strip)
           {
               "foo": [
                   "bar",
@@ -118,7 +118,7 @@ describe JsonWriteStream::YieldingWriter do
                   }
               ]
           }
-        END
+        JSON
       end
     end
   end

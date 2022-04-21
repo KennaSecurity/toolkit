@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "json"
-require "json-write-stream/yielding"
-require "json-write-stream/stateful"
+require "json_write_stream/yielding"
+require "json_write_stream/stateful"
 
 class JsonWriteStream
   DEFAULT_ENCODING = Encoding::UTF_8

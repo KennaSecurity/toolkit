@@ -55,23 +55,35 @@ class JsonWriteStream
     end
 
     def close_object
-      if in_object?
-        stack.pop.close
-        current&.increment
-        increment
-      else
-        raise NotInObjectError, "not currently writing an object."
-      end
+      raise NotInObjectError, "not currently writing an object." unless in_object?
+
+      stack.pop.close
+      current&.increment
+      increment
+
+      # if in_object?
+      #   stack.pop.close
+      #   current&.increment
+      #   increment
+      # else
+      #   raise NotInObjectError, "not currently writing an object."
+      # end
     end
 
     def close_array
-      if in_array?
-        stack.pop.close
-        current&.increment
-        increment
-      else
-        raise NotInArrayError, "not currently writing an array."
-      end
+      raise NotInArrayError, "not currently writing an array." unless in_array?
+
+      stack.pop.close
+      current&.increment
+      increment
+
+      # if in_array?
+      #   stack.pop.close
+      #   current&.increment
+      #   increment
+      # else
+      #   raise NotInArrayError, "not currently writing an array."
+      # end
     end
 
     def flush
@@ -94,11 +106,11 @@ class JsonWriteStream
     end
 
     def in_object?
-      current ? current.is_object? : false
+      current ? current.object? : false
     end
 
     def in_array?
-      current ? current.is_array? : false
+      current ? current.array? : false
     end
 
     def eos?
@@ -161,10 +173,15 @@ class JsonWriteStream
     end
 
     def write_comma
-      if index.positive?
-        stream.write(",")
-        write_newline
-      end
+      return unless index.positive?
+
+      stream.write(",")
+      write_newline
+
+      # if index.positive?
+      #   stream.write(",")
+      #   write_newline
+      # end
     end
 
     def write_colon
@@ -220,11 +237,11 @@ class JsonWriteStream
       stream.write("}")
     end
 
-    def is_object?
+    def object?
       true
     end
 
-    def is_array?
+    def array?
       false
     end
 
@@ -273,11 +290,11 @@ class JsonWriteStream
       stream.write("]")
     end
 
-    def is_object?
+    def object?
       false
     end
 
-    def is_array?
+    def array?
       true
     end
   end

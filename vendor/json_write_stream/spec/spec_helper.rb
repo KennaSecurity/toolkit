@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "rspec"
-require "json-write-stream"
+require "json_write_stream"
 require "shared_examples"
 require "pry-byebug"
 
-RSpec.configure do |config|
-end
+# RSpec.configure do |config|
+# end
 
 class RoundtripChecker
   class << self
