@@ -33,7 +33,7 @@ module Kenna
             { name: "kenna_api_host",
               type: "hostname",
               required: false,
-              default: "api.sandbox.us.kennasecurity.com",
+              default: "api.kennasecurity.com",
               description: "Kenna API Hostname" },
             { name: "kenna_connector_id",
               type: "integer",
