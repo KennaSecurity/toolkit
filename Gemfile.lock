@@ -1,8 +1,3 @@
-PATH
-  remote: vendor/json_write_stream
-  specs:
-    json_write_stream (2.0.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -50,6 +45,9 @@ GEM
     jaro_winkler (1.5.4)
     jmespath (1.6.1)
     json (2.6.1)
+    json-write-stream (2.0.0)
+      json_pure (~> 1.8.0)
+    json_pure (1.8.6)
     kramdown (2.3.2)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -172,7 +170,7 @@ DEPENDENCIES
   aws-sdk-inspector
   httparty
   json
-  json_write_stream!
+  json-write-stream
   pry
   pry-byebug
   rest-client
