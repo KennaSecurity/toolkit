@@ -69,7 +69,11 @@ module Kenna
         edgescan_api.fetch_in_batches do |edgescan_assets, edgescan_definitions|
           edgescan_assets.each do |edgescan_asset|
             kenna_api.add_assets(edgescan_asset)
-            kenna_api.add_vulnerabilities(edgescan_asset.vulnerabilities)
+            if @options[:create_findings]
+              kenna_api.add_vulnerabilities(edgescan_asset.vulnerabilities)
+            else
+              kenna_api.add_findings(edgescan_asset.vulnerabilities)
+            end
           end
 
           kenna_api.add_definitions(edgescan_definitions)
