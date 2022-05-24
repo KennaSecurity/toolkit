@@ -55,7 +55,17 @@ module Kenna
               type: "boolean",
               required: false,
               default: false,
-              description: "The task will create findings, instead of vulnerabilities" }
+              description: "The task will create findings, instead of vulnerabilities" },
+            { name: "include_network_vulnerabilities",
+              type: "boolean",
+              required: false,
+              default: true,
+              description: "The task will include network layer vulnerabilities" },
+            { name: "include_application_vulnerabilities",
+              type: "boolean",
+              required: false,
+              default: true,
+              description: "The task will include application layer vulnerabilities" }
           ]
         }
       end
