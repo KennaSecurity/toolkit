@@ -28,9 +28,7 @@ module Kenna
 
           base["url"] = location if type == "url"
           base["hostname"] = location if type == "hostname"
-          base["ip_address"] = location if type == "ip"
-          base["ip_address"] = location.split("-").first if type == "block"
-          base["ip_address"] = location.split("/").first if type == "cidr"
+          base["ip_address"] = location if ["ip", "block", "cidr"].include?(type)
 
           base["application"] = asset.application_id if asset.application? && type == "url"
 
