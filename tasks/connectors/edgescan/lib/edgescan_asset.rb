@@ -1,16 +1,15 @@
 # frozen_string_literal: true
 
-MULTIPLE_IP_TYPES = ["block", "cidr"].freeze
-
 module Kenna
   module Toolkit
     module Edgescan
       class EdgescanAsset
-        attr_accessor :data, :vulnerabilities
+        attr_accessor :data, :vulnerabilities, :hosts
 
-        def initialize(asset, vulnerabilities)
+        def initialize(asset, vulnerabilities, hosts)
           @data = asset
           @vulnerabilities = vulnerabilities.map { |vulnerability| EdgescanVulnerability.new(self, vulnerability) }
+          @hosts = hosts.map { |host| EdgescanHost.new(self, host) }
         end
 
         def id
@@ -35,40 +34,34 @@ module Kenna
           end
         end
 
-        def find_location_specifier(specifier_id, location)
-          location_specifiers.find { |specifier| specifier.id == specifier_id } ||
-            location_specifiers.find { |specifier| specifier.location == location }
-        end
-
         # Converts an Edgescan asset into Kenna friendly ones
         #
-        # Edgescan and Kenna assets don't map one to one. A Kenna asset is more like an Edgescan
-        # location specifier. Because of that, one Edgescan asset usually gets turned into multiple
-        # Kenna assets.
-        #
         # This will:
-        # - Create Kenna assets based on Edgescan location specifiers, if they are URL, hostname, or IP
-        # - Go through the vulnerabilites and if some of them don't have a matching Edgescan
-        #   location specifier, or it's location specifier is an IP CIDR or block, create Kenna assets for them
+        # - Create Kenna assets based on Edgescan hosts
+        # - If a matching host is not found an asset will be created from the vulnerability data
         def to_kenna_assets
-          location_specifiers_as_kenna_assets +
-            vulnerabilities_without_location_specifiers_as_kenna_assets
+          vulnerabilities.each_with_object([]) do |vulnerability, assets|
+            host = find_host(vulnerability.location)
+            asset = host ? host.to_corresponding_kenna_asset : vulnerability.to_corresponding_kenna_asset
+            assets << asset
+          end
         end
 
         private
 
-        def location_specifiers_as_kenna_assets
-          location_specifiers.reject do |location_specifier|
-            MULTIPLE_IP_TYPES.include?(location_specifier.type)
-          end.map(&:to_kenna_asset)
+        def find_host(location)
+          host = hosts.find { |h| h.location == location }
+          return host unless host.nil?
+
+          host = hosts.find { |h| h.hostnames.each { |hostname| location.include?(hostname) } }
+          return host unless host.nil?
+
+          nil
         end
 
-        def vulnerabilities_without_location_specifiers_as_kenna_assets
-          vulnerabilities.select do |vulnerability|
-            return true if vulnerability.matching_location_specifier.nil?
-
-            MULTIPLE_IP_TYPES.include?(vulnerability.matching_location_specifier.type)
-          end.map(&:to_corresponding_kenna_asset)
+        def find_location_specifier(specifier_id, location)
+          location_specifiers.find { |specifier| specifier.id == specifier_id } ||
+            location_specifiers.find { |specifier| specifier.location == location }
         end
       end
     end

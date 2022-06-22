@@ -26,10 +26,12 @@ module Kenna
             limit = @page_size
 
             raw_assets = fetch_assets(offset, limit)
-            raw_vulnerabilities = fetch_vulnerabilities(raw_assets.map { |asset| asset["id"] })
+            asset_ids = raw_assets.map { |asset| asset["id"] }
+            raw_vulnerabilities = fetch_vulnerabilities(asset_ids)
             raw_definitions = fetch_definitions(raw_vulnerabilities.values.flatten.map { |vuln| vuln["definition_id"] }.uniq)
+            raw_hosts = fetch_hosts(asset_ids)
 
-            assets = build_asset_classes(raw_assets, raw_vulnerabilities)
+            assets = build_asset_classes(raw_assets, raw_vulnerabilities, raw_hosts)
             definitions = build_definition_classes(raw_definitions)
 
             yield(assets, definitions)
@@ -38,8 +40,8 @@ module Kenna
 
         private
 
-        def build_asset_classes(assets, vulnerabilities)
-          assets.map { |asset| EdgescanAsset.new(asset, vulnerabilities[asset["id"]] || []) }
+        def build_asset_classes(assets, vulnerabilities, hosts)
+          assets.map { |asset| EdgescanAsset.new(asset, vulnerabilities[asset["id"]] || [], hosts[asset["id"]] || []) }
         end
 
         def build_definition_classes(definitions)
@@ -57,6 +59,11 @@ module Kenna
 
         def fetch_definitions(definition_ids)
           query("definitions", { detail_level: "high", c: { id_in: definition_ids.join(",") } })
+        end
+
+        def fetch_hosts(asset_ids)
+          query("hosts", { c: { asset_id_in: asset_ids.join(",") } })
+            .group_by { |host| host["asset_id"] }
         end
 
         def fetch_assets_count
