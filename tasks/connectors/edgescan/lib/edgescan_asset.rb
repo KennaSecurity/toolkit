@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+MULTIPLE_IP_TYPES = ["block", "cidr"].freeze
+
 module Kenna
   module Toolkit
     module Edgescan
@@ -45,9 +47,9 @@ module Kenna
         # Kenna assets.
         #
         # This will:
-        # - Create Kenna assets based on Edgescan location specifiers
+        # - Create Kenna assets based on Edgescan location specifiers, if they are URL, hostname, or IP
         # - Go through the vulnerabilites and if some of them don't have a matching Edgescan
-        #   location specifier create Kenna assets for them
+        #   location specifier, or it's location specifier is an IP CIDR or block, create Kenna assets for them
         def to_kenna_assets
           location_specifiers_as_kenna_assets +
             vulnerabilities_without_location_specifiers_as_kenna_assets
@@ -56,11 +58,17 @@ module Kenna
         private
 
         def location_specifiers_as_kenna_assets
-          location_specifiers.map(&:to_kenna_asset)
+          location_specifiers.reject do |location_specifier|
+            MULTIPLE_IP_TYPES.include?(location_specifier.type)
+          end.map(&:to_kenna_asset)
         end
 
         def vulnerabilities_without_location_specifiers_as_kenna_assets
-          vulnerabilities.reject(&:matching_location_specifier).map(&:to_corresponding_kenna_asset)
+          vulnerabilities.select do |vulnerability|
+            return true if vulnerability.matching_location_specifier.nil?
+
+            MULTIPLE_IP_TYPES.include?(vulnerability.matching_location_specifier.type)
+          end.map(&:to_corresponding_kenna_asset)
         end
       end
     end
