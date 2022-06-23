@@ -28,12 +28,6 @@ module Kenna
           data["type"] == "app"
         end
 
-        def location_specifiers
-          @location_specifiers ||= @data["location_specifiers"].map do |specifier|
-            EdgescanLocationSpecifier.new(self, specifier)
-          end
-        end
-
         # Converts an Edgescan asset into Kenna friendly ones
         #
         # This will:
@@ -57,11 +51,6 @@ module Kenna
           return host unless host.nil?
 
           nil
-        end
-
-        def find_location_specifier(specifier_id, location)
-          location_specifiers.find { |specifier| specifier.id == specifier_id } ||
-            location_specifiers.find { |specifier| specifier.location == location }
         end
       end
     end

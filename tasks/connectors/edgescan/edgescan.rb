@@ -4,7 +4,6 @@ require_relative "lib/edgescan_api"
 require_relative "lib/edgescan_asset"
 require_relative "lib/edgescan_definition"
 require_relative "lib/edgescan_host"
-require_relative "lib/edgescan_location_specifier"
 require_relative "lib/edgescan_vulnerability"
 require_relative "lib/kenna_api"
 

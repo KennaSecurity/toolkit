@@ -16,7 +16,7 @@ module Kenna
         # Converts an Edgescan asset into Kenna friendly ones and adds them into memory
         #
         # Note: Edgescan and Kenna assets don't map one to one. A Kenna asset is more like an
-        #       Edgescan location specifier. Because of that, one Edgescan asset usually gets turned
+        #       host/location. Because of that, one Edgescan asset usually gets turned
         #       into multiple Kenna assets.
         def add_assets(edgescan_asset)
           edgescan_asset.to_kenna_assets.each do |kenna_asset|
