@@ -31,17 +31,32 @@ module Kenna
             raw_definitions = fetch_definitions(raw_vulnerabilities.values.flatten.map { |vuln| vuln["definition_id"] }.uniq)
             raw_hosts = fetch_hosts(asset_ids)
 
-            assets = build_asset_classes(raw_assets, raw_vulnerabilities, raw_hosts)
+            vulnerabilities = build_vulnerability_classes(raw_assets, raw_vulnerabilities, raw_hosts)
             definitions = build_definition_classes(raw_definitions)
 
-            yield(assets, definitions)
+            yield(vulnerabilities, definitions)
           end
         end
 
         private
 
-        def build_asset_classes(assets, vulnerabilities, hosts)
-          assets.map { |asset| EdgescanAsset.new(asset, vulnerabilities[asset["id"]] || [], hosts[asset["id"]] || []) }
+        def build_vulnerability_classes(assets, assets_vulnerabilities, hosts)
+          assets_vulnerabilities.each_with_object([]) do |(asset_id, vulnerabilities), edgescan_vulnerabilities|
+            asset = assets.find { |a| a["id"] == asset_id }
+            vulnerabilities.each do |vulnerability|
+              assets_hosts = hosts.select { |h| h["asset_id"] == asset_id }
+              host = find_matching_host(assets_hosts, vulnerability["location"])
+              edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host)
+            end
+          end
+        end
+
+        def find_matching_host(hosts, location)
+          host = hosts.find { |h| h["location"] == location }
+          return host unless host.nil?
+
+          host = hosts.find { |h| h["hostnames"].each { |hostname| location.include?(hostname) } }
+          return host unless host.nil?
         end
 
         def build_definition_classes(definitions)

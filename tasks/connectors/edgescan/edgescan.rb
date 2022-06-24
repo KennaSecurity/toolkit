@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "lib/edgescan_api"
-require_relative "lib/edgescan_asset"
 require_relative "lib/edgescan_definition"
-require_relative "lib/edgescan_host"
 require_relative "lib/edgescan_vulnerability"
 require_relative "lib/kenna_api"
 
@@ -76,15 +74,13 @@ module Kenna
         edgescan_api = Kenna::Toolkit::Edgescan::EdgescanApi.new(@options)
         kenna_api = Kenna::Toolkit::Edgescan::KennaApi.new(@options)
 
-        edgescan_api.fetch_in_batches do |edgescan_assets, edgescan_definitions|
-          edgescan_assets.each do |edgescan_asset|
-            kenna_api.add_assets(edgescan_asset)
-            if @options[:include_network_vulnerabilities] || @options[:include_application_vulnerabilities]
-              if @options[:create_findings]
-                kenna_api.add_findings(edgescan_asset.vulnerabilities)
-              else
-                kenna_api.add_vulnerabilities(edgescan_asset.vulnerabilities)
-              end
+        edgescan_api.fetch_in_batches do |edgescan_vulnerabilities, edgescan_definitions|
+          kenna_api.add_assets(edgescan_vulnerabilities.map(&:to_kenna_asset))
+          if @options[:include_network_vulnerabilities] || @options[:include_application_vulnerabilities]
+            if @options[:create_findings]
+              kenna_api.add_findings(edgescan_vulnerabilities)
+            else
+              kenna_api.add_vulnerabilities(edgescan_vulnerabilities)
             end
           end
 
