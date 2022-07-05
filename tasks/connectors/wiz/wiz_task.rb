@@ -35,7 +35,7 @@ module Kenna
             { name: "wiz_page_size",
               type: "integer",
               required: false,
-              default: 500,
+              default: 5000,
               description: "Maximum number of issues to retrieve in each page." },
             { name: "days_back",
               type: "integer",
