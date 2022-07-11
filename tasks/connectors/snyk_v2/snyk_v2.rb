@@ -53,6 +53,11 @@ module Kenna
               required: false,
               default: "application",
               description: "indicates which field should be used in application locator. Valid options are application and organization. Default is application." },
+            { name: "batch_size",
+              type: "integer",
+              required: false,
+              default: 1000,
+              description: "The maximum number of issues to submit to Kenna in each batch is 1000." },
             { name: "kenna_connector_id",
               type: "integer",
               required: false,
@@ -73,7 +78,6 @@ module Kenna
               required: false,
               default: "output/snyk",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
-
           ]
         }
       end
@@ -87,6 +91,7 @@ module Kenna
         snyk_api_token = @options[:snyk_api_token]
         import_findings = @options[:import_type] == "findings"
 
+        @batch_size = @options[:batch_size]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
@@ -286,7 +291,9 @@ module Kenna
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         suffix = import_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
+
+        kdi_batch_upload @batch_size, output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key,
+                         skip_autoclose, retries, kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
 
