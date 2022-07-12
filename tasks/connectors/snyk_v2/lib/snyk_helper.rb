@@ -13,9 +13,9 @@ module Kenna
         json["orgs"]
       end
 
-      def snyk_get_projects(token, org)
+      def snyk_get_projects(token, org, page_size, page_num)
         print "Getting list of projects"
-        snyk_query_api = "https://snyk.io/api/v1/org/#{org}/projects"
+        snyk_query_api = "https://snyk.io/api/v1/org/#{org}/projects?perPage=#{page_size}&page=#{page_num}"
         response = http_get(snyk_query_api, headers(token))
         return nil unless response
 

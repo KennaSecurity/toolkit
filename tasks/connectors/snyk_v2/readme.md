@@ -31,7 +31,8 @@ Complete list of Options:
 | packageManager_strip_colon | false | strip colon and following data from packageManager - used in asset file locator | n/a |
 | package_strip_colon | false | strip colon and following data from package - used in asset file locator | n/a |
 | application_locator_mapping | false | indicates which field should be used in application locator. Valid options are application and organization. Default is application. | application |
-| batch_size | false | The maximum number of issues to submit to Kenna in each batch is 1000. | 1000 |
+| page_size | false | The number of objects per page (currently limited from 1 to 1000). | 500 |
+| batch_size | false | The maximum number of issues to submit to Kenna in each batch. | 1000 |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | kenna_api_key | false | Kenna API Key | n/a |
 | kenna_api_host | false | Kenna API Hostname | api.kennasecurity.com |

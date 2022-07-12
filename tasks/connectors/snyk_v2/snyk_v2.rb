@@ -53,11 +53,16 @@ module Kenna
               required: false,
               default: "application",
               description: "indicates which field should be used in application locator. Valid options are application and organization. Default is application." },
+            { name: "page_size",
+              type: "integer",
+              required: false,
+              default: 500,
+              description: "The number of objects per page (currently limited from 1 to 1000)." },
             { name: "batch_size",
               type: "integer",
               required: false,
               default: 1000,
-              description: "The maximum number of issues to submit to Kenna in each batch is 1000." },
+              description: "The maximum number of issues to submit to Kenna in each batch." },
             { name: "kenna_connector_id",
               type: "integer",
               required: false,
@@ -91,6 +96,10 @@ module Kenna
         snyk_api_token = @options[:snyk_api_token]
         import_findings = @options[:import_type] == "findings"
 
+        @page_size = @options[:page_size].to_i
+        fail_task "The number of objects per page (currently limited from 1 to 1000, recommend 500)." unless
+          @page_size.between?(1, 1000)
+
         @batch_size = @options[:batch_size]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -117,10 +126,17 @@ module Kenna
         print_debug "orgs = #{org_ids}"
 
         org_json.each do |org|
-          project_json = snyk_get_projects(snyk_api_token, org.fetch("id"))
-          project_json.each do |project|
-            projects[project.fetch("id")] = project.merge("org" => org)
-            project_ids << project.fetch("id")
+          offset = 1
+
+          loop do
+            project_json = snyk_get_projects(snyk_api_token, org.fetch("id"), @page_size, offset)
+            break unless project_json["projects"].any?
+
+            project_json.each do |project|
+              projects[project.fetch("id")] = project.merge("org" => org)
+              project_ids << project.fetch("id")
+            end
+            offset += 1
           end
         end
 
@@ -141,11 +157,10 @@ module Kenna
         print_debug "issue filter json = #{issue_filter_json}"
 
         morepages = true
+
         while morepages
-
           pagenum += 1
-
-          issue_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum, from_date, to_date)
+          issue_json = snyk_get_issues(snyk_api_token, @page_size, issue_filter_json, pagenum, from_date, to_date)
 
           print_debug "issue json = #{issue_json}"
 
