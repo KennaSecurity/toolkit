@@ -88,7 +88,6 @@ module Kenna
       end
 
       def run(opts)
-        fail_task "test"
         super # opts -> @options
         skip_autoclose = false
         retries = 3
