@@ -130,7 +130,7 @@ module Kenna
 
           loop do
             project_json = snyk_get_projects(snyk_api_token, org.fetch("id"), @page_size, offset)
-            break unless project_json["projects"].any?
+            break unless project_json.any?
 
             project_json.each do |project|
               projects[project.fetch("id")] = project.merge("org" => org)
