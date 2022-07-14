@@ -129,13 +129,103 @@ module Kenna
           offset = 1
 
           loop do
+          #   project_json = {
+          #     "data": [
+          #       {
+          #         "attributes": {
+          #           "businessCriticality": [
+          #             "medium"
+          #           ],
+          #           "created": "2021-05-29T09:50:54.014Z",
+          #           "environment": ["external", "hosted"],
+          #           "lifecycle": [
+          #             "production"
+          #           ],
+          #           "name": "snyk/goof",
+          #           "origin": "github",
+          #           "status": "active",
+          #           "tags": [
+          #             {
+          #               "key": "tag-key",
+          #               "value": "tag-value"
+          #             }
+          #           ],
+          #           "targetReference": "master",
+          #           "type": "maven"
+          #         },
+          #         "id": "331ede0a-de94-456f-b788-166caeca58bf",
+          #         "relationships": {
+          #           "importingUser": {
+          #             "data": {
+          #               "id": "e661d4ef-5ad5-4cef-ad16-5157cefa83f5",
+          #               "type": "org"
+          #             },
+          #             "links": {
+          #               "self": {
+          #                 "href": "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5"
+          #               }
+          #             }
+          #           },
+          #           "org": {
+          #             "data": {
+          #               "id": "e661d4ef-5ad5-4cef-ad16-5157cefa83f5",
+          #               "type": "org"
+          #             },
+          #             "links": {
+          #               "self": {
+          #                 "href": "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5"
+          #               }
+          #             }
+          #           },
+          #           "owner": {
+          #             "data": {
+          #               "id": "e661d4ef-5ad5-4cef-ad16-5157cefa83f5",
+          #               "type": "org"
+          #             },
+          #             "links": {
+          #               "self": {
+          #                 "href": "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5"
+          #               }
+          #             }
+          #           },
+          #           "target": {
+          #             "data": {
+          #               "id": "e661d4ef-5ad5-4cef-ad16-5157cefa83f5",
+          #               "type": "org"
+          #             },
+          #             "links": {
+          #               "self": {
+          #                 "href": "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5"
+          #               }
+          #             }
+          #           }
+          #         },
+          #         "type": "projects"
+          #       }
+          #     ],
+          #     "jsonapi": {
+          #       "version": "1.0"
+          #     },
+          #     "links": {
+          #       "first": "https://example.com/api/resource",
+          #       "last": "https://example.com/api/resource",
+          #       "next": "https://example.com/api/resource",
+          #       "prev": "https://example.com/api/resource",
+          #       "related": "https://example.com/api/resource",
+          #       "self": "https://example.com/api/resource"
+          #     }
+          #   }
+
             project_json = snyk_get_projects(snyk_api_token, org.fetch("id"), @page_size, offset)
+
             break unless project_json.any?
 
             project_json.each do |project|
               projects[project.fetch("id")] = project.merge("org" => org)
               project_ids << project.fetch("id")
             end
+
+            print_good("Processed #{offset} submissions.")
             offset += 1
           end
         end

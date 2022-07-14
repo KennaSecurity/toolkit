@@ -19,7 +19,29 @@ module Kenna
         response = http_get(snyk_query_api, headers(token))
         return nil unless response
 
-        json = parse_json(response.body)
+        # json = parse_json(response.body)
+        json = [{
+          "attributes" => {
+            "businessCriticality" => ["medium"],
+            "created" => "2021-05-29T09:50:54.014Z",
+            "environment" => ["external", "hosted"],
+            "lifecycle" => ["production"],
+            "name" => "snyk/goof",
+            "origin" => "github",
+            "status" => "active",
+            "tags" => [{ "key" => "tag-key", "value" => "tag-value" }],
+            "targetReference" => "master",
+            "type" => "maven"
+          },
+          "id" => "331ede0a-de94-456f-b788-166caeca58bf",
+          "relationships" => {
+            "importingUser" => { "data" => { "id" => "e661d4ef-5ad5-4cef-ad16-5157cefa83f5", "type" => "org" }, "links" => { "self" => { "href" => "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5" } } },
+            "org" => { "data" => { "id" => "e661d4ef-5ad5-4cef-ad16-5157cefa83f5", "type" => "org" }, "links" => { "self" => { "href" => "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5" } } },
+            "owner" => { "data" => { "id" => "e661d4ef-5ad5-4cef-ad16-5157cefa83f5", "type" => "org" }, "links" => { "self" => { "href" => "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5" } } },
+            "target" => { "data" => { "id" => "e661d4ef-5ad5-4cef-ad16-5157cefa83f5", "type" => "org" }, "links" => { "self" => { "href" => "/v3/orgs/e661d4ef-5ad5-4cef-ad16-5157cefa83f5" } } }
+          },
+          "type" => "projects"
+        }]
         json["projects"]
       end
 
