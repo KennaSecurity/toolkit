@@ -134,6 +134,7 @@ module Kenna
 
         while morepages
           pagenum += 1
+
           project_ids.each_slice(999) do |sliced_ids|
             issue_filter_json = "{
                \"filters\": {
