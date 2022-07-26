@@ -1,3 +1,7 @@
+## Support
+
+All issues and inquiries relating to this toolkit implementation must contact Edgescan support at `shout@edgescan.com`.
+
 ## Prerequisites
 
 This task will communicate with the Edgescan and Kenna APIs. In order to do so it will need the following pieces of information.
