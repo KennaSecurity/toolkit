@@ -44,19 +44,19 @@ module Kenna
           assets_vulnerabilities.each_with_object([]) do |(asset_id, vulnerabilities), edgescan_vulnerabilities|
             asset = assets.find { |a| a["id"] == asset_id }
             vulnerabilities.each do |vulnerability|
-              assets_hosts = hosts.select { |h| h["asset_id"] == asset_id }
-              host = find_matching_host(assets_hosts, vulnerability["location"])
+              host = find_matching_host(hosts[asset_id], vulnerability["location"])
               edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host)
             end
           end
         end
 
         def find_matching_host(hosts, location)
+          return unless hosts
+
           host = hosts.find { |h| h["location"] == location }
           return host unless host.nil?
 
-          host = hosts.find { |h| h["hostnames"].each { |hostname| location.include?(hostname) } }
-          return host unless host.nil?
+          hosts.find { |h| h["hostnames"].each { |hostname| location.include?(hostname) } }
         end
 
         def build_definition_classes(definitions)
@@ -94,7 +94,7 @@ module Kenna
         end
 
         def base_url
-          return "http://localhost:3000" if ENV["EDGESCAN_ENVIRONMENT"] == "local"
+          return "http://localhost:3000" #if ENV["EDGESCAN_ENVIRONMENT"] == "local"
 
           "https://#{@api_host}"
         end
