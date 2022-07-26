@@ -94,7 +94,7 @@ module Kenna
         end
 
         def base_url
-          return "http://localhost:3000" #if ENV["EDGESCAN_ENVIRONMENT"] == "local"
+          return "http://localhost:3000" if ENV["EDGESCAN_ENVIRONMENT"] == "local"
 
           "https://#{@api_host}"
         end
