@@ -20,12 +20,12 @@ This task will communicate with the Edgescan and Kenna APIs. In order to do so i
 More in depth details about running the task are available [here](https://github.com/KennaSecurity/toolkit/blob/master/README.md).
 These are some quick examples:
 
-- To print a list of available options: `docker run -it --rm toolkit:latest task=edgescan help`
-- To sync all Edgescan data into Kenna: `docker run -it --rm toolkit:latest task=edgescan edgescan_token='abc' kenna_api_key='abc' kenna_connector_id=123`
+- To print a list of available options: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan option=help`
+- To sync all Edgescan data into Kenna: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan edgescan_token='abc' kenna_api_key='abc' kenna_connector_id=123`
 
 ## List of available options
 
-> **Note:** You can also run `docker run -it --rm toolkit:latest task=edgescan help` to see this list in your console
+> **Note:** You can also run `docker run -it --rm toolkit:latest task=edgescan option=help` to see this list in your console
 
 | Option             | Required | Description                                                                  | default                  |
 | ------------------ | -------- | ---------------------------------------------------------------------------- | ------------------------ |

@@ -69,6 +69,11 @@ module Kenna
       end
 
       def run(opts)
+        if opts[:option] == "help"
+          print_task_help self.class.metadata[:id]
+          print_good "Returning!"
+          exit
+        end
         super # opts -> @options
 
         edgescan_api = Kenna::Toolkit::Edgescan::EdgescanApi.new(@options)
