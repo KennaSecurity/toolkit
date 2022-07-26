@@ -54,12 +54,12 @@ module Kenna
               required: false,
               default: false,
               description: "The task will create findings, instead of vulnerabilities" },
-            { name: "include_network_vulnerabilities",
+            { name: "network_vulns",
               type: "boolean",
               required: false,
               default: true,
               description: "The task will include network layer vulnerabilities" },
-            { name: "include_application_vulnerabilities",
+            { name: "application_vulns",
               type: "boolean",
               required: false,
               default: true,
@@ -76,7 +76,7 @@ module Kenna
 
         edgescan_api.fetch_in_batches do |edgescan_vulnerabilities, edgescan_definitions|
           kenna_api.add_assets(edgescan_vulnerabilities.map(&:to_kenna_asset))
-          if @options[:include_network_vulnerabilities] || @options[:include_application_vulnerabilities]
+          if @options[:network_vulns] || @options[:application_vulns]
             if @options[:create_findings]
               kenna_api.add_findings(edgescan_vulnerabilities)
             else

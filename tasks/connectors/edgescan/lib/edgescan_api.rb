@@ -10,8 +10,8 @@ module Kenna
           @edgescan_token = options[:edgescan_token]
           @page_size = options[:edgescan_page_size].to_i
           @api_host = options[:edgescan_api_host]
-          @include_application_vulnerabilities = options[:include_application_vulnerabilities]
-          @include_network_vulnerabilities = options[:include_network_vulnerabilities]
+          @include_application_vulnerabilities = options[:application_vulns]
+          @include_network_vulnerabilities = options[:network_vulns]
         end
 
         # Fetches Edgescan assets and vulnerabilities in batches. Yields each batch.
