@@ -23,6 +23,11 @@ These are some quick examples:
 - To print a list of available options: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan option=help`
 - To sync all Edgescan data into Kenna: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan edgescan_token='abc' kenna_api_key='abc' kenna_connector_id=123`
 
+## Types of Export
+
+The connector will export all open vulnerabilities, and their corresponding assets, from Edgescan.
+By default the vulnerabilities will be both application and network types. Either of the types can be disabled.
+
 ## List of available options
 
 > **Note:** You can also run `docker run -it --rm toolkit:latest task=edgescan option=help` to see this list in your console
@@ -39,6 +44,57 @@ These are some quick examples:
 | create_findings    | false    | The task will create findings, instead of vulnerabilities                    | false                    |
 | network_vulns      | false    | The task will include network layer vulnerabilities                          | true                     |
 | application_vulns  | false    | The task will include application layer vulnerabilities                      | true                     |
+
+## Data Mappings
+
+| Kenna Asset       | from Edgescan Host               | Conditions             |
+| ----------------- | -------------------------------- | ---------------------- |
+| external_id       | "ES#{asset.id} #{host.location}" |                        |
+| tags              | asset.tags                       |                        |
+| application       | "#{asset.name} (ES#{asset.id})"  | if asset.type == "app" |
+| ip_address        | host.location                    |                        |
+| hostname          | host.hostnames.first             |                        |
+| url               | -                                |                        |
+| os_version        | host.os_name                     |                        |
+
+| Kenna Asset       | from Edgescan Vulnerability               | Conditions                |
+| ----------------- | ----------------------------------------- | ------------------------- |
+| external_id       | "ES#{asset.id} #{vulnerability.location}" |                           |
+| tags              | asset.tags                                |                           |
+| application       | "#{asset.name} (ES#{asset.id})"           | if asset.type == "app"    |
+| ip_address        | vulnerability.location                    | if location is an IP      |
+| hostname          | vulnerability.location                    | if location is a URL      |
+| url               | vulnerability.location                    | if location is a hostname |
+| os_version        | -                                         |                           |
+
+| Kenna Vulnerability | from Edgescan Vulnerability    | Conditions                                           |
+| ------------------- | ------------------------------ | ---------------------------------------------------- |
+| scanner_type        | "EdgescanApp" or "EdgescanNet" | if vulnerability.layer == "application" or "network" |
+| scanner_identifier  | vulnerability.definition_id    |                                                      |
+| created_at          | vulnerability.created_at       |                                                      |
+| last_seen_at        | vulnerability.updated_at       |                                                      |
+| scanner_score       | vulnerability.threat * 2       | edgescan threat ranges from 1 to 5                   |
+| status              | vulnerability.status           |                                                      |
+| details             | vulnerability.details          |                                                      |
+
+| Kenna Finding       | from Edgescan Vulnerability    | Conditions                                           |
+| ------------------- | ------------------------------ | ---------------------------------------------------- |
+| scanner_type        | "EdgescanApp" or "EdgescanNet" | if vulnerability.layer == "application" or "network" |
+| scanner_identifier  | vulnerability.definition_id    |                                                      |
+| created_at          | vulnerability.created_at       |                                                      |
+| last_seen_at        | vulnerability.updated_at       |                                                      |
+| severity            | vulnerability.threat * 2       | edgescan threat ranges from 1 to 5                   |
+| additional_fields   | {status, details}              |                                                      |
+
+| Kenna Definition    | from Edgescan Definition       | Conditions                                           |
+| ------------------- | ------------------------------ | ---------------------------------------------------- |
+| scanner_type        | "EdgescanApp" or "EdgescanNet" | if vulnerability.layer == "application" or "network" |
+| scanner_identifier  | definition.id                  |                                                      |
+| name                | definition.name                |                                                      |
+| description         | definition.description_src     |                                                      |
+| solution            | definition.remediation_src     |                                                      |
+| cve_identifiers     | definition.cves                |                                                      |
+| cwe_identifiers     | definition.cwes                |                                                      |
 
 ## For devs
 
