@@ -83,7 +83,7 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
-
+        my_array = []
         tvm_tenant_id = @options[:tvm_tenant_id]
         tvm_client_id = @options[:tvm_client_id]
         tvm_client_secret = @options[:tvm_client_secret]
@@ -133,9 +133,13 @@ module Kenna
             machine_id = vuln.fetch("deviceId")
             fqdn = vuln.fetch("deviceName")
 
+            get_ip(machine_id) if not my_array.include? machine_id
+            my_array |= [machine_id]
+
             # Get the asset details & craft them into a hash
             asset = {
               "external_id" => machine_id,
+              "ip_address" => $ipadd,
               "fqdn" => fqdn,
               "hostname" => fqdn.split(".")[0],
               "os" => vuln.fetch("osPlatform"),
@@ -145,9 +149,10 @@ module Kenna
             }
 
             # Construct tags
-            tags = []
-            tags << "MSDefenderTvm"
-            tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
+            tags = $tagss
+            # tags = []
+            # tags << "MSDefenderTvm"
+            # tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
 
             # Add them to our asset hash
             asset["tags"] = tags
@@ -221,6 +226,7 @@ module Kenna
             }
             vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
 
+            # print_debug "assetarray = #{my_array}"
             asset.compact!
             vuln_object.compact!
             vuln_def.compact!

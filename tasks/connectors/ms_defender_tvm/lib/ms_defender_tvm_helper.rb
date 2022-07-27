@@ -85,6 +85,34 @@ module Kenna
         !@token.nil?
       end
 
+      def get_ip(machine_id)
+        print_debug "Getting ip and tags"
+        tvm_get_auth_token if @token.nil?
+
+        url = "#{@tvm_query_api}/api/machines/#{machine_id}"
+        begin
+          headers = { "Content-Type" => "application/json", "Accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
+          response = http_get(url, headers, 1)
+          if !response.code == 200
+            response = nil
+            raise "unauthorized"
+          end
+        rescue StandardError
+          tvm_get_auth_token
+          retry
+        end
+        return nil unless response
+
+        begin
+          json = JSON.parse(response.body)
+        rescue JSON::ParserError
+          print_error "Unable to process response!"
+        end
+
+        $ipadd = json["lastIpAddress"]
+        $tagss = json["machineTags"]
+      end
+
       def tvm_get_auth_token
         print_debug "Getting token"
         oauth_url = "https://#{@tvm_oath_url}/#{@tenant_id}/oauth2/token"

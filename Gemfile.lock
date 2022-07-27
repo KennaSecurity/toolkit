@@ -42,6 +42,7 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
+    ipaddress (0.8.3)
     jaro_winkler (1.5.4)
     jmespath (1.6.1)
     json (2.6.1)
@@ -172,6 +173,7 @@ DEPENDENCIES
   aws-sdk-guardduty
   aws-sdk-inspector
   httparty
+  ipaddress
   json
   json-write-stream
   pry
