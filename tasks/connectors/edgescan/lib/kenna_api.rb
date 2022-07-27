@@ -13,8 +13,11 @@ module Kenna
           @output_dir = "#{$basedir}/#{options[:output_directory]}"
         end
 
-        # Adds Kenna assets to memory
-        def add_assets(kenna_assets)
+        # Converts Edgescan location specifiers and vulnerabilities into Kenna assets and adds them to memory
+        def add_assets(edgescan_location_specifiers, edgescan_vulnerabilities)
+          kenna_assets = edgescan_location_specifiers.map(&:to_kenna_asset).append(
+            edgescan_vulnerabilities.reject(&:matching_location_specifier).map(&:to_kenna_asset)
+          ).flatten
           kenna_assets.each do |asset|
             add_asset(asset)
           end

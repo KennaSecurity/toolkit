@@ -47,6 +47,11 @@ By default the vulnerabilities will be both application and network types. Eithe
 
 ## Data Mappings
 
+Edgescan assets do not map directly to Kennna assets due to Edgescan assets being more flexible in their definition.
+Edgescan location specifiers and hosts are more like Kenna assets. Location specifiers define the location and hosts hold extra information.
+Not all location specifiers have a host, and not all vulnerabilities have a directly related location specifier.
+The connector makes use of the data from all 3 of these sources to create the correct corresponding Kenna assets.
+
 | Kenna Asset       | from Edgescan Host               | Conditions             |
 | ----------------- | -------------------------------- | ---------------------- |
 | external_id       | "ES#{asset.id} #{host.location}" |                        |
@@ -56,6 +61,18 @@ By default the vulnerabilities will be both application and network types. Eithe
 | hostname          | host.hostnames.first             |                        |
 | url               | -                                |                        |
 | os_version        | host.os_name                     |                        |
+
+| Kenna Asset       | from Edgescan Location Specifier          | Conditions                |
+| ----------------- | ----------------------------------------- | ------------------------- |
+| external_id       | "ES#{asset.id} #{specifier.location}"     |                           |
+| tags              | asset.tags                                |                           |
+| application       | "#{asset.name} (ES#{asset.id})"           | if asset.type == "app"    |
+| ip_address        | specifier.location                        | if location is an IP      |
+| hostname          | specifier.location                        | if location is a URL      |
+| url               | specifier.location                        | if location is a hostname |
+| os_version        | -                                         |                           |
+
+> **Note:** Location specifiers of type `cidr` and `block` that define a range of IP addresses will have a Kenna asset for each IP address
 
 | Kenna Asset       | from Edgescan Vulnerability               | Conditions                |
 | ----------------- | ----------------------------------------- | ------------------------- |

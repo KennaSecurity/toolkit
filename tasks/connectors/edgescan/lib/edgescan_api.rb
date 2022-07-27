@@ -33,12 +33,21 @@ module Kenna
 
             vulnerabilities = build_vulnerability_classes(raw_assets, raw_vulnerabilities, raw_hosts)
             definitions = build_definition_classes(raw_definitions)
+            location_specifiers = build_location_specifier_classes(raw_assets, raw_hosts)
 
-            yield(vulnerabilities, definitions)
+            yield(vulnerabilities, definitions, location_specifiers)
           end
         end
 
         private
+
+        def build_location_specifier_classes(assets, hosts)
+          assets.each_with_object([]) do |asset, location_specifiers|
+            asset["location_specifiers"].each do |location_specifier|
+              location_specifiers << EdgescanLocationSpecifier.new(asset, location_specifier, hosts[asset["id"]])
+            end
+          end
+        end
 
         def build_vulnerability_classes(assets, assets_vulnerabilities, hosts)
           assets_vulnerabilities.each_with_object([]) do |(asset_id, vulnerabilities), edgescan_vulnerabilities|
