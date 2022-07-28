@@ -164,6 +164,13 @@ Please send all toolkit feature requests to kenna.toolkit.list@cisco.com.
 
 You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation)
 
+## QA
+If you wish to upload the /output folder to your local development environment, run:
+
+`bundle exec ruby toolkit.rb task=your-task kenna_api_host=your-local-api-host`
+
+Prerequisites: API token generated in UI, version of ruby that is specified in `.ruby-version`
+
 ## CONTRIBUTORS
 
 - @kenna-bmcdevitt (api client)
