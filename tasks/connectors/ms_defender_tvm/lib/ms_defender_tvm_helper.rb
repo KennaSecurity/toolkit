@@ -109,8 +109,7 @@ module Kenna
           print_error "Unable to process response!"
         end
 
-        $ipadd = json["lastIpAddress"]
-        $tagss = json["machineTags"]
+        json
       end
 
       def tvm_get_auth_token

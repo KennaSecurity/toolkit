@@ -133,13 +133,16 @@ module Kenna
             machine_id = vuln.fetch("deviceId")
             fqdn = vuln.fetch("deviceName")
 
-            get_ip(machine_id) if not my_array.include? machine_id
+            ip_json_response = get_ip(machine_id) unless my_array.include? machine_id
             my_array |= [machine_id]
-
+            unless ip_json_response.nil?
+               ipadd = ip_json_response["lastIpAddress"]
+               tagss = ip_json_response["machineTags"]
+            end
             # Get the asset details & craft them into a hash
             asset = {
               "external_id" => machine_id,
-              "ip_address" => $ipadd,
+              "ip_address" => ipadd,
               "fqdn" => fqdn,
               "hostname" => fqdn.split(".")[0],
               "os" => vuln.fetch("osPlatform"),
@@ -149,7 +152,7 @@ module Kenna
             }
 
             # Construct tags
-            tags = $tagss
+            tags = tagss
             # tags = []
             # tags << "MSDefenderTvm"
             # tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
