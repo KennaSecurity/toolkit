@@ -120,120 +120,121 @@ module Kenna
           vuln_json = vuln_json_response["value"]
 
           vuln_json.each do |vuln|
-              vuln_cve = vuln.fetch("cveId")
-              scanner_id = vuln_cve
-              if vuln_cve.start_with?("CVE")
-                vuln_cve = vuln_cve.strip
-              else
-                vuln_name = vuln_cve
-                vuln_cve = nil
+            vuln_cve = vuln.fetch("cveId")
+            scanner_id = vuln_cve
+            if vuln_cve.start_with?("CVE")
+              vuln_cve = vuln_cve.strip
+            else
+              vuln_name = vuln_cve
+              vuln_cve = nil
+            end
+
+            machine_id = vuln.fetch("deviceId")
+            fqdn = vuln.fetch("deviceName")
+
+            ip_json_response = get_ip(machine_id) unless machine_data.key?(machine_id)
+            unless ip_json_response.nil?
+              machine_data[machine_id] = ["ip_address" => ip_json_response["lastIpAddress"],
+                                          "tags" => ip_json_response["machineTags"],
+                                          "status" => ip_json_response["healthStatus"]]
+            end
+            # Get the asset details & craft them into a hash
+
+            next unless machine_data[machine_id].first.dig("status") == "Active"
+
+            asset = {
+              "external_id" => machine_id,
+              "ip_address" => machine_data[machine_id].first.dig("ip_address"),
+              "fqdn" => fqdn,
+              "hostname" => fqdn.split(".")[0],
+              "os" => vuln.fetch("osPlatform"),
+              "os_version" => vuln.fetch("osVersion"),
+              "first_seen" => vuln.fetch("firstSeenTimestamp"),
+              "last_seen" => vuln.fetch("lastSeenTimestamp")
+            }
+
+            # Construct tags
+            tags = machine_data[machine_id].first.dig("tags")
+            # tags = []
+            # tags << "MSDefenderTvm"
+            # tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
+
+            # Add them to our asset hash
+            asset["tags"] = tags
+            vuln_score = (vuln_severity[vuln.fetch("vulnerabilitySeverityLevel")] || 0).to_i
+
+            if asset_id.nil?
+              print_debug "setting machine id for first asset"
+              asset_id = machine_id
+              asset_count += 1
+              print_debug "asset count = #{asset_count}"
+            end
+
+            if asset_id.!= machine_id
+              if asset_count == batch_page_size
+                submit_count += 1
+                print_debug "#{submit_count} about to upload file"
+                filename = "microsoft_tvm_kdi_#{submit_count}.json"
+                kdi_upload("#{$basedir}/#{output_directory}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3)
+                asset_count = 0
               end
+              asset_count += 1
+              print_debug "asset count = #{asset_count}"
+              asset_id = machine_id
+            end
 
-              machine_id = vuln.fetch("deviceId")
-              fqdn = vuln.fetch("deviceName")
+            software_vendor = vuln&.fetch("softwareVendor")
+            software_name = vuln.fetch("softwareName") if vuln.key?("softwareName")
+            software_version = vuln.dig(:softwareVersion)
+            vulnerability_severity_level = vuln.fetch("vulnerabilitySeverityLevel") if vuln.key?("vulnerabilitySeverityLevel")
+            recommended_security_update = vuln.fetch("recommendedSecurityUpdate") if vuln.key?("recommendedSecurityUpdate")
+            recommended_security_update_id = vuln.fetch("recommendedSecurityUpdateId") if vuln.key?("recommendedSecurityUpdateId")
+            recommended_security_update_url = vuln.fetch("recommendedSecurityUpdateUrl") if vuln.key?("recommendedSecurityUpdateUrl")
+            disk_paths = vuln.fetch("diskPaths") if vuln.key?("diskPaths")
+            registry_paths = vuln.fetch("registryPaths") if vuln.key?("registryPaths")
+            end_of_support_status = vuln.fetch("endOfSupportStatus") if vuln.key?("endOfSupportStatus")
+            end_of_support_date = vuln.fetch("endOfSupportDate") if vuln.key?("endOfSupportDate")
+            exploitability_level = vuln.fetch("exploitabilityLevel") if vuln.key?("exploitabilityLevel")
+            recommendation_reference = vuln.fetch("recommendationReference") if vuln.key?("recommendationReference")
 
-              ip_json_response = get_ip(machine_id) unless machine_data.has_key?(machine_id)
+            details = {
+              "softwareVendor" => software_vendor,
+              "softwareName" => software_name,
+              "softwareVersion" => software_version,
+              "vulnerabilitySeverityLevel" => vulnerability_severity_level,
+              "recommendedSecurityUpdate" => recommended_security_update,
+              "recommendedSecurityUpdateId" => recommended_security_update_id,
+              "recommendedSecurityUpdateUrl" => recommended_security_update_url,
+              "diskPaths" => disk_paths,
+              "registryPaths" => registry_paths,
+              "endOfSupportStatus" => end_of_support_status,
+              "endOfSupportDate" => end_of_support_date,
+              "exploitabilityLevel" => exploitability_level,
+              "recommendationReference" => recommendation_reference
+            }
 
-              unless ip_json_response.nil?
-                machine_data[machine_id] = ["ip_address" => ip_json_response["lastIpAddress"], "tags" => ip_json_response["machineTags"], "status" => ip_json_response["healthStatus"]]
-              end
-              # Get the asset details & craft them into a hash
+            details.compact!
 
-              if machine_data[machine_id].first.dig("status") == "Active"
-                asset = {
-                  "external_id" => machine_id,
-                  "ip_address" => machine_data[machine_id].first.dig("ip_address"),
-                  "fqdn" => fqdn,
-                  "hostname" => fqdn.split(".")[0],
-                  "os" => vuln.fetch("osPlatform"),
-                  "os_version" => vuln.fetch("osVersion"),
-                  "first_seen" => vuln.fetch("firstSeenTimestamp"),
-                  "last_seen" => vuln.fetch("lastSeenTimestamp")
-                }
+            vuln_object = {
+              "scanner_identifier" => scanner_id,
+              "scanner_type" => "MS Defender TVM",
+              # scanner score should fallback using criticality (in case of missing cvss)
+              "scanner_score" => vuln_score,
+              "details" => JSON.pretty_generate(details)
+            }
 
-                # Construct tags
-                tags = machine_data[machine_id].first.dig("tags")
-                # tags = []
-                # tags << "MSDefenderTvm"
-                # tags << "rbacGroup: #{vuln.fetch('rbacGroupName')}" unless vuln.fetch("rbacGroupName").nil?
-
-                # Add them to our asset hash
-                asset["tags"] = tags
-                vuln_score = (vuln_severity[vuln.fetch("vulnerabilitySeverityLevel")] || 0).to_i
-
-                if asset_id.nil?
-                  print_debug "setting machine id for first asset"
-                  asset_id = machine_id
-                  asset_count += 1
-                  print_debug "asset count = #{asset_count}"
-                end
-
-                if asset_id.!= machine_id
-                  if asset_count == batch_page_size
-                    submit_count += 1
-                    print_debug "#{submit_count} about to upload file"
-                    filename = "microsoft_tvm_kdi_#{submit_count}.json"
-                    kdi_upload("#{$basedir}/#{output_directory}", filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3)
-                    asset_count = 0
-                  end
-                  asset_count += 1
-                  print_debug "asset count = #{asset_count}"
-                  asset_id = machine_id
-                end
-
-                software_vendor = vuln&.fetch("softwareVendor")
-                software_name = vuln.fetch("softwareName") if vuln.key?("softwareName")
-                software_version = vuln.dig(:softwareVersion)
-                vulnerability_severity_level = vuln.fetch("vulnerabilitySeverityLevel") if vuln.key?("vulnerabilitySeverityLevel")
-                recommended_security_update = vuln.fetch("recommendedSecurityUpdate") if vuln.key?("recommendedSecurityUpdate")
-                recommended_security_update_id = vuln.fetch("recommendedSecurityUpdateId") if vuln.key?("recommendedSecurityUpdateId")
-                recommended_security_update_url = vuln.fetch("recommendedSecurityUpdateUrl") if vuln.key?("recommendedSecurityUpdateUrl")
-                disk_paths = vuln.fetch("diskPaths") if vuln.key?("diskPaths")
-                registry_paths = vuln.fetch("registryPaths") if vuln.key?("registryPaths")
-                end_of_support_status = vuln.fetch("endOfSupportStatus") if vuln.key?("endOfSupportStatus")
-                end_of_support_date = vuln.fetch("endOfSupportDate") if vuln.key?("endOfSupportDate")
-                exploitability_level = vuln.fetch("exploitabilityLevel") if vuln.key?("exploitabilityLevel")
-                recommendation_reference = vuln.fetch("recommendationReference") if vuln.key?("recommendationReference")
-
-                details = {
-                  "softwareVendor" => software_vendor,
-                  "softwareName" => software_name,
-                  "softwareVersion" => software_version,
-                  "vulnerabilitySeverityLevel" => vulnerability_severity_level,
-                  "recommendedSecurityUpdate" => recommended_security_update,
-                  "recommendedSecurityUpdateId" => recommended_security_update_id,
-                  "recommendedSecurityUpdateUrl" => recommended_security_update_url,
-                  "diskPaths" => disk_paths,
-                  "registryPaths" => registry_paths,
-                  "endOfSupportStatus" => end_of_support_status,
-                  "endOfSupportDate" => end_of_support_date,
-                  "exploitabilityLevel" => exploitability_level,
-                  "recommendationReference" => recommendation_reference
-                }
-
-                details.compact!
-
-                vuln_object = {
-                  "scanner_identifier" => scanner_id,
-                  "scanner_type" => "MS Defender TVM",
-                  # scanner score should fallback using criticality (in case of missing cvss)
-                  "scanner_score" => vuln_score,
-                  "details" => JSON.pretty_generate(details)
-                }
-
-                # craft the vuln def hash
-                vuln_def = {
-                  "scanner_identifier" => scanner_id,
-                  "scanner_type" => "MS Defender TVM",
-                  "name" => vuln_name
-                }
-                vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
-                asset.compact!
-                vuln_object.compact!
-                vuln_def.compact!
-                create_kdi_asset_vuln(asset, vuln_object)
-                create_kdi_vuln_def(vuln_def)
-              end
+            # craft the vuln def hash
+            vuln_def = {
+              "scanner_identifier" => scanner_id,
+              "scanner_type" => "MS Defender TVM",
+              "name" => vuln_name
+            }
+            vuln_def[:cve_identifiers] = vuln_cve.to_s if !vuln_cve.nil? && !vuln_cve.empty?
+            asset.compact!
+            vuln_object.compact!
+            vuln_def.compact!
+            create_kdi_asset_vuln(asset, vuln_object)
+            create_kdi_vuln_def(vuln_def)
           end
           vuln_next_link = nil
           vuln_next_link = vuln_json_response.fetch("@odata.nextLink") if vuln_json_response.key?("@odata.nextLink")
