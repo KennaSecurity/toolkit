@@ -67,7 +67,7 @@ module Kenna
 
         def kenna_asset_base
           {
-            "external_asset_id" => "ES#{asset['id']} #{location}",
+            "external_id" => "ES#{asset['id']} #{location}",
             "tags" => asset["tags"],
             "application" => asset_application_id
           }
@@ -78,7 +78,7 @@ module Kenna
           return {} unless host
 
           {
-            "external_asset_id" => "ES#{asset['id']} #{host['location']}",
+            "external_id" => "ES#{asset['id']} #{host['location']}",
             "ip_address" => host["location"],
             "hostname" => host["hostnames"]&.first,
             "os_version" => host["os_name"]

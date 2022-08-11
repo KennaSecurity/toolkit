@@ -26,14 +26,14 @@ module Kenna
         # Converts Edgescan vulnerabilities into Kenna ones and adds them into memory
         def add_vulnerabilities(edgescan_vulnerabilities)
           edgescan_vulnerabilities.each do |vulnerability|
-            add_vulnerability(vulnerability.external_asset_id, vulnerability.to_kenna_vulnerability)
+            add_vulnerability(vulnerability.external_id, vulnerability.to_kenna_vulnerability)
           end
         end
 
         # Converts Edgescan vulnerabilities into Kenna findings and adds them into memory
         def add_findings(edgescan_vulnerabilities)
           edgescan_vulnerabilities.each do |vulnerability|
-            add_finding(vulnerability.external_asset_id, vulnerability.to_kenna_finding)
+            add_finding(vulnerability.external_id, vulnerability.to_kenna_finding)
           end
         end
 
@@ -69,13 +69,13 @@ module Kenna
         end
 
         # Adds Kenna vulnerability into memory
-        def add_vulnerability(external_asset_id, kenna_vulnerability)
-          create_kdi_asset_vuln({ "external_id" => external_asset_id }, kenna_vulnerability, "external_id")
+        def add_vulnerability(external_id, kenna_vulnerability)
+          create_kdi_asset_vuln({ "external_id" => external_id }, kenna_vulnerability, "external_id")
         end
 
         # Adds Kenna finding into memory
-        def add_finding(external_asset_id, kenna_finding)
-          create_kdi_asset_finding({ "external_id" => external_asset_id }, kenna_finding, "external_id")
+        def add_finding(external_id, kenna_finding)
+          create_kdi_asset_finding({ "external_id" => external_id }, kenna_finding, "external_id")
         end
 
         # Adds Kenna definition into memory
