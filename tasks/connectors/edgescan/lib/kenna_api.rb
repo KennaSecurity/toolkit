@@ -11,6 +11,9 @@ module Kenna
           @kenna_api_key = options[:kenna_api_key]
           @kenna_connector_id = options[:kenna_connector_id]
           @output_dir = "#{$basedir}/#{options[:output_directory]}"
+          @skip_autoclose = false
+          @max_retries = 3
+          @kdi_version = 1
         end
 
         # Converts Edgescan location specifiers and vulnerabilities into Kenna assets and adds them to memory
@@ -53,7 +56,7 @@ module Kenna
         #       This allows for uploading in batches. Once a few batches have been uploaded and
         #       you're happy for whatever is there to get imported into Kenna you can call `kickoff`
         def upload
-          kdi_upload(@output_dir, "batch-#{millis}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key)
+          kdi_upload(@output_dir, "batch-#{millis}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @max_retries, @kdi_version)
         end
 
         # Kicks off connector tasks so that whatever was uploaded actually gets imported into Kenna
