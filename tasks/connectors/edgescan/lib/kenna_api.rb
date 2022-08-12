@@ -15,7 +15,10 @@ module Kenna
 
         # Converts Edgescan location specifiers and vulnerabilities into Kenna assets and adds them to memory
         def add_assets(edgescan_location_specifiers, edgescan_vulnerabilities)
+          # Convert location specifiers into kenna assets, remove any lists within lists, or duplicate assets
           kenna_assets = edgescan_location_specifiers.map(&:to_kenna_asset).flatten.uniq!
+          # Add any kenna assets, from vulnerabilities, that are not already present
+          # This will only happen if a vulnerability does not have a corresponding host or location specifier
           kenna_assets.concat(edgescan_vulnerabilities.map(&:to_kenna_asset).uniq! - kenna_assets)
           kenna_assets.each do |asset|
             add_asset(asset)
