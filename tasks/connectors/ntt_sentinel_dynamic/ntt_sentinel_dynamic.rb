@@ -92,7 +92,6 @@ module Kenna
           mapper = Kenna::Toolkit::NTTSentinelDynamic::Mapper.new(scoring_system)
 
           client = Kenna::Toolkit::NTTSentinelDynamic::ApiClient.new(api_key: key, page_size:)
-          fail_task "The Whitehat API does not accept the provided API key." unless client.api_key_valid?
 
           filter = {}
           filter[:query_severity] = query_severity
