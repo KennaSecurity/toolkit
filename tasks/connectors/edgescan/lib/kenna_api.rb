@@ -13,7 +13,7 @@ module Kenna
           @output_dir = "#{$basedir}/#{options[:output_directory]}"
           @skip_autoclose = false
           @max_retries = 3
-          @kdi_version = 1
+          @kdi_version = 2
         end
 
         # Converts Edgescan location specifiers and vulnerabilities into Kenna assets and adds them to memory
