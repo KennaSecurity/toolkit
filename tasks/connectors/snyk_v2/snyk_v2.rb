@@ -7,6 +7,8 @@ module Kenna
     class SnykV2 < Kenna::Toolkit::BaseTask
       include Kenna::Toolkit::SnykHelper
 
+      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 } # converter
+
       def self.metadata
         {
           id: "snyk_v2",
@@ -84,29 +86,10 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
-        skip_autoclose = false
-        retries = 3
-        kdi_version = 2
 
-        snyk_api_token = @options[:snyk_api_token]
-        import_findings = @options[:import_type] == "findings"
+        initialize_options
 
-        @batch_size = @options[:batch_size]
-        @kenna_api_host = @options[:kenna_api_host]
-        @kenna_api_key = @options[:kenna_api_key]
-        @kenna_connector_id = @options[:kenna_connector_id]
-
-        # output_directory = @options[:output_directory]
-        include_license = @options[:include_license]
-
-        project_name_strip_colon = @options[:projectName_strip_colon]
-        package_manager_strip_colon = @options[:packageManager_strip_colon]
-        package_strip_colon = @options[:package_strip_colon]
-        to_date = Date.today.strftime("%Y-%m-%d")
-        retrieve_from = @options[:retrieve_from]
-        from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
-
-        org_json = snyk_get_orgs(snyk_api_token)
+        org_json = snyk_get_orgs(@snyk_api_token)
         fail_task "Unable to retrieve data from API, please check credentials" if org_json.nil?
 
         projects = {}
@@ -117,7 +100,7 @@ module Kenna
         print_debug "orgs = #{org_ids}"
 
         org_json.each do |org|
-          project_json = snyk_get_projects(snyk_api_token, org.fetch("id"))
+          project_json = snyk_get_projects(@snyk_api_token, org.fetch("id"))
           project_json.each do |project|
             projects[project.fetch("id")] = project.merge("org" => org)
             project_ids << project.fetch("id")
@@ -127,7 +110,7 @@ module Kenna
         print_debug "projects = #{project_ids}"
 
         types = ["vuln"]
-        types << "license" if include_license
+        types << "license" if @include_license
 
         morepages = true
         issue_json = []
@@ -135,7 +118,7 @@ module Kenna
         while morepages
           pagenum += 1
 
-          project_ids.each_slice(999) do |sliced_ids|
+          project_ids.each_slice(500) do |sliced_ids|
             issue_filter_json = "{
                \"filters\": {
                 \"orgs\": #{org_ids},
@@ -146,7 +129,7 @@ module Kenna
             }"
             print_debug "issue filter json = #{issue_filter_json}"
 
-            issue_json << snyk_get_issues(snyk_api_token, @page_size, issue_filter_json, pagenum, from_date, to_date)
+            issue_json << snyk_get_issues(@snyk_api_token, @page_size, issue_filter_json, pagenum, @from_date, @to_date)
             print_debug "issue json = #{issue_json}"
           end
 
@@ -157,21 +140,20 @@ module Kenna
             break
           end
 
-          issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # converter
           issue_json.each do |issue_obj|
             issue = issue_obj["issue"]
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application.slice(0..(application.rindex(":") - 1)) if project_name_strip_colon && !application.rindex(":").nil?
+            application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
             package_manager = issue["packageManager"]
             package = issue.fetch("package")
             if project.key?("targetFile")
               target_file = project.fetch("targetFile")
             else
               print_debug "using strip colon params if set"
-              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && package_manager_strip_colon && !package_manager.rindex(":").nil?
-              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && package_strip_colon && !package.rindex(":").nil?
+              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
+              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
               target_file = package_manager.to_s
               target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
               target_file = "#{target_file}#{package}"
@@ -192,7 +174,7 @@ module Kenna
             scanner_score = if issue.key?("cvssScore")
                               issue.fetch("cvssScore").to_i
                             else
-                              issue_severity_mapping.fetch(issue.fetch("severity"))
+                              ISSUE_SEVERITY_MAPPING.fetch(issue.fetch("severity"))
                             end
 
             source = project.fetch("source") if issue.key?("source")
@@ -255,7 +237,7 @@ module Kenna
               "scanner_type" => "Snyk",
               "vuln_def_name" => vuln_name
             }
-            kdi_issue_data = if import_findings
+            kdi_issue_data = if @import_findings
                                { "severity" => scanner_score,
                                  "last_seen_at" => issue_obj.fetch("introducedDate"),
                                  "additional_fields" => additional_fields }
@@ -281,7 +263,7 @@ module Kenna
             vuln_def.compact!
 
             # Create the KDI entries
-            if import_findings
+            if @import_findings
               create_kdi_asset_finding(asset, kdi_issue)
             else
               create_kdi_asset_vuln(asset, kdi_issue)
@@ -292,16 +274,40 @@ module Kenna
 
         ### Write KDI format
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        suffix = import_findings ? "findings" : "vulns"
+        suffix = @import_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
 
         kdi_batch_upload @batch_size, output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key,
-                         skip_autoclose, retries, kdi_version
+                         @skip_autoclose, @retries, @kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
 
       def vuln_def_name(cves, cwes, title)
         cves&.first || cwes&.first || title
+      end
+
+      def initialize_options
+        @batch_size = @options[:batch_size]
+        @page_size = 1000
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
+
+        @snyk_api_token = @options[:snyk_api_token]
+        @import_findings = @options[:import_type] == "findings"
+
+
+        # output_directory = @options[:output_directory]
+        @include_license = @options[:include_license]
+
+        @project_name_strip_colon = @options[:projectName_strip_colon]
+        @package_manager_strip_colon = @options[:packageManager_strip_colon]
+        @package_strip_colon = @options[:package_strip_colon]
+        @to_date = Date.today.strftime("%Y-%m-%d")
+        @from_date = (Date.today - @options[:retrieve_from].to_i).strftime("%Y-%m-%d")
       end
     end
   end
