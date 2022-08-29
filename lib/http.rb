@@ -74,6 +74,15 @@ module Kenna
             headers:,
             verify_ssl:
           )
+        rescue Errno::EADDRNOTAVAIL, SocketError => e
+          print_error "Exception! #{e}"
+          retries ||= 0
+          if retries < max_retries
+            retries += 1
+            print "Retrying!"
+            sleep(15)
+            retry
+          end
         rescue RestClient::TooManyRequests => e
           log_exception(e)
           retries ||= 0
@@ -137,6 +146,10 @@ module Kenna
           print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
           print_debug "Request Payload: #{error.response.request.payload}"
           print_debug "Server Response: #{error.response.body}"
+        rescue IOError
+          print_debug 'Cannot read request payload'
+        rescue NoMethodError
+          return
         end
 
         def log_request?
