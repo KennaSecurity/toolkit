@@ -53,7 +53,7 @@ module Kenna
           [vulnerabilities, definitions, hosts]
         end
 
-        def fetch_assets_in_batches
+        def fetch_assets_in_batches(batch)
           offset = batch * @page_size
           limit = @page_size
 
@@ -79,6 +79,7 @@ module Kenna
         end
 
         def build_location_specifier_classes(assets, hosts)
+          hosts = hosts.group_by { |host| host["asset_id"] }
           assets.each_with_object([]) do |asset, location_specifiers|
             asset["location_specifiers"].each do |location_specifier|
               location_specifiers << EdgescanLocationSpecifier.new(asset, location_specifier, hosts[asset["id"]])
@@ -87,6 +88,7 @@ module Kenna
         end
 
         def build_vulnerability_classes(assets, assets_vulnerabilities, hosts)
+          hosts = hosts.group_by { |host| host["asset_id"] }
           assets_vulnerabilities.group_by { |vulnerability| vulnerability["asset_id"] }
                                 .each_with_object([]) do |(asset_id, vulnerabilities), edgescan_vulnerabilities|
             asset = assets.find { |a| a["id"] == asset_id }
