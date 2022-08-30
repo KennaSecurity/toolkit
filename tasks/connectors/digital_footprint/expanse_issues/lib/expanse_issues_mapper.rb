@@ -90,11 +90,11 @@ module Kenna
                 create_kdi_vuln_def(cvd)
               end
             end
-            if @assets.size.positive?
-              filename = "expanse_kdi_#{bu}.json"
-              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
-            end
           end
+          return unless @assets.size.positive?
+
+          filename = "expanse_kdi_#{business_units.count}_business_units.json"
+          kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
 
         def map_issue_priority(sev_word)
