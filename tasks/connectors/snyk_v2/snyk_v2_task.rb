@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative "lib/snyk_helper"
+require_relative "lib/snyk_v2_client"
 
 module Kenna
   module Toolkit
-    class SnykV2 < Kenna::Toolkit::BaseTask
-      include Kenna::Toolkit::SnykHelper
+    class SnykV2Task < Kenna::Toolkit::BaseTask
+      SCANNER_TYPE = "Snyk"
 
       def self.metadata
         {
@@ -53,6 +53,16 @@ module Kenna
               required: false,
               default: "application",
               description: "indicates which field should be used in application locator. Valid options are application and organization. Default is application." },
+            { name: "page_size",
+              type: "integer",
+              required: false,
+              default: 1000,
+              description: "The number of objects per page (currently limited from 1 to 1000)." },
+            { name: "batch_size",
+              type: "integer",
+              required: false,
+              default: 500,
+              description: "The maximum number of issues to submit to Kenna in each batch." },
             { name: "kenna_connector_id",
               type: "integer",
               required: false,
@@ -80,72 +90,43 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
-        skip_autoclose = false
-        retries = 3
-        kdi_version = 2
 
-        snyk_api_token = @options[:snyk_api_token]
-        import_findings = @options[:import_type] == "findings"
+        initialize_options
+        initialize_client
 
-        @kenna_api_host = @options[:kenna_api_host]
-        @kenna_api_key = @options[:kenna_api_key]
-        @kenna_connector_id = @options[:kenna_connector_id]
+        page_num = 0
+        more_pages = true
 
-        # output_directory = @options[:output_directory]
-        include_license = @options[:include_license]
-
-        project_name_strip_colon = @options[:projectName_strip_colon]
-        package_manager_strip_colon = @options[:packageManager_strip_colon]
-        package_strip_colon = @options[:package_strip_colon]
-        to_date = Date.today.strftime("%Y-%m-%d")
-        retrieve_from = @options[:retrieve_from]
-        from_date = (Date.today - retrieve_from.to_i).strftime("%Y-%m-%d")
-
-        org_json = snyk_get_orgs(snyk_api_token)
-        fail_task "Unable to retrieve data from API, please check credentials" if org_json.nil?
-
-        projects = {}
-        project_ids = []
-        pagenum = 0
-        org_ids = org_json.map { |org| org.fetch("id") }
-        print_debug org_json
-        print_debug "orgs = #{org_ids}"
-
-        org_json.each do |org|
-          project_json = snyk_get_projects(snyk_api_token, org.fetch("id"))
-          project_json.each do |project|
-            projects[project.fetch("id")] = project.merge("org" => org)
-            project_ids << project.fetch("id")
-          end
-        end
-
-        print_debug "projects = #{project_ids}"
+        org_json = client.snyk_get_orgs
+        org_ids = fetch_orgs_ids(org_json)
+        project_ids = fetch_project_ids(org_json)
 
         types = ["vuln"]
-        types << "license" if include_license
+        types << "license" if @include_license
 
-        issue_filter_json = "{
+        while more_pages
+          page_num += 1
+          issue_json = []
+
+          project_ids.each_slice(500) do |sliced_ids|
+            issue_filter_json = "{
                \"filters\": {
                 \"orgs\": #{org_ids},
-                \"projects\": #{project_ids},
+                \"projects\": #{sliced_ids},
                 \"isFixed\": false,
                 \"types\": #{types}
               }
             }"
+            print_debug "issue filter json = #{issue_filter_json}"
 
-        print_debug "issue filter json = #{issue_filter_json}"
+            issue_json << client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
+            print_debug "issue json = #{issue_json}"
 
-        morepages = true
-        while morepages
-
-          pagenum += 1
-
-          issue_json = snyk_get_issues(snyk_api_token, 500, issue_filter_json, pagenum, from_date, to_date)
-
-          print_debug "issue json = #{issue_json}"
+            issue_json.flatten!
+          end
 
           if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
-            morepages = false
+            more_pages = false
             break
           end
 
@@ -155,21 +136,21 @@ module Kenna
             project = issue_obj["project"]
             identifiers = issue["identifiers"]
             application = project.fetch("name")
-            application.slice(0..(application.rindex(":") - 1)) if project_name_strip_colon && !application.rindex(":").nil?
+            application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
             package_manager = issue["packageManager"]
             package = issue.fetch("package")
             if project.key?("targetFile")
               target_file = project.fetch("targetFile")
             else
               print_debug "using strip colon params if set"
-              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && package_manager_strip_colon && !package_manager.rindex(":").nil?
-              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && package_strip_colon && !package.rindex(":").nil?
+              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
+              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
               target_file = package_manager.to_s
               target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
               target_file = "#{target_file}#{package}"
             end
 
-            org_name = projects[project.fetch("id")]["org"]["name"]
+            org_name = @projects[project.fetch("id")]["org"]["name"]
             tags = []
             tags << project.fetch("source") if project.key?("source")
             tags << package_manager if !package_manager.nil? && !package_manager.empty?
@@ -244,10 +225,10 @@ module Kenna
 
             kdi_issue = {
               "scanner_identifier" => issue.fetch("id"),
-              "scanner_type" => "Snyk",
+              "scanner_type" => SCANNER_TYPE,
               "vuln_def_name" => vuln_name
             }
-            kdi_issue_data = if import_findings
+            kdi_issue_data = if @import_findings
                                { "severity" => scanner_score,
                                  "last_seen_at" => issue_obj.fetch("introducedDate"),
                                  "additional_fields" => additional_fields }
@@ -263,7 +244,7 @@ module Kenna
 
             vuln_def = {
               "name" => vuln_name,
-              "scanner_type" => "Snyk",
+              "scanner_type" => SCANNER_TYPE,
               "solution" => patches,
               "description" => description
             }
@@ -273,21 +254,83 @@ module Kenna
             vuln_def.compact!
 
             # Create the KDI entries
-            if import_findings
+            if @import_findings
               create_kdi_asset_finding(asset, kdi_issue)
             else
               create_kdi_asset_vuln(asset, kdi_issue)
             end
+
             create_kdi_vuln_def(vuln_def)
           end
         end
 
         ### Write KDI format
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
-        suffix = import_findings ? "findings" : "vulns"
+        suffix = @import_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, skip_autoclose, retries, kdi_version
+        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
+      end
+
+      private
+
+      attr_reader :client
+
+      def initialize_client
+        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token)
+      end
+
+      def initialize_options
+        @snyk_api_token = @options[:snyk_api_token]
+        @import_findings = @options[:import_type] == "findings"
+        @output_directory = @options[:output_directory]
+        @include_license = @options[:include_license]
+
+        @project_name_strip_colon = @options[:projectName_strip_colon]
+        @package_manager_strip_colon = @options[:packageManager_strip_colon]
+        @package_strip_colon = @options[:package_strip_colon]
+
+        @retrieve_from = @options[:retrieve_from]
+        @from_date = (Date.today - @retrieve_from.to_i).strftime("%Y-%m-%d")
+        @to_date = Date.today.strftime("%Y-%m-%d")
+
+        @page_size = @options[:page_size].to_i
+        @batch_size = @options[:batch_size].to_i
+
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
+
+        # fail_task "Unable to retrieve data from API, please check credentials" if org_json.nil?
+      end
+
+      def fetch_project_ids(org_json)
+        @projects = {}
+        project_ids = []
+
+        org_json.each do |org|
+          project_json = client.snyk_get_projects(org.fetch("id"))
+          project_json.each do |project|
+            @projects[project.fetch("id")] = project.merge("org" => org)
+            project_ids << project.fetch("id")
+          end
+        end
+
+        print_debug "projects = #{project_ids}"
+        project_ids
+      end
+
+      def fetch_orgs_ids(org_json)
+        org_ids = org_json.map { |org| org.fetch("id") }
+
+        print_debug org_json
+        print_debug "orgs = #{org_ids}"
+
+        org_ids
       end
 
       def vuln_def_name(cves, cwes, title)
