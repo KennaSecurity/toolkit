@@ -94,17 +94,17 @@ module Kenna
         initialize_options
         initialize_client
 
+        cves = nil
+        cwes = nil
         page_num = 0
         more_pages = true
-
         suffix = @import_findings ? "findings" : "vulns"
-        filename = "snyk_kdi_#{suffix}.json"
 
-        kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", filename,
+        kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", "snyk_kdi_#{suffix}.json",
                          @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries,
                          @kdi_version) do |batch|
-          org_json = client.snyk_get_orgs
-          org_ids = fetch_orgs_ids(org_json)
+          org_json    = client.snyk_get_orgs
+          org_ids     = fetch_orgs_ids(org_json)
           project_ids = fetch_project_ids(org_json)
 
           types = ["vuln"]
@@ -168,9 +168,6 @@ module Kenna
 
               additional_fields = extract_additional_fields(issue, issue_obj, project, target_file)
 
-              cves = nil
-              cwes = nil
-
               unless identifiers.nil?
                 cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
                 cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
@@ -213,7 +210,6 @@ module Kenna
             end
           end
         end
-        # kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
 
@@ -249,8 +245,6 @@ module Kenna
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
-
-        # fail_task "Unable to retrieve data from API, please check credentials" if org_json.nil?
       end
 
       def fetch_project_ids(org_json)
@@ -318,14 +312,14 @@ module Kenna
 
       def target_file(project, package)
         if project.key?("targetFile")
-          target_file = project.fetch("targetFile")
+          project.fetch("targetFile")
         else
           print_debug "using strip colon params if set"
           package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
           package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
           target_file = package_manager.to_s
           target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
-          target_file = "#{target_file}#{package}"
+          "#{target_file}#{package}"
         end
       end
 
