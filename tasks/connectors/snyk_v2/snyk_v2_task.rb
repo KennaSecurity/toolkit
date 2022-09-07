@@ -97,178 +97,123 @@ module Kenna
         page_num = 0
         more_pages = true
 
-        org_json = client.snyk_get_orgs
-        org_ids = fetch_orgs_ids(org_json)
-        project_ids = fetch_project_ids(org_json)
-
-        types = ["vuln"]
-        types << "license" if @include_license
-
-        while more_pages
-          page_num += 1
-          issue_json = []
-
-          project_ids.each_slice(500) do |sliced_ids|
-            issue_filter_json = "{
-               \"filters\": {
-                \"orgs\": #{org_ids},
-                \"projects\": #{sliced_ids},
-                \"isFixed\": false,
-                \"types\": #{types}
-              }
-            }"
-            print_debug "issue filter json = #{issue_filter_json}"
-
-            issue_json << client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
-            print_debug "issue json = #{issue_json}"
-
-            issue_json.flatten!
-          end
-
-          if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
-            more_pages = false
-            break
-          end
-
-          issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # converter
-          issue_json.each do |issue_obj|
-            issue = issue_obj["issue"]
-            project = issue_obj["project"]
-            identifiers = issue["identifiers"]
-            application = project.fetch("name")
-            application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
-            package_manager = issue["packageManager"]
-            package = issue.fetch("package")
-            if project.key?("targetFile")
-              target_file = project.fetch("targetFile")
-            else
-              print_debug "using strip colon params if set"
-              package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
-              package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
-              target_file = package_manager.to_s
-              target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
-              target_file = "#{target_file}#{package}"
-            end
-
-            org_name = @projects[project.fetch("id")]["org"]["name"]
-            tags = []
-            tags << project.fetch("source") if project.key?("source")
-            tags << package_manager if !package_manager.nil? && !package_manager.empty?
-            tags << "Org:#{org_name}"
-
-            asset = {
-              "file" => target_file,
-              "application" => @options[:application_locator_mapping] == "organization" ? org_name : application,
-              "tags" => tags
-            }
-
-            scanner_score = if issue.key?("cvssScore")
-                              issue.fetch("cvssScore").to_i
-                            else
-                              issue_severity_mapping.fetch(issue.fetch("severity"))
-                            end
-
-            source = project.fetch("source") if issue.key?("source")
-            url = issue.fetch("url") if issue.key?("url")
-            cvss = issue.fetch("cvssScore") if issue.key?("cvssScore")
-            title = issue.fetch("title") if issue.key?("title")
-            fixed_in = issue.fetch("fixedIn") if issue.key?("fixedIn")
-            from = issue.fetch("from") if issue.key?("from")
-            functions = issue.fetch("functions") if issue.key?("functions")
-            is_patchable = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
-            publication_time = issue.fetch("publicationTime") if issue.key?("publicationTime")
-            is_upgradable = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
-            references = issue.fetch("references") if issue.key?("references")
-            language = issue.fetch("language") if issue.key?("language")
-            semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
-            issue_severity = issue.fetch("severity") if issue.key?("severity")
-            version = issue.fetch("version") if issue.key?("version")
-            description = issue["description"] || title
-            cves = nil
-            cwes = nil
-            unless identifiers.nil?
-              cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
-              cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
-              cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
-              cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
-              cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
-            end
-
-            additional_fields = {
-              "url" => url,
-              "id" => issue.fetch("id"),
-              "title" => title,
-              "file" => target_file,
-              "application" => application,
-              "introducedDate" => issue_obj.fetch("introducedDate"),
-              "source" => source,
-              "fixedIn" => fixed_in,
-              "from" => from,
-              "functions" => functions,
-              "isPatchable" => is_patchable,
-              "isUpgradable" => is_upgradable,
-              "language" => language,
-              "references" => references,
-              "semver" => semver,
-              "cvssScore" => cvss,
-              "severity" => issue_severity,
-              "package" => package,
-              "packageManager" => package_manager,
-              "version" => version,
-              "identifiers" => identifiers.to_json,
-              "publicationTime" => publication_time
-            }
-
-            additional_fields.compact!
-
-            vuln_name = vuln_def_name(cve_array, cwe_array, title)
-
-            kdi_issue = {
-              "scanner_identifier" => issue.fetch("id"),
-              "scanner_type" => SCANNER_TYPE,
-              "vuln_def_name" => vuln_name
-            }
-            kdi_issue_data = if @import_findings
-                               { "severity" => scanner_score,
-                                 "last_seen_at" => issue_obj.fetch("introducedDate"),
-                                 "additional_fields" => additional_fields }
-                             else
-                               { "scanner_score" => scanner_score,
-                                 "created_at" => issue_obj.fetch("introducedDate"),
-                                 "details" => JSON.pretty_generate(additional_fields) }
-                             end
-            kdi_issue.merge!(kdi_issue_data)
-            kdi_issue.compact!
-
-            patches = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
-
-            vuln_def = {
-              "name" => vuln_name,
-              "scanner_type" => SCANNER_TYPE,
-              "solution" => patches,
-              "description" => description
-            }
-            vuln_def["cve_identifiers"] = cves unless cves.nil?
-            vuln_def["cwe_identifiers"] = cwes if cves.nil? && !cwes.nil?
-
-            vuln_def.compact!
-
-            # Create the KDI entries
-            if @import_findings
-              create_kdi_asset_finding(asset, kdi_issue)
-            else
-              create_kdi_asset_vuln(asset, kdi_issue)
-            end
-
-            create_kdi_vuln_def(vuln_def)
-          end
-        end
-
-        ### Write KDI format
-        output_dir = "#{$basedir}/#{@options[:output_directory]}"
         suffix = @import_findings ? "findings" : "vulns"
         filename = "snyk_kdi_#{suffix}.json"
-        kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version
+
+        kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", filename,
+                         @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries,
+                         @kdi_version) do |batch|
+          org_json = client.snyk_get_orgs
+          org_ids = fetch_orgs_ids(org_json)
+          project_ids = fetch_project_ids(org_json)
+
+          types = ["vuln"]
+          types << "license" if @include_license
+
+          while more_pages
+            page_num += 1
+            issue_json = []
+
+            project_ids.each_slice(500) do |sliced_ids|
+              issue_filter_json = "{
+                 \"filters\": {
+                  \"orgs\": #{org_ids},
+                  \"projects\": #{sliced_ids},
+                  \"isFixed\": false,
+                  \"types\": #{types}
+                }
+              }"
+              print_debug "issue filter json = #{issue_filter_json}"
+
+              issue_json << client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
+              print_debug "issue json = #{issue_json}"
+
+              issue_json.flatten!
+            end
+
+            if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
+              more_pages = false
+              break
+            end
+
+            issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # converter
+            issue_json.each do |issue_obj|
+              issue = issue_obj["issue"]
+              project = issue_obj["project"]
+              identifiers = issue["identifiers"]
+              application = project.fetch("name")
+              application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
+              package_manager = issue["packageManager"]
+              package = issue.fetch("package")
+
+              target_file = target_file(project, package)
+
+              org_name = @projects[project.fetch("id")]["org"]["name"]
+              tags = []
+              tags << project.fetch("source") if project.key?("source")
+              tags << package_manager if !package_manager.nil? && !package_manager.empty?
+              tags << "Org:#{org_name}"
+
+              asset = {
+                "file" => target_file,
+                "application" => @options[:application_locator_mapping] == "organization" ? org_name : application,
+                "tags" => tags
+              }
+
+              scanner_score = if issue.key?("cvssScore")
+                                issue.fetch("cvssScore").to_i
+                              else
+                                issue_severity_mapping.fetch(issue.fetch("severity"))
+                              end
+
+              additional_fields = extract_additional_fields(issue, issue_obj, project, target_file)
+
+              cves = nil
+              cwes = nil
+
+              unless identifiers.nil?
+                cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
+                cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
+                cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
+                cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
+                cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
+              end
+
+              vuln_name = vuln_def_name(cve_array, cwe_array, issue)
+
+              kdi_issue = {
+                "scanner_identifier" => issue.fetch("id"),
+                "scanner_type" => SCANNER_TYPE,
+                "vuln_def_name" => vuln_name
+              }
+              kdi_issue_data = if @import_findings
+                                 { "severity" => scanner_score,
+                                   "last_seen_at" => issue_obj.fetch("introducedDate"),
+                                   "additional_fields" => additional_fields }
+                               else
+                                 { "scanner_score" => scanner_score,
+                                   "created_at" => issue_obj.fetch("introducedDate"),
+                                   "details" => JSON.pretty_generate(additional_fields) }
+                               end
+              kdi_issue.merge!(kdi_issue_data)
+              kdi_issue.compact!
+
+              vuln_def = extract_vuln_def(vuln_name, issue, cves, cwes)
+
+              batch.append do
+                # Create the KDI entries
+                if @import_findings
+                  create_kdi_asset_finding(asset, kdi_issue)
+                else
+                  create_kdi_asset_vuln(asset, kdi_issue)
+                end
+
+                create_kdi_vuln_def(vuln_def)
+              end
+            end
+          end
+        end
+        # kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
 
@@ -333,7 +278,59 @@ module Kenna
         org_ids
       end
 
-      def vuln_def_name(cves, cwes, title)
+      def extract_additional_fields(issue, issue_obj, project, target_file)
+        fields = {}
+        fields["url"]             = issue.fetch("url") if issue.key?("url")
+        fields["id"]              = issue.fetch("id")
+        fields["title"]           = issue.fetch("title") if issue.key?("title")
+        fields["file"]            = target_file
+        fields["application"]     = project.fetch("name")
+        fields["introducedDate"]  = issue_obj.fetch("introducedDate")
+        fields["source"]          = project.fetch("source") if issue.key?("source")
+        fields["fixedIn"]         = issue.fetch("fixedIn") if issue.key?("fixedIn")
+        fields["from"]            = issue.fetch("from") if issue.key?("from")
+        fields["functions"]       = issue.fetch("functions") if issue.key?("functions")
+        fields["isPatchable"]     = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
+        fields["isUpgradable"]    = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
+        fields["language"]        = issue.fetch("language") if issue.key?("language")
+        fields["references"]      = issue.fetch("references") if issue.key?("references")
+        fields["semver"]          = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
+        fields["cvssScore"]       = issue.fetch("cvssScore") if issue.key?("cvssScore")
+        fields["severity"]        = issue.fetch("severity") if issue.key?("severity")
+        fields["package"]         = issue.fetch("package")
+        fields["version"]         = issue.fetch("version") if issue.key?("version")
+        fields["identifiers"]     = issue.fetch("identifiers")
+        fields["publicationTime"] = issue.fetch("publicationTime") if issue.key?("publicationTime")
+        fields.compact
+      end
+
+      def extract_vuln_def(vuln_name, issue, cves, cwes)
+        vuln_def = {}
+        vuln_def["name"]               = vuln_name
+        vuln_def["scanner_type"]       = SCANNER_TYPE
+        vuln_def["scanner_identifier"] = issue.fetch("id")
+        vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
+        vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
+        vuln_def["cve_identifiers"]    = cves unless cves.nil?
+        vuln_def["cwe_identifiers"]    = cwes if cves.nil? && !cwes.nil?
+        vuln_def.compact
+      end
+
+      def target_file(project, package)
+        if project.key?("targetFile")
+          target_file = project.fetch("targetFile")
+        else
+          print_debug "using strip colon params if set"
+          package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
+          package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
+          target_file = package_manager.to_s
+          target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
+          target_file = "#{target_file}#{package}"
+        end
+      end
+
+      def vuln_def_name(cves, cwes, issue)
+        title = issue.fetch("title") if issue.key?("title")
         cves&.first || cwes&.first || title
       end
     end
