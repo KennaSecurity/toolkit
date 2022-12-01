@@ -74,21 +74,28 @@ module Kenna
         # Generate Temporary Lacework API Token
         puts "Generating Temporary Lacework API Token"
         temp_api_token = generate_temporary_lacework_api_token(lacework_account, lacework_api_key, lacework_api_secret)
+
         fail_task "Unable to generate API token, please check credentials" unless temp_api_token
 
         # Pull assets and vulns from Lacework
         puts "Pulling asset and vulnerability data from Lacework API"
-        environment_cves = lacework_list_cves(lacework_account, temp_api_token)
+        vulns_all = lacework_list_cves_v2(lacework_account, temp_api_token)
 
-        cve_list = environment_cves["data"].filter_map { |cve| cve["cve_id"] }
+        vulns_by_host = {}
+        vulns_all.each do |vuln|
+          key = [ vuln['machineTags']['Hostname'], vuln['mid'] ]
+          vulns_by_host[key] ||= []
 
-        affected_hosts = cve_list.flat_map { |cve_id| lacework_list_hosts(lacework_account, cve_id, temp_api_token)["data"] }
+          hsh = {
+            "scanner_identifier": vuln["vulnId"],
+            "scanner_type": "Lacework",
+            "scanner_score": (vuln.dig('cveProps', 'metadata', 'NVD', 'CVSSv3', 'Score') || 0).to_i,
+            "last_seen_at": vuln['props']['last_updated_time'],
+            "status": vuln["status"] == "Active" ? "open" : "closed",
+            "vuln_def_name": vuln["vulnId"]
+          }
 
-        vulns_by_host = affected_hosts.each_with_object(Hash.new { |h, k| h[k] = [] }) do |host, hash|
-          key = [host["host"]["tags"]["Hostname"],
-                 host["host"]["machine_id"],
-                 host["host"]["tags"]["InternalIp"]]
-          hash[key] += vulns_for(host)
+          vulns_by_host[key].push(hsh)
         end
 
         # Format KDI hash
@@ -97,8 +104,7 @@ module Kenna
         vulns_by_host.each do |host, vulns|
           asset_hash = {
             hostname: host[0],
-            external_id: host[1],
-            ip_address: host[2],
+            external_id: host[1].to_s,
             tags: [
               "lacework_kdi"
             ]
