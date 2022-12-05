@@ -113,7 +113,6 @@ module Kenna
             ]
           }
         }
-        request_body = '{}'
         lacework_post(url: url, body: request_body, api_token: temp_api_token)
       end
     end
