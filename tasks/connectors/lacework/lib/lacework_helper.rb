@@ -2,6 +2,7 @@
 
 require "net/http"
 require "uri"
+require 'pry'
 
 module Kenna
   module Toolkit
@@ -51,9 +52,13 @@ module Kenna
           http.request(request)
         end
 
-        if response.code != "200"
-          print_debug response.message
-          return nil
+        if response.code == "204"
+          print_good "Lacework API returned HTTP code 204: no results found"
+          return []
+        elsif response.code != "200"
+          print_good "Lacework API returned HTTP code #{response.code}:"
+          print_good response.message
+          return []
         end
 
         hsh = JSON.parse(response.body)
@@ -64,6 +69,7 @@ module Kenna
 
         while (url_next_page = hsh.dig("paging", "urls", "nextPage"))
           hsh = lacework_get(url: url_next_page, api_token:)
+          return data if hsh.nil?
           data += (hsh["data"] || [])
           print_good "Retrieved #{data.count} records"
         end
@@ -89,7 +95,8 @@ module Kenna
         end
 
         if response.code != "200"
-          print_debug response.message
+          print_good "Lacework API returned HTTP code #{response.code}:"
+          print_good response.message
           return nil
         end
 

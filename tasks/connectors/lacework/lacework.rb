@@ -72,14 +72,19 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
 
         # Generate Temporary Lacework API Token
-        puts "Generating Temporary Lacework API Token"
+        print_good "Generating Temporary Lacework API Token"
         temp_api_token = generate_temporary_lacework_api_token(lacework_account, lacework_api_key, lacework_api_secret)
 
         fail_task "Unable to generate API token, please check credentials" unless temp_api_token
 
         # Pull assets and vulns from Lacework
-        puts "Pulling asset and vulnerability data from Lacework API"
+        print_good "Pulling asset and vulnerability data from Lacework API"
         vulns_all = lacework_list_cves_v2(lacework_account, temp_api_token)
+
+        unless vulns_all && vulns_all.length > 0
+          print_error "Could not retrieve asset / vulnerability data from Lacework"
+          return
+        end
 
         vulns_by_host = {}
         vulns_all.each do |vuln|
@@ -99,7 +104,7 @@ module Kenna
         end
 
         # Format KDI hash
-        puts "Formatting Lacework data for Kenna KDI"
+        print_good "Formatting Lacework data for Kenna KDI"
 
         vulns_by_host.each do |host, vulns|
           asset_hash = {
@@ -137,10 +142,10 @@ module Kenna
         output_dir = "#{$basedir}/#{@options[:output_directory]}"
         filename = "lacework_kdi.json"
 
-        puts "Output is available at: #{output_dir}/#{filename}"
+        print_good "Output is available at: #{output_dir}/#{filename}"
 
         # Upload KDI file to Kenna
-        puts "Uploading KDI file to Kenna and running KDI connector"
+        print_good "Uploading KDI file to Kenna and running KDI connector"
         kdi_upload output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         kdi_connector_kickoff @kenna_connector_id, @kenna_api_host, @kenna_api_key if @kenna_connector_id && @kenna_api_host && @kenna_api_key
       end
