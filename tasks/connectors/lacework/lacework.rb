@@ -83,14 +83,14 @@ module Kenna
 
         vulns_by_host = {}
         vulns_all.each do |vuln|
-          key = [ vuln['machineTags']['Hostname'], vuln['mid'] ]
+          key = [vuln["machineTags"]["Hostname"], vuln["mid"]]
           vulns_by_host[key] ||= []
 
           hsh = {
             "scanner_identifier": vuln["vulnId"],
             "scanner_type": "Lacework",
-            "scanner_score": (vuln.dig('cveProps', 'metadata', 'NVD', 'CVSSv3', 'Score') || 0).to_i,
-            "last_seen_at": vuln['props']['last_updated_time'],
+            "scanner_score": (vuln.dig("cveProps", "metadata", "NVD", "CVSSv3", "Score") || 0).to_i,
+            "last_seen_at": vuln["props"]["last_updated_time"],
             "status": vuln["status"] == "Active" ? "open" : "closed",
             "vuln_def_name": vuln["vulnId"]
           }

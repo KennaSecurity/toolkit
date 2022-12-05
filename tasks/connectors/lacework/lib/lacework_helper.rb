@@ -16,7 +16,7 @@ module Kenna
         request["X-LW-UAKS"] = api_secret.to_s
         request.body = JSON.dump({
                                    "keyId" => api_key.to_s,
-                                   "expiryTime" => 86400
+                                   "expiryTime" => 86_400
                                  })
 
         req_options = {
@@ -57,14 +57,14 @@ module Kenna
         end
 
         hsh = JSON.parse(response.body)
-        data = hsh['data']
+        data = hsh["data"]
 
-        total_records = hsh.dig('paging', 'totalRows') || 0
+        total_records = hsh.dig("paging", "totalRows") || 0
         print_good "Retrieved #{data.count} of #{total_records} records"
 
-        while url_next_page = hsh.dig('paging', 'urls', 'nextPage')
-          hsh = lacework_get(url: url_next_page, api_token: api_token)
-          data += (hsh['data'] || [])
+        while (url_next_page = hsh.dig("paging", "urls", "nextPage"))
+          hsh = lacework_get(url: url_next_page, api_token:)
+          data += (hsh["data"] || [])
           print_good "Retrieved #{data.count} records"
         end
 
@@ -102,7 +102,7 @@ module Kenna
         url = "https://#{account}.lacework.net/api/v2/Vulnerabilities/Hosts/search"
 
         # Without the vulnId filter you get all of a host's packages even if they don't have vulns
-        request_body = %Q{
+        request_body = %(
           {
             "filters": [
               {
@@ -112,8 +112,8 @@ module Kenna
               }
             ]
           }
-        }
-        lacework_post(url: url, body: request_body, api_token: temp_api_token)
+        )
+        lacework_post(url:, body: request_body, api_token: temp_api_token)
       end
     end
   end
