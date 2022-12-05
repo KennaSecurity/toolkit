@@ -81,7 +81,7 @@ module Kenna
         print_good "Pulling asset and vulnerability data from Lacework API"
         vulns_all = lacework_list_cves_v2(lacework_account, temp_api_token)
 
-        unless vulns_all && vulns_all.length > 0
+        unless vulns_all && !vulns_all.empty?
           print_error "Could not retrieve asset / vulnerability data from Lacework"
           return
         end

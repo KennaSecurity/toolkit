@@ -2,7 +2,6 @@
 
 require "net/http"
 require "uri"
-require 'pry'
 
 module Kenna
   module Toolkit
@@ -70,6 +69,7 @@ module Kenna
         while (url_next_page = hsh.dig("paging", "urls", "nextPage"))
           hsh = lacework_get(url: url_next_page, api_token:)
           return data if hsh.nil?
+
           data += (hsh["data"] || [])
           print_good "Retrieved #{data.count} records"
         end
