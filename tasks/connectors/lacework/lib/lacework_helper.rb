@@ -52,11 +52,11 @@ module Kenna
         end
 
         if response.code == "204"
-          print_good "Lacework API returned HTTP code 204: no results found"
+          print_error "Lacework API returned HTTP code 204: no results found"
           return []
         elsif response.code != "200"
-          print_good "Lacework API returned HTTP code #{response.code}:"
-          print_good response.message
+          print_error "Lacework API returned HTTP code #{response.code}:"
+          print_error response.message
           return []
         end
 
@@ -95,8 +95,8 @@ module Kenna
         end
 
         if response.code != "200"
-          print_good "Lacework API returned HTTP code #{response.code}:"
-          print_good response.message
+          print_error "Lacework API returned HTTP code #{response.code}:"
+          print_error response.message
           return nil
         end
 
