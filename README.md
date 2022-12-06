@@ -75,7 +75,7 @@ If everything's working, lets move on to accessing the toolkit's functionality t
 
 In order to utilize the toolkit's functionality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names!
 
-Calling A Specific Task WIth Docker:
+Calling A Specific Task With Docker:
 
     docker run -it --rm toolkit:latest task=example
 
