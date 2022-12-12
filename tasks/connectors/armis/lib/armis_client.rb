@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "cgi"
+
 module Kenna
   module Toolkit
     module Armis
@@ -10,7 +12,7 @@ module Kenna
         SEARCH_ENDPOINT = "/api/v1/search/"
         ACCESS_TOKEN_ENDPOINT = "/api/v1/access_token/"
 
-        DEVICE_FIELDS = "id,ipAddress,macAddress,type,tags,operatingSystem,operatingSystemVersion,riskLevel,manufacturer,name,category,model,lastSeen"
+        DEVICE_FIELDS = "id,ipAddress,macAddress,tags,lastSeen"
         VULNS_FIELDS = "cveUid,description"
 
         VULN_BATCH_SIZE = 2000
@@ -27,10 +29,12 @@ module Kenna
         end
 
         def get_devices(aql:, offset:, length:, from_date:, to_date: Time.now.utc)
+          unescaped_aql = CGI.unescape(aql)
+
           raise ApiError, "from/to date is missing." if from_date.nil? || to_date.nil?
           raise ApiError, "Can't fetch data for more than 90 days" if duration_exceeds_max_limit?(from_date, to_date)
-          raise ApiError, "AQL is missing." if aql.blank?
-          raise ApiError, "Invalid AQL format: #{aql}" unless aql.start_with?("in:devices")
+          raise ApiError, "AQL is missing." if unescaped_aql.blank?
+          raise ApiError, "Invalid AQL format: #{unescaped_aql}" unless unescaped_aql.start_with?("in:devices")
 
           endpoint = "#{@base_path}#{SEARCH_ENDPOINT}"
 
@@ -39,7 +43,7 @@ module Kenna
             headers = {
               "Authorization" => get_access_token,
               "params" => {
-                "aql": "timeFrame:\"#{time_diff_in_seconds} seconds\" #{aql}",
+                "aql": "timeFrame:\"#{time_diff_in_seconds} seconds\" #{unescaped_aql}",
                 "from": offset,
                 "length": length,
                 "fields": DEVICE_FIELDS,
