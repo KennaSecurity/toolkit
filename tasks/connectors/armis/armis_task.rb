@@ -145,9 +145,24 @@ module Kenna
       end
 
       def extract_asset(device)
-        mac_address = (device["macAddress"] || "").split(",")[0]
-        asset = { "external_id": device.fetch("id").to_s }
+        tag_fields = {
+          "manufacturer": device["manufacturer"],
+          "model": device["model"],
+          "name": device["name"],
+          "category": device["category"],
+          "type": device["type"]
+        }.compact
+        tags = (device["tags"] || []) + tag_fields.map { |field, value| "#{field}:#{value}" }
 
+        asset = {
+          "external_id" => device.fetch("id").to_s,
+          "tags" => tags,
+          "os" => device["operatingSystem"],
+          "os_version" => device["operatingSystemVersion"],
+          "priority" => device["riskLevel"]
+        }.compact
+        
+        mac_address = (device["macAddress"] || "").split(",")[0]
         if mac_address
           asset["mac_address"] = mac_address.strip
         else
