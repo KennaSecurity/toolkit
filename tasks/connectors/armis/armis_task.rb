@@ -7,10 +7,10 @@ module Kenna
     class ArmisTask < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Armis"
       SCANNER_SCORE_HASH = {
-        "Confirmed" => 10,
-        "High" => 8,
-        "Medium" => 5,
-        "Low" => 3
+        "CRITICAL" => 10,
+        "HIGH" => 8,
+        "MEDIUM" => 5,
+        "LOW" => 3
       }.freeze
 
       def self.metadata
@@ -177,7 +177,7 @@ module Kenna
         {
           "scanner_identifier" => vuln.fetch("cveUid"),
           "scanner_type" => SCANNER_TYPE,
-          "scanner_score" => SCANNER_SCORE_HASH[vuln["confidenceLevel"]],
+          "scanner_score" => SCANNER_SCORE_HASH[vuln["avmRating"]],
           "vuln_def_name" => "#{SCANNER_TYPE} #{vuln.fetch('cveUid')}",
           "created_at" => vuln.fetch("firstDetected"),
           "last_seen_at" => vuln.fetch("lastDetected"),

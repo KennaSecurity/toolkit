@@ -13,7 +13,7 @@ module Kenna
         ACCESS_TOKEN_ENDPOINT = "/api/v1/access_token/"
 
         DEVICE_FIELDS = "id,ipAddress,macAddress,operatingSystem,operatingSystemVersion,type,lastSeen"
-        VULNS_FIELDS = "cveUid,description"
+        VULNS_FIELDS = "cveUid,description,avmRating"
 
         VULN_BATCH_SIZE = 2000
         DEVICES_SLICE_SIZE = 100
@@ -149,6 +149,7 @@ module Kenna
         def get_access_token(force: false)
           return @access_token if !force && !need_to_refresh_token?
 
+          print_debug(@secret_key)
           url = "#{@base_path}#{ACCESS_TOKEN_ENDPOINT}"
           headers = { "params": { "secret_key": @secret_token } }
           begin
