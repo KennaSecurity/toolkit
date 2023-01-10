@@ -159,7 +159,6 @@ module Kenna
           "tags" => tags,
           "os" => device["operatingSystem"],
           "os_version" => device["operatingSystemVersion"],
-          "priority" => device["riskLevel"]
         }.compact
         
         mac_address = (device["macAddress"] || "").split(",")[0]
@@ -174,10 +173,12 @@ module Kenna
       end
 
       def extract_vuln(vuln)
+        avm_rating = vuln["avmRating"] ? vuln["avmRating"].upcase : nil
+
         {
           "scanner_identifier" => vuln.fetch("cveUid"),
           "scanner_type" => SCANNER_TYPE,
-          "scanner_score" => SCANNER_SCORE_HASH[vuln["avmRating"]],
+          "scanner_score" => avm_rating,
           "vuln_def_name" => "#{SCANNER_TYPE} #{vuln.fetch('cveUid')}",
           "created_at" => vuln.fetch("firstDetected"),
           "last_seen_at" => vuln.fetch("lastDetected"),
