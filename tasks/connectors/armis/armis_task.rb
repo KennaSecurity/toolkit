@@ -173,7 +173,7 @@ module Kenna
       end
 
       def extract_vuln(vuln)
-        avm_rating = vuln["avmRating"] ? vuln["avmRating"].upcase : nil
+        avm_rating = vuln["avmRating"] ? SCANNER_SCORE_HASH[vuln["avmRating"].upcase] : nil
 
         {
           "scanner_identifier" => vuln.fetch("cveUid"),
