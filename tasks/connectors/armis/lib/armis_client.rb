@@ -17,7 +17,7 @@ module Kenna
 
         VULN_BATCH_SIZE = 2000
         DEVICES_SLICE_SIZE = 100
-        FETCH_VULNS_BATCH_SIZE = 75
+        FETCH_VULNS_BATCH_SIZE = 50
         SECONDS_IN_A_DAY = 84_600
         MAX_DURATION_IN_DAYS = 90
 

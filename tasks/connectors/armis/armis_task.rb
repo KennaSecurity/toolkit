@@ -145,31 +145,21 @@ module Kenna
       end
 
       def extract_asset(device)
-        tag_fields = {
-          "manufacturer": device["manufacturer"],
-          "model": device["model"],
-          "name": device["name"],
-          "category": device["category"],
-          "type": device["type"]
-        }.compact
+        tag_fields = device.slice("manufacturer", "model", "name", "category", "type").compact
         tags = (device["tags"] || []) + tag_fields.map { |field, value| "#{field}:#{value}" }
+        mac_address = (device["macAddress"] || "").split(",")[0]
+        ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
         asset = {
           "external_id" => device.fetch("id").to_s,
           "tags" => tags,
           "os" => device["operatingSystem"],
           "os_version" => device["operatingSystemVersion"],
+          "mac_address" => mac_address&.strip,
+          "ip_address" => ip_address&.strip
         }.compact
-        
-        mac_address = (device["macAddress"] || "").split(",")[0]
-        if mac_address
-          asset["mac_address"] = mac_address.strip
-        else
-          ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
-          asset["ip_address"] = ip_address.strip if ip_address
-        end
 
-        asset.compact
+        asset
       end
 
       def extract_vuln(vuln)
