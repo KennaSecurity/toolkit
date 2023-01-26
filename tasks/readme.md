@@ -11,13 +11,13 @@
 
 | 3rd Party Product | Release Status | Created By |
 | --- | --- | --- |
-| [Acunetix360](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/acunetix360/readme.md) | Pre-Release/Beta | Kenna |
+| [Acunetix360](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/acunetix360/readme.md) | Released | Kenna |
 | [AppScan Cloud](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/appscan_cloud/readme.md) | Pre-Release/Beta | Kenna |
 | [AppScan Enterprise](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/appscan_enterprise/readme.md) | Pre-Release/Beta | Kenna |
-| [Aqua](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aqua/README.md) | Pre-Release/Beta | Aqua |
-| [Armis](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/armis) | Pre_Release/Beta | Armis |
+| [Aqua](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aqua/README.md) | Released | Aqua |
+| [Armis](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/armis) | Released | Armis |
 | [AWS_guardduty](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/aws_guardduty/ReadME.md) | Pre-Release/Beta | Kenna |
-| [AWS_inspector v1](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aws_inspector) | Pre-Release/Beta | Kenna |
+| [AWS_inspector v1](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/aws_inspector) | Released | Kenna |
 | [Bitsight](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/bitsight/README.md) | Released | Kenna |
 | [Bugcrowd](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/bugcrowd/readme.md) | Pre-Release/Beta | Kenna |
 | [Burp](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/burp/readme.md) | Pre-Release/Beta | Kenna |
@@ -40,14 +40,14 @@
 | [MS_defender_tvm](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ms_defender_tvm/readme.md) | Released | Kenna and [MS Defender TVM](https://securitycenter.windows.com/) |
 | [Netsparker](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/netsparker/readme.md) | Released | Kenna |
 | [Nozomi](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/nozomi/ReadME.md) | Released | Kenna and [Nozomi](https://www.nozominetworks.com/) |
-| [NTT (WhiteHat) Sentinel Dynamic](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ntt_sentinel_dynamic/README.md) | Pre-Release/Beta | Kenna |
+| [NTT (WhiteHat) Sentinel Dynamic](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ntt_sentinel_dynamic/README.md) | Released | Kenna |
 | [Ordr](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/ordr/readme.md) | Pre-Release/Beta | Kenna |
-| [QualysWAS](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/qualys_was/README.md) | Pre-Release/Beta | Kenna |
+| [QualysWAS](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/qualys_was/README.md) | Released | Kenna |
 | [Riskiq](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/riskiq/README.md) | Released | Kenna |
 | [Security_scorecard](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/digital_footprint/security_scorecard/README.md) | Released | Kenna |
-| [Snyk_v2](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/snyk_v2/readme.md) | Pre-Release/Beta | Kenna and [Snyk](https://snyk.io/) |
+| [Snyk_v2](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/snyk_v2/readme.md) | Released | Kenna and [Snyk](https://snyk.io/) |
 | [SysDig](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/sysdig/readme.md) | Pre-Release/Beta | Kenna |
-| [Veracode_asset_vulns](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/veracode_asset_vulns/readme.md) | Released | Kenna |
+| [Veracode_asset_vulns](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/veracode_asset_vulns/readme.md) | Certified | Kenna |
 | [Veracode_findings](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/veracode_findings/readme.md) | Released | Kenna |
 | [WhiteSource](https://github.com/KennaSecurity/toolkit/blob/main/tasks/connectors/whitesource/readme.md) | Released | Kenna |
 | [Wiz](https://github.com/KennaSecurity/toolkit/tree/main/tasks/connectors/wiz) | Certified | Kenna |
