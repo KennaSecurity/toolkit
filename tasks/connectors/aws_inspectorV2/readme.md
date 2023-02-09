@@ -8,7 +8,9 @@ Task will connect to first reagion and loop using a page token via all pages of 
 Limitations:L 
 
 1/ The task filters findings that have CVE IDs only. Any other type of findings (CWE/SNYK/GHSA/ALAS/etc) that are reported from AWS Inspector V2 are not received as valid from the Kenna backend and ingesting them to Kenna Cloud fails. THis limits AWS Inspector V2 findings that kenna can consume only to EC2 instances.
+
 2/ Some of the findings do not have a CVSS score been given from the AWS Inspector V2 API. Such fingings are given a CVSS of 1.0 and a warning message is logged to contact AWS Support and ask for the finding to be triagged and a score to be set within the AWS API. 
+
 3/ Some AWS EC2 instances can be created without a Name, as the Name is just a tag atribute within AWS. Kenna does not like nameless assets, so EC2 instances without names are given the NoName tag before been sent to Kenna. 
 
 
