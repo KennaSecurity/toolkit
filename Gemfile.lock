@@ -22,6 +22,9 @@ GEM
     aws-sdk-inspector (1.44.0)
       aws-sdk-core (~> 3, >= 3.165.0)
       aws-sigv4 (~> 1.1)
+    aws-sdk-inspector2 (1.10.0)
+      aws-sdk-core (~> 3, >= 3.165.0)
+      aws-sigv4 (~> 1.1)
     aws-sigv4 (1.5.2)
       aws-eventstream (~> 1, >= 1.0.2)
     backport (1.2.0)
@@ -134,6 +137,7 @@ GEM
       unicode-display_width (>= 1.5, < 3.0)
       unicode_utils (~> 1.4)
     strings-ansi (0.2.0)
+    strscan (3.0.6)
     thor (1.2.1)
     tilt (2.0.11)
     timecop (0.9.6)
@@ -162,6 +166,7 @@ DEPENDENCIES
   addressable
   aws-sdk-guardduty
   aws-sdk-inspector
+  aws-sdk-inspector2
   httparty
   ipaddress
   pry
@@ -172,6 +177,7 @@ DEPENDENCIES
   rubocop
   sanitize
   solargraph
+  strscan
   timecop
   tty-pager
 
