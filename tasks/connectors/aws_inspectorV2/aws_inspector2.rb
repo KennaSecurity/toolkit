@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "aws-sdk-inspector2"
 require "json"
 require "strscan"
@@ -68,12 +70,12 @@ module Kenna
               type: "string",
               required: false,
               default: "",
-              description: "This is the AWS security token used to query the API."
+              description: "This is the AWS security role used to assume access to the Audit account."
             }, {
               name: "aws_regions_to_collect",
               type: "list",
               required: false,
-              default: ["ca-central-1", "eu-central-1", "eu-west-2", "eu-west-1", "us-east-1", "us-east-2", "us-west-2"],
+              default: ["eu-west-2", "eu-west-1", "eu-west-3"],
               description: "AWS Regions to loop over to collect findings"
             }
           ]
@@ -83,7 +85,7 @@ module Kenna
       def run(opts)
         super # opts -> @options
 
-        # Get options
+        # Get optionsz
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
@@ -94,17 +96,19 @@ module Kenna
         regions = @options[:aws_regions_to_collect]
         role_arn = @options[:role_arn]
 
-        # iterate through the findings, looking for CVEs
+        #Def globals
         @assets = []
         @vuln_defs = []
 
-
+        #Go over all regions from options
         regions.each do |i|
               puts i
+              #Def Token Global as nill to start each region with no token
               @next_token = nil
           loop do
-            v = get_inspector_findings(i, aws_access_key, aws_secret_key, role_arn)
+            v = get_inspector_findings(i, aws_access_key, aws_secret_key)
             v[:findings].each do |f|
+            # parce data
             fqdn = f[:resources][0][:tags]["Name"]
             if fqdn.class.to_s == 'NilClass'
               fqdn = ""
@@ -112,27 +116,20 @@ module Kenna
             if fqdn.length() != 0
                 fqdn = f[:resources][0][:tags]["Name"]
             else
-              puts "Asset with no name"
+              ##Have to put an asset name or Kenna backend cries like an ugly baby
               fqdn = "NoName"
-
             end
+            awsaccount = f[:aws_account_id]
+            tribe = "Sports"
+            #tribe = f[:resources][0][:tags]["Tribe"]
+            environment = f[:resources][0][:tags]["Environment"]
+            squad = f[:resources][0][:tags]["Squad"]
+            external = f[:resources][0][:tags]["TLA-Name"]
+            service = f[:resources][0][:tags]["service"]
+            instance_id = f[:resources][0][:id]
 
-              awsaccount = f[:aws_account_id]
-              tribe = f[:resources][0][:tags]["tribe"]
-             if f[:resources][0][:tags]["environment"].class.to_s.empty?
-                environment = f[:resources][0][:tags]["Environment"]
-              else
-                environment = f[:resources][0][:tags]["environment"]
-              end
-              squad = f[:resources][0][:tags]["squad"]
-              if f[:resources][0][:tags]["external"].class.to_s.empty?
-                external = f[:resources][0][:tags]["TLA-Name"]
-              else
-                external = f[:resources][0][:tags]["external"]
-              end
-              service = f[:resources][0][:tags]["service"]
-              instance_id = f[:resources][0][:id]
-              ##Skips if the Finding does not have a Vulnerability
+##Skips if the Finding does not have a Vulnerability
+
               next if f.key?(:package_vulnerability_details) != true
               if f[:package_vulnerability_details].class.to_s != 'NilClass'
 
@@ -141,32 +138,29 @@ module Kenna
                   vulnerability_id = cve[:vulnerability_id]
                   next if vulnerability_id.include?("CVE") != true
                 end
-
+                if cve.key?(:relatedVulnerabilities) == true
+                  vulnerability_id = cve[:relatedVulnerabilities]
+                  puts "GOOD?" + vulnerability_id
+                end
                 ##Checks if CVE score is present
                 if cve.key?(:cvss) == true
                   if cve[:cvss].length() != 0
                     numeric_severity = cve[:cvss][0][:base_score]
                   else
-                    ##Sets manual CVE Score of 1
-                    puts "Untriaged CVE " + vulnerability_id
+                    ##Sets manual CVE Score of 1 or Kenna backend goes ugly baby mode again
+                    puts "Untriaged CVE " + vulnerability_id + " - Open a case to AWS supoport and ask them to Triage the CVE and provide a score in API responce"
                     numeric_severity = 1
 
                   end
                 end
                 title = vulnerability_id
               end
-              ##Skip Finding if it is not an EC2 object
+              ##Skip Finding if it is not an EC2 object, Kenna backend likes no ECR findings
             next if f[:resources][0][:details].key?(:aws_ec2_instance) != true
 
                 platform = f[:resources][0][:details][:aws_ec2_instance][:platform]
                 ipaddress = f[:resources][0][:details][:aws_ec2_instance][:ip_v4_addresses][0]
-                puts ipaddress
-
-            ##  else
-              ##  platform = f[:resources][0][:details][:aws_ec2_instance][:platform]
-
-
-
+            
               create_asset fqdn, instance_id, tribe, environment, platform, awsaccount, squad, external, service, ipaddress
               create_asset_vuln fqdn, vulnerability_id, numeric_severity, title
               create_vuln_def vulnerability_id, title
@@ -175,6 +169,7 @@ module Kenna
             break if v[:next_token].nil?
             @next_token = v[:next_token]
           end
+
          ####
          # Write KDI format
          ####
@@ -238,49 +233,22 @@ module Kenna
          }
         end
 
-        def get_inspector_findings(region, access_key, secret_key, role_arn)
-          begin
-            #          inspector = Aws::Inspector2::Client.new(region: region)
-            # do stuff
-            if access_key != nil && secret_key != nil
-              inspector = Aws::Inspector2::Client.new({
-                region: region,
-                credentials: Aws::Credentials.new(access_key, secret_key)
-              })
-              if role_arn != nil
-                Aws.config.update({
-                  credentials: Aws::Credentials.new(access_key, secret_key)
-                })
-                role_credentials = aws::assumerolecredentials.new(
-                  client: Aws::STS::Client.new,
-                  role_arn: role_arn,
-                  role_session_name: "kenna-session"
-                )
-                inspector = Aws::Inspector2::Client.new(credentials: role_credentials)
+        def get_inspector_findings(region, access_key, secret_key)
+         begin
+           # Opena a socket to AWS API using only assecc and secret keys - Static API keys used.
+           inspector = Aws::Inspector2::Client.new({
+                                                    region:,
+                                                    credentials: Aws::Credentials.new(access_key, secret_key)
+                                                  })
 
-              end
-            end
-            if role_arn != nil
-              puts "Using role: " + role_arn
-              role_credentials = Aws::AssumeRoleCredentials.new(
-                client: Aws::STS::Client.new(region: region),
-                role_arn: role_arn,
-                role_session_name: "kenna-session"
-              )
-              puts region
-              inspector = Aws::Inspector2::Client.new(region: region, credentials: role_credentials)
-            else
-              inspector = Aws::Inspector2::Client.new(region: region)
-            end
-
-            # go get the inspector findings
-            if @next_token == nil
-              findings = inspector.list_findings
-            else
-              findings = inspector.list_findings(next_token:@next_token)
-            end
-            findings.map(&:to_hash)
-          end
+           # Get findings one page at a time.
+           if @next_token == nil
+             findings = inspector.list_findings
+           else
+             findings = inspector.list_findings(next_token:@next_token)
+           end
+             findings.map(&:to_hash)
+           end
           findings
         end
         end
