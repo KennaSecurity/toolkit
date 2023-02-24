@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "lib/lacework_helper"
+require 'limiter'
 
 module Kenna
   module Toolkit
     class Lacework < Kenna::Toolkit::BaseTask
       include Kenna::Toolkit::LaceworkHelper
+
+      attr_reader :ratequeue
 
       def self.metadata
         {
@@ -71,6 +74,8 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
         @kenna_api_host = @options[:kenna_api_host]
 
+        @ratequeue = Limiter::RateQueue.new(480, interval: 3600, balanced: true)
+        
         # Generate Temporary Lacework API Token
         print_good "Generating Temporary Lacework API Token"
         temp_api_token = generate_temporary_lacework_api_token(lacework_account, lacework_api_key, lacework_api_secret)

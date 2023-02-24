@@ -23,6 +23,7 @@ gem "rest-client"
 gem "rexml", ">= 3.2.5"
 gem "sanitize"
 gem "tty-pager"
+gem "ruby-limiter"
 
 group :development, :test do
   gem "pry"
