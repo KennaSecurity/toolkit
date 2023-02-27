@@ -21,6 +21,7 @@ module Kenna
             "hostname" => extract_hostname(vuln),
             "os" => (vuln["vulnerableAsset"]["operatingSystem"] if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
             "ip_address" => ((vuln["vulnerableAsset"]["ipAddresses"] || []).first if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
+            "ec2" => extract_ec2_instance_id(vuln),
             "tags" => (extract_tags(vuln) if vuln["vulnerableAsset"]["tags"].present?)
           }.compact
           asset["asset_type"] = "image" if asset["image_id"]
@@ -94,6 +95,13 @@ module Kenna
           else
             (vuln["vulnerableAsset"]["name"] if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE")
           end
+        end
+
+        def extract_ec2_instance_id(vuln)
+          arn = vuln['vulnerableAsset']['providerUniqueId'] if vuln['vulnerableAsset']['providerUniqueId'].present?
+          cloud_platform = vuln['vulnerableAsset']['cloudPlatform'] if vuln['vulnerableAsset']['cloudPlatform'].present?
+          return nil if !defined? arn || !defined? cloud_platform || cloud_platform != 'AWS' || !arn.starts_with('arn:')
+          arn.split('/')[1]
         end
       end
     end
