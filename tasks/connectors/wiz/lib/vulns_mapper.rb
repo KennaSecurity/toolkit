@@ -21,6 +21,7 @@ module Kenna
             "hostname" => extract_hostname(vuln),
             "os" => (vuln["vulnerableAsset"]["operatingSystem"] if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
             "ip_address" => ((vuln["vulnerableAsset"]["ipAddresses"] || []).first if vuln["vulnerableAsset"]["type"] == "VIRTUAL_MACHINE"),
+            "ec2" => extract_ec2_instance_id(vuln),
             "tags" => (extract_tags(vuln) if vuln["vulnerableAsset"]["tags"].present?)
           }.compact
           asset["asset_type"] = "image" if asset["image_id"]
