@@ -100,7 +100,7 @@ module Kenna
         def extract_ec2_instance_id(vuln)
           arn = vuln['vulnerableAsset']['providerUniqueId'] if vuln['vulnerableAsset']['providerUniqueId'].present?
           cloud_platform = vuln['vulnerableAsset']['cloudPlatform'] if vuln['vulnerableAsset']['cloudPlatform'].present?
-          return nil unless defined? arn && defined? cloud_platform && cloud_platform == 'AWS' && arn.starts_with('arn:')
+          return nil unless arn && cloud_platform && cloud_platform == 'AWS' && arn.starts_with?('arn:')
 
           arn.split('/')[1]
         end
