@@ -145,13 +145,17 @@ module Kenna
       end
 
       def extract_asset(device)
-        tag_fields = device.slice("manufacturer", "model", "name", "category", "type").compact
+        site_location = device.dig("site", "location")
+        device["site_location"] = site_location if site_location && site_location != "No location"
+        device["site_name"] = device.dig("site", "name")
+        tag_fields = device.slice("manufacturer", "model", "category", "type", "site_location", "site_name").compact
         tags = (device["tags"] || []) + tag_fields.map { |field, value| "#{field}:#{value}" }
         mac_address = (device["macAddress"] || "").split(",")[0]
         ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
         asset = {
           "external_id" => device.fetch("id").to_s,
+          "hostname" => device["name"],
           "tags" => tags,
           "os" => device["operatingSystem"],
           "os_version" => device["operatingSystemVersion"],

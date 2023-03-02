@@ -12,7 +12,7 @@ module Kenna
         SEARCH_ENDPOINT = "/api/v1/search/"
         ACCESS_TOKEN_ENDPOINT = "/api/v1/access_token/"
 
-        DEVICE_FIELDS = "id,ipAddress,macAddress,manufacturer,model,operatingSystem,operatingSystemVersion,type,tags,lastSeen"
+        DEVICE_FIELDS = "id,ipAddress,macAddress,manufacturer,model,name,operatingSystem,operatingSystemVersion,site,type,tags,lastSeen"
         VULNS_FIELDS = "cveUid,description,avmRating"
 
         VULN_BATCH_SIZE = 2000
