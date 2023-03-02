@@ -111,7 +111,6 @@ module Kenna
           types << "license" if @include_license
 
           while more_pages
-            page_num += 1
             issue_json = []
 
             project_ids.each_slice(500) do |sliced_ids|
@@ -125,9 +124,11 @@ module Kenna
               }"
               print_debug "issue filter json = #{issue_filter_json}"
 
-              issue_json << client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
-              print_debug "issue json = #{issue_json}"
+              page_num += 1
+              issues_page_data = client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
+              issue_json << issues_page_data unless issues_page_data.empty?
 
+              print_debug "issue json = #{issue_json}"
               issue_json.flatten!
             end
 
@@ -142,7 +143,7 @@ module Kenna
               project = issue_obj["project"]
               identifiers = issue["identifiers"]
               application = project.fetch("name")
-              application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
+              application = application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
               package_manager = issue["packageManager"]
               package = issue.fetch("package")
 
