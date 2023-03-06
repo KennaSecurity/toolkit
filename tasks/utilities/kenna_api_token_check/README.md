@@ -3,12 +3,12 @@
 This task utility verifies the Kenna API key, also referred to as token, to a specific Kenna host.
 
 ## Usage
-`task=kenna_api_key_check kenna_api_key=<API-Key> [api_host=<api_host] [show_api_key=<true|false>]
+`task=kenna_api_key_check kenna_api_key=<API-Key> [api_host=<api_host] [show_api_key=<ues|no>]
 
-api_host defaults to `api.kennasecurity.com`.
-show_api_key defaults to `false`.
+api_host is optional and defaults to `api.kennasecurity.com`.
+show_api_key is optional and defaults to `no`.
 
-if <show_api_key> is `true`, then the full value of the Kenna API key is displayed.  This is considered unsecure.
+if <show_api_key> is `yes`, then the full value of the Kenna API key is displayed.  This is considered unsecure.
 
 ## Results
 
@@ -32,7 +32,7 @@ Running: Kenna::Toolkit::KennaApiTokenCheck
 [+] (20230227193002) Vulns: 143
 ```
 
-If an HTTP `401 Unauthorized` status code is returned, then verifying the Kenna API key could prove useful.  To verify the Kenna API key, type in:
+If an HTTP `401 Unauthorized` status code is returned, then verifying the value of the Kenna API key could prove useful.  To verify the value of the Kenna API key, type in:
 
 ```
 > docker run -it kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY show_api_key=yes
@@ -52,6 +52,4 @@ If an HTTP `401 Unauthorized` status code is returned, then verifying the Kenna 
 [+] (20230306151133) Asset Groups: 2
 [+] (20230306151133) Vulns: 143
 ```
-
-To return the Kenna API key, the parameter `show_api_key` must be equal to `yes`.  
 
