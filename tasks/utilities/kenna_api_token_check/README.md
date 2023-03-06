@@ -3,10 +3,10 @@
 This task utility verifies the Kenna API key, also referred to as token, to a specific Kenna host.
 
 ## Usage
-`task=kenna_api_key_check kenna_api_key=<API-Key> [api_host=<api_host] [show_api_key=<ues|no>]
+`task=kenna_api_key_check kenna_api_key=<API-Key> [api_host=<api_host] [show_api_key=<yes|no>]
 
-api_host is optional and defaults to `api.kennasecurity.com`.
-show_api_key is optional and defaults to `no`.
+* api_host is optional and defaults to `api.kennasecurity.com`.
+* show_api_key is optional and defaults to `no`.
 
 if <show_api_key> is `yes`, then the full value of the Kenna API key is displayed.  This is considered unsecure.
 
@@ -52,4 +52,6 @@ If an HTTP `401 Unauthorized` status code is returned, then verifying the value 
 [+] (20230306151133) Asset Groups: 2
 [+] (20230306151133) Vulns: 143
 ```
+
+**Note:** Showing the value of the Kenna API key is considered **insecure**.
 
