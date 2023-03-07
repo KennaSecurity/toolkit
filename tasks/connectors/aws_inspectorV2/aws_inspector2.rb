@@ -15,38 +15,38 @@ module Kenna
         {
           id: "aws_inspector2",
           name: "AWS Inspector 2",
-          description: "This task pulls results from AWS inspector API and translates them into KDI",
+          description: "Pulls findings from the AWS Inspector V2 API",
           options: [
             {
               name: "aws_region",
               type: "string",
               required: false,
-              default: "eu-west-1",
-              description: "This is the AWS region."
+              default: "us-east-1",
+              description: "AWS region"
             }, {
               name: "aws_access_key",
               type: "string",
               required: false,
               default: "",
-              description: "This is the AWS access key used to query the API."
+              description: "AWS access key"
             }, {
               name: "aws_secret_key",
               type: "string",
               required: false,
               default: "",
-              description: "This is the AWS secret key used to query the API."
+              description: "AWS secret key"
             }, {
               name: "kenna_api_key",
               type: "api_key",
               required: false,
               default: nil,
-              description: "Kenna API Key"
+              description: "Kenna API key"
             }, {
               name: "kenna_api_host",
               type: "hostname",
               required: false,
               default: "api.kennasecurity.com",
-              description: "Kenna API Hostname"
+              description: "Kenna API hostname"
             }, {
               name: "kenna_connector_id",
               type: "integer",
@@ -64,19 +64,19 @@ module Kenna
               type: "string",
               required: false,
               default: "",
-              description: "This is the AWS security token used to query the API."
+              description: "AWS security token"
             }, {
               name: "role_arn",
               type: "string",
               required: false,
               default: "",
-              description: "This is the AWS security role used to assume access to the Audit account."
+              description: "AWS security role used to assume access to the Audit account"
             }, {
               name: "aws_regions_to_collect",
               type: "list",
               required: false,
               default: ["eu-west-2", "eu-west-1", "eu-west-3"],
-              description: "AWS Regions to loop over to collect findings"
+              description: "AWS regions to include when collecting findings"
             }
           ]
         }
@@ -85,7 +85,7 @@ module Kenna
       def run(opts)
         super # opts -> @options
 
-        # Get optionsz
+        # Get options
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
@@ -148,7 +148,7 @@ module Kenna
                     numeric_severity = cve[:cvss][0][:base_score]
                   else
                     ##Sets manual CVE Score of 1 or Kenna backend goes ugly baby mode again
-                    puts "Untriaged CVE " + vulnerability_id + " - Open a case to AWS supoport and ask them to Triage the CVE and provide a score in API responce"
+                    puts "Untriaged CVE " + vulnerability_id + " - Open a case to AWS support and ask them to triage the CVE and provide a score in the API response"
                     numeric_severity = 1
 
                   end
