@@ -12,7 +12,7 @@ if <show_api_key> is `yes`, then the full value of the Kenna API key is displaye
 
 ## Results
 
-As part of the toolkit, as secure version on the API key and the Kenna host. 
+As part of the toolkit, a partial value of the API key is deplayed along with the API host and other input paramters.
 After that the number of connectors, users, roles, asset groups (risk meters), and vulnerabilities are displayed.
 
 ```
@@ -53,5 +53,5 @@ If an HTTP `401 Unauthorized` status code is returned, then verifying the value 
 [+] (20230306151133) Vulns: 143
 ```
 
-**Note:** Showing the value of the Kenna API key is considered **insecure**.
+**Note:** Showing the value of the Kenna API key is considered **unsecure**.
 
