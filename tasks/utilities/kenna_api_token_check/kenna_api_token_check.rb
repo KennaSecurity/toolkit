@@ -18,7 +18,12 @@ module Kenna
               type: "hostname",
               required: false,
               default: "api.kennasecurity.com",
-              description: "Kenna API Hostname" }
+              description: "Kenna API Hostname" },
+            { name: "show_api_key",
+              type: "flag",
+              required: false,
+              default: "no",
+              description: "Show API Key" }
           ]
         }
       end
@@ -28,6 +33,9 @@ module Kenna
 
         api_host = @options[:kenna_api_host]
         api_token = @options[:kenna_api_key]
+        show_api_key = @options[:show_api_key]
+
+        print "Kenna API key: #{api_token}" if show_api_key == "yes"
 
         api_client = Kenna::Api::Client.new(api_token, api_host)
 
