@@ -35,9 +35,7 @@ module Kenna
         api_token = @options[:kenna_api_key]
         show_api_key = @options[:show_api_key]
 
-        if show_api_key == "yes"
-          print "Kenna API key: #{api_token}"
-        end
+        print "Kenna API key: #{api_token}" if show_api_key == "yes"
 
         api_client = Kenna::Api::Client.new(api_token, api_host)
 
