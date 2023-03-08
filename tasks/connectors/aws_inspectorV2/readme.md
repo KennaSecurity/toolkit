@@ -2,7 +2,7 @@ Task to get data out of AWS inspector V2
 
 # FIXME: Jason's dev notes
 
-- To the toolkit container against kdev:
+- To run the toolkit container against kdev:
 
 ```
 docker run -v $(pwd):/opt/app/toolkit --rm -it --entrypoint bash --network kdev_default toolkit
@@ -16,10 +16,10 @@ BUNDLE_WITH=development bundle exec ruby toolkit.rb task=aws_inspector2 kenna_ap
 
 State of work:
 
-The task will connect to AWS using region, AWS access and secret keys. You need the keys to be static within AWS. Regions are hardcoded within aws_regions_to_collect.
+The task will connect to AWS using region, AWS access and secret keys. You need the keys to be static within AWS. Regions are enumerated within aws_regions.
 Task will connect to the first region and loop using a page token via all pages of findings. Then it will go to the next region until all regions for the AWS account are looped.
 
-Limitations:L
+Limitations:
 
 1/ The task filters findings that have CVE IDs only. Any other type of findings (CWE/SNYK/GHSA/ALAS/etc) that are reported from AWS Inspector V2 are not received as valid from the Kenna backend and ingesting them to Kenna Cloud fails. This limits AWS Inspector V2 findings that Kenna can consume to only EC2 instances.
 
