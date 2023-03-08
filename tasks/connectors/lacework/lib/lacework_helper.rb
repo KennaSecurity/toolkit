@@ -38,8 +38,8 @@ module Kenna
 
       def lacework_post(url:, body:, api_token:)
         ratequeue.shift
-        headers={'Authorization'=>"Bearer #{api_token}", 'Content-type'=>'application/json'}
-        response=http_post(url, headers, body, 3)
+        headers = { 'Authorization' => "Bearer #{api_token}", 'Content-type' => 'application/json' }
+        response = http_post(url, headers, body, 3)
 
         if response.code == 204
           print_error "Lacework API returned HTTP code 204: no results found"
@@ -71,8 +71,8 @@ module Kenna
 
       def lacework_get(url:, api_token:)
         ratequeue.shift
-        headers={'Authorization'=>"Bearer #{api_token}", 'Content-type'=>'application/json'}
-        response=http_get(url, headers, 3)
+        headers = { 'Authorization' => "Bearer #{api_token}", 'Content-type' => 'application/json' }
+        response = http_get(url, headers, 3)
 
         if response.code != "200"
           print_error "Lacework API returned HTTP code #{response.code}:"
