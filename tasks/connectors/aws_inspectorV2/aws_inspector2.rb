@@ -18,12 +18,6 @@ module Kenna
           description: "Pulls findings from the AWS Inspector V2 API",
           options: [
             {
-              name: "aws_region",
-              type: "string",
-              required: false,
-              default: "us-east-1",
-              description: "AWS region"
-            }, {
               name: "aws_access_key",
               type: "string",
               required: false,
@@ -35,6 +29,12 @@ module Kenna
               required: false,
               default: "",
               description: "AWS secret key"
+            }, {
+              name: "aws_regions",
+              type: "array",
+              required: false,
+              default: ['us-east-1'],
+              description: "AWS regions to include when collecting findings"
             }, {
               name: "kenna_api_key",
               type: "api_key",
@@ -71,12 +71,6 @@ module Kenna
               required: false,
               default: "",
               description: "AWS security role used to assume access to the Audit account"
-            }, {
-              name: "aws_regions_to_collect",
-              type: "list",
-              required: false,
-              default: ["eu-west-2", "eu-west-1", "eu-west-3"],
-              description: "AWS regions to include when collecting findings"
             }
           ]
         }
@@ -89,11 +83,10 @@ module Kenna
         kenna_api_host = @options[:kenna_api_host]
         kenna_api_key = @options[:kenna_api_key]
         kenna_connector_id = @options[:kenna_connector_id]
-        aws_region = @options[:aws_region]
         aws_access_key = @options[:aws_access_key]
         aws_secret_key = @options[:aws_secret_key]
         aws_security_token = @options[:aws_security_token]
-        regions = @options[:aws_regions_to_collect]
+        regions = @options[:aws_regions].uniq
         role_arn = @options[:role_arn]
 
         #Def globals
@@ -101,12 +94,11 @@ module Kenna
         @vuln_defs = []
 
         #Go over all regions from options
-        regions.each do |i|
-              puts i
-              #Def Token Global as nill to start each region with no token
-              @next_token = nil
+        regions.each do |region|
+              print_debug "Querying #{region} for findings"
+              @next_token = nil # start each region with no token
           loop do
-            v = get_inspector_findings(i, aws_access_key, aws_secret_key)
+            v = get_inspector_findings(region, aws_access_key, aws_secret_key)
             v[:findings].each do |f|
             # parce data
             fqdn = f[:resources][0][:tags]["Name"]
