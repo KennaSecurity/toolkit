@@ -6,7 +6,7 @@ require "strscan"
 
 module Kenna
   module Toolkit
-    class AwsInspectorToKdi < Kenna::Toolkit::BaseTask
+    class AwsInspector2 < Kenna::Toolkit::BaseTask
       ###
       ### TODO ... needs to be converted to KDI helpers
       ###
@@ -203,7 +203,7 @@ module Kenna
 
          vuln = {
            scanner_identifier: cve_id.to_s,
-           scanner_type: "AWS Inspector",
+           scanner_type: "AWS Inspector V2",
            created_at: DateTime.now,
            last_seen_at: DateTime.now,
            status: "open",
@@ -219,7 +219,7 @@ module Kenna
 
          @vuln_defs << {
            scanner_identifier: cve_id.to_s,
-           scanner_type: "AWS Inspector",
+           scanner_type: "AWS Inspector V2",
            cve_identifiers: cve_id.to_s,
            name: title
          }
