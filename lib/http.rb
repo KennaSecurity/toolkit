@@ -16,9 +16,9 @@ module Kenna
           log_exception(e)
           if retries < max_retries
             retries += 1
-            sleep_time=15
-            if e.response.headers.dig('RateLimit-Reset')
-              sleep_time=e.response.headers['RateLimit-Reset'].to_i + 1
+            sleep_time = 15
+            if e.response.headers.key?('RateLimit-Reset')
+              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
               puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
             end
             sleep(sleep_time)
@@ -80,9 +80,9 @@ module Kenna
           log_exception(e)
           if retries < max_retries
             retries += 1
-            sleep_time=15
-            if e.response.headers.dig('RateLimit-Reset')
-              sleep_time=e.response.headers['RateLimit-Reset'].to_i + 1
+            sleep_time = 15
+            if e.response.headers.key?('RateLimit-Reset')
+              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
               puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
             end
             print "Retrying!"
