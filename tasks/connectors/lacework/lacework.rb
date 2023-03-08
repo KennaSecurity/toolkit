@@ -64,7 +64,6 @@ module Kenna
       end
 
       def run(opts)
-        RestClient.log=STDOUT
         super
 
         lacework_account = @options[:lacework_account]
@@ -74,7 +73,7 @@ module Kenna
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
         @kenna_api_host = @options[:kenna_api_host]
-        
+
         @ratequeue = Limiter::RateQueue.new(680, interval: 3600, balanced: true)
 
         # Generate Temporary Lacework API Token
