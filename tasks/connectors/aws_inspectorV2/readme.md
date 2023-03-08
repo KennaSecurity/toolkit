@@ -1,5 +1,19 @@
 Task to get data out of AWS inspector V2
 
+# FIXME: Jason's dev notes
+
+- To the toolkit container against kdev:
+
+```
+docker run -v $(pwd):/opt/app/toolkit --rm -it --entrypoint bash --network kdev_default toolkit
+echo "192.168.65.2 api.kdev.docker" > /etc/hosts
+export KENNA_API_KEY='**REPLACE ME**'
+export AWS_ACCESS_KEY='**REPLACE ME**'
+export AWS_SECRET_KEY='**REPLACE ME**'
+bundle install
+BUNDLE_WITH=development bundle exec ruby toolkit.rb task=aws_inspector2 kenna_api_key=$KENNA_API_KEY kenna_api_host=api.kdev.docker aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY kenna_connector_id=163494 aws_regions=us-east-2,us-east-1
+```
+
 State of work:
 
 The task will connect to AWS using region, AWS access and secret keys. You need the keys to be static within AWS. Regions are hardcoded within aws_regions_to_collect.

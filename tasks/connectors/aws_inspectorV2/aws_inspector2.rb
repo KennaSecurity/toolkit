@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# FIXME: Quick 'n dirty hack to connect to kdev. Remove!
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+
 require "aws-sdk-inspector2"
 require "json"
 require "strscan"
