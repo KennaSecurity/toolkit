@@ -74,7 +74,8 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
         @kenna_api_host = @options[:kenna_api_host]
 
-        @ratequeue = Limiter::RateQueue.new(680, interval: 3600, balanced: true)
+        # per https://docs.lacework.com/api/v2/docs 480 requests allowed per hour (3600 sec)
+        @ratequeue = Limiter::RateQueue.new(480, interval: 3600, balanced: true)
 
         # Generate Temporary Lacework API Token
         print_good "Generating Temporary Lacework API Token"
