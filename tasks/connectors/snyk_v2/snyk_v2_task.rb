@@ -177,36 +177,38 @@ module Kenna
                 cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
               end
 
-              vuln_name = vuln_def_name(cve_array, cwe_array, issue)
+              vuln_names = vuln_def_names(cve_array, cwe_array, issue)
 
-              kdi_issue = {
-                "scanner_identifier" => issue.fetch("id"),
-                "scanner_type" => SCANNER_TYPE,
-                "vuln_def_name" => vuln_name
-              }
-              kdi_issue_data = if @import_findings
-                                 { "severity" => scanner_score,
-                                   "last_seen_at" => issue_obj.fetch("introducedDate"),
-                                   "additional_fields" => additional_fields }
-                               else
-                                 { "scanner_score" => scanner_score,
-                                   "created_at" => issue_obj.fetch("introducedDate"),
-                                   "details" => JSON.pretty_generate(additional_fields) }
-                               end
-              kdi_issue.merge!(kdi_issue_data)
-              kdi_issue.compact!
+              vuln_names.each do | vuln_name |
+                kdi_issue = {
+                  "scanner_identifier" => issue.fetch("id"),
+                  "scanner_type" => SCANNER_TYPE,
+                  "vuln_def_name" => vuln_name
+                }
+                kdi_issue_data = if @import_findings
+                                   { "severity" => scanner_score,
+                                     "last_seen_at" => issue_obj.fetch("introducedDate"),
+                                     "additional_fields" => additional_fields }
+                                 else
+                                   { "scanner_score" => scanner_score,
+                                     "created_at" => issue_obj.fetch("introducedDate"),
+                                     "details" => JSON.pretty_generate(additional_fields) }
+                                 end
+                kdi_issue.merge!(kdi_issue_data)
+                kdi_issue.compact!
 
-              vuln_def = extract_vuln_def(vuln_name, issue, cves, cwes)
+                vuln_def = extract_vuln_def(vuln_name, issue, cves, cwes)
 
-              batch.append do
-                # Create the KDI entries
-                if @import_findings
-                  create_kdi_asset_finding(asset, kdi_issue)
-                else
-                  create_kdi_asset_vuln(asset, kdi_issue)
+                batch.append do
+                  # Create the KDI entries
+                  if @import_findings
+                    create_kdi_asset_finding(asset, kdi_issue)
+                  else
+                    create_kdi_asset_vuln(asset, kdi_issue)
+                  end
+
+                  create_kdi_vuln_def(vuln_def)
                 end
-
-                create_kdi_vuln_def(vuln_def)
               end
             end
           end
@@ -324,9 +326,9 @@ module Kenna
         end
       end
 
-      def vuln_def_name(cves, cwes, issue)
+      def vuln_def_names(cves, cwes, issue)
         title = issue.fetch("title") if issue.key?("title")
-        cves&.first || cwes&.first || title
+        cves || cwes || [title]
       end
     end
   end
