@@ -8,8 +8,8 @@ RSpec.describe Kenna::Toolkit::Helpers do
   describe "#write_file_stream" do
     let(:tempfile) { Tempfile.new }
     let(:autoclose) { false }
-    let(:assets) { (1..10).map {|n| {'id' => n }} } 
-    let(:vuln_defs) { (1..10).map {|n| {'id' => n }} }
+    let(:assets) { (1..10).map { |n| { 'id' => n } } }
+    let(:vuln_defs) { (1..10).map { |n| { 'id' => n } } }
     let(:version) { 2 }
 
     it 'writes JSON to the file' do
@@ -26,7 +26,7 @@ RSpec.describe Kenna::Toolkit::Helpers do
           "skip_autoclose": false,
           "version": 2,
           "assets": assets,
-          "vuln_defs": vuln_defs,
+          "vuln_defs": vuln_defs
         }.to_json
       )
     end
