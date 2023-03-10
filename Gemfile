@@ -29,4 +29,5 @@ group :development, :test do
   gem "rubocop", require: false
   gem "solargraph", require: false
   gem "timecop"
+  gem "webmock", "~> 3.18"
 end
