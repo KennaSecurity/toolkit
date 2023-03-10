@@ -137,7 +137,7 @@ module Kenna
               break
             end
 
-            issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # converter
+            issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # FIXME: this should be a constant
             issue_json.each do |issue_obj|
               issue = issue_obj["issue"]
               project = issue_obj["project"]
@@ -250,13 +250,13 @@ module Kenna
         @kdi_version = 2
       end
 
-      def fetch_project_ids(org_json)
+      def fetch_project_ids(org_json) # FIXME: this method should return projects and we can get ids from the keys
         @projects = {}
         project_ids = []
 
         org_json.each do |org|
           project_json = client.snyk_get_projects(org.fetch("id"))
-          project_json.each do |project|
+          project_json.each do |project| # FIXME: this could be a map
             @projects[project.fetch("id")] = project.merge("org" => org)
             project_ids << project.fetch("id")
           end

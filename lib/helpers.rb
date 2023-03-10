@@ -119,26 +119,19 @@ module Kenna
       end
 
       def write_file_stream(directory, filename, autoclose, assets, vuln_defs, version = 1)
-        FileUtils.mkdir_p directory
+        output_path = "#{directory}/#{filename}" # FIXME: The method should just take a path,
+        FileUtils.mkdir_p directory # FIXME: then this could be File.basename(path)
 
-        # create full output path
-        output_path = "#{directory}/#{filename}"
+        obj = {
+          "skip_autoclose" => autoclose,
+          "version" => version,
+          "assets" => assets,
+          "vuln_defs" => vuln_defs
+        }
 
-        writer = JsonWriteStream.open(output_path)
-        writer.write_object
-        writer.write_key_value("skip_autoclose", autoclose)
-        writer.write_key_value("version", version)
-        writer.write_array("assets")
-        assets.lazy.each do |asset|
-          writer.write_element(asset)
+        File.open(output_path, 'w') do |file|
+          JSON.dump(obj, file)
         end
-        writer.close_array
-        writer.write_array("vuln_defs")
-        vuln_defs.lazy.each do |vuln_def|
-          writer.write_element(vuln_def)
-        end
-        writer.close_array
-        writer.close
       end
 
       def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids, max_retries = 3)
