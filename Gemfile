@@ -17,8 +17,6 @@ gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
 gem "httparty"
 gem "ipaddress"
-gem "json"
-gem "json-write-stream"
 gem "rest-client"
 gem "rexml", ">= 3.2.5"
 gem "sanitize"
@@ -29,9 +27,6 @@ group :development, :test do
   gem "pry-byebug"
   gem "rspec"
   gem "rubocop", require: false
-  gem "rubocop-github"
-  gem "rubocop-performance", require: false
-  gem "rubocop-rails", require: false
   gem "solargraph", require: false
   gem "timecop"
 end
