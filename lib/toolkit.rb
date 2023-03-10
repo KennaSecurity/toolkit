@@ -7,7 +7,6 @@ require "active_support/core_ext"
 require "rest-client"
 require "json"
 require "csv"
-require "json-write-stream"
 
 # initialize monkeypatches & other hacks
 require_relative "../initialize/object"
