@@ -230,7 +230,7 @@ module Kenna
 
         def get_inspector_findings(region, access_key, secret_key)
          begin
-           # Opena a socket to AWS API using only assecc and secret keys - Static API keys used.
+           # Open a socket to AWS API using only access and secret keys - Static API keys used.
            inspector = Aws::Inspector2::Client.new({
                                                     region:,
                                                     credentials: Aws::Credentials.new(access_key, secret_key)
