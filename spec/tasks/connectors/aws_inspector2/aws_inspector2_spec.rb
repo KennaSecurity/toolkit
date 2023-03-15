@@ -29,12 +29,13 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       end
 
       it "creates vuln_defs" do
-        expect(task.vuln_defs).to include({
-                                            cve_identifiers: "CVE-2022-21426",
-                                            name: "CVE-2022-21426",
-                                            scanner_identifier: "CVE-2022-21426",
-                                            scanner_type: "AWS Inspector V2"
-                                          })
+        expect(task.vuln_defs)
+          .to include({
+                        cve_identifiers: "CVE-2022-21426",
+                        name: "CVE-2022-21426",
+                        scanner_identifier: "CVE-2022-21426",
+                        scanner_type: "AWS Inspector V2"
+                      })
       end
 
       it "creates assets" do
@@ -55,12 +56,13 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                         scanner_identifier: "CVE-2022-36123",
                         scanner_type: "AWS Inspector V2",
                         status: "open",
+                        scanner_score: 7,
                         vuln_def_name: "CVE-2022-36123" })
       end
 
       it "creates tags on the assets" do
         expect(asset_with_ip("172.31.10.90")[:tags])
-          .to include("AWS", "Environment:", "OS:AMAZON_LINUX_2", "AWS Account ID:612899039241",
+          .to include("AWS", "Tribe:Sports", "Environment:", "OS:AMAZON_LINUX_2", "AWS Account ID:612899039241",
                       "Squad:", "External:", "Technical Service:")
       end
     end
