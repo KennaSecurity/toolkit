@@ -9,10 +9,12 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
+    let(:aws_regions) { nil } # rely on option default
     let(:options) do
       {
         aws_access_key: ENV["AWS_ACCESS_KEY"],
-        aws_secret_key: ENV["AWS_SECRET_KEY"]
+        aws_secret_key: ENV["AWS_SECRET_KEY"],
+        aws_regions:
       }
     end
 
@@ -76,7 +78,20 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       end
     end
 
-    describe "multiple regions"
+    context "multiple regions" do
+      let(:aws_regions) { %w[us-east-1 us-east-2] }
+      let(:empty_response) { instance_double("Aws::Inspector2::Client", list_findings: double(findings: [], next_token: nil)) }
+
+      it "queries Inspector in each region" do
+        aws_regions.each do |region|
+          expect(Aws::Inspector2::Client).to receive(:new).with(
+            { region:,
+              credentials: be_an(Aws::Credentials) }
+          ).and_return(empty_response)
+        end
+        task.run(options)
+      end
+    end
   end
 
   def spy_on_accumulators

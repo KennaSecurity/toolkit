@@ -83,8 +83,8 @@ module Kenna
         @aws_regions.each do |region|
           print_debug "Querying #{region} for findings"
           loop do
-            findings = get_inspector_findings(region, @aws_access_key, @aws_secret_key)
-            findings[:findings].each do |finding|
+            response = get_inspector_findings(region, @aws_access_key, @aws_secret_key)
+            response.findings.each do |finding|
               # #Skips if the Finding does not have a Vulnerability
               next unless finding.package_vulnerability_details
 
@@ -103,7 +103,7 @@ module Kenna
             @batch_num ||= 0
             @batch_num += 1
             kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            @next_token = findings.next_token or break
+            @next_token = response.next_token or break
           end
 
           ####
@@ -207,22 +207,10 @@ module Kenna
       end
 
       def get_inspector_findings(region, access_key, secret_key)
-        begin
-          # Open a socket to AWS API using only access and secret keys - Static API keys used.
-          inspector = Aws::Inspector2::Client.new({
-                                                    region:,
-                                                    credentials: Aws::Credentials.new(access_key, secret_key)
-                                                  })
-
-          # Get findings one page at a time.
-          findings = if @next_token.nil?
-                       inspector.list_findings
-                     else
-                       inspector.list_findings(next_token: @next_token)
-                     end
-          findings.map(&:to_hash)
-        end
-        findings
+        Aws::Inspector2::Client.new(
+          { region:,
+            credentials: Aws::Credentials.new(access_key, secret_key) }
+        ).list_findings(next_token: @next_token)
       end
     end
   end
