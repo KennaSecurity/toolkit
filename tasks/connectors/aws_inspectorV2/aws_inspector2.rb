@@ -105,17 +105,11 @@ module Kenna
             kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             @next_token = response.next_token or break
           end
-
-          ####
-          ### Finish by uploading if we're all configured
-          ####
-          return unless kenna_connector_id && kenna_api_host && kenna_api_key
-
-          print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
-          upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
         end
+
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
-      
+
       private
 
       def initialize_options
