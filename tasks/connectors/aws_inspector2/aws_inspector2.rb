@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "aws-sdk-inspector2"
-require "json"
-require "strscan"
 
 module Kenna
   module Toolkit
@@ -79,7 +77,6 @@ module Kenna
         initialize_options
         kdi_initialize
 
-        # Loop over all regions from options
         @aws_regions.each do |region|
           print_debug "Querying #{region} for findings"
           loop do
@@ -119,13 +116,14 @@ module Kenna
         @aws_regions = @options[:aws_regions].uniq
         @aws_access_key = @options[:aws_access_key]
         @aws_secret_key = @options[:aws_secret_key]
-        # FIXME: Add support for role/token
-        aws_security_token = @options[:aws_security_token]
-        role_arn = @options[:role_arn]
         @output_directory = @options[:output_directory]
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
+
+        # FIXME: Add support for role/token
+        @aws_security_token = @options[:aws_security_token]
+        @role_arn = @options[:role_arn]
       end
 
       def extract_asset(finding)
