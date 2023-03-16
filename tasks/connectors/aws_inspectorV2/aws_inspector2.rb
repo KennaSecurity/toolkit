@@ -79,23 +79,14 @@ module Kenna
       def run(opts)
         super # opts -> @options
 
-        # Get options
-        kenna_api_host = @options[:kenna_api_host]
-        kenna_api_key = @options[:kenna_api_key]
-        kenna_connector_id = @options[:kenna_connector_id]
-        aws_access_key = @options[:aws_access_key]
-        aws_secret_key = @options[:aws_secret_key]
-        aws_security_token = @options[:aws_security_token]
-        regions = @options[:aws_regions].uniq
-        role_arn = @options[:role_arn]
-
+        initialize_options
         kdi_initialize
 
         # Loop over all regions from options
-        regions.each do |region|
+        @aws_regions.each do |region|
           print_debug "Querying #{region} for findings"
           loop do
-            findings = get_inspector_findings(region, aws_access_key, aws_secret_key)
+            findings = get_inspector_findings(region, @aws_access_key, @aws_secret_key)
             findings[:findings].each do |finding|
               # #Skips if the Finding does not have a Vulnerability
               next unless finding.package_vulnerability_details
@@ -112,18 +103,11 @@ module Kenna
               create_kdi_vuln_def(definition)
             end
 
+            @batch_num ||= 0
+            @batch_num += 1
+            kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             @next_token = findings.next_token or break
           end
-
-          ####
-          # Write KDI format
-          ####
-          kdi_output = { skip_autoclose: false, version: 2, assets: @assets, vuln_defs: @vuln_defs }
-          output_dir = "#{$basedir}/#{@options[:output_directory]}"
-          filename = "inspector.kdi.json"
-          # actually write it
-          write_file output_dir, filename, JSON.pretty_generate(kdi_output)
-          print_good "Output is available at: #{output_dir}/#{filename}"
 
           ####
           ### Finish by uploading if we're all configured
@@ -133,6 +117,24 @@ module Kenna
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
           upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
         end
+      end
+      
+      private
+
+      def initialize_options
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @aws_regions = @options[:aws_regions].uniq
+        @aws_access_key = @options[:aws_access_key]
+        @aws_secret_key = @options[:aws_secret_key]
+        # FIXME: Add support for role/token
+        aws_security_token = @options[:aws_security_token]
+        role_arn = @options[:role_arn]
+        @output_directory = @options[:output_directory]
+        @skip_autoclose = false
+        @retries = 3
+        @kdi_version = 2
       end
 
       def extract_asset(finding)

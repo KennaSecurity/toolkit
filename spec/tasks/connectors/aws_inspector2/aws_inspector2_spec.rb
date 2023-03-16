@@ -66,6 +66,17 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                       "Squad:", "External:", "Technical Service:")
       end
     end
+
+    describe "writing out the KDI file" do
+      it "writes one file per batch" do
+        expect(task).to receive(:kdi_upload).at_least(2).times
+        VCR.use_cassette("aws_inspector_v2_findings") do
+          task.run(options)
+        end
+      end
+    end
+
+    describe "multiple regions"
   end
 
   def spy_on_accumulators

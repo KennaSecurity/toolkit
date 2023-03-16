@@ -11,7 +11,7 @@ export KENNA_API_KEY='**REPLACE ME**'
 export AWS_ACCESS_KEY='**REPLACE ME**'
 export AWS_SECRET_KEY='**REPLACE ME**'
 bundle install
-BUNDLE_WITH=development bundle exec ruby toolkit.rb task=aws_inspector2 kenna_api_key=$KENNA_API_KEY kenna_api_host=api.kdev.docker aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY kenna_connector_id=163494 aws_regions=us-east-2,us-east-1
+BUNDLE_WITH=development bundle exec ruby toolkit.rb task=aws_inspector2 kenna_api_key=$KENNA_API_KEY kenna_api_host=api.kdev.docker aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY kenna_connector_id=163494 debug=true aws_regions=us-east-2,us-east-1
 ```
 
 State of work:
