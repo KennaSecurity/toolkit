@@ -168,14 +168,11 @@ module Kenna
         #   vulnerability_id = cve.relatedVulnerabilities
         #   puts "GOOD?#{vulnerability_id}"
         # end
-        # #Checks if CVE score is present
-        if finding.inspector_score
-          numeric_severity = finding.inspector_score
-        else
-          # #Sets manual CVE Score of 1 or Kenna backend goes ugly baby mode again
-          puts "Untriaged CVE #{vulnerability_id} - Open a case to AWS support and ask them to triage the CVE and provide a score in the API response"
-          numeric_severity = 1
-        end
+
+        # Sometimes inspector_score is nil, in which case we set it to 1 because the Kenna Data
+        # Importer requires a score. However, it's not that important because it doesn't factor into
+        # the Kenna score, which is derived from proprietary data sources and models.
+        numeric_severity = finding.inspector_score || 1
 
         {
           scanner_identifier: vulnerability_id.to_s,
