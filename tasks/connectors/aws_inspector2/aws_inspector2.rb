@@ -127,31 +127,16 @@ module Kenna
       end
 
       def extract_asset(finding)
-        fqdn = finding[:resources].first[:tags]["Name"] # FIXME: this isn't always a valid fqdn
-        # fqdn = "" if fqdn.class.to_s == 'NilClass' #FIXME do this better
-        fqdn = if !fqdn.empty?
-                 finding[:resources][0][:tags]["Name"]
-               else
-                 # #Have to put an asset name or Kenna backend cries like an ugly baby
-                 "NoName"
-               end
-        instance_id = finding[:resources][0][:id]
-        tribe = "Sports"
-        # tribe = finding[:resources][0][:tags]["Tribe"]
-        environment = finding[:resources][0][:tags]["Environment"]
-        platform = finding[:resources][0][:details][:aws_ec2_instance][:platform]
-        awsaccount = finding[:aws_account_id]
-        squad = finding[:resources][0][:tags]["Squad"]
-        external = finding[:resources][0][:tags]["TLA-Name"]
-        service = finding[:resources][0][:tags]["service"]
-        ipaddress = finding[:resources][0][:details][:aws_ec2_instance][:ip_v4_addresses][0]
+        resource = finding.resources.first
+        name = resource.tags.delete("Name")
+        hostname, fqdn = name.partition(/^*(?!-)(?:[a-zA-Z0-9-]{1,63}(?<!-)\.){2,}[a-zA-Z]{2,63}\.?$/)
         {
-          fqdn: fqdn.to_s,
-          ec2: instance_id.to_s,
-          os: platform.to_s,
-          tags: ["AWS", "Tribe:#{tribe}", "Environment:#{environment}", "OS:#{platform}", "AWS Account ID:#{awsaccount}", "Squad:#{squad}", "External:#{external}", "Technical Service:#{service}"],
-          priority: 10,
-          ip_address: ipaddress.to_s,
+          ec2: resource.id,
+          fqdn:,
+          hostname:,
+          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.first, # FIXME: do we prefer public ip?
+          os: resource.details.aws_ec2_instance.platform,
+          tags: resource.tags.map { |tag| tag.join(':') },
           vulns: []
         }.with_indifferent_access
       end

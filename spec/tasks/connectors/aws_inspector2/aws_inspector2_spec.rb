@@ -42,8 +42,18 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
 
       it "creates assets" do
         expect(task.assets)
+          .to include({ ec2: "i-0c0fe138a5367ef34",
+                        fqdn: "nessus.connectorlab.org",
+                        hostname: "",
+                        ip_address: "172.31.30.98",
+                        os: "AMAZON_LINUX",
+                        priority: 10,
+                        tags: be_an(Array),
+                        vulns: be_an(Array) })
+        expect(task.assets)
           .to include({ ec2: "i-09fd5b46b5457d22c",
-                        fqdn: "Sonarcube",
+                        fqdn: "",
+                        hostname: "Sonarcube",
                         ip_address: "172.31.10.90",
                         os: "AMAZON_LINUX_2",
                         priority: 10,
@@ -52,7 +62,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       end
 
       it "creates vulns on the assets" do
-        expect(asset_with_ip("172.31.10.90")[:vulns])
+        expect(select_asset("i-09fd5b46b5457d22c")[:vulns])
           .to include({ created_at: be_a(DateTime),
                         last_seen_at: be_a(DateTime),
                         scanner_identifier: "CVE-2022-36123",
@@ -63,9 +73,8 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       end
 
       it "creates tags on the assets" do
-        expect(asset_with_ip("172.31.10.90")[:tags])
-          .to include("AWS", "Tribe:Sports", "Environment:", "OS:AMAZON_LINUX_2", "AWS Account ID:612899039241",
-                      "Squad:", "External:", "Technical Service:")
+        expect(select_asset("i-0c0fe138a5367ef34")[:tags])
+          .to include("Schedule:nightnight", "state:started")
       end
     end
 
@@ -98,7 +107,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
     subject.extend Kenna::Toolkit::KdiAccumulatorSpy
   end
 
-  def asset_with_ip(ip_address)
-    task.assets.find { |asset| asset[:ip_address] == ip_address }
+  def select_asset(id)
+    task.assets.find { |asset| asset[:ec2] == id }
   end
 end
