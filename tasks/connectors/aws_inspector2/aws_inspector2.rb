@@ -6,6 +6,7 @@ module Kenna
   module Toolkit
     class AwsInspector2 < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "AWS Inspector V2"
+      PRIVATE_IP_PATTERN = /^(10|127|169\.254|172\.(1[6-9]|2[0-9]|3[0-1])|192\.168)\./
       def self.metadata
         {
           id: "aws_inspector2",
@@ -134,7 +135,7 @@ module Kenna
           ec2: resource.id,
           fqdn:,
           hostname:,
-          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.first, # FIXME: do we prefer public ip?
+          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.sort_by {|ip| ip[PRIVATE_IP_PATTERN].to_s }.first,
           os: resource.details.aws_ec2_instance.platform,
           tags: resource.tags.map { |tag| tag.join(':') },
           vulns: []
