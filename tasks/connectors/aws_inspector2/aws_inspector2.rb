@@ -159,7 +159,7 @@ module Kenna
           scanner_type: SCANNER_TYPE,
           created_at: DateTime.now,
           last_seen_at: DateTime.now,
-          status: finding.status == "ACTIVE" ? "open" : "closed",
+          status: finding.status == "CLOSED" ? "closed" : "open",
           vuln_def_name: finding.title,
           scanner_score: numeric_severity.round
         }.with_indifferent_access
