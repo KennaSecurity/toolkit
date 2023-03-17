@@ -172,7 +172,8 @@ module Kenna
           scanner_type: SCANNER_TYPE,
           cve_identifiers: cve_id,
           name: finding.title,
-          description: finding.description
+          description: finding.description,
+          solution: finding.remediation.recommendation.text
         }.with_indifferent_access
       end
 
