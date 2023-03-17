@@ -83,14 +83,14 @@ module Kenna
           loop do
             response = get_inspector_findings(region, @aws_access_key, @aws_secret_key)
             response.findings.each do |finding|
-              # #Skips if the Finding does not have a Vulnerability
-              next unless finding.package_vulnerability_details
+              # We only handle package vulns for now.
+              next unless finding.type == "PACKAGE_VULNERABILITY"
 
               # #Skip Finding if it is not an EC2 object, Kenna backend likes no ECR findings
               next unless finding.resources.first.details.aws_ec2_instance
 
               asset = extract_asset(finding)
-              vuln = extract_asset_vuln(finding) # vulnerability_id, numeric_severity, title
+              vuln = extract_asset_vuln(finding)
               definition = extract_definition(finding)
 
               create_kdi_asset(asset)
