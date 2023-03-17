@@ -125,6 +125,7 @@ module Kenna
         # FIXME: Add support for role/token
         @aws_security_token = @options[:aws_security_token]
         @role_arn = @options[:role_arn]
+        raise NotImplementedError if @aws_security_token || @role_arn
       end
 
       def extract_asset(finding)
