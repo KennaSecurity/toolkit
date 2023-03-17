@@ -24,8 +24,7 @@ end
 module Kenna
   module Toolkit
     module KdiAccumulatorSpy
-      attr_reader :vuln_defs
-      attr_reader :assets
+      attr_reader :vuln_defs, :assets
 
       def clear_data_arrays; end
     end

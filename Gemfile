@@ -16,13 +16,13 @@ gem "addressable"
 gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
 gem "aws-sdk-inspector2"
-gem "strscan"
-gem "rest-client"
-gem "sanitize"
-gem "tty-pager"
 gem "httparty"
-gem "rexml", ">= 3.2.5"
 gem "ipaddress"
+gem "rest-client"
+gem "rexml", ">= 3.2.5"
+gem "sanitize"
+gem "strscan"
+gem "tty-pager"
 
 group :development, :test do
   gem "pry"
@@ -31,6 +31,6 @@ group :development, :test do
   gem "rubocop", require: false
   gem "solargraph", require: false
   gem "timecop"
-  gem "webmock", "~> 3.18"
   gem "vcr", "~> 6.1"
+  gem "webmock", "~> 3.18"
 end
