@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler'
-# Bundler.setup(:default, :test)
+Bundler.setup(:default, :test)
 require 'pry-byebug'
 
 require_relative "../lib/toolkit"
