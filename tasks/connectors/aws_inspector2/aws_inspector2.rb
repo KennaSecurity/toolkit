@@ -135,7 +135,7 @@ module Kenna
           ec2: resource.id,
           fqdn:,
           hostname:,
-          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.sort_by {|ip| ip[PRIVATE_IP_PATTERN].to_s }.first,
+          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.sort_by { |ip| ip[PRIVATE_IP_PATTERN].to_s }.first,
           os: resource.details.aws_ec2_instance.platform,
           tags: resource.tags.map { |tag| tag.join(':') },
           vulns: []
