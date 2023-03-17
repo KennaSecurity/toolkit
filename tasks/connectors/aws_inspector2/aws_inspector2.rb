@@ -7,6 +7,8 @@ module Kenna
     class AwsInspector2 < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "AWS Inspector V2"
       PRIVATE_IP_PATTERN = /^(10|127|169\.254|172\.(1[6-9]|2[0-9]|3[0-1])|192\.168)\./
+      FQDN_PATTERN = /^*(?!-)(?:[a-zA-Z0-9-]{1,63}(?<!-)\.){2,}[a-zA-Z]{2,63}\.?$/
+
       def self.metadata
         {
           id: "aws_inspector2",
@@ -98,8 +100,7 @@ module Kenna
               create_kdi_vuln_def(definition)
             end
 
-            @batch_num ||= 0
-            @batch_num += 1
+            @batch_num = @batch_num.to_i.succ
             kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             @next_token = response.next_token or break
           end
@@ -131,7 +132,7 @@ module Kenna
       def extract_asset(finding)
         resource = finding.resources.first
         name = resource.tags.delete("Name")
-        hostname, fqdn = name.partition(/^*(?!-)(?:[a-zA-Z0-9-]{1,63}(?<!-)\.){2,}[a-zA-Z]{2,63}\.?$/)
+        hostname, fqdn = name.partition(FQDN_PATTERN)
         {
           ec2: resource.id,
           fqdn:,
