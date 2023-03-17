@@ -148,25 +148,18 @@ module Kenna
         cve = finding.package_vulnerability_details
         raise "Not a CVE" unless cve.vulnerability_id.include?("CVE")
 
-        vulnerability_id = cve[:vulnerability_id]
-
-        # if cve.key?(:relatedVulnerabilities) # jagarber: I don't understand this block
-        #   vulnerability_id = cve.relatedVulnerabilities
-        #   puts "GOOD?#{vulnerability_id}"
-        # end
-
         # Sometimes inspector_score is nil, in which case we set it to 1 because the Kenna Data
         # Importer requires a score. However, it's not that important because it doesn't factor into
         # the Kenna score, which is derived from proprietary data sources and models.
         numeric_severity = finding.inspector_score || 1
 
         {
-          scanner_identifier: vulnerability_id.to_s,
+          scanner_identifier: finding.finding_arn,
           scanner_type: SCANNER_TYPE,
           created_at: DateTime.now,
           last_seen_at: DateTime.now,
-          status: "open",
-          vuln_def_name: vulnerability_id.to_s, # FIXME: Should be finding.title?
+          status: finding.status == "ACTIVE" ? "open" : "closed",
+          vuln_def_name: finding.title,
           scanner_score: numeric_severity.round
         }.with_indifferent_access
       end
@@ -174,10 +167,11 @@ module Kenna
       def extract_definition(finding)
         cve_id = finding.package_vulnerability_details.vulnerability_id
         {
-          scanner_identifier: cve_id.to_s,
+          scanner_identifier: finding.finding_arn,
           scanner_type: SCANNER_TYPE,
-          cve_identifiers: cve_id.to_s,
-          name: cve_id.to_s # FIXME: Should be finding.title?
+          cve_identifiers: cve_id,
+          name: finding.title,
+          description: finding.description
         }.with_indifferent_access
       end
 

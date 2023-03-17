@@ -34,9 +34,10 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
         expect(task.vuln_defs)
           .to include({
                         cve_identifiers: "CVE-2022-21426",
-                        name: "CVE-2022-21426",
-                        scanner_identifier: "CVE-2022-21426",
-                        scanner_type: "AWS Inspector V2"
+                        name: "CVE-2022-21426 - java-1.7.0-openjdk",
+                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/f7108e88a43e52e5f5168861180f1efd",
+                        scanner_type: "AWS Inspector V2",
+                        description: "Vulnerability in the Oracle Java SE, Oracle GraalVM Enterprise Edition product of Oracle Java SE (component: JAXP). Supported versions that are affected are Oracle Java SE: 7u331, 8u321, 11.0.14, 17.0.2, 18; Oracle GraalVM Enterprise Edition: 20.3.5, 21.3.1 and 22.0.0.2. Easily exploitable vulnerability allows unauthenticated attacker with network access via multiple protocols to compromise Oracle Java SE, Oracle GraalVM Enterprise Edition. Successful attacks of this vulnerability can result in unauthorized ability to cause a partial denial of service (partial DOS) of Oracle Java SE, Oracle GraalVM Enterprise Edition. Note: This vulnerability applies to Java deployments, typically in clients running sandboxed Java Web Start applications or sandboxed Java applets, that load and run untrusted code (e.g., code that comes from the internet) and rely on the Java sandbox for security. This vulnerability can also be exploited by using APIs in the specified Component, e.g., through a web service which supplies data t"
                       })
       end
 
@@ -65,11 +66,11 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
         expect(select_asset("i-09fd5b46b5457d22c")[:vulns])
           .to include({ created_at: be_a(DateTime),
                         last_seen_at: be_a(DateTime),
-                        scanner_identifier: "CVE-2022-36123",
+                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/32750bb2f6cae06b828c652864bc1060",
                         scanner_type: "AWS Inspector V2",
                         status: "open",
                         scanner_score: 7,
-                        vuln_def_name: "CVE-2022-36123" })
+                        vuln_def_name: "CVE-2022-36123 - kernel" })
       end
 
       it "creates tags on the assets" do
