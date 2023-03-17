@@ -118,7 +118,7 @@ module Kenna
         @aws_access_key = @options[:aws_access_key]
         @aws_secret_key = @options[:aws_secret_key]
         @output_directory = @options[:output_directory]
-        @skip_autoclose = false
+        @skip_autoclose = true
         @retries = 3
         @kdi_version = 2
 
