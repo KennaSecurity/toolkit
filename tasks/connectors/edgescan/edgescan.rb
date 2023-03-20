@@ -3,7 +3,6 @@
 require_relative "lib/edgescan_api"
 require_relative "lib/edgescan_definition"
 require_relative "lib/edgescan_host"
-require_relative "lib/edgescan_location_specifier"
 require_relative "lib/edgescan_vulnerability"
 require_relative "lib/kenna_api"
 
@@ -86,14 +85,9 @@ module Kenna
         edgescan_api = Kenna::Toolkit::Edgescan::EdgescanApi.new(@options)
         kenna_api = Kenna::Toolkit::Edgescan::KennaApi.new(@options)
 
-        edgescan_api.fetch_in_batches do |vulnerabilities, definitions, specifiers_hosts|
-          kenna_api.add_assets(specifiers_hosts, vulnerabilities)
+        edgescan_api.fetch_in_batches do |vulnerabilities, definitions, hosts|
           if @options[:network_vulns] || @options[:application_vulns]
-            if @options[:create_findings]
-              kenna_api.add_findings(vulnerabilities)
-            else
-              kenna_api.add_vulnerabilities(vulnerabilities)
-            end
+            kenna_api.add_vulnerabilities_and_hosts(vulnerabilities, hosts, @options[:create_findings])
           end
 
           kenna_api.add_definitions(definitions)

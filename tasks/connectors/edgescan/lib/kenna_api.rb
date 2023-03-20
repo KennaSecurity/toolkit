@@ -17,26 +17,17 @@ module Kenna
           @kdi_version = 2
         end
 
-        # Converts edgescan data into Kenna assets
-        def add_assets(specifiers_hosts, vulnerabilities)
-          if @assets_from_hosts
-            add_assets_from_hosts(specifiers_hosts)
-          else
-            add_assets_from_specifiers(specifiers_hosts, vulnerabilities)
-          end
-        end
-
-        # Converts Edgescan vulnerabilities into Kenna ones and adds them into memory
-        def add_vulnerabilities(edgescan_vulnerabilities)
-          edgescan_vulnerabilities.each do |vulnerability|
-            add_vulnerability(vulnerability.external_id, vulnerability.to_kenna_vulnerability)
-          end
-        end
-
-        # Converts Edgescan vulnerabilities into Kenna findings and adds them into memory
-        def add_findings(edgescan_vulnerabilities)
-          edgescan_vulnerabilities.each do |vulnerability|
-            add_finding(vulnerability.external_id, vulnerability.to_kenna_finding)
+        # Converts Edgescan hosts, vulnerabilities (and location specifiers) into Kenna assets and vulnerabilities/findings
+        def add_vulnerabilities_and_hosts(vulnerabilities, hosts, to_kenna_findings = false)
+          assets = hosts.count.positive? ? hosts.map(&:to_kenna_asset) : vulnerabilities.map(&:to_kenna_asset).uniq
+          vulnerabilities.each do |vuln|
+            asset = assets.find { |a| a["external_id"] == vuln.external_id }
+            asset = vuln.to_kenna_asset if asset.nil?
+            if to_kenna_findings
+              create_kdi_asset_finding(asset, vuln.to_kenna_finding, "external_id")
+            else
+              create_kdi_asset_vuln(asset, vuln.to_kenna_vulnerability, "external_id")
+            end
           end
         end
 
@@ -63,43 +54,6 @@ module Kenna
         end
 
         private
-
-        # Converts Edgescan location specifiers and vulnerabilities into Kenna assets and adds them to memory
-        def add_assets_from_specifiers(edgescan_location_specifiers, edgescan_vulnerabilities)
-          # Convert location specifiers into kenna assets, remove any lists within lists, or duplicate assets
-          kenna_assets = edgescan_location_specifiers.map(&:to_kenna_asset).flatten.uniq
-          # Add any kenna assets, from vulnerabilities, that are not already present
-          # This will only happen if a vulnerability does not have a corresponding host or location specifier
-          kenna_assets.concat(edgescan_vulnerabilities.map(&:to_kenna_asset).uniq - kenna_assets)
-          kenna_assets.each do |asset|
-            add_asset(asset)
-          end
-        end
-
-        # Convert Edgescan hosts into Kenna assets and add them to memory
-        def add_assets_from_hosts(edgescan_hosts)
-          kenna_assets = edgescan_hosts.map(&:to_kenna_asset)
-          kenna_assets.each do |asset|
-            add_asset(asset)
-          end
-        end
-
-        # Adds Kenna asset into memory (if one with the same `external_id` doesn't exist already)
-        def add_asset(kenna_asset)
-          return if (@assets || []).map { |asset| asset["external_id"] }.include?(kenna_asset["external_id"])
-
-          create_kdi_asset(kenna_asset, false)
-        end
-
-        # Adds Kenna vulnerability into memory
-        def add_vulnerability(external_id, kenna_vulnerability)
-          create_kdi_asset_vuln({ "external_id" => external_id }, kenna_vulnerability, "external_id")
-        end
-
-        # Adds Kenna finding into memory
-        def add_finding(external_id, kenna_finding)
-          create_kdi_asset_finding({ "external_id" => external_id }, kenna_finding, "external_id")
-        end
 
         # Adds Kenna definition into memory
         def add_definition(kenna_definition)
