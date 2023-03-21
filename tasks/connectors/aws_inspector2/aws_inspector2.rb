@@ -193,8 +193,8 @@ module Kenna
 
       def build_tags(resource)
         regular_tags = resource.tags.map { |tag| tag.join(':') }
-        registry_tags = resource.dig(:details, :aws_ecr_container_image, :registry).try {|r| "registry-#{r}" }
-        repository_tags = resource.dig(:details, :aws_ecr_container_image, :repository_name).try {|r| "repository-#{r}" }
+        registry_tags = resource.dig(:details, :aws_ecr_container_image, :registry).try { |r| "registry-#{r}" }
+        repository_tags = resource.dig(:details, :aws_ecr_container_image, :repository_name).try { |r| "repository-#{r}" }
         [regular_tags, registry_tags, repository_tags].flatten.compact
       end
 
