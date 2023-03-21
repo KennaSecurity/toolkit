@@ -140,7 +140,7 @@ module Kenna
         if resource.type == "AWS_ECR_CONTAINER_IMAGE"
           {
             asset_type: "image",
-            image_id: resource.dig(:details, :aws_ecr_container_image, :image_hash).partition(':').last
+            image_id: resource.dig(:details, :aws_ecr_container_image, :image_hash)
             # resource.dig(:details, :aws_ecr_container_image, :repository_name) would be helpful, but where to put it?
           }
         else

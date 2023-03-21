@@ -66,7 +66,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       it "creates ecr image assets" do
         expect(task.assets)
           .to include({ asset_type: "image",
-                        image_id: start_with("34ca666355"),
+                        image_id: start_with("sha256:34ca666355"),
                         priority: 10,
                         tags: be_an(Array),
                         vulns: be_an(Array) })
@@ -81,7 +81,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                         status: "open",
                         scanner_score: 7,
                         vuln_def_name: "CVE-2022-36123 - kernel" })
-        expect(select_asset("34ca666355")[:vulns])
+        expect(select_asset("sha256:34ca666355")[:vulns])
           .to include({ created_at: be_a(Time),
                         last_seen_at: be_a(Time),
                         scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/01078690981ce6c19ba17107030248d6",
