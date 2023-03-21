@@ -141,7 +141,6 @@ module Kenna
           {
             asset_type: "image",
             image_id: resource.dig(:details, :aws_ecr_container_image, :image_hash)
-            # resource.dig(:details, :aws_ecr_container_image, :repository_name) would be helpful, but where to put it?
           }
         else
           {
@@ -152,7 +151,7 @@ module Kenna
             os: resource.details.aws_ec2_instance.platform
           }
         end.merge({
-                    tags: resource.tags.map { |tag| tag.join(':') },
+                    tags: build_tags(resource),
                     vulns: []
                   }).compact.with_indifferent_access
       end
@@ -190,6 +189,13 @@ module Kenna
           description: finding.description,
           solution: finding.remediation.recommendation.text
         }.compact.with_indifferent_access
+      end
+
+      def build_tags(resource)
+        regular_tags = resource.tags.map { |tag| tag.join(':') }
+        registry_tags = resource.dig(:details, :aws_ecr_container_image, :registry).try {|r| "registry-#{r}" }
+        repository_tags = resource.dig(:details, :aws_ecr_container_image, :repository_name).try {|r| "repository-#{r}" }
+        [regular_tags, registry_tags, repository_tags].flatten.compact
       end
 
       def get_inspector_findings(region, access_key, secret_key)

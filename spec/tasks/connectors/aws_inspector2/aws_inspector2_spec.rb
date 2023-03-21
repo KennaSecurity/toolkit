@@ -94,6 +94,8 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       it "creates tags on the assets" do
         expect(select_asset("i-0c0fe138a5367ef34")[:tags])
           .to include("Schedule:nightnight", "state:started")
+        expect(select_asset("sha256:34ca666355")[:tags])
+          .to include("registry-612899039241", "repository-inspector2_ecr_scanning")
       end
     end
 
