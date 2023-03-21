@@ -8,6 +8,13 @@ module Kenna
       SCANNER_TYPE = "AWS Inspector V2"
       PRIVATE_IP_PATTERN = /^(10|127|169\.254|172\.(1[6-9]|2[0-9]|3[0-1])|192\.168)\./
       FQDN_PATTERN = /^*(?!-)(?:[a-zA-Z0-9-]{1,63}(?<!-)\.){2,}[a-zA-Z]{2,63}\.?$/
+      SEVERITY_VALUE = {
+        "INFORMATIONAL" => 0,
+        "LOW" => 3,
+        "MEDIUM" => 6,
+        "HIGH" => 8,
+        "CRITICAL" => 10
+      }.freeze
 
       def self.metadata
         {
@@ -88,9 +95,6 @@ module Kenna
               # We only handle package vulns for now.
               next unless finding.type == "PACKAGE_VULNERABILITY"
 
-              # #Skip Finding if it is not an EC2 object, Kenna backend likes no ECR findings
-              next unless finding.resources.first.details.aws_ec2_instance
-
               asset = extract_asset(finding)
               vuln = extract_asset_vuln(finding)
               definition = extract_definition(finding)
@@ -132,50 +136,60 @@ module Kenna
       def extract_asset(finding)
         resource = finding.resources.first
         name = resource.tags.delete("Name")
-        hostname, fqdn = name.partition(FQDN_PATTERN)
-        {
-          ec2: resource.id,
-          fqdn:,
-          hostname:,
-          ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.min_by { |ip| ip[PRIVATE_IP_PATTERN].to_s },
-          os: resource.details.aws_ec2_instance.platform,
-          tags: resource.tags.map { |tag| tag.join(':') },
-          vulns: []
-        }.with_indifferent_access
+        hostname, fqdn = name&.partition(FQDN_PATTERN)
+        if resource.type == "AWS_ECR_CONTAINER_IMAGE"
+          {
+            asset_type: "image",
+            image_id: resource.dig(:details, :aws_ecr_container_image, :image_hash).partition(':').last
+            # resource.dig(:details, :aws_ecr_container_image, :repository_name) would be helpful, but where to put it?
+          }
+        else
+          {
+            ec2: resource.id,
+            fqdn:,
+            hostname:,
+            ip_address: resource.details.aws_ec2_instance.ip_v4_addresses.min_by { |ip| ip[PRIVATE_IP_PATTERN].to_s },
+            os: resource.details.aws_ec2_instance.platform
+          }
+        end.merge({
+                    tags: resource.tags.map { |tag| tag.join(':') },
+                    vulns: []
+                  }).compact.with_indifferent_access
       end
 
       def extract_asset_vuln(finding)
         raise "Unhandled finding type #{finding.type}" unless finding.type == "PACKAGE_VULNERABILITY"
 
-        cve = finding.package_vulnerability_details
-        raise "Not a CVE" unless cve.vulnerability_id.include?("CVE")
-
-        # Sometimes inspector_score is nil, in which case we set it to 1 because the Kenna Data
-        # Importer requires a score. However, it's not that important because it doesn't factor into
+        # Sometimes inspector_score is nil, in which case we try to map the severity value to a
+        # numeric value. If that fails, we set it to 1 because the Kenna Data Importer requires
+        # a score. However, it's not that important because it doesn't factor into
         # the Kenna score, which is derived from proprietary data sources and models.
-        numeric_severity = finding.inspector_score || 1
+        severity_value = SEVERITY_VALUE[finding.severity]
+        numeric_severity = finding.inspector_score || severity_value || 1
 
         {
           scanner_identifier: finding.finding_arn,
           scanner_type: SCANNER_TYPE,
-          created_at: DateTime.now,
-          last_seen_at: DateTime.now,
+          created_at: finding.first_observed_at,
+          last_seen_at: finding.last_observed_at,
           status: finding.status == "CLOSED" ? "closed" : "open",
           vuln_def_name: finding.title,
           scanner_score: numeric_severity.round
-        }.with_indifferent_access
+        }.compact.with_indifferent_access
       end
 
       def extract_definition(finding)
-        cve_id = finding.package_vulnerability_details.vulnerability_id
+        vuln_id = finding.package_vulnerability_details.vulnerability_id
         {
           scanner_identifier: finding.finding_arn,
           scanner_type: SCANNER_TYPE,
-          cve_identifiers: cve_id,
+          cve_identifiers: vuln_id.include?("CVE") ? vuln_id : nil,
+          cwe_identifiers: vuln_id.include?("CWE") ? vuln_id : nil,
+          wasc_identifiers: vuln_id.include?("WASC") ? vuln_id : nil,
           name: finding.title,
           description: finding.description,
           solution: finding.remediation.recommendation.text
-        }.with_indifferent_access
+        }.compact.with_indifferent_access
       end
 
       def get_inspector_findings(region, access_key, secret_key)

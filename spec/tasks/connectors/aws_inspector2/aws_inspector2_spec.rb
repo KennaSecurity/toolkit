@@ -42,7 +42,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                       })
       end
 
-      it "creates assets" do
+      it "creates ec2 assets" do
         expect(task.assets)
           .to include({ ec2: "i-0c0fe138a5367ef34",
                         fqdn: "nessus.connectorlab.org",
@@ -63,15 +63,32 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                         vulns: be_an(Array) })
       end
 
+      it "creates ecr image assets" do
+        expect(task.assets)
+          .to include({ asset_type: "image",
+                        image_id: start_with("34ca666355"),
+                        priority: 10,
+                        tags: be_an(Array),
+                        vulns: be_an(Array) })
+      end
+
       it "creates vulns on the assets" do
         expect(select_asset("i-09fd5b46b5457d22c")[:vulns])
-          .to include({ created_at: be_a(DateTime),
-                        last_seen_at: be_a(DateTime),
+          .to include({ created_at: be_a(Time),
+                        last_seen_at: be_a(Time),
                         scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/32750bb2f6cae06b828c652864bc1060",
                         scanner_type: "AWS Inspector V2",
                         status: "open",
                         scanner_score: 7,
                         vuln_def_name: "CVE-2022-36123 - kernel" })
+        expect(select_asset("34ca666355")[:vulns])
+          .to include({ created_at: be_a(Time),
+                        last_seen_at: be_a(Time),
+                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/01078690981ce6c19ba17107030248d6",
+                        scanner_type: "AWS Inspector V2",
+                        status: "open",
+                        scanner_score: 8,
+                        vuln_def_name: "IN1-JS-TOUGHCOOKIE-10119 - tough-cookie" })
       end
 
       it "creates tags on the assets" do
@@ -110,6 +127,6 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
   end
 
   def select_asset(id)
-    task.assets.find { |asset| asset[:ec2] == id }
+    task.assets.find { |asset| asset[:ec2] == id || asset[:image_id]&.start_with?(id) }
   end
 end
