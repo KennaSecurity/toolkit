@@ -1,4 +1,4 @@
-FROM ruby:3.2.0
+FROM ruby:3.2.1
 USER root
 
 # Update the base image.
@@ -9,6 +9,7 @@ ADD . "/opt/app/toolkit/"
 
 # Run Bundle Install
 WORKDIR "/opt/app/toolkit/"
+RUN gem install bundler -v 2.4.9
 RUN bundle install
 
 # Set Entrypoint
