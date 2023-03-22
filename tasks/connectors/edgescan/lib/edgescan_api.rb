@@ -13,6 +13,7 @@ module Kenna
           @include_application_vulnerabilities = options[:application_vulns]
           @include_network_vulnerabilities = options[:network_vulns]
           @assets_from_hosts = options[:assets_from_hosts]
+          @create_findings = options[:create_findings]
         end
 
         # Fetches Edgescan assets and vulnerabilities in batches. Yields each batch.
@@ -83,7 +84,7 @@ module Kenna
             asset = assets.find { |a| a["id"] == asset_id }
             vulnerabilities.each do |vulnerability|
               host = find_matching_host(hosts[asset_id], vulnerability["location"])
-              edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host)
+              edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host, @create_findings)
             end
           end
         end
