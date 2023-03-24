@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require "aws-sdk-inspector"
+require 'pry'
+require 'pry-byebug'
 
 module Kenna
   module Toolkit
@@ -79,6 +81,7 @@ module Kenna
         @vuln_defs = []
         get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
           # create an asset with our locators (regardless of whether we have vulns)
+          binding.pry
           fqdn = f[:asset_attributes][:hostname]
           instance_id = f[:attributes].find { |a| a[:key] == "INSTANCE_ID" }[:value]
 
@@ -160,28 +163,31 @@ module Kenna
       end
 
       def get_inspector_findings(region, access_key, secret_key)
+        findings = []
+        next_page_token = nil
+        more_pages = true
         begin
-          # do stuff
-          inspector = Aws::Inspector::Client.new({
-                                                   region:,
-                                                   credentials: Aws::Credentials.new(access_key, secret_key)
-                                                 })
-
-          # go get the inspector findings
-          finding_arns = inspector.list_findings.finding_arns
-          if finding_arns.count.positive?
-            findings = inspector.describe_findings(finding_arns:).findings.map(&:to_hash)
-          else
-            print_error "No findings? Returning emptyhanded :["
-            findings = []
+          while more_pages
+            inspector = Aws::Inspector::Client.new({
+                                                    region:,
+                                                    credentials: Aws::Credentials.new(access_key, secret_key)
+                                                  })
+            findings_page = inspector.list_findings({next_token: next_page_token})
+            finding_arns = findings_page.finding_arns
+            next_page_token = findings_page.next_token
+            more_pages = false if next_page_token.nil?
+            if finding_arns.count.positive?
+              findings << inspector.describe_findings(finding_arns:).findings.map(&:to_hash)
+            else
+              print_error "No findings returned on this page"
+            end
           end
         rescue Aws::Inspector::Errors::ServiceError => e
           # rescues all errors returned by Amazon Inspector
           print_error "Irrecoverable error connecting to AWS!"
           fail_task e.inspect
         end
-
-        findings
+        findings.flatten
       end
     end
   end
