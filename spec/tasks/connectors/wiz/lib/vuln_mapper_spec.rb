@@ -27,19 +27,32 @@ RSpec.describe Kenna::Toolkit::Wiz::VulnsMapper do
     subject(:details_json) { JSON.parse(vuln_mapper.extract_details(vuln)) }
 
     context 'When detailed name and detection method data' do
-      it 'should should retrieve the corresponding data' do
+      it 'should retrieve the corresponding data' do
         expect(details_json['Detailed Name']).to eq(vuln['detailedName'])
         expect(details_json['Detection Method']).to eq(vuln['detectionMethod'])
       end
     end
 
-    context 'Whem detailed name and detection method are missing' do
+    context 'Whem detailed name and detection method are empty or nil' do
       let(:detailed_name) { nil }
       let(:detection_method) { nil }
 
       it 'should be nil' do
         expect(details_json['Detailed Name']).to be_nil
-        expect(details_json['Detailed Name']).to be_nil
+        expect(details_json['Detection Method']).to be_nil
+      end
+    end
+
+
+    context 'Whem detailed name and detection method are missing from response' do
+      before do
+        vuln.delete 'detailedName'
+        vuln.delete 'detectionMethod'
+      end
+
+      it 'should not be in details hash' do
+        expect(details_json.key? 'Detailed Name').to be_falsey
+        expect(details_json.key? 'Detection Method').to be_falsey
       end
     end
   end
