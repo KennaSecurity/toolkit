@@ -43,7 +43,6 @@ RSpec.describe Kenna::Toolkit::Wiz::VulnsMapper do
       end
     end
 
-
     context 'Whem detailed name and detection method are missing from response' do
       before do
         vuln.delete 'detailedName'
@@ -51,8 +50,8 @@ RSpec.describe Kenna::Toolkit::Wiz::VulnsMapper do
       end
 
       it 'should not be in details hash' do
-        expect(details_json.key? 'Detailed Name').to be_falsey
-        expect(details_json.key? 'Detection Method').to be_falsey
+        expect(details_json.key?('Detailed Name')).to be_falsey
+        expect(details_json.key?('Detection Method')).to be_falsey
       end
     end
   end
