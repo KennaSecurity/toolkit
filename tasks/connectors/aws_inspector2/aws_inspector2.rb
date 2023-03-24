@@ -88,7 +88,7 @@ module Kenna
         kdi_initialize
 
         @aws_regions.each do |region|
-          aws_client = new_aws_client(region, aws_credentials) # region can be nil
+          aws_client = new_aws_client(region, aws_credentials)
           print_debug "Querying #{aws_client.config.region} for findings"
 
           loop do
@@ -116,6 +116,7 @@ module Kenna
       end
 
       def new_aws_client(region = nil, aws_credentials = nil)
+        # If region or credentials are not provided, AWS Client picks them up from the environment.
         client_opts = {}
         client_opts[:credentials] = aws_credentials if aws_credentials
         client_opts[:region] = region if region
