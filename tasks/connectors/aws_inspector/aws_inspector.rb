@@ -166,10 +166,10 @@ module Kenna
         begin
           while more_pages
             inspector = Aws::Inspector::Client.new({
-                                                    region:,
-                                                    credentials: Aws::Credentials.new(access_key, secret_key)
-                                                  })
-            findings_page = inspector.list_findings({next_token: next_page_token})
+                                                     region:,
+                                                     credentials: Aws::Credentials.new(access_key, secret_key)
+                                                   })
+            findings_page = inspector.list_findings({ next_token: next_page_token })
             finding_arns = findings_page.finding_arns
             next_page_token = findings_page.next_token
             more_pages = false if next_page_token.nil?
