@@ -12,8 +12,8 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
     let(:aws_regions) { ENV["AWS_REGION"] || "us-east-1" }
     let(:options) do
       {
-        aws_access_key: ENV["AWS_ACCESS_KEY"] || "AWS_ACCESS_KEY",
-        aws_secret_key: ENV["AWS_SECRET_KEY"] || "AWS_SECRET_KEY",
+        aws_access_key_id: ENV["AWS_ACCESS_KEY_ID"] || "AWS_ACCESS_KEY_ID",
+        aws_secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"] || "AWS_SECRET_ACCESS_KEY",
         aws_regions:
       }
     end

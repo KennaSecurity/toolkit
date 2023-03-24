@@ -14,8 +14,8 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.allow_http_connections_when_no_cassette = false
   %w[
-    AWS_ACCESS_KEY
-    AWS_SECRET_KEY
+    AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY
   ].each do |key|
     config.filter_sensitive_data("<#{key}>") { ENV[key] || key }
   end

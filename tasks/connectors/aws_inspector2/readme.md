@@ -8,23 +8,29 @@ See the main toolkit README for instructions on running tasks. For this task, if
 
 ### Recommended Steps:
 
-1. Run with AWS keys only. You can provide AWS credentials and configuration through [shared ini files, environment variables](https://docs.aws.amazon.com/sdkref/latest/guide/creds-config-files.html), or by directly providing them to the task as shown below.
+1. Run with AWS keys only. You can provide AWS credentials and configuration through [shared ini files, environment variables](https://docs.aws.amazon.com/sdkref/latest/guide/creds-config-files.html),
 
 ```
-docker run --name toolkit_aws_inspector --rm -it toolkit:latest task=aws_inspector2 aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY aws_regions=us-east-1,us-east-2
+docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=example_profile --rm -it toolkit:latest task=aws_inspector2
 ```
 
-2. Review output for expected data
-3. Create a "Kenna Data Importer" Connector in Kenna and give it a meaningful name, like AWS Inspector V2 KDI
-  If you're doing any scanning of ECR container images, you'll need to have Kenna Support set a custom locator order for your KDI connector similar to:
-  `image_locator, ec2_locator, mac_address_locator, netbios_locator, external_ip_address_locator, hostname_locator, url_locator, file_locator, fqdn_locator, ip_address_locator, external_id_locator, database_locator, application_locator`
-4. Manually run the connector with the JSON from Step 1
-5. Review resulting data and diagnose any failure
-6. Click on the name of the KDI Connector to get the connector ID
-7. Run the task with AWS credentials and Kenna API key & connector ID
+...or by directly providing them to the task as shown below.
 
 ```
-docker run --name toolkit_aws_inspector --rm -it toolkit:latest task=aws_inspector2 aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=123456
+docker run --rm -it toolkit:latest task=aws_inspector2 aws_access_key_id=AKIAIOSFODNN7EXAMPLE aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY aws_regions=us-east-1,us-east-2
+```
+
+2. Review output for expected data.
+3. Create a "Kenna Data Importer" Connector in Kenna and give it a meaningful name, like "AWS Inspector V2 KDI."
+
+If you're doing any scanning of ECR container images, you'll need to have Kenna Support set a custom locator order for your KDI connector similar to: `image_locator, ec2_locator, mac_address_locator, netbios_locator, external_ip_address_locator, hostname_locator, url_locator, file_locator, fqdn_locator, ip_address_locator, external_id_locator, database_locator, application_locator`
+4. Manually upload the JSON output from Step 1 to the Kenna Data Connector.
+5. Review resulting data and diagnose any failure.
+6. Click on the name of the KDI Connector to get the connector ID.
+7. Run the task with AWS credentials and your Kenna API key & connector ID.
+
+```
+docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolkit:latest task=aws_inspector2 aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=12345
 ```
 
 ### Limitations:

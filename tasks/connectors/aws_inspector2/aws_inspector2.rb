@@ -23,12 +23,12 @@ module Kenna
           description: "Pulls findings from the AWS Inspector V2 API",
           options: [
             {
-              name: "aws_access_key",
+              name: "aws_access_key_id",
               type: "string",
               required: false,
               description: "AWS access key"
             }, {
-              name: "aws_secret_key",
+              name: "aws_secret_access_key",
               type: "string",
               required: false,
               description: "AWS secret key"
@@ -60,10 +60,10 @@ module Kenna
               default: "output/inspector",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}"
             }, {
-              name: "aws_security_token",
+              name: "aws_session_token",
               type: "string",
               required: false,
-              description: "AWS security token"
+              description: "AWS session token"
             }, {
               name: "role_arn",
               type: "string",
@@ -125,9 +125,9 @@ module Kenna
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
         @aws_regions = @options[:aws_regions]&.uniq || [nil]
-        @aws_access_key = @options[:aws_access_key]
-        @aws_secret_key = @options[:aws_secret_key]
-        @aws_security_token = @options[:aws_security_token]
+        @aws_access_key_id = @options[:aws_access_key_id]
+        @aws_secret_access_key = @options[:aws_secret_access_key]
+        @aws_session_token = @options[:aws_session_token]
         @output_directory = @options[:output_directory]
         @skip_autoclose = true
         @retries = 3
@@ -135,13 +135,13 @@ module Kenna
 
         # FIXME: Add support for role
         @role_arn = @options[:role_arn]
-        raise NotImplementedError if @aws_security_token || @role_arn
+        raise NotImplementedError, "The task doesn't accept an AWS role yet." if @role_arn
       end
 
       def aws_credentials
-        return nil unless @aws_access_key && @aws_secret_key
+        return nil unless @aws_access_key_id && @aws_secret_access_key
 
-        Aws::Credentials.new(@aws_access_key, @aws_secret_key, @aws_security_token)
+        Aws::Credentials.new(@aws_access_key_id, @aws_secret_access_key, @aws_session_token)
       end
 
       def extract_asset(finding)
