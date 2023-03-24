@@ -26,25 +26,21 @@ module Kenna
               name: "aws_access_key",
               type: "string",
               required: false,
-              default: "",
               description: "AWS access key"
             }, {
               name: "aws_secret_key",
               type: "string",
               required: false,
-              default: "",
               description: "AWS secret key"
             }, {
               name: "aws_regions",
               type: "array",
               required: false,
-              default: nil, # FIXME: start nil
               description: "Comma-separated list of AWS regions to include when collecting findings"
             }, {
               name: "kenna_api_key",
               type: "api_key",
               required: false,
-              default: nil,
               description: "Kenna API key"
             }, {
               name: "kenna_api_host",
@@ -56,7 +52,6 @@ module Kenna
               name: "kenna_connector_id",
               type: "integer",
               required: false,
-              default: nil,
               description: "If set, we'll try to upload to this connector"
             }, {
               name: "output_directory",
@@ -68,13 +63,11 @@ module Kenna
               name: "aws_security_token",
               type: "string",
               required: false,
-              default: "",
               description: "AWS security token"
             }, {
               name: "role_arn",
               type: "string",
               required: false,
-              default: "",
               description: "AWS security role used to assume access to the Audit account"
             }
           ]
