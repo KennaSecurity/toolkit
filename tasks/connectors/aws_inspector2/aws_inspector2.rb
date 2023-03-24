@@ -38,8 +38,8 @@ module Kenna
               name: "aws_regions",
               type: "array",
               required: false,
-              default: ['us-east-1'],
-              description: "AWS regions to include when collecting findings"
+              default: nil, # FIXME: start nil
+              description: "Comma-separated list of AWS regions to include when collecting findings"
             }, {
               name: "kenna_api_key",
               type: "api_key",
@@ -88,9 +88,11 @@ module Kenna
         kdi_initialize
 
         @aws_regions.each do |region|
-          print_debug "Querying #{region} for findings"
+          aws_client = new_aws_client(region, aws_credentials) # region can be nil
+          print_debug "Querying #{aws_client.config.region} for findings"
+
           loop do
-            response = get_inspector_findings(region, @aws_access_key, @aws_secret_key)
+            response = aws_client.list_findings(next_token: @next_token)
             response.findings.each do |finding|
               # We only handle package vulns for now.
               next unless finding.type == "PACKAGE_VULNERABILITY"
@@ -113,24 +115,37 @@ module Kenna
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
+      def new_aws_client(region = nil, aws_credentials = nil)
+        client_opts = {}
+        client_opts[:credentials] = aws_credentials if aws_credentials
+        client_opts[:region] = region if region
+        Aws::Inspector2::Client.new(client_opts)
+      rescue Aws::Errors::MissingRegionError => e
+        raise e, "No AWS region was provided. Populate ~/.aws/config, $AWS_REGION, or the aws_regions task option."
+      end
+
       private
 
       def initialize_options
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @aws_regions = @options[:aws_regions].uniq
+        @aws_regions = @options[:aws_regions]&.uniq || [nil]
         @aws_access_key = @options[:aws_access_key]
         @aws_secret_key = @options[:aws_secret_key]
+        @aws_security_token = @options[:aws_security_token]
         @output_directory = @options[:output_directory]
         @skip_autoclose = true
         @retries = 3
         @kdi_version = 2
 
-        # FIXME: Add support for role/token
-        @aws_security_token = @options[:aws_security_token]
+        # FIXME: Add support for role
         @role_arn = @options[:role_arn]
         raise NotImplementedError if @aws_security_token || @role_arn
+      end
+
+      def aws_credentials
+        Aws::Credentials.new(@aws_access_key, @aws_secret_key, @aws_security_token)
       end
 
       def extract_asset(finding)
@@ -196,13 +211,6 @@ module Kenna
         registry_tags = resource.dig(:details, :aws_ecr_container_image, :registry).try { |r| "registry-#{r}" }
         repository_tags = resource.dig(:details, :aws_ecr_container_image, :repository_name).try { |r| "repository-#{r}" }
         [regular_tags, registry_tags, repository_tags].flatten.compact
-      end
-
-      def get_inspector_findings(region, access_key, secret_key)
-        Aws::Inspector2::Client.new(
-          { region:,
-            credentials: Aws::Credentials.new(access_key, secret_key) }
-        ).list_findings(next_token: @next_token)
       end
     end
   end

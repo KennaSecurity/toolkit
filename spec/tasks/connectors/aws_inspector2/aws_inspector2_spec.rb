@@ -9,7 +9,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:aws_regions) { nil } # rely on option default
+    let(:aws_regions) { [ENV["AWS_REGION"] || "us-east-1"] }
     let(:options) do
       {
         aws_access_key: ENV["AWS_ACCESS_KEY"] || "AWS_ACCESS_KEY",
@@ -110,18 +110,78 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
 
     context "multiple regions" do
       let(:aws_regions) { %w[us-east-1 us-east-2] }
-      let(:empty_response) { instance_double("Aws::Inspector2::Client", list_findings: double(findings: [], next_token: nil)) }
+      let(:empty_findings) { double(findings: [], next_token: nil) }
 
       it "queries Inspector in each region" do
         aws_regions.each do |region|
+          aws_client = double("Aws::Inspector2::Client", list_findings: empty_findings)
+          allow(aws_client).to receive(:config).and_return(double(region:))
           expect(Aws::Inspector2::Client).to receive(:new).with(
-            { region:,
-              credentials: be_an(Aws::Credentials) }
-          ).and_return(empty_response)
+            hash_including(region:)
+          ).and_return(aws_client)
         end
+
         task.run(options)
       end
     end
+  end
+
+  describe "#new_aws_client" do
+    let(:region) { 'asgard-1' }
+
+    describe "AWS configuration" do
+      it "errors helpfully when region not provided" do
+        expect { task.new_aws_client }.to raise_error(Aws::Errors::MissingRegionError, /AWS_REGION/)
+      end
+
+      it "collects region from $AWS_REGION" do
+        stub_env('AWS_REGION' => region)
+        expect(task.new_aws_client.config.region).to eq(region)
+      end
+
+      it "collects region from $AWS_DEFAULT_REGION" do
+        stub_env('AWS_DEFAULT_REGION' => region)
+        expect(task.new_aws_client.config.region).to eq(region)
+      end
+
+      it "can be explicitly given a region" do
+        expect(task.new_aws_client(region).config.region).to eq(region)
+      end
+    end
+
+    describe "AWS credentials" do
+      subject { task.new_aws_client(region) }
+
+      it "collects credentials from $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY" do
+        stub_env('AWS_ACCESS_KEY_ID' => 'foo', 'AWS_SECRET_ACCESS_KEY' => 'bar')
+        expect(subject.config.credentials).to_not be_nil
+        expect(subject.config.credentials.session_token).to be_nil
+      end
+
+      it "can include $AWS_SESSION_TOKEN in credentials" do
+        stub_env('AWS_ACCESS_KEY_ID' => 'foo', 'AWS_SECRET_ACCESS_KEY' => 'bar', 'AWS_SESSION_TOKEN' => 'baz')
+        expect(subject.config.credentials).to_not be_nil
+        expect(subject.config.credentials.session_token).to_not be_nil
+      end
+
+      it "can be explicitly given a key and secret" do
+        credentials = Aws::Credentials.new('foo', 'bar')
+        client = task.new_aws_client(region, credentials)
+        expect(client.config.credentials).to_not be_nil
+        expect(client.config.credentials.session_token).to be_nil
+      end
+
+      it "can be explicitly given a session token" do
+        credentials = Aws::Credentials.new('foo', 'bar', 'baz')
+        client = task.new_aws_client(region, credentials)
+        expect(client.config.credentials).to_not be_nil
+        expect(client.config.credentials.session_token).to_not be_nil
+      end
+    end
+  end
+
+  def stub_env(hash)
+    stub_const('ENV', ENV.to_hash.merge(hash))
   end
 
   def spy_on_accumulators

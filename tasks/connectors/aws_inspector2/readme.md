@@ -8,7 +8,7 @@ See the main toolkit README for instructions on running tasks. For this task, if
 
 ### Recommended Steps:
 
-1. Run with AWS keys only
+1. Run with AWS keys only. You can provide AWS credentials and configuration through [shared ini files, environment variables](https://docs.aws.amazon.com/sdkref/latest/guide/creds-config-files.html), or by directly providing them to the task as shown below.
 
 ```
 docker run --name toolkit_aws_inspector --rm -it toolkit:latest task=aws_inspector2 aws_access_key=$AWS_ACCESS_KEY aws_secret_key=$AWS_SECRET_KEY aws_regions=us-east-1,us-east-2
