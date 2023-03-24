@@ -9,7 +9,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:aws_regions) { [ENV["AWS_REGION"] || "us-east-1"] }
+    let(:aws_regions) { ENV["AWS_REGION"] || "us-east-1" }
     let(:options) do
       {
         aws_access_key: ENV["AWS_ACCESS_KEY"] || "AWS_ACCESS_KEY",
@@ -109,11 +109,11 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
     end
 
     context "multiple regions" do
-      let(:aws_regions) { %w[us-east-1 us-east-2] }
+      let(:aws_regions) { "us-east-1,us-east-2" }
       let(:empty_findings) { double(findings: [], next_token: nil) }
 
       it "queries Inspector in each region" do
-        aws_regions.each do |region|
+        aws_regions.split(",").each do |region|
           aws_client = double("Aws::Inspector2::Client", list_findings: empty_findings)
           allow(aws_client).to receive(:config).and_return(double(region:))
           expect(Aws::Inspector2::Client).to receive(:new).with(
