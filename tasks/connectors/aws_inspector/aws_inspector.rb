@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "aws-sdk-inspector"
-require 'pry'
-require 'pry-byebug'
 
 module Kenna
   module Toolkit
@@ -81,7 +79,6 @@ module Kenna
         @vuln_defs = []
         get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
           # create an asset with our locators (regardless of whether we have vulns)
-          binding.pry
           fqdn = f[:asset_attributes][:hostname]
           instance_id = f[:attributes].find { |a| a[:key] == "INSTANCE_ID" }[:value]
 
