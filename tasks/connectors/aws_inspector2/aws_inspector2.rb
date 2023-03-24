@@ -145,6 +145,8 @@ module Kenna
       end
 
       def aws_credentials
+        return nil unless @aws_access_key && @aws_secret_key
+
         Aws::Credentials.new(@aws_access_key, @aws_secret_key, @aws_security_token)
       end
 
