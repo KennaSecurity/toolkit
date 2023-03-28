@@ -28,7 +28,7 @@ module Kenna
         }.compact
       end
 
-      # Create an asset if it doesnt already exit
+      # Create an asset if it doesnt already exist
       # A "*" indicates required
       #  {
       #  file: string,  + (At least one of the fields with a + is required for each asset.)
@@ -88,20 +88,20 @@ module Kenna
         asset_hash_key = asset_hash.fetch(match_key) unless match_key.nil?
 
         # check to make sure it doesnt exist
-        a = if match_key.nil?
-              @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-            else
+        a = if match_key
               @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
+            else
+              @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
             end
 
-        # SAnity check to make sure we are pushing data into the correct asset
+        # sanity check to make sure we are pushing data into the correct asset
         unless a
           print_debug "Unable to find asset #{asset_hash}, creating a new one... "
           create_kdi_asset(asset_hash, false)
-          a = if match_key.nil?
-                @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
-              else
+          a = if match_key
                 @assets.lazy.find { |asset| asset[match_key] == asset_hash_key }
+              else
+                @assets.lazy.find { |asset| uniq(asset) == uniq_asset_hash }
               end
         end
 
@@ -138,8 +138,8 @@ module Kenna
 
         # create dates if they weren't passed to us
         now = Time.now.utc.strftime("%Y-%m-%d")
-        vuln_hash["last_seen_at"] = now unless vuln_hash["last_seen_at"]
-        vuln_hash["created_at"] = now unless vuln_hash["last_seen_at"]
+        vuln_hash["last_seen_at"] ||= now
+        vuln_hash["created_at"] ||= now
 
         # add it in
         a["vulns"] = [] unless a["vulns"]
@@ -154,8 +154,8 @@ module Kenna
         a = find_or_create_kdi_asset(asset_hash, match_key)
 
         # Default values & type conversions... just make it work
-        finding_hash["triage_state"] = "new" unless finding_hash["triage_state"]
-        finding_hash["last_seen_at"] = Time.now.utc.strftime("%Y-%m-%d") unless finding_hash["last_seen_at"]
+        finding_hash["triage_state"] ||= "new"
+        finding_hash["last_seen_at"] ||= Time.now.utc.strftime("%Y-%m-%d")
 
         # add it in
         a["findings"] = [] unless a["findings"]
