@@ -116,6 +116,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.24.1)
       parser (>= 3.1.1.0)
+    ruby-limiter (2.2.2)
     ruby-progressbar (1.11.0)
     sanitize (6.0.1)
       crass (~> 1.0.2)
@@ -183,6 +184,7 @@ DEPENDENCIES
   rexml (>= 3.2.5)
   rspec
   rubocop
+  ruby-limiter
   sanitize
   solargraph
   strscan
