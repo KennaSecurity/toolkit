@@ -20,10 +20,10 @@ gem "httparty"
 gem "ipaddress"
 gem "rest-client"
 gem "rexml", ">= 3.2.5"
+gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
 gem "tty-pager"
-gem "ruby-limiter"
 
 group :development, :test do
   gem "pry"

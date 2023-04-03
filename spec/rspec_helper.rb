@@ -30,3 +30,19 @@ module Kenna
     end
   end
 end
+
+aws_credentials_class = begin
+  "Aws::Credentials".constantize
+rescue StandardError
+  nil
+end
+if aws_credentials_class
+  module Aws
+    class Credentials
+      # I want to test equality in specs, but the AWS CLI doesn't define it properly
+      def ==(other)
+        to_yaml == other.to_yaml
+      end
+    end
+  end
+end

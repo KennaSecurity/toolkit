@@ -129,7 +129,7 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
   describe "#new_aws_client" do
     let(:region) { 'asgard-1' }
 
-    describe "AWS configuration" do
+    describe "region configuration" do
       it "errors helpfully when region not provided" do
         expect { task.new_aws_client }.to raise_error(Aws::Errors::MissingRegionError, /AWS_REGION/)
       end
@@ -149,19 +149,19 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       end
     end
 
-    describe "AWS credentials" do
+    describe "credential configuration" do
       subject { task.new_aws_client(region) }
 
-      it "collects credentials from $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY" do
+      it "collects credentials from $AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY in ENV" do
         stub_env('AWS_ACCESS_KEY_ID' => 'foo', 'AWS_SECRET_ACCESS_KEY' => 'bar')
-        expect(subject.config.credentials).to_not be_nil
+        expect(subject.config.credentials).to be_present
         expect(subject.config.credentials.session_token).to be_nil
       end
 
-      it "can include $AWS_SESSION_TOKEN in credentials" do
+      it "collects credentials from $AWS_SESSION_TOKEN in ENV" do
         stub_env('AWS_ACCESS_KEY_ID' => 'foo', 'AWS_SECRET_ACCESS_KEY' => 'bar', 'AWS_SESSION_TOKEN' => 'baz')
-        expect(subject.config.credentials).to_not be_nil
-        expect(subject.config.credentials.session_token).to_not be_nil
+        expect(subject.config.credentials).to be_present
+        expect(subject.config.credentials.session_token).to be_present
       end
 
       it "can be explicitly given a key and secret" do
@@ -175,7 +175,36 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
         credentials = Aws::Credentials.new('foo', 'bar', 'baz')
         client = task.new_aws_client(region, credentials)
         expect(client.config.credentials).to_not be_nil
-        expect(client.config.credentials.session_token).to_not be_nil
+        expect(client.config.credentials.session_token).to be_present
+      end
+    end
+
+    describe "#aws_credentials" do
+      subject do
+        VCR.use_cassette("aws_sts") do
+          described_class.new(options).aws_credentials
+        end
+      end
+
+      let(:options) do
+        {
+          aws_access_key_id: ENV["AWS_ACCESS_KEY_ID"] || "AWS_ACCESS_KEY_ID",
+          aws_secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"] || "AWS_SECRET_ACCESS_KEY",
+          aws_regions: 'us-east-1'
+        }
+      end
+
+      context "access key and secret key provided" do
+        it "returns a simple credentials object" do
+          expect(subject).to be_kind_of(Aws::Credentials)
+        end
+      end
+
+      context "role arn is provided" do
+        it "returns assumed role credentials" do
+          options.merge!(aws_role_arn: "arn:aws:iam::612899039241:role/Inspectorv2ReadOnly")
+          expect(subject).to be_kind_of(Aws::AssumeRoleCredentials)
+        end
       end
     end
   end

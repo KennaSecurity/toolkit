@@ -65,10 +65,10 @@ module Kenna
               required: false,
               description: "AWS session token"
             }, {
-              name: "role_arn",
+              name: "aws_role_arn",
               type: "string",
               required: false,
-              description: "AWS security role used to assume access to the Audit account"
+              description: "AWS IAM role ARN used to assume access to Inspector v2"
             }
           ]
         }
@@ -76,11 +76,13 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
-
-        initialize_options
         kdi_initialize
 
-        @aws_regions.each do |region|
+        skip_autoclose = true
+        retries = 3
+        kdi_version = 2
+
+        aws_regions.each do |region|
           aws_client = new_aws_client(region, aws_credentials)
           print_debug "Querying #{aws_client.config.region} for findings"
 
@@ -100,7 +102,7 @@ module Kenna
             end
 
             @batch_num = @batch_num.to_i.succ
-            kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+            kdi_upload(options.output_directory, "aws_inspector2_batch_#{@batch_num}.json", options.kenna_connector_id, options.kenna_api_host, options.kenna_api_key, skip_autoclose, retries, kdi_version)
             @next_token = response.next_token or break
           end
         end
@@ -118,30 +120,25 @@ module Kenna
         raise e, "No AWS region was provided. Populate ~/.aws/config, $AWS_REGION, or the aws_regions task option."
       end
 
-      private
-
-      def initialize_options
-        @kenna_api_host = @options[:kenna_api_host]
-        @kenna_api_key = @options[:kenna_api_key]
-        @kenna_connector_id = @options[:kenna_connector_id]
-        @aws_regions = @options[:aws_regions]&.uniq || [nil]
-        @aws_access_key_id = @options[:aws_access_key_id]
-        @aws_secret_access_key = @options[:aws_secret_access_key]
-        @aws_session_token = @options[:aws_session_token]
-        @output_directory = @options[:output_directory]
-        @skip_autoclose = true
-        @retries = 3
-        @kdi_version = 2
-
-        # FIXME: Add support for role
-        @role_arn = @options[:role_arn]
-        raise NotImplementedError, "The task doesn't accept an AWS role yet." if @role_arn
+      def aws_credentials
+        credentials = (Aws::Credentials.new(options.aws_access_key_id, options.aws_secret_access_key, options.aws_session_token) if options.aws_access_key_id && options.aws_secret_access_key)
+        if options.aws_role_arn
+          params = {
+            role_arn: options.aws_role_arn,
+            role_session_name: 'kenna_toolkit_aws_inspector2'
+          }
+          params[:region] = aws_regions.first if aws_regions.any?
+          params[:credentials] = credentials if credentials
+          Aws::AssumeRoleCredentials.new(params)
+        else
+          credentials
+        end
       end
 
-      def aws_credentials
-        return nil unless @aws_access_key_id && @aws_secret_access_key
+      private
 
-        Aws::Credentials.new(@aws_access_key_id, @aws_secret_access_key, @aws_session_token)
+      def aws_regions
+        @options[:aws_regions]&.uniq || [nil]
       end
 
       def extract_asset(finding)
