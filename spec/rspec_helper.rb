@@ -17,7 +17,7 @@ VCR.configure do |config|
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
   ].each do |key|
-    config.filter_sensitive_data("<#{key}>") { ENV[key] || key }
+    config.filter_sensitive_data("<#{key}>") { ENV[key] }
   end
 end
 
