@@ -76,8 +76,6 @@ module Kenna
             "Impact Score" => vuln["impactScore"],
             "Link" => vuln["link"],
             "Projects" => vuln["projects"],
-            "Detailed Name" => vuln['detailedName'],
-            "Detection Method" => vuln['detectionMethod'],
             "Vulnerable Asset" => vuln["vulnerableAsset"].except("tags", "cloudProviderURL")
           }.compact
           JSON.pretty_generate(details)

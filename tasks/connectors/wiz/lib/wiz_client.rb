@@ -205,8 +205,6 @@ module Kenna
             fixedVersion
             link
             locationPath
-            detailedName
-            detectionMethod
 
             vulnerableAsset {
                 ... on VulnerableAssetBase {
