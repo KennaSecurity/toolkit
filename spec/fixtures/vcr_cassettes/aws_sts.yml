@@ -1,63 +1,63 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://sts.us-east-1.amazonaws.com/
-    body:
-      encoding: UTF-8
-      string: Action=AssumeRole&RoleArn=arn%3Aaws%3Aiam%3A%3A612899039241%3Arole%2FInspectorv2ReadOnly&RoleSessionName=kenna_toolkit_aws_inspector2&Version=2011-06-15
-    headers:
-      Accept-Encoding:
-      - ''
-      User-Agent:
-      - aws-sdk-ruby3/3.168.4 ruby/3.2.1 aarch64-linux aws-sdk-core/3.168.4
-      Content-Type:
-      - application/x-www-form-urlencoded; charset=utf-8
-      Host:
-      - sts.us-east-1.amazonaws.com
-      X-Amz-Date:
-      - 20230403T195532Z
-      X-Amz-Content-Sha256:
-      - 70c49956daac87454c4ec426a658631d866f3abd444b73a5f85cd6faf8117a7f
-      Authorization:
-      - AWS4-HMAC-SHA256 Credential=<AWS_ACCESS_KEY_ID>/20230403/us-east-1/sts/aws4_request,
-        SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=6413bb8ff011030a00d473c4aed00b41370307bf664d3a7eeba728f5d82eb2b5
-      Content-Length:
-      - '152'
-      Accept:
-      - "*/*"
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      X-Amzn-Requestid:
-      - c9e81f45-5eaa-470d-b0fc-cb5a8723bdf8
-      Content-Type:
-      - text/xml
-      Content-Length:
-      - '1506'
-      Date:
-      - Mon, 03 Apr 2023 19:55:32 GMT
-    body:
-      encoding: UTF-8
-      string: |
-        <AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
-          <AssumeRoleResult>
-            <AssumedRoleUser>
-              <AssumedRoleId>AROAY5M5BFAE3NVOI2FWI:kenna_toolkit_aws_inspector2</AssumedRoleId>
-              <Arn>arn:aws:sts::612899039241:assumed-role/Inspectorv2ReadOnly/kenna_toolkit_aws_inspector2</Arn>
-            </AssumedRoleUser>
-            <Credentials>
-              <AccessKeyId>ASIAY5M5BFAE6AY7A64W</AccessKeyId>
-              <SecretAccessKey>GYLEREPi5hV5JGh4DjqoJM0avGVqExAdIriODUrb</SecretAccessKey>
-              <SessionToken>IQoJb3JpZ2luX2VjEAQaCXVzLWVhc3QtMSJHMEUCIQDHfHud+tqM58GtEy5vKE5tmTqWNhF8R//pBq18jWCx6wIgHMXE23R+car6kgr4IPUVqaeTHC8Y9qBeo/dvaM0Ebg4qsgII3f//////////ARAEGgw2MTI4OTkwMzkyNDEiDJSO2qMuve58hqOFvCqGAv1I01M1YsWQiZCLRK5B00ivOxXby6fUnPDOCEYxZ7RjlDHlM6+1XHdAjG6kXiurnaiwz7zOpBKA11VKSEpHtwEk6P1sYBxEkQBHMtkmkYOw9jOssRmYfFeKTOAZCcycVjXCqTrI2zJVlG68Na913kn09sDpxN46fcUKcYG+F6/j5LhMiVHQpyrGHlNw5pMiW80tIFZ+Q3Tk7xGgsQO4tN0D2C+YjFcYO9vxAuZAeylqx3sSHslVbLhe9JP+YVVzuHV5MnrAfkgul0x0k44B1rADczQQr/6N7Kw4eLD0rBeKaQ5SpFZihQ/4OdkWiyQ2NFafthaGLamtwqKuUHIFuHAWmzDMwvswtN6soQY6nQGUzayL/iYgsOl9MQxmx+kLy9d4AbEzN1pMCpRsnk0x4Fwhq9MIsGT3/+BKOOGMz336zXecGfNz/qw4bl7rzWwZHBOxJur6ybzwDE0V5oPAPFhfFRAc87kqUSDlVFRkPBwz+js1IOrPl/6SdvQbsPZ1PiQ80RuQLnzvgEiw4sBJW85YDqEugJ/iZb1+5YCIpiRexzFf4HhQucqW+UMR</SessionToken>
-              <Expiration>2023-04-03T20:55:32Z</Expiration>
-            </Credentials>
-          </AssumeRoleResult>
-          <ResponseMetadata>
-            <RequestId>c9e81f45-5eaa-470d-b0fc-cb5a8723bdf8</RequestId>
-          </ResponseMetadata>
-        </AssumeRoleResponse>
-  recorded_at: Mon, 03 Apr 2023 19:55:32 GMT
+  - request:
+      method: post
+      uri: https://sts.us-east-1.amazonaws.com/
+      body:
+        encoding: UTF-8
+        string: Action=AssumeRole&RoleArn=arn%3Aaws%3Aiam%3A%3A612899039241%3Arole%2FInspectorv2ReadOnly&RoleSessionName=kenna_toolkit_aws_inspector2&Version=2011-06-15
+      headers:
+        Accept-Encoding:
+          - ""
+        User-Agent:
+          - aws-sdk-ruby3/3.168.4 ruby/3.2.1 aarch64-linux aws-sdk-core/3.168.4
+        Content-Type:
+          - application/x-www-form-urlencoded; charset=utf-8
+        Host:
+          - sts.us-east-1.amazonaws.com
+        X-Amz-Date:
+          - 20230403T204010Z
+        X-Amz-Content-Sha256:
+          - 70c49956daac87454c4ec426a658631d866f3abd444b73a5f85cd6faf8117a7f
+        Authorization:
+          - AWS4-HMAC-SHA256 Credential=<AWS_ACCESS_KEY_ID>/20230403/us-east-1/sts/aws4_request,
+            SignedHeaders=content-type;host;x-amz-content-sha256;x-amz-date, Signature=3ee39ecca862c92813624dac754493144d54a68a225424219931be418caaceb3
+        Content-Length:
+          - "152"
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        X-Amzn-Requestid:
+          - b3c2a398-89e2-4eac-98ad-d5f832a1918f
+        Content-Type:
+          - text/xml
+        Content-Length:
+          - "1506"
+        Date:
+          - Mon, 03 Apr 2023 20:40:10 GMT
+      body:
+        encoding: UTF-8
+        string: |
+          <AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
+            <AssumeRoleResult>
+              <AssumedRoleUser>
+                <AssumedRoleId>AROAY5M5BFAE3SVUFIFEJ:kenna_toolkit_aws_inspector2</AssumedRoleId>
+                <Arn>arn:aws:sts::612899039241:assumed-role/Inspectorv2ReadOnly/kenna_toolkit_aws_inspector2</Arn>
+              </AssumedRoleUser>
+              <Credentials>
+                <AccessKeyId>ASIAIOSFODNN7EXAMPLE</AccessKeyId>
+                <SecretAccessKey>wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY</SecretAccessKey>
+                <SessionToken>eXaMPl3pZ2luX2VjEAUaCXVzLWVhc3QtMSJIMEYCIQCsFaDQomNgLsRAuPffvhWm0rqkuQcxeTgy5MFSirBb0gIhAPt4BURud0vvSm4zEKit3TYR7SwCPdDPGFReQIoh+3JmKrICCN7//////////wEQBBoMNjEyODk5MDM5MjQxIgwyG4+7nNzxDQtltmgqhgLlsNNekO+rycTVchDXhx6Ppac1Q1NH6g4mBGvipgQehvrx+ASQjjOqUFeoJEmHrJrYms8izerjXWLGk+LJIN4QRl4Od/FZ5vzWl+8KRm9vF3A9uNm7Yhy8LleZsZT6WZUTBr6hpCjt1mcJsskphPjepPDJywlaVt0ZsN1akcmY8opOCURfNoOHvc7XXMFAhqXDRhcmtcGOul2gCWo9DwWEwADfcnhAFYel8s1PH4OdO2rAp1TRN2GK9OaAzkYSRT9nL3et0tTlkfGF312RgPmBnnaS5yQ6QZhNnv3CPkX5tDlYz0FkypKqOaBNqGlpiPqKPlvlz1tFxbzr+JzW5rRdFRIe/dSUMKrzrKEGOpwBuJypyEZ3dTmr0UYgm1FDUFFQLlHnVetsPAxPqjwWH9q2xSQypjvmyBTd6I0E+xUuzoJJoEnNFzJJc9N38wRIglNHaqJnKJPa+WZqNtN1uFdaAZWMm27Medt7LxQTGqmxQ90bFmp91gROJe+q66ffQjzvbwIWadGKTKvCtOoFSNFRj14T1afxMstjglRwdW3o35RAeIfKTJdtCOua</SessionToken>
+                <Expiration>2223-04-03T21:40:10Z</Expiration>
+              </Credentials>
+            </AssumeRoleResult>
+            <ResponseMetadata>
+              <RequestId>b3c2a398-89e2-4eac-98ad-d5f832a1918f</RequestId>
+            </ResponseMetadata>
+          </AssumeRoleResponse>
+    recorded_at: Mon, 03 Apr 2023 20:40:10 GMT
 recorded_with: VCR 6.1.0
