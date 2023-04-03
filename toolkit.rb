@@ -30,7 +30,7 @@ args_array.each do |arg|
   unless arg_name && arg_value
     if arg == "aws"
       print_error "Because toolkit can separate task options with colons, you must wrap ARNs"
-      print_error %q{in escaped double quotes like: my_arn="\"arn:aws:ec2:foo:123/bar\""}
+      print_error %q(in escaped double quotes like: my_arn="\"arn:aws:ec2:foo:123/bar\"")
     else
       print_error "FATAL! Invalid Argument: #{arg}"
       print_error "All arguments should take the form [name]=[value]"
