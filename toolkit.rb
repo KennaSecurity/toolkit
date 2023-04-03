@@ -6,7 +6,7 @@ require_relative "lib/toolkit"
 require_relative "lib/params_helper"
 
 # First split up whatever we got
-args_array = Kenna::Toolkit::ParamsHelper.build_params(ARGV)
+args_array = Kenna::Toolkit::ParamsHelper.build_params(ARGV) # FIXME: This mangles AWS ARNs
 args = {}
 
 # Parse TOOLKIT prefixed environment variables into arg hash
@@ -28,9 +28,14 @@ args_array.each do |arg|
 
   # make sure all arguments were well formed
   unless arg_name && arg_value
-    print_error "FATAL! Invalid Argument: #{arg}"
-    print_error "All arguments should take the form [name]=[value]"
-    print_error "Multiple arguments should be separated by colons (:) or spaces"
+    if arg == "aws"
+      print_error "Because toolkit can separate task options with colons, you must wrap ARNs"
+      print_error %q{in escaped double quotes like: my_arn="\"arn:aws:ec2:foo:123/bar\""}
+    else
+      print_error "FATAL! Invalid Argument: #{arg}"
+      print_error "All arguments should take the form [name]=[value]"
+      print_error "Multiple arguments should be separated by colons (:) or spaces"
+    end
     exit 1
   end
 
