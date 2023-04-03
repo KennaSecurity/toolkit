@@ -111,17 +111,18 @@ module Kenna
       end
 
       def new_aws_client(region = nil, aws_credentials = nil)
-        # If region or credentials are not provided, AWS Client picks them up from the environment.
-        client_opts = {}
-        client_opts[:credentials] = aws_credentials if aws_credentials
-        client_opts[:region] = region if region
-        Aws::Inspector2::Client.new(client_opts)
+        # If region or credentials are not provided, AWS Client picks them up from the environment
+        # but setting them to nil short circuits that ability.
+        Aws::Inspector2::Client.new({}.tap do |client_opts|
+          client_opts[:credentials] = aws_credentials if aws_credentials
+          client_opts[:region] = region if region
+        end)
       rescue Aws::Errors::MissingRegionError => e
         raise e, "No AWS region was provided. Populate ~/.aws/config, $AWS_REGION, or the aws_regions task option."
       end
 
       def aws_credentials
-        credentials = (Aws::Credentials.new(options.aws_access_key_id, options.aws_secret_access_key, options.aws_session_token) if options.aws_access_key_id && options.aws_secret_access_key)
+        credentials = Aws::Credentials.new(options.aws_access_key_id, options.aws_secret_access_key, options.aws_session_token) if options.aws_access_key_id && options.aws_secret_access_key
         if options.aws_role_arn
           params = {
             role_arn: options.aws_role_arn,
