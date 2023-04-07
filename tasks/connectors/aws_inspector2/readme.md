@@ -11,13 +11,15 @@ See the main toolkit README for instructions on running tasks. For this task, if
 1. Run with AWS keys only. You can provide AWS credentials and configuration through [shared ini files, environment variables](https://docs.aws.amazon.com/sdkref/latest/guide/creds-config-files.html),
 
 ```
-docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=example_profile --rm -it toolkit:latest task=aws_inspector2
+docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=example_profile --rm -it toolkit:latest \
+  task=aws_inspector2
 ```
 
 ...or by directly providing them to the task as shown below.
 
 ```
-docker run --rm -it toolkit:latest task=aws_inspector2 aws_access_key_id=AKIAIOSFODNN7EXAMPLE aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY aws_regions=us-east-1,us-east-2
+docker run --rm -it toolkit:latest task=aws_inspector2 aws_regions=us-east-1,us-east-2 aws_access_key_id=AKIAIOSFODNN7EXAMPLE \
+  aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 ```
 
 2. Review output for expected data.
@@ -31,15 +33,16 @@ If you're doing any scanning of ECR container images, you'll need to have Kenna 
 7. Run the task with AWS credentials and your Kenna API key & connector ID.
 
 ```
-docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolkit:latest task=aws_inspector2 aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=12345
+docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolkit:latest task=aws_inspector2 \
+  aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=12345
 ```
 
 ### AWS Authentication:
 
 This task supports several kinds of credentials, facilitated by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/#Configuration):
 
-1. Long-term credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
-2. Temporary credentials issued by STS, which include AWS_SESSION_TOKEN
+1. Long-term credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+2. Temporary credentials issued by STS, which require an AWS_SESSION_TOKEN in addition to the above.
 3. IAM roles. You provide your keys as in #1, but can't access the Inspector v2 API until you assume the IAM role.
 
 You can provide AWS credentials and region via environment variables, ini files (in conjunction with `AWS_PROFILE`), or directly in the task arguments. If you're having trouble authenticating, make sure you can access inspector2 using the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html), which accepts the same environment variables and ini files. If you're running toolkit in a container, make sure the environment variables and/or credentials files are available inside the container, not just on your host system.
@@ -47,7 +50,8 @@ You can provide AWS credentials and region via environment variables, ini files 
 Note that ROLE_ARN cannot be provided as an environment variable--it has to be a task argument, which at the moment might require some strange quoting depending on how your shell handles arguments:
 
 ```
-docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=inspector_test --rm -it toolkit:latest task=aws_inspector2 aws_role_arn="\"arn:aws:iam::123456789012:role/Inspectorv2ReadOnly\""
+docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=inspector_test --rm -it toolkit:latest \
+  task=aws_inspector2 aws_role_arn="\"arn:aws:iam::123456789012:role/Inspectorv2ReadOnly\""
 ```
 
 ### Limitations:
