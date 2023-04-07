@@ -107,7 +107,7 @@ module Kenna
           end
         end
 
-        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
+        kdi_connector_kickoff(options.kenna_connector_id, options.kenna_api_host, options.kenna_api_key)
       end
 
       def new_aws_client(region = nil, aws_credentials = nil)
