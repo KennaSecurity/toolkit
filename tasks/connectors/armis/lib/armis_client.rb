@@ -149,7 +149,6 @@ module Kenna
         def get_access_token(force: false)
           return @access_token if !force && !need_to_refresh_token?
 
-          print_debug(@secret_key)
           url = "#{@base_path}#{ACCESS_TOKEN_ENDPOINT}"
           headers = { "params": { "secret_key": @secret_token } }
           begin
