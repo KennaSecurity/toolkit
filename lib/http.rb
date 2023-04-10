@@ -5,6 +5,7 @@ module Kenna
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
+          retries ||= 0
           RestClient::Request.execute(
             method: :get,
             url:,
@@ -13,10 +14,14 @@ module Kenna
           )
         rescue RestClient::TooManyRequests => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
-            sleep(15)
+            sleep_time = 15
+            if e.response.headers.key?('RateLimit-Reset')
+              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
+              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
+            end
+            sleep(sleep_time)
             print "Retrying!"
             retry
           end
@@ -25,7 +30,6 @@ module Kenna
         rescue RestClient::BadRequest => e
           log_exception(e)
         rescue RestClient::InternalServerError => e
-          retries ||= 0
           if retries < max_retries
             retries += 1
             sleep(15)
@@ -37,7 +41,6 @@ module Kenna
           log_exception(e)
         rescue RestClient::ExceptionWithResponse => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
@@ -48,7 +51,6 @@ module Kenna
           log_exception(e)
         rescue RestClient::Exception => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             sleep(15)
@@ -57,7 +59,6 @@ module Kenna
           end
         rescue Errno::ECONNREFUSED => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
@@ -67,6 +68,7 @@ module Kenna
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
+          retries ||= 0
           RestClient::Request.execute(
             method: :post,
             url:,
@@ -76,11 +78,15 @@ module Kenna
           )
         rescue RestClient::TooManyRequests => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
+            sleep_time = 15
+            if e.response.headers.key?('RateLimit-Reset')
+              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
+              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
+            end
             print "Retrying!"
-            sleep(15)
+            sleep(sleep_time)
             retry
           end
         rescue RestClient::UnprocessableEntity => e
@@ -89,7 +95,6 @@ module Kenna
           log_exception(e)
         rescue RestClient::InternalServerError => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
@@ -100,7 +105,6 @@ module Kenna
           log_exception(e)
         rescue RestClient::ExceptionWithResponse => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
@@ -111,7 +115,6 @@ module Kenna
           log_exception(e)
         rescue RestClient::Exception => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
@@ -120,7 +123,6 @@ module Kenna
           end
         rescue Errno::ECONNREFUSED => e
           log_exception(e)
-          retries ||= 0
           if retries < max_retries
             retries += 1
             print "Retrying!"
