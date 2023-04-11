@@ -4,6 +4,7 @@
 
 require "date"
 require "base64"
+require "ostruct"
 require "tty-pager"
 
 module Kenna
@@ -14,6 +15,23 @@ module Kenna
 
       def self.inherited(base)
         Kenna::Toolkit::TaskManager.register(base)
+      end
+
+      # YourTask#new takes the same options as #run so you can separate the concerns of configuring
+      # and running the task.
+      def initialize(opts = nil)
+        require_options(opts) if opts
+      end
+
+      # A task can pass commandline options upon initialization or at run time.
+      # If at run time, the task's run method should call super
+      def run(opts = nil)
+        require_options(opts) unless opts.nil? && @options
+
+        print_good ""
+        print_good "Launching the #{self.class.metadata[:name]} task!"
+        print_good "Toolkit running hosted" if running_hosted?
+        print_good ""
       end
 
       def self.initialize_options(opts)
@@ -52,9 +70,7 @@ module Kenna
         opts
       end
 
-      # all tasks must implement a run method and call super, so
-      # this code should be run immediately upon entry into the task
-      def run(opts)
+      def require_options(opts)
         # Set global debug. You can get its value calling debug? method globally
         $toolkit_debug = opts[:debug] == "true"
         $toolkit_running_local = !running_hosted?
@@ -91,7 +107,7 @@ module Kenna
           missing_options.each do |arg|
             print_error "Missing! #{arg[:name]}: #{arg[:description]}"
           end
-          fail_task "Required options missing, cowardly refusing to continue!"
+          fail_task "Required options missing. Cowardly refusing to continue!"
         end
 
         # Initialize default values and perform string to Object conversions
@@ -108,11 +124,10 @@ module Kenna
             print_good "Got option: #{k}: #{v}"
           end
         end
+      end
 
-        print_good ""
-        print_good "Launching the #{self.class.metadata[:name]} task!"
-        print_good "Toolkit running hosted" if running_hosted?
-        print_good ""
+      def options
+        OpenStruct.new(@options)
       end
 
       private
