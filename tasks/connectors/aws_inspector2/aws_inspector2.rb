@@ -65,10 +65,10 @@ module Kenna
               required: false,
               description: "AWS session token"
             }, {
-              name: "aws_role_arn",
+              name: "role_arn",
               type: "string",
               required: false,
-              description: "AWS IAM role ARN used to assume access to Inspector v2"
+              description: "AWS security role used to assume access to the Audit account"
             }
           ]
         }
@@ -76,13 +76,11 @@ module Kenna
 
       def run(opts)
         super # opts -> @options
+
+        initialize_options
         kdi_initialize
 
-        skip_autoclose = true
-        retries = 3
-        kdi_version = 2
-
-        aws_regions.each do |region|
+        @aws_regions.each do |region|
           aws_client = new_aws_client(region, aws_credentials)
           print_debug "Querying #{aws_client.config.region} for findings"
 
@@ -102,44 +100,48 @@ module Kenna
             end
 
             @batch_num = @batch_num.to_i.succ
-            kdi_upload(options.output_directory, "aws_inspector2_batch_#{@batch_num}.json", options.kenna_connector_id, options.kenna_api_host, options.kenna_api_key, skip_autoclose, retries, kdi_version)
+            kdi_upload(@output_directory, "aws_inspector2_batch_#{@batch_num}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             @next_token = response.next_token or break
           end
         end
 
-        kdi_connector_kickoff(options.kenna_connector_id, options.kenna_api_host, options.kenna_api_key)
+        kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       end
 
       def new_aws_client(region = nil, aws_credentials = nil)
-        # If region or credentials are not provided, AWS Client picks them up from the environment
-        # but setting them to nil short circuits that ability.
-        Aws::Inspector2::Client.new({}.tap do |client_opts|
-          client_opts[:credentials] = aws_credentials if aws_credentials
-          client_opts[:region] = region if region
-        end)
+        # If region or credentials are not provided, AWS Client picks them up from the environment.
+        client_opts = {}
+        client_opts[:credentials] = aws_credentials if aws_credentials
+        client_opts[:region] = region if region
+        Aws::Inspector2::Client.new(client_opts)
       rescue Aws::Errors::MissingRegionError => e
         raise e, "No AWS region was provided. Populate ~/.aws/config, $AWS_REGION, or the aws_regions task option."
       end
 
-      def aws_credentials
-        credentials = Aws::Credentials.new(options.aws_access_key_id, options.aws_secret_access_key, options.aws_session_token) if options.aws_access_key_id && options.aws_secret_access_key
-        if options.aws_role_arn
-          params = {
-            role_arn: options.aws_role_arn,
-            role_session_name: 'kenna_toolkit_aws_inspector2'
-          }
-          params[:region] = aws_regions.first if aws_regions.any?
-          params[:credentials] = credentials if credentials
-          Aws::AssumeRoleCredentials.new(params)
-        else
-          credentials
-        end
-      end
-
       private
 
-      def aws_regions
-        @options[:aws_regions]&.uniq || [nil]
+      def initialize_options
+        @kenna_api_host = @options[:kenna_api_host]
+        @kenna_api_key = @options[:kenna_api_key]
+        @kenna_connector_id = @options[:kenna_connector_id]
+        @aws_regions = @options[:aws_regions]&.uniq || [nil]
+        @aws_access_key_id = @options[:aws_access_key_id]
+        @aws_secret_access_key = @options[:aws_secret_access_key]
+        @aws_session_token = @options[:aws_session_token]
+        @output_directory = @options[:output_directory]
+        @skip_autoclose = true
+        @retries = 3
+        @kdi_version = 2
+
+        # FIXME: Add support for role
+        @role_arn = @options[:role_arn]
+        raise NotImplementedError, "The task doesn't accept an AWS role yet." if @role_arn
+      end
+
+      def aws_credentials
+        return nil unless @aws_access_key_id && @aws_secret_access_key
+
+        Aws::Credentials.new(@aws_access_key_id, @aws_secret_access_key, @aws_session_token)
       end
 
       def extract_asset(finding)

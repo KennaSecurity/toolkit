@@ -3,6 +3,8 @@
 require "rspec_helper"
 
 class BaseTaskTestClass < Kenna::Toolkit::BaseTask
+  attr_reader :options
+
   def self.metadata
     {
       id: "sample",
@@ -103,27 +105,6 @@ RSpec.describe BaseTaskTestClass do
     it "correctly initializes array parameter with defaults" do
       task.run(required_params.merge({ severity: nil }))
       expect(task.options[:severity]).to include("High", "Medium", "Low")
-    end
-
-    describe 'configure task without running it' do
-      let(:task) { task_class.new(required_params) }
-
-      it "correctly initializes options" do
-        expect(task.options[:sample_api_host]).to eq("https://sample.com")
-      end
-
-      it "overrides options with those passed at run time" do
-        task.run({ sample_api_host: "http://example.com" })
-        expect(task.options[:sample_api_host]).to eq("http://example.com")
-      end
-    end
-
-    describe "#options" do
-      let(:task) { task_class.new(required_params) }
-
-      it "returns an OpenStruct" do
-        expect(task.options).to respond_to(:sample_api_host)
-      end
     end
   end
 end

@@ -17,7 +17,7 @@ VCR.configure do |config|
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
   ].each do |key|
-    config.filter_sensitive_data("<#{key}>") { ENV[key] }
+    config.filter_sensitive_data("<#{key}>") { ENV[key] || key }
   end
 end
 
@@ -27,22 +27,6 @@ module Kenna
       attr_reader :vuln_defs, :assets
 
       def clear_data_arrays; end
-    end
-  end
-end
-
-aws_credentials_class = begin
-  "Aws::Credentials".constantize
-rescue StandardError
-  nil
-end
-if aws_credentials_class
-  module Aws
-    class Credentials
-      # I want to test equality in specs, but the AWS CLI doesn't define it properly
-      def ==(other)
-        to_yaml == other.to_yaml
-      end
     end
   end
 end
