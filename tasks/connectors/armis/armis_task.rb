@@ -153,7 +153,7 @@ module Kenna
         mac_address = (device["macAddress"] || "").split(",")[0]
         ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
-        asset = {
+        return {
           "external_id" => device.fetch("id").to_s,
           "hostname" => device["name"],
           "tags" => tags,
@@ -162,8 +162,6 @@ module Kenna
           "mac_address" => mac_address&.strip,
           "ip_address" => ip_address&.strip
         }.compact
-
-        asset
       end
 
       def extract_vuln(vuln)
