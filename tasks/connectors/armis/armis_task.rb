@@ -153,7 +153,7 @@ module Kenna
         mac_address = (device["macAddress"] || "").split(",")[0]
         ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
-        return {
+        {
           "external_id" => device.fetch("id").to_s,
           "hostname" => device["name"],
           "tags" => tags,
