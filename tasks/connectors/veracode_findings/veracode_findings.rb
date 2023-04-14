@@ -53,7 +53,7 @@ module Kenna
               type: "boolean",
               required: false,
               default: false,
-              description: "When set true, it will omit the line number at the end of file_locator."
+              description: "When set to true, it will omit the line number at the end of file_locator."
             }
           ]
         }
