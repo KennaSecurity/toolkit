@@ -102,7 +102,8 @@ module Kenna
               ext_id = nil
               case finding["scan_type"]
               when "STATIC"
-                file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
+                file = "#{finding['finding_details']['file_path']}"
+                file += ":#{finding['finding_details']['file_line_number']}" unless omit_line_number
                 ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]

@@ -47,7 +47,13 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/veracode",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            {
+              name: "omit_line_number",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "When set true, it will omit the line number at the end of file_locator." }
 
           ]
         }
