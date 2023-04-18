@@ -18,7 +18,7 @@ module Kenna
         end
 
         # Converts Edgescan hosts, vulnerabilities (and location specifiers) into Kenna assets and vulnerabilities/findings
-        def add_vulnerabilities_and_hosts(vulnerabilities, hosts, to_kenna_findings = false)
+        def add_vulnerabilities_and_hosts(vulnerabilities, hosts, to_kenna_findings)
           assets = hosts.count.positive? ? hosts.map(&:to_kenna_asset) : vulnerabilities.map(&:to_kenna_asset).uniq
           vulnerabilities.each do |vuln|
             asset = assets.find { |a| a["external_id"] == vuln.external_id }

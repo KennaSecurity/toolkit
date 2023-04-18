@@ -86,9 +86,8 @@ module Kenna
         kenna_api = Kenna::Toolkit::Edgescan::KennaApi.new(@options)
 
         edgescan_api.fetch_in_batches do |vulnerabilities, definitions, hosts|
-          if @options[:network_vulns] || @options[:application_vulns]
+          (@options[:network_vulns] || @options[:application_vulns]) &&
             kenna_api.add_vulnerabilities_and_hosts(vulnerabilities, hosts, @options[:create_findings])
-          end
 
           kenna_api.add_definitions(definitions)
 
