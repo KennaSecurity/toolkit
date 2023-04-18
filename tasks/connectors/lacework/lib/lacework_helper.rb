@@ -2,6 +2,7 @@
 
 require "net/http"
 require "uri"
+require "limiter"
 
 module Kenna
   module Toolkit
@@ -36,27 +37,16 @@ module Kenna
       end
 
       def lacework_post(url:, body:, api_token:)
-        uri = URI.parse(url)
+        ratequeue.shift
+        headers = { 'Authorization' => "Bearer #{api_token}", 'Content-type' => 'application/json' }
+        response = http_post(url, headers, body, 3)
 
-        request = Net::HTTP::Post.new(uri)
-        request.content_type = "application/json"
-        request["Authorization"] = "Bearer #{api_token}"
-        request.body = body
-
-        req_options = {
-          use_ssl: uri.scheme == "https"
-        }
-
-        response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-          http.request(request)
-        end
-
-        if response.code == "204"
+        if response.code == 204
           print_error "Lacework API returned HTTP code 204: no results found"
           return []
-        elsif response.code != "200"
+        elsif response.code != 200
           print_error "Lacework API returned HTTP code #{response.code}:"
-          print_error response.message
+          print_error response.net_http_res.message
           return []
         end
 
@@ -80,23 +70,13 @@ module Kenna
       end
 
       def lacework_get(url:, api_token:)
-        uri = URI.parse(url)
-
-        request = Net::HTTP::Get.new(uri)
-        request.content_type = "application/json"
-        request["Authorization"] = "Bearer #{api_token}"
-
-        req_options = {
-          use_ssl: uri.scheme == "https"
-        }
-
-        response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
-          http.request(request)
-        end
+        ratequeue.shift
+        headers = { 'Authorization' => "Bearer #{api_token}", 'Content-type' => 'application/json' }
+        response = http_get(url, headers, 3)
 
         if response.code != "200"
           print_error "Lacework API returned HTTP code #{response.code}:"
-          print_error response.message
+          print_error response.net_http_res.message
           return nil
         end
 

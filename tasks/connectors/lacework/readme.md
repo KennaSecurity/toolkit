@@ -33,9 +33,9 @@ Run the Lacework task following the guidelines on the main [toolkit help page](h
 
 | Name | Type | Required | Description |
 | ---- | ---- | ---- | ---- |
-| lacework_api_token |api_key | true | Lacework API Token |
+| lacework_api_key |api_key | true | Lacework API Key |
 | lacework_api_secret | string | true | Lacework API Secret |
-| lacework_account |string | true | Lacework Account Name |
+| lacework_account |string | true | Lacework Account Name | Account value needs to be the subdomain of the api URL (for example: account_value instead of account_value.lacework.net)
 | kenna_api_key | api_key | false | Kenna API Key |
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
@@ -44,4 +44,4 @@ Run the Lacework task following the guidelines on the main [toolkit help page](h
 
 ## Example Command Line:
 
-    toolkit:latest task=lacework lacework_api_token=xxx lacework_api_secret=xxx lacework_account=xxx kenna_connector_id=156xxx kenna_api_key:xxx
+    toolkit:latest task=lacework lacework_api_key=xxx lacework_api_secret=xxx lacework_account=xxx kenna_connector_id=156xxx kenna_api_key:xxx
