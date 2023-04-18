@@ -72,7 +72,6 @@ module Kenna
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
 
-
         client = Kenna::Toolkit::Veracode::FindingsClient.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
 
         client.category_recommendations(page_size)
