@@ -64,11 +64,11 @@ GEM
     minitest (5.18.0)
     multi_xml (0.6.0)
     netrc (0.11.0)
-    nokogiri (1.14.0-aarch64-linux)
+    nokogiri (1.14.3-aarch64-linux)
       racc (~> 1.4)
-    nokogiri (1.14.0-x86_64-darwin)
+    nokogiri (1.14.3-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.0-x86_64-linux)
+    nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     parallel (1.22.1)
     parser (3.2.0.0)
@@ -197,4 +197,4 @@ RUBY VERSION
    ruby 3.2.1p31
 
 BUNDLED WITH
-   2.4.9
+   2.4.6
