@@ -65,11 +65,13 @@ module Kenna
         veracode_id = @options[:veracode_id]
         veracode_key = @options[:veracode_key]
         page_size = @options[:veracode_page_size]
+        omit_line_number = @options[:omit_line_number]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
+
 
         client = Kenna::Toolkit::Veracode::FindingsClient.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
 
@@ -82,7 +84,7 @@ module Kenna
           guid = application.fetch("guid")
           appname = application.fetch("name").tr('"', "'")
           tags = application.fetch("tags")
-          client.issues(guid, appname, tags, page_size)
+          client.issues(guid, appname, tags, page_size, omit_line_number)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
