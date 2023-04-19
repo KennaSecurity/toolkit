@@ -75,7 +75,7 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def get_findings(app_guid, app_name, tags, page_size)
+        def get_findings(app_guid, app_name, tags, page_size, omit_line_number)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -308,9 +308,9 @@ module Kenna
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size)
+        def issues(app_guid, app_name, tags, page_size, omit_line_number)
           # Get Findings
-          get_findings(app_guid, app_name, tags, page_size)
+          get_findings(app_guid, app_name, tags, page_size, omit_line_number)
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size)
 
