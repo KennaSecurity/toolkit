@@ -308,9 +308,9 @@ module Kenna
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size)
+        def issues(app_guid, app_name, tags, page_size, omit_line_number)
           # Get Findings
-          get_findings(app_guid, app_name, tags, page_size)
+          get_findings(app_guid, app_name, tags, page_size, omit_line_number)
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size)
 
