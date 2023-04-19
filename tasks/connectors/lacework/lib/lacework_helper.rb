@@ -8,6 +8,7 @@ module Kenna
   module Toolkit
     module LaceworkHelper
       MAX_ATTEMPTS = 3
+      HTTP_OK = 200 
 
       def generate_temporary_lacework_api_token(account, api_key, api_secret)
         uri = URI.parse("https://#{account}.lacework.net/api/v2/access/tokens")
@@ -44,7 +45,7 @@ module Kenna
         if response.code == 204
           print_error "Lacework API returned HTTP code 204: no results found"
           return []
-        elsif response.code != 200
+        elsif response.code != HTTP_OK
           print_error "Lacework API returned HTTP code #{response.code}:"
           print_error response.net_http_res.message
           return []
@@ -74,7 +75,7 @@ module Kenna
         headers = { 'Authorization' => "Bearer #{api_token}", 'Content-type' => 'application/json' }
         response = http_get(url, headers, 3)
 
-        if response.code != "200"
+        if response.code != HTTP_OK
           print_error "Lacework API returned HTTP code #{response.code}:"
           print_error response.net_http_res.message
           return nil
