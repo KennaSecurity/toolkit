@@ -6,7 +6,7 @@ This task brings in asset and vulnerability data from AWS Inspector V2.
 
 See the main toolkit README for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna API.
 
-### Recommended Steps:
+### Recommended Steps
 
 1. Run with AWS keys only. You can provide AWS credentials and configuration through [shared ini files, environment variables](https://docs.aws.amazon.com/sdkref/latest/guide/creds-config-files.html),
 
@@ -37,7 +37,7 @@ docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolk
   aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=12345
 ```
 
-### AWS Authentication:
+### AWS Authentication
 
 This task supports several kinds of credentials, facilitated by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/#Configuration):
 
@@ -54,7 +54,7 @@ docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=ins
   task=aws_inspector2 aws_role_arn="\"arn:aws:iam::123456789012:role/Inspectorv2ReadOnly\""
 ```
 
-### Limitations:
+### Limitations
 
 1. The task currently only handles package vulnerabilities, not code vulnerabilities (in AWS Lambda) or network reachability findings.
 2. Suppressed findings in Inspector v2 don't exactly map to "risk accepted" or "false positive" in Kenna, so they are treated as open vulnerabilities.
