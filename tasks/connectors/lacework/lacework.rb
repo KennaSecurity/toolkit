@@ -138,6 +138,7 @@ module Kenna
               scanner_identifier: vuln[:scanner_identifier],
               scanner_type: vuln[:scanner_type],
               name: vuln[:vuln_def_name],
+              cve_identifiers: vuln[:vuln_def_name],
               description: vuln[:description]
             }
 
