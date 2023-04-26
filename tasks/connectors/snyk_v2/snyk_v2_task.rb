@@ -106,7 +106,7 @@ module Kenna
                          @kdi_version) do |batch|
           org_json    = client.snyk_get_orgs
           org_ids     = fetch_orgs_ids(org_json)
-          project_ids = fetch_project_ids(org_json)
+          projects    = fetch_projects(org_json)
 
           types = ["vuln"]
           types << "license" if @include_license
@@ -114,7 +114,7 @@ module Kenna
           while more_pages
             issue_json = []
 
-            project_ids.each_slice(500) do |sliced_ids|
+            projects.keys.each_slice(500) do |sliced_ids|
               issue_filter_json = "{
                  \"filters\": {
                   \"orgs\": #{org_ids},
@@ -149,7 +149,7 @@ module Kenna
 
               target_file = target_file(project, package)
 
-              org_name = @projects[project.fetch("id")]["org"]["name"]
+              org_name = projects[project.fetch("id")]["org"]["name"]
               tags = []
               tags << project.fetch("source") if project.key?("source")
               tags << package_manager if !package_manager.nil? && !package_manager.empty?
@@ -164,7 +164,7 @@ module Kenna
               scanner_score = if issue.key?("cvssScore")
                                 issue.fetch("cvssScore").to_i
                               else
-                                issue_severity_mapping.fetch(issue.fetch("severity"))
+                                ISSUE_SEVERITY_MAPPING.fetch(issue.fetch("severity"))
                               end
 
               additional_fields = extract_additional_fields(issue, issue_obj, project, target_file)
@@ -179,7 +179,7 @@ module Kenna
 
               vuln_names = vuln_def_names(cve_array, cwe_array, issue)
 
-              vuln_names.each do | vuln_name |
+              vuln_names.each do |vuln_name|
                 kdi_issue = {
                   "scanner_identifier" => issue.fetch("id"),
                   "scanner_type" => SCANNER_TYPE,
@@ -250,20 +250,14 @@ module Kenna
         @kdi_version = 2
       end
 
-      def fetch_project_ids(org_json) # FIXME: this method should return projects and we can get ids from the keys
-        @projects = {}
-        project_ids = []
-
-        org_json.each do |org|
-          project_json = client.snyk_get_projects(org.fetch("id"))
-          project_json.each do |project| # FIXME: this could be a map
-            @projects[project.fetch("id")] = project.merge("org" => org)
-            project_ids << project.fetch("id")
+      def fetch_projects(org_json)
+        {}.tap do |projects|
+          org_json.each do |org|
+            client.snyk_get_projects(org.fetch("id")).each do |project|
+              projects[project.fetch("id")] = project.merge("org" => org)
+            end
           end
         end
-
-        print_debug "projects = #{project_ids}"
-        project_ids
       end
 
       def fetch_orgs_ids(org_json)
