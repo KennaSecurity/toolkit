@@ -6,6 +6,7 @@ module Kenna
   module Toolkit
     class SnykV2Task < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Snyk"
+      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 }
 
       def self.metadata
         {
@@ -137,7 +138,6 @@ module Kenna
               break
             end
 
-            issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # FIXME: this should be a constant
             issue_json.each do |issue_obj|
               issue = issue_obj["issue"]
               project = issue_obj["project"]
