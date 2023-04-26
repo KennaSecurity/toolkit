@@ -103,7 +103,8 @@ module Kenna
             "scanner_score": (vuln.dig("cveProps", "metadata", "NVD", "CVSSv3", "Score") || 0).to_i,
             "last_seen_at": vuln["props"]["last_updated_time"],
             "status": vuln["status"] == "Active" ? "open" : "closed",
-            "vuln_def_name": vuln["vulnId"]
+            "vuln_def_name": vuln["vulnId"],
+            "description": (vuln.dig("cveProps", "description") || '')
           }
 
           vulns_by_host[key].push(hsh)
@@ -136,7 +137,9 @@ module Kenna
             vuln_def_hash = {
               scanner_identifier: vuln[:scanner_identifier],
               scanner_type: vuln[:scanner_type],
-              name: vuln[:vuln_def_name]
+              name: vuln[:vuln_def_name],
+              cve_identifiers: vuln[:vuln_def_name],
+              description: vuln[:description]
             }
 
             create_kdi_asset_vuln(asset_hash.stringify_keys, vuln_hash.stringify_keys)
