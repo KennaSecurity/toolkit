@@ -75,7 +75,7 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def get_findings(app_guid, app_name, tags, page_size)
+        def get_findings(app_guid, app_name, tags, page_size, omit_line_number)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -102,7 +102,8 @@ module Kenna
               ext_id = nil
               case finding["scan_type"]
               when "STATIC"
-                file = "#{finding['finding_details']['file_path']}:#{finding['finding_details']['file_line_number']}"
+                file = finding['finding_details']['file_path'].to_s
+                file += ":#{finding['finding_details']['file_line_number']}" unless omit_line_number
                 ext_id = "[#{app_name}] - #{file}"
               when "DYNAMIC"
                 url = finding["finding_details"]["url"]
@@ -307,9 +308,9 @@ module Kenna
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size)
+        def issues(app_guid, app_name, tags, page_size, omit_line_number)
           # Get Findings
-          get_findings(app_guid, app_name, tags, page_size)
+          get_findings(app_guid, app_name, tags, page_size, omit_line_number)
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size)
 

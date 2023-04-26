@@ -77,7 +77,7 @@ module Kenna
         print_good "Getting inspector findings"
         @assets = []
         @vuln_defs = []
-        get_inspector_findings(aws_region, aws_access_key, aws_secret_key).each do |f|
+        get_inspector_findings(aws_region, aws_access_key, aws_secret_key) do |f|
           # create an asset with our locators (regardless of whether we have vulns)
           fqdn = f[:asset_attributes][:hostname]
           instance_id = f[:attributes].find { |a| a[:key] == "INSTANCE_ID" }[:value]
@@ -159,29 +159,28 @@ module Kenna
         }
       end
 
-      def get_inspector_findings(region, access_key, secret_key)
-        begin
-          # do stuff
-          inspector = Aws::Inspector::Client.new({
-                                                   region:,
-                                                   credentials: Aws::Credentials.new(access_key, secret_key)
-                                                 })
-
-          # go get the inspector findings
-          finding_arns = inspector.list_findings.finding_arns
+      def get_inspector_findings(region, access_key, secret_key, &block)
+        inspector = Aws::Inspector::Client.new({
+                                                 region:,
+                                                 credentials: Aws::Credentials.new(access_key, secret_key)
+                                               })
+        next_page_token = nil
+        loop do
+          finding_page = inspector.list_findings({ next_token: next_page_token })
+          finding_arns = finding_page.finding_arns
+          next_page_token = finding_page.next_token
           if finding_arns.count.positive?
             findings = inspector.describe_findings(finding_arns:).findings.map(&:to_hash)
+            findings.each(&block)
           else
-            print_error "No findings? Returning emptyhanded :["
-            findings = []
+            print_error "No findings returned on this page"
           end
+          break if next_page_token.nil?
         rescue Aws::Inspector::Errors::ServiceError => e
           # rescues all errors returned by Amazon Inspector
           print_error "Irrecoverable error connecting to AWS!"
           fail_task e.inspect
         end
-
-        findings
       end
     end
   end

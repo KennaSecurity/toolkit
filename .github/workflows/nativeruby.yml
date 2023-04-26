@@ -1,28 +1,26 @@
-
 name: Native-Ruby-Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  
+    branches: [main]
+
 jobs:
-   Native-Ruby-Test:
+  Native-Ruby-Test:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Toolkit Repo
-      uses: actions/checkout@v2
-      with:
-        repository: KennaPublicSamples/toolkit
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.1.2
-    - name: Config environment
-      run: bundle config set --local without 'development test'
-    - name: Install dependencies
-      run: bundle install
-    - name:  Run Toolkit
-      run : ruby toolkit.rb task=help
-      
+      - name: Checkout Toolkit Repo
+        uses: actions/checkout@v2
+        with:
+          repository: KennaPublicSamples/toolkit
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2.1
+      - name: Config environment
+        run: bundle config set --local without 'development test'
+      - name: Install dependencies
+        run: bundle install
+      - name: Run Toolkit
+        run: ruby toolkit.rb task=help
