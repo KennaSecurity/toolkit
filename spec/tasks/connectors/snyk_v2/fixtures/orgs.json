@@ -1,20 +1,13 @@
 {
   "orgs": [
     {
-      "name": "defaultOrg",
-      "id": "689ce7f9-7943-4a71-b704-2ba575f01089",
-      "slug": "default-org",
-      "url": "https://api.snyk.io/org/default-org",
-      "group": null
-    },
-    {
-      "name": "My Other Org",
-      "id": "a04d9cbd-ae6e-44af-b573-0556b0ad4bd2",
-      "slug": "my-other-org",
-      "url": "https://api.snyk.io/org/my-other-org",
+      "id": "f0495cb5-f188-4745-86f7-289672d3a137",
+      "name": "Kenna Security NFR - Shared",
+      "slug": "kenna-security-nfr-shared",
+      "url": "https://app.snyk.io/org/kenna-security-nfr-shared",
       "group": {
-        "name": "ACME Inc.",
-        "id": "a060a49f-636e-480f-9e14-38e773b2a97f"
+        "name": "Kenna Security - Partner NFR",
+        "id": "a3728e08-d40a-454f-bf19-1ba18a7a2ce9"
       }
     }
   ]

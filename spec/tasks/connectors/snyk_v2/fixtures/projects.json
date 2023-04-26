@@ -1,116 +1,68 @@
 {
   "org": {
-    "name": "defaultOrg",
-    "id": "689ce7f9-7943-4a71-b704-2ba575f01089"
+    "name": "Kenna Security NFR - Shared",
+    "id": "f0495cb5-f188-4745-86f7-289672d3a137"
   },
   "projects": [
     {
-      "name": "atokeneduser/goof",
-      "id": "6d5813be-7e6d-4ab8-80c2-1e3e2a454545",
-      "created": "2018-10-29T09:50:54.014Z",
-      "origin": "cli",
-      "type": "npm",
-      "readOnly": false,
-      "testFrequency": "daily",
-      "totalDependencies": 438,
-      "issueCountsBySeverity": {
-        "low": 8,
-        "medium": 15,
-        "high": 10,
-        "critical": 3
-      },
-      "remoteRepoUrl": "https://github.com/snyk/goof.git",
-      "lastTestedDate": "2019-02-05T06:21:00.000Z",
-      "importingUser": {
-        "id": "e713cf94-bb02-4ea0-89d9-613cce0caed2",
-        "name": "example-user@snyk.io",
-        "username": "exampleUser",
-        "email": "example-user@snyk.io"
-      },
-      "isMonitored": true,
-      "owner": {
-        "id": "e713cf94-bb02-4ea0-89d9-613cce0caed2",
-        "name": "example-user@snyk.io",
-        "username": "exampleUser",
-        "email": "example-user@snyk.io"
-      },
-      "branch": "master",
-      "targetReference": "master",
-      "tags": [
-        {
-          "key": "example-tag-key",
-          "value": "example-tag-value"
-        }
-      ]
-    },
-    {
-      "name": "atokeneduser/clojure",
-      "id": "af127b96-6966-46c1-826b-2e79ac49bbd9",
-      "created": "2018-10-29T09:50:54.014Z",
+      "id": "9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "name": "JoyChou93/java-sec-code:pom.xml",
+      "created": "2023-04-26T15:33:04.803Z",
       "origin": "github",
       "type": "maven",
       "readOnly": false,
       "testFrequency": "daily",
-      "totalDependencies": 42,
+      "isMonitored": true,
+      "totalDependencies": 199,
       "issueCountsBySeverity": {
-        "low": 8,
-        "medium": 21,
-        "high": 3,
+        "low": 14,
+        "high": 128,
+        "medium": 92,
         "critical": 10
       },
-      "remoteRepoUrl": "https://github.com/clojure/clojure.git",
-      "lastTestedDate": "2019-02-05T07:01:00.000Z",
-      "owner": {
-        "id": "42ce0e0f-6288-4874-9266-ef799e7f31bb",
-        "name": "example-user2@snyk.io",
-        "username": "exampleUser2",
-        "email": "example-user2@snyk.io"
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "1.0.0",
+      "lastTestedDate": "2023-04-26T15:33:30.181Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "owner": null,
+      "tags": [],
+      "attributes": {
+        "criticality": [],
+        "lifecycle": [],
+        "environment": []
       },
-      "importingUser": {
-        "id": "e713cf94-bb02-4ea0-89d9-613cce0caed2",
-        "name": "example-user@snyk.io",
-        "username": "exampleUser",
-        "email": "example-user@snyk.io"
-      },
-      "isMonitored": false,
       "branch": "master",
-      "targetReference": "master",
-      "tags": [
-        {
-          "key": "example-tag-key",
-          "value": "example-tag-value"
-        }
-      ]
+      "targetReference": "master"
     },
     {
-      "name": "docker-image|alpine",
-      "id": "f6c8339d-57e1-4d64-90c1-81af0e811f7e",
-      "created": "2019-02-04T08:54:07.704Z",
-      "origin": "cli",
-      "type": "apk",
+      "id": "3e297402-893c-4a69-86dc-c642dce18fe6",
+      "name": "JoyChou93/java-sec-code",
+      "created": "2023-04-26T15:33:05.588Z",
+      "origin": "github",
+      "type": "sast",
       "readOnly": false,
-      "testFrequency": "daily",
-      "totalDependencies": 14,
+      "testFrequency": "weekly",
+      "isMonitored": true,
+      "totalDependencies": null,
       "issueCountsBySeverity": {
-        "low": 0,
-        "medium": 0,
-        "high": 0,
+        "low": 4,
+        "high": 86,
+        "medium": 27,
         "critical": 0
       },
-      "imageId": "sha256:caf27325b298a6730837023a8a342699c8b7b388b8d878966b064a1320043019",
-      "imageTag": "latest",
-      "lastTestedDate": "2019-02-05T08:54:07.704Z",
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "",
+      "lastTestedDate": "2023-04-26T15:33:06.012Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/3e297402-893c-4a69-86dc-c642dce18fe6",
       "owner": null,
-      "importingUser": null,
-      "isMonitored": false,
+      "tags": [],
+      "attributes": {
+        "criticality": [],
+        "lifecycle": [],
+        "environment": []
+      },
       "branch": "master",
-      "targetReference": "master",
-      "tags": [
-        {
-          "key": "example-tag-key",
-          "value": "example-tag-value"
-        }
-      ]
+      "targetReference": "master"
     }
   ]
 }
