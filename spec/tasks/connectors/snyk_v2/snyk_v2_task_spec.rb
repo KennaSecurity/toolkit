@@ -9,8 +9,8 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:options) { { "snyk_api_token" => '0xdeadbeef', "import_type" => import_type } }
-    let(:import_type) { nil }
+    let(:options) { { snyk_api_token: '0xdeadbeef', import_type: import_type } }
+    let(:import_type) { "findings" }
 
     before do
       stub_orgs_request
