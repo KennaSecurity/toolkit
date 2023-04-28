@@ -178,10 +178,11 @@ module Kenna
               end
 
               vuln_names = vuln_def_names(cve_array, cwe_array, issue)
+              vuln_names = @import_findings ? vuln_names : [vuln_names.first]
 
               vuln_names.each do |vuln_name|
                 kdi_issue = {
-                  "scanner_identifier" => issue.fetch("id"),
+                  "scanner_identifier" => "#{issue.fetch("id")}-#{vuln_name}",
                   "scanner_type" => SCANNER_TYPE,
                   "vuln_def_name" => vuln_name
                 }
@@ -296,14 +297,20 @@ module Kenna
       end
 
       def extract_vuln_def(vuln_name, issue, cves, cwes)
+        if vuln_name.starts_with?('CVE')
+          identifier_key = "cve_identifiers"
+        elsif vuln_name.starts_with?('CWE')
+          identifier_key = 'cwe_identifiers'
+        end
         vuln_def = {}
         vuln_def["name"]               = vuln_name
+        unless identifier_key.nil?
+          vuln_def[identifier_key]      = vuln_name
+        end
         vuln_def["scanner_type"]       = SCANNER_TYPE
-        vuln_def["scanner_identifier"] = issue.fetch("id")
+        vuln_def["scanner_identifier"]  = "#{issue.fetch("id")}-#{vuln_name}"
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
-        vuln_def["cve_identifiers"]    = cves unless cves.nil?
-        vuln_def["cwe_identifiers"]    = cwes if cves.nil? && !cwes.nil?
         vuln_def.compact
       end
 
