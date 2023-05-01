@@ -182,7 +182,7 @@ module Kenna
 
               vuln_names.each do |vuln_name|
                 kdi_issue = {
-                  "scanner_identifier" => "#{issue.fetch('id')}-#{vuln_name}",
+                  "scanner_identifier" => scanner_identifier(issue, vuln_name),
                   "scanner_type" => SCANNER_TYPE,
                   "vuln_def_name" => vuln_name
                 }
@@ -306,7 +306,7 @@ module Kenna
         vuln_def["name"] = vuln_name
         vuln_def[identifier_key] = vuln_name unless identifier_key.nil?
         vuln_def["scanner_type"] = SCANNER_TYPE
-        vuln_def["scanner_identifier"] = "#{issue.fetch('id')}-#{vuln_name}"
+        vuln_def["scanner_identifier"] = scanner_identifier(issue, vuln_name)
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
         vuln_def.compact
@@ -328,6 +328,14 @@ module Kenna
       def vuln_def_names(cves, cwes, issue)
         title = issue.fetch("title") if issue.key?("title")
         cves || cwes || [title]
+      end
+
+      def scanner_identifier(issue, vuln_name)
+        if @import_findings
+          "#{issue.fetch('id')}-#{vuln_name}"
+        else
+          issue.fetch('id')
+        end
       end
     end
   end
