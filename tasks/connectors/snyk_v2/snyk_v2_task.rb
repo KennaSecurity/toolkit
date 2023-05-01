@@ -182,7 +182,7 @@ module Kenna
 
               vuln_names.each do |vuln_name|
                 kdi_issue = {
-                  "scanner_identifier" => "#{issue.fetch("id")}-#{vuln_name}",
+                  "scanner_identifier" => "#{issue.fetch('id')}-#{vuln_name}",
                   "scanner_type" => SCANNER_TYPE,
                   "vuln_def_name" => vuln_name
                 }
@@ -198,7 +198,7 @@ module Kenna
                 kdi_issue.merge!(kdi_issue_data)
                 kdi_issue.compact!
 
-                vuln_def = extract_vuln_def(vuln_name, issue, cves, cwes)
+                vuln_def = extract_vuln_def(vuln_name, issue)
 
                 batch.append do
                   # Create the KDI entries
@@ -273,7 +273,7 @@ module Kenna
       def extract_additional_fields(issue, issue_obj, project, target_file)
         fields = {}
         fields["url"]             = issue.fetch("url") if issue.key?("url")
-        fields["id"]              = issue.fetch("id")
+        fields["id"]              = issue.fetch('id')
         fields["title"]           = issue.fetch("title") if issue.key?("title")
         fields["file"]            = target_file
         fields["application"]     = project.fetch("name")
@@ -296,7 +296,7 @@ module Kenna
         fields.compact
       end
 
-      def extract_vuln_def(vuln_name, issue, cves, cwes)
+      def extract_vuln_def(vuln_name, issue)
         if vuln_name.starts_with?('CVE')
           identifier_key = "cve_identifiers"
         elsif vuln_name.starts_with?('CWE')
@@ -304,11 +304,9 @@ module Kenna
         end
         vuln_def = {}
         vuln_def["name"]               = vuln_name
-        unless identifier_key.nil?
-          vuln_def[identifier_key]      = vuln_name
-        end
+        vuln_def[identifier_key]        = vuln_name unless identifier_key.nil?
         vuln_def["scanner_type"]       = SCANNER_TYPE
-        vuln_def["scanner_identifier"]  = "#{issue.fetch("id")}-#{vuln_name}"
+        vuln_def["scanner_identifier"]  = "#{issue.fetch('id')}-#{vuln_name}"
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
         vuln_def.compact
