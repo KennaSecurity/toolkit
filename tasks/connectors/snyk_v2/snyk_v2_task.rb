@@ -173,8 +173,8 @@ module Kenna
                 cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
                 cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
                 cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
-                cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
-                cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
+                cves = cve_array.join(",") if cve_array.present?
+                cwes = cwe_array.join(",") if cwe_array.present?
               end
 
               vuln_names = vuln_def_names(cve_array, cwe_array, issue)
@@ -199,6 +199,17 @@ module Kenna
                 kdi_issue.compact!
 
                 vuln_def = extract_vuln_def(vuln_name, issue)
+                if @import_findings
+                  if vuln_name.starts_with?('CVE')
+                    vuln_def["cve_identifiers"] = vuln_name
+                  elsif vuln_name.starts_with?('CWE')
+                    vuln_def["cwe_identifiers"] = vuln_name
+                  end
+                elsif cves.present?
+                  vuln_def["cve_identifiers"] = cves
+                elsif cwes.present?
+                  vuln_def["cwe_identifiers"] = cwes
+                end
 
                 batch.append do
                   # Create the KDI entries
@@ -297,16 +308,9 @@ module Kenna
       end
 
       def extract_vuln_def(vuln_name, issue)
-        if vuln_name.starts_with?('CVE')
-          identifier_key = "cve_identifiers"
-        elsif vuln_name.starts_with?('CWE')
-          identifier_key = 'cwe_identifiers'
-        end
-        vuln_def = {}
-        vuln_def["name"] = vuln_name
-        vuln_def[identifier_key] = vuln_name unless identifier_key.nil?
-        vuln_def["scanner_type"] = SCANNER_TYPE
-        vuln_def["scanner_identifier"] = scanner_identifier(issue, vuln_name)
+        vuln_def = { "name" => vuln_name,
+                     "scanner_type" => SCANNER_TYPE,
+                     "scanner_identifier" => scanner_identifier(issue, vuln_name) }
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
         vuln_def.compact
