@@ -6,7 +6,7 @@ module Kenna
   module Toolkit
     class SnykV2Task < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Snyk"
-      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 }
+      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 }.freeze
 
       def self.metadata
         {
@@ -303,10 +303,10 @@ module Kenna
           identifier_key = 'cwe_identifiers'
         end
         vuln_def = {}
-        vuln_def["name"]               = vuln_name
-        vuln_def[identifier_key]        = vuln_name unless identifier_key.nil?
-        vuln_def["scanner_type"]       = SCANNER_TYPE
-        vuln_def["scanner_identifier"]  = "#{issue.fetch('id')}-#{vuln_name}"
+        vuln_def["name"] = vuln_name
+        vuln_def[identifier_key] = vuln_name unless identifier_key.nil?
+        vuln_def["scanner_type"] = SCANNER_TYPE
+        vuln_def["scanner_identifier"] = "#{issue.fetch('id')}-#{vuln_name}"
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
         vuln_def.compact

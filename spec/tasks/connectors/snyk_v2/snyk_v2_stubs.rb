@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 def read_fixture_file(filename)
   File.read(File.join(%w[spec tasks connectors snyk_v2 fixtures], filename))
 end
@@ -13,9 +15,9 @@ end
 
 def stub_issues_request
   stub_request(:post, "https://snyk.io/api/v1/reporting/issues")
-    .with(query: hash_including({"page" => "1"}))
+    .with(query: hash_including({ "page" => "1" }))
     .to_return_json(body: read_fixture_file("issues.json"))
   stub_request(:post, "https://snyk.io/api/v1/reporting/issues")
-    .with(query: hash_including({"page" => "2"}))
+    .with(query: hash_including({ "page" => "2" }))
     .to_return_json(body: read_fixture_file("issues_empty.json"))
 end
