@@ -109,7 +109,7 @@ module Kenna
                 url = finding["finding_details"]["url"]
                 ext_id = "[#{app_name}] - #{url}"
               end
-              finding_id = finding["issue_id"]
+              finding_id = "#{app_name}:#{finding["issue_id"]}"
               require 'pry'; binding.pry unless finding_id
 
               # Pull Status from finding["finding_status"]["status"]
