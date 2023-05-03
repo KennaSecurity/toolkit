@@ -116,10 +116,10 @@ module Kenna
 
         risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params)
         risk_mitigations = {}
-        pages = risk_vulnerabilities['total'] / @options[:batch_size]
+        pages = risk_vulnerabilities['total'] / @options[:batch_size] + 1
 
         pages.times do |page|
-          risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params.merge(page: page)) unless page.zero?
+          risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params.merge(page:)) unless page.zero?
 
           risk_vulnerabilities['vulnerabilities'].each do |vulnerability|
             risk_mitigations[vulnerability['vulnerability_name']] ||= client.get_risk_mitigations(vulnerability['vulnerability_name'])['mitigations']

@@ -6,7 +6,7 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
   subject(:task) { described_class.new }
 
   describe '#run' do
-    let(:api_client) { instance_double(Kenna::Toolkit::Cylera::Client, get_risk_vulnerabilities: { 'vulnerabilities' => [vuln], 'total' => 100, 'page' => 0 }, get_risk_mitigations: { 'mitigations' => [] }) }
+    let(:api_client) { instance_double(Kenna::Toolkit::Cylera::Client, get_risk_vulnerabilities: { 'vulnerabilities' => [vuln], 'total' => 20, 'page' => 0 }, get_risk_mitigations: { 'mitigations' => [] }) }
     let(:vuln) do
       {
         'ip_address' => '10.125.51.5',
