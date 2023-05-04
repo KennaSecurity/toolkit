@@ -110,7 +110,6 @@ module Kenna
                 ext_id = "[#{app_name}] - #{url}"
               end
               finding_id = "#{app_name}:#{finding["issue_id"]}"
-              require 'pry'; binding.pry unless finding_id
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
