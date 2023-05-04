@@ -275,7 +275,7 @@ module Kenna
 
               # craft the vuln hash
               finding = {
-                "scanner_identifier" => cwe,
+                "scanner_identifier" => cve,
                 "scanner_type" => "veracode",
                 "severity" => scanner_score * 2,
                 "triage_state" => status,
@@ -287,7 +287,7 @@ module Kenna
               finding.compact!
 
               vuln_def = {
-                "scanner_identifier" => cwe,
+                "scanner_identifier" => cve,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "cve_identifiers" => cve,
