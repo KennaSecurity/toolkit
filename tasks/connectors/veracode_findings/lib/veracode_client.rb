@@ -220,8 +220,6 @@ module Kenna
             findings.lazy.each do |finding|
               file = finding["finding_details"]["component_path"].first.fetch("path")
               ext_id = "[#{app_name}] - #{file}"
-              finding_id = finding["issue_id"]
-              require 'pry'; binding.pry unless finding_id
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
@@ -277,7 +275,7 @@ module Kenna
 
               # craft the vuln hash
               finding = {
-                "scanner_identifier" => finding_id,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "severity" => scanner_score * 2,
                 "triage_state" => status,
@@ -289,7 +287,7 @@ module Kenna
               finding.compact!
 
               vuln_def = {
-                "scanner_identifier" => finding_id,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "cve_identifiers" => cve,
