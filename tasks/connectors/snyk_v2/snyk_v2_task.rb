@@ -181,10 +181,11 @@ module Kenna
               vuln_names = @import_findings ? vuln_names : [vuln_names.first]
 
               vuln_names.each do |vuln_name|
+                unique_vuln_identifier = scanner_identifier(issue, vuln_name)
                 kdi_issue = {
-                  "scanner_identifier" => scanner_identifier(issue, vuln_name),
+                  "scanner_identifier" => unique_vuln_identifier,
                   "scanner_type" => SCANNER_TYPE,
-                  "vuln_def_name" => vuln_name
+                  "vuln_def_name" => @import_findings ? unique_vuln_identifier : vuln_name
                 }
                 kdi_issue_data = if @import_findings
                                    { "severity" => scanner_score,
@@ -308,9 +309,10 @@ module Kenna
       end
 
       def extract_vuln_def(vuln_name, issue)
-        vuln_def = { "name" => vuln_name,
+        vuln_identifier = scanner_identifier(issue, vuln_name)
+        vuln_def = { "name" => @import_findings ? vuln_identifier : vuln_name,
                      "scanner_type" => SCANNER_TYPE,
-                     "scanner_identifier" => scanner_identifier(issue, vuln_name) }
+                     "scanner_identifier" => vuln_identifier }
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
         vuln_def.compact

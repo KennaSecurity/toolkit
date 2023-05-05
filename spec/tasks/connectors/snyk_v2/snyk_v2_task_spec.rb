@@ -65,14 +65,14 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
           {
             "cve_identifiers" => "CVE-2015-7501",
             "description" => "Deserialization of Untrusted Data",
-            "name" => "CVE-2015-7501",
+            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
             "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
             "scanner_type" => "Snyk"
           },
           {
             "cve_identifiers" => "CVE-2015-4852",
             "description" => "Deserialization of Untrusted Data",
-            "name" => "CVE-2015-4852",
+            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
             "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
             "scanner_type" => "Snyk"
           }
@@ -94,7 +94,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       def asset_finding_for_cve(cve)
         { "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
           "scanner_type" => "Snyk",
-          "vuln_def_name" => cve,
+          "vuln_def_name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
           "severity" => 9,
           "last_seen_at" => "2023-04-26",
           "additional_fields" =>
