@@ -1,0 +1,16 @@
+{
+  "_embedded": {
+    "applications": [
+      {
+        "profile": {
+          "tags": "t1,t2",
+          "business_unit": {
+            "name": "BU"
+          },
+          "name": "app1"
+        },
+        "guid": "TESTGUID"
+      }
+    ]
+  }
+}
