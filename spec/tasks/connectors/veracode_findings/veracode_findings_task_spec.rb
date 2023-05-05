@@ -24,14 +24,14 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       it "should map the scanner_identifier to include the application name and the issue id" do
         expect(task.vuln_defs).to include(
           an_object_having_attributes({
-            "scanner_identifier": "app1:123"
-          })
+                                        "scanner_identifier": "app1:123"
+                                      })
         )
         expect(task.assets.first.findings).to include(
           an_object_having_attributes({
-            "scanner_identifier": "app1:123",
-            "cwe_identifiers": "CWE-TEST"
-          })
+                                        "scanner_identifier": "app1:123",
+                                        "cwe_identifiers": "CWE-TEST"
+                                      })
         )
       end
     end
