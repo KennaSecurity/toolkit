@@ -13,7 +13,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
 
     before do
       stub_findings_request
-      stub_SCA_findings_request
+      stub_sca_findings_request
       stub_applications_request
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
