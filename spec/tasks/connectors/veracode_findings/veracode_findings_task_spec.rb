@@ -9,7 +9,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:options) { { veracode_id: '', veracode_key: ''} }
+    let(:options) { { veracode_id: '', veracode_key: '' } }
 
     before do
       stub_findings_request
@@ -21,21 +21,19 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     end
 
     context "veracode findings" do
-
       it "should map the scanner_identifier to include the application name and the issue id" do
         expect(task.vuln_defs).to include(
-         an_object_having_attributes({
-            "scanner_identifier": "app1:123",
+          an_object_having_attributes({
+            "scanner_identifier": "app1:123"
           })
         )
         expect(task.assets.first.findings).to include(
           an_object_having_attributes({
             "scanner_identifier": "app1:123",
-            "cwe_identifiers": "CWE-TEST",
+            "cwe_identifiers": "CWE-TEST"
           })
         )
       end
-
     end
   end
 
