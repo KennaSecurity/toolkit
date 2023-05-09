@@ -109,6 +109,7 @@ module Kenna
                 url = finding["finding_details"]["url"]
                 ext_id = "[#{app_name}] - #{url}"
               end
+              finding_id = "#{app_name}:#{finding['issue_id']}"
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
@@ -165,7 +166,7 @@ module Kenna
 
               # craft the vuln hash
               finding = {
-                "scanner_identifier" => cwe,
+                "scanner_identifier" => finding_id,
                 "scanner_type" => "veracode",
                 "severity" => scanner_score * 2,
                 "triage_state" => status,
@@ -177,7 +178,7 @@ module Kenna
               finding.compact!
 
               vuln_def = {
-                "scanner_identifier" => cwe,
+                "scanner_identifier" => finding_id,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "name" => cwe_name,
