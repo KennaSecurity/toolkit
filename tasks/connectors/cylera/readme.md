@@ -28,11 +28,14 @@ Complete list of Options:
 | cylera_api_host | true | Cylera instance hostname, e.g. http://cylera.example.com:8080 . Must escape hostname in command line script, e.g. \\"http://cylera.example.com:8080\"  | n/a |
 | cylera_api_user | true | Cylera API user email | n/a |
 | cylera_api_password | true | Cylera API user password | n/a |
+| cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
+| cylera_detected_after | false | Epoch timestamp after which a vulnerability was detected | n/a |
+| cylera_mac_address | false | MAC address of device | n/a |
+| cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
 | cylera_severity | false | Vulnerability severity. One of [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
 | cylera_status | false | Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
-| cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
-| cylera_mac_address | false | MAC address of device | n/a |
-| batch_size | false | Maximum number of vulnerabilities to retrieve in batches | 100 |
+| page | false | Controls which page of results to return | 0 |
+| page_size | false | Controls number of results in each response. Max 100. | 100 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
@@ -44,7 +47,7 @@ Complete list of Options:
 | --- | --- | --- |
 | ip_address | vulnerability.ip_address | |
 | mac_address | vulnerability.mac_address | |
-| tags | ["Vendor:#{vulnerability.vendor}", "Type:#{vulnerability.type}", "Model:#{vulnerability.model}", "Class:#{vulnerability.class}"] | ? |
+| tags | ["Vendor:#{vulnerability.vendor}", "Type:#{vulnerability.type}", "Model:#{vulnerability.model}", "Class:#{vulnerability.class}"] | if proper value exists |
 
 | Kenna Vulnerability | from Cylera Vulnerability | Conditions |
 | --- | --- | --- |

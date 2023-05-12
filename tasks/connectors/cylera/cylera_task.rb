@@ -14,6 +14,12 @@ module Kenna
         'High' => 8,
         'Critical' => 10
       }.freeze
+      STATUS_VALUES = {
+        'Open' => 'Open',
+        'In Progress' => 'Open',
+        'Resolved' => 'Closed',
+        'Suppressed' => 'Closed'
+      }.freeze
 
       def self.metadata
         {
@@ -43,6 +49,34 @@ module Kenna
               description: 'Cylera API user password'
             },
             {
+              name: 'cylera_confidence',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH]'
+            },
+            {
+              name: 'cylera_detected_after',
+              type: 'integer',
+              required: false,
+              default: nil,
+              description: 'Epoch timestamp after which a vulnerability was detected'
+            },
+            {
+              name: 'cylera_mac_address',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'MAC address of device'
+            },
+            {
+              name: 'cylera_name',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Name of the vulnerability (complete or partial)'
+            },
+            {
               name: 'cylera_severity',
               type: 'string',
               required: false,
@@ -57,24 +91,19 @@ module Kenna
               description: 'Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED]'
             },
             {
-              name: 'cylera_name',
-              type: 'string',
+              name: 'page',
+              type: 'integer',
               required: false,
-              default: nil,
-              description: 'Name of the vulnerability (complete or partial)'
+              default: 0,
+              description: 'Controls which page of results to return'
             },
             {
-              name: 'cylera_mac_address',
-              type: 'string',
-              required: false,
-              default: nil,
-              description: 'MAC address of device'
-            },
-            { name: 'batch_size',
+              name: 'page_size',
               type: 'integer',
               required: false,
               default: 100,
-              description: 'Maximum number of vulnerabilities to retrieve in batches' },
+              description: 'Controls number of results in each response. Max 100.'
+            },
             {
               name: 'kenna_api_key',
               type: 'api_key',
@@ -116,13 +145,15 @@ module Kenna
 
         risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params)
         risk_mitigations = {}
-        pages = risk_vulnerabilities['total'] / @options[:batch_size] + 1
+        pages = risk_vulnerabilities['total'] / @options[:page_size] + 1
 
         pages.times do |page|
           risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params.merge(page:)) unless page.zero?
 
           risk_vulnerabilities['vulnerabilities'].each do |vulnerability|
-            risk_mitigations[vulnerability['vulnerability_name']] ||= client.get_risk_mitigations(vulnerability['vulnerability_name'])['mitigations']
+            cylera_vulnerability_name = vulnerability['vulnerability_name']
+            vulnerability['vulnerability_name'] = vulnerability_name(cylera_vulnerability_name)
+            risk_mitigations[vulnerability['vulnerability_name']] ||= client.get_risk_mitigations(cylera_vulnerability_name)['mitigations']
 
             asset = extract_asset(vulnerability)
             vuln = extract_vuln(vulnerability)
@@ -147,11 +178,14 @@ module Kenna
         @api_user = @options[:cylera_api_user]
         @api_password = @options[:cylera_api_password]
         @risk_vulnerabilities_params = {
+          confidence: @options[:cylera_confidence],
+          detected_after: @options[:cylera_detected_after],
+          mac_address: @options[:cylera_mac_address],
+          name: @options[:cylera_name],
           severity: @options[:cylera_severity],
           status: @options[:cylera_status],
-          name: @options[:cylera_name],
-          mac_address: @options[:cylera_mac_address],
-          page_size: @options[:batch_size]
+          page: @options[:page],
+          page_size: @options[:page_size]
         }
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
@@ -177,7 +211,7 @@ module Kenna
           'scanner_score' => SEVERITY_VALUES[vulnerability['severity']],
           'created_at' => Time.at(vulnerability['first_seen']),
           'last_seen_at' => Time.at(vulnerability['last_seen']),
-          'status' => vulnerability['status'],
+          'status' => STATUS_VALUES[vulnerability['status']],
           'vuln_def_name' => vulnerability['vulnerability_name']
         }.compact
       end
@@ -198,6 +232,14 @@ module Kenna
         tags.push("Model:#{vulnerability['model']}") if vulnerability['model']
         tags.push("Class:#{vulnerability['class']}") if vulnerability['class']
         tags
+      end
+
+      def vulnerability_name(cylera_vulnerability_name)
+        return cylera_vulnerability_name unless cve_id(cylera_vulnerability_name)
+
+        parts = cylera_vulnerability_name.split('-')
+        parts[2] = "000#{parts[2]}".last(4) if parts[2].length < 4
+        parts.join('-')
       end
 
       def cve_id(vulnerability_name)
