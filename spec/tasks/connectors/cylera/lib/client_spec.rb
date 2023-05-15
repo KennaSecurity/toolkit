@@ -20,7 +20,7 @@ RSpec.describe Kenna::Toolkit::Cylera::Client do
   before do
     stub_request(:post, "https://#{api_host}/auth/login_user")
       .with(body: { email: api_user, password: api_password })
-      .to_return_json(body: { token: token }, status: 200)
+      .to_return_json(body: { token: }, status: 200)
   end
 
   describe '#get_risk_vulnerabilities' do

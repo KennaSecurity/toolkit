@@ -17,8 +17,8 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
         'class' => 'Medical',
         'vulnerability_name' => 'CVE-2000-0761',
         'vulnerability_category' => 'Security',
-        'first_seen' => 1651505826,
-        'last_seen' => 1651505826,
+        'first_seen' => 1_651_505_826,
+        'last_seen' => 1_651_505_826,
         'severity' => 'Medium',
         'status' => 'Open',
         'confidence' => 'High'
