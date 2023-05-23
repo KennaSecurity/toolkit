@@ -6,6 +6,7 @@ module Kenna
   module Toolkit
     class SnykV2Task < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Snyk"
+      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 }.freeze
 
       def self.metadata
         {
@@ -105,7 +106,7 @@ module Kenna
                          @kdi_version) do |batch|
           org_json    = client.snyk_get_orgs
           org_ids     = fetch_orgs_ids(org_json)
-          project_ids = fetch_project_ids(org_json)
+          projects    = fetch_projects(org_json)
 
           types = ["vuln"]
           types << "license" if @include_license
@@ -113,7 +114,7 @@ module Kenna
           while more_pages
             issue_json = []
 
-            project_ids.each_slice(500) do |sliced_ids|
+            projects.keys.each_slice(500) do |sliced_ids|
               issue_filter_json = "{
                  \"filters\": {
                   \"orgs\": #{org_ids},
@@ -137,7 +138,6 @@ module Kenna
               break
             end
 
-            issue_severity_mapping = { "high" => 6, "medium" => 4, "low" => 1 } # converter
             issue_json.each do |issue_obj|
               issue = issue_obj["issue"]
               project = issue_obj["project"]
@@ -149,7 +149,7 @@ module Kenna
 
               target_file = target_file(project, package)
 
-              org_name = @projects[project.fetch("id")]["org"]["name"]
+              org_name = projects[project.fetch("id")]["org"]["name"]
               tags = []
               tags << project.fetch("source") if project.key?("source")
               tags << package_manager if !package_manager.nil? && !package_manager.empty?
@@ -164,7 +164,7 @@ module Kenna
               scanner_score = if issue.key?("cvssScore")
                                 issue.fetch("cvssScore").to_i
                               else
-                                issue_severity_mapping.fetch(issue.fetch("severity"))
+                                ISSUE_SEVERITY_MAPPING.fetch(issue.fetch("severity"))
                               end
 
               additional_fields = extract_additional_fields(issue, issue_obj, project, target_file)
@@ -173,40 +173,55 @@ module Kenna
                 cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
                 cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
                 cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
-                cves = cve_array.join(",") unless cve_array.nil? || cve_array.length.zero?
-                cwes = cwe_array.join(",") unless cwe_array.nil? || cwe_array.length.zero?
+                cves = cve_array.join(",") if cve_array.present?
+                cwes = cwe_array.join(",") if cwe_array.present?
               end
 
-              vuln_name = vuln_def_name(cve_array, cwe_array, issue)
+              vuln_names = vuln_def_names(cve_array, cwe_array, issue)
+              vuln_names = @import_findings ? vuln_names : [vuln_names.first]
 
-              kdi_issue = {
-                "scanner_identifier" => issue.fetch("id"),
-                "scanner_type" => SCANNER_TYPE,
-                "vuln_def_name" => vuln_name
-              }
-              kdi_issue_data = if @import_findings
-                                 { "severity" => scanner_score,
-                                   "last_seen_at" => issue_obj.fetch("introducedDate"),
-                                   "additional_fields" => additional_fields }
-                               else
-                                 { "scanner_score" => scanner_score,
-                                   "created_at" => issue_obj.fetch("introducedDate"),
-                                   "details" => JSON.pretty_generate(additional_fields) }
-                               end
-              kdi_issue.merge!(kdi_issue_data)
-              kdi_issue.compact!
+              vuln_names.each do |vuln_name|
+                unique_vuln_identifier = scanner_identifier(issue, vuln_name)
+                kdi_issue = {
+                  "scanner_identifier" => unique_vuln_identifier,
+                  "scanner_type" => SCANNER_TYPE,
+                  "vuln_def_name" => @import_findings ? unique_vuln_identifier : vuln_name
+                }
+                kdi_issue_data = if @import_findings
+                                   { "severity" => scanner_score,
+                                     "last_seen_at" => issue_obj.fetch("introducedDate"),
+                                     "additional_fields" => additional_fields }
+                                 else
+                                   { "scanner_score" => scanner_score,
+                                     "created_at" => issue_obj.fetch("introducedDate"),
+                                     "details" => JSON.pretty_generate(additional_fields) }
+                                 end
+                kdi_issue.merge!(kdi_issue_data)
+                kdi_issue.compact!
 
-              vuln_def = extract_vuln_def(vuln_name, issue, cves, cwes)
-
-              batch.append do
-                # Create the KDI entries
+                vuln_def = extract_vuln_def(vuln_name, issue)
                 if @import_findings
-                  create_kdi_asset_finding(asset, kdi_issue)
-                else
-                  create_kdi_asset_vuln(asset, kdi_issue)
+                  if vuln_name.starts_with?('CVE')
+                    vuln_def["cve_identifiers"] = vuln_name
+                  elsif vuln_name.starts_with?('CWE')
+                    vuln_def["cwe_identifiers"] = vuln_name
+                  end
+                elsif cves.present?
+                  vuln_def["cve_identifiers"] = cves
+                elsif cwes.present?
+                  vuln_def["cwe_identifiers"] = cwes
                 end
 
-                create_kdi_vuln_def(vuln_def)
+                batch.append do
+                  # Create the KDI entries
+                  if @import_findings
+                    create_kdi_asset_finding(asset, kdi_issue)
+                  else
+                    create_kdi_asset_vuln(asset, kdi_issue)
+                  end
+
+                  create_kdi_vuln_def(vuln_def)
+                end
               end
             end
           end
@@ -248,20 +263,14 @@ module Kenna
         @kdi_version = 2
       end
 
-      def fetch_project_ids(org_json)
-        @projects = {}
-        project_ids = []
-
-        org_json.each do |org|
-          project_json = client.snyk_get_projects(org.fetch("id"))
-          project_json.each do |project|
-            @projects[project.fetch("id")] = project.merge("org" => org)
-            project_ids << project.fetch("id")
+      def fetch_projects(org_json)
+        {}.tap do |projects|
+          org_json.each do |org|
+            client.snyk_get_projects(org.fetch("id")).each do |project|
+              projects[project.fetch("id")] = project.merge("org" => org)
+            end
           end
         end
-
-        print_debug "projects = #{project_ids}"
-        project_ids
       end
 
       def fetch_orgs_ids(org_json)
@@ -276,7 +285,7 @@ module Kenna
       def extract_additional_fields(issue, issue_obj, project, target_file)
         fields = {}
         fields["url"]             = issue.fetch("url") if issue.key?("url")
-        fields["id"]              = issue.fetch("id")
+        fields["id"]              = issue.fetch('id')
         fields["title"]           = issue.fetch("title") if issue.key?("title")
         fields["file"]            = target_file
         fields["application"]     = project.fetch("name")
@@ -299,15 +308,13 @@ module Kenna
         fields.compact
       end
 
-      def extract_vuln_def(vuln_name, issue, cves, cwes)
-        vuln_def = {}
-        vuln_def["name"]               = vuln_name
-        vuln_def["scanner_type"]       = SCANNER_TYPE
-        vuln_def["scanner_identifier"] = issue.fetch("id")
+      def extract_vuln_def(vuln_name, issue)
+        vuln_identifier = scanner_identifier(issue, vuln_name)
+        vuln_def = { "name" => @import_findings ? vuln_identifier : vuln_name,
+                     "scanner_type" => SCANNER_TYPE,
+                     "scanner_identifier" => vuln_identifier }
         vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
         vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
-        vuln_def["cve_identifiers"]    = cves unless cves.nil?
-        vuln_def["cwe_identifiers"]    = cwes if cves.nil? && !cwes.nil?
         vuln_def.compact
       end
 
@@ -324,9 +331,17 @@ module Kenna
         end
       end
 
-      def vuln_def_name(cves, cwes, issue)
+      def vuln_def_names(cves, cwes, issue)
         title = issue.fetch("title") if issue.key?("title")
-        cves&.first || cwes&.first || title
+        cves || cwes || [title]
+      end
+
+      def scanner_identifier(issue, vuln_name)
+        if @import_findings
+          "#{issue.fetch('id')}-#{vuln_name}"
+        else
+          issue.fetch('id')
+        end
       end
     end
   end
