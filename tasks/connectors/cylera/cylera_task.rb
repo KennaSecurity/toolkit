@@ -32,7 +32,7 @@ module Kenna
               type: 'hostname',
               required: true,
               default: nil,
-              description: 'Cylera instance hostname, e.g. https://partner.us1.cylera.com'
+              description: 'Cylera instance hostname, e.g. partner.us1.cylera.com'
             },
             {
               name: 'cylera_api_user',
