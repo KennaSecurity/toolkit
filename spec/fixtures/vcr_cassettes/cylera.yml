@@ -1,0 +1,215 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://cylera.host/auth/login_user
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "email": "api_user",
+          "password": "api_password"
+        }'
+    headers:
+      Content-Type:
+        - application/json
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY",
+          "user_role": "user"
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:17 GMT
+- request:
+    method: get
+    uri: https://cylera.host/risk/vulnerabilities?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "vulnerabilities": [
+            {
+              "ip_address": "10.30.0.108",
+              "mac_address": "00:11:25:08:29:38",
+              "model": null,
+              "type": "Endpoint",
+              "vendor": null,
+              "class": "General",
+              "vulnerability_name": "CVE-2000-0761",
+              "vulnerability_category": "Security",
+              "first_seen": 1662778091,
+              "last_seen": 1662778091,
+              "severity": "Medium",
+              "status": "Open",
+              "confidence": "High"
+            },
+            {
+              "ip_address": "10.125.51.6",
+              "mac_address": "5c:f3:fc:8b:49:60",
+              "model": null,
+              "type": "Endpoint",
+              "vendor": null,
+              "class": "General",
+              "vulnerability_name": "CVE-2000-0761",
+              "vulnerability_category": "Security",
+              "first_seen": 1662778660,
+              "last_seen": 1662778660,
+              "severity": "Medium",
+              "status": "Open",
+              "confidence": "High"
+            },
+            {
+              "ip_address": "10.125.42.227",
+              "mac_address": "2c:27:d7:f0:37:8a",
+              "model": "Siemens Esoft Nuclear Medicine Workstation",
+              "type": "Nuclear Imaging Workstation",
+              "vendor": "Siemens",
+              "class": "Medical",
+              "vulnerability_name": "CVE-2001-0500",
+              "vulnerability_category": "Security",
+              "first_seen": 1681047170,
+              "last_seen": 1681047170,
+              "severity": "High",
+              "status": "Open",
+              "confidence": "High"
+            },
+            {
+              "ip_address": "10.10.36.133",
+              "mac_address": "00:14:22:5d:a3:b4",
+              "model": "Siemens IP1 w/ E-Cam Nuclear Camera",
+              "type": "Gamma Camera",
+              "vendor": "Siemens",
+              "class": "Medical",
+              "vulnerability_name": "CVE-2001-0500",
+              "vulnerability_category": "Security",
+              "first_seen": 1684039709,
+              "last_seen": 1684039709,
+              "severity": "High",
+              "status": "Open",
+              "confidence": "High"
+            },
+            {
+              "ip_address": "10.18.32.50",
+              "mac_address": "00:04:23:d1:38:c8",
+              "model": "Siemens Axiom Artis System",
+              "type": "Angiography",
+              "vendor": "Siemens",
+              "class": "Medical",
+              "vulnerability_name": "CVE-2002-0150",
+              "vulnerability_category": "Security",
+              "first_seen": 1681047171,
+              "last_seen": 1681047171,
+              "severity": "High",
+              "status": "Open",
+              "confidence": "High"
+            }
+          ],
+          "total": 5,
+          "page": 0
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:18 GMT
+- request:
+    method: get
+    uri: https://cylera.host/risk/mitigations?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "mitigations": [
+            {
+              "name": "Incident Response Plan",
+              "kind": "Solution",
+              "items": [
+                {
+                  "name": "Identify Contacts",
+                  "description": "Identify contact within appropriate team, i.e. biomedical engineering, responsible for this device.",
+                  "order": 0
+                },
+                {
+                  "name": "Document Communication Procedures",
+                  "description": "Document procedure for alerting appropriate staff from IT, IS, biomedical engineering, and clinical staff in case of device compromise.",
+                  "order": 1
+                },
+                {
+                  "name": "Document Segmentation Scenarios",
+                  "description": "Document possibility and procedure for isolating or disconnecting device from network in various scenarios of clinical use.",
+                  "order": 2
+                },
+                {
+                  "name": "Document Workflow Changes",
+                  "description": "Document workflow changes that must occur if devices are disconnected from the network, i.e. manual drug library updates.",
+                  "order": 3
+                },
+                {
+                  "name": "Schedule Training Events",
+                  "description": "Prioritize training and simulation events for device downtime.",
+                  "order": 4
+                }
+              ],
+              "links": []
+            },
+            {
+              "name": "Limit access to device web server via network policies",
+              "kind": "Solution",
+              "items": [
+                {
+                  "name": "Confirm Feasibility",
+                  "description": "Ensure that your intended targets to block are not required for the device to function. Consult the network policies that can be generated by the Cylera platform for additional assurance.",
+                  "order": 0
+                },
+                {
+                  "name": "Block Access",
+                  "description": "Proceed to block access once the feasibility is confirmed. This can be done with firewall rules, micro-firewalls placed inline between the device and its access switch, or with software agents.",
+                  "order": 1
+                }
+              ],
+              "links": []
+            }
+          ]
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:19 GMT
+recorded_with: VCR 6.1.0

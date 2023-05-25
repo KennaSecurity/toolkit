@@ -25,7 +25,7 @@ Complete list of Options:
 
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
-| cylera_api_host | true | Cylera instance hostname, e.g. http://cylera.example.com:8080 . Must escape hostname in command line script, e.g. \\"http://cylera.example.com:8080\"  | n/a |
+| cylera_api_host | true | Cylera instance hostname, e.g. https://partner.us1.cylera.com. Must escape hostname in command line script, e.g. \"https://partner.us1.cylera.com\" | n/a |
 | cylera_api_user | true | Cylera API user email | n/a |
 | cylera_api_password | true | Cylera API user password | n/a |
 | cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
@@ -34,8 +34,8 @@ Complete list of Options:
 | cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
 | cylera_severity | false | Vulnerability severity. One of [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
 | cylera_status | false | Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
-| page | false | Controls which page of results to return | 0 |
-| page_size | false | Controls number of results in each response. Max 100. | 100 |
+| cylera_page | false | Controls which page of results to return | 0 |
+| cylera_page_size | false | Controls number of results in each response. Max 100. | 100 |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |

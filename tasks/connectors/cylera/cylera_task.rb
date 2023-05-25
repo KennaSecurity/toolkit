@@ -91,14 +91,14 @@ module Kenna
               description: 'Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED]'
             },
             {
-              name: 'page',
+              name: 'cylera_page',
               type: 'integer',
               required: false,
               default: 0,
               description: 'Controls which page of results to return'
             },
             {
-              name: 'page_size',
+              name: 'cylera_page_size',
               type: 'integer',
               required: false,
               default: 100,
@@ -143,12 +143,10 @@ module Kenna
 
         client = Kenna::Toolkit::Cylera::Client.new(@api_host, @api_user, @api_password)
 
-        risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params)
         risk_mitigations = {}
-        pages = risk_vulnerabilities['total'] / @options[:page_size] + 1
 
-        pages.times do |page|
-          risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params.merge(page:)) unless page.zero?
+        loop do
+          risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params)
 
           risk_vulnerabilities['vulnerabilities'].each do |vulnerability|
             cylera_vulnerability_name = vulnerability['vulnerability_name']
@@ -164,6 +162,10 @@ module Kenna
           end
 
           kdi_upload(@output_directory, "cylera_#{risk_vulnerabilities['page']}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+
+          break if risk_vulnerabilities['vulnerabilities'].count < @risk_vulnerabilities_params[:page_size]
+
+          @risk_vulnerabilities_params[:page] += 1
         end
 
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
@@ -184,8 +186,8 @@ module Kenna
           name: @options[:cylera_name],
           severity: @options[:cylera_severity],
           status: @options[:cylera_status],
-          page: @options[:page],
-          page_size: @options[:page_size]
+          page: @options[:cylera_page].to_i,
+          page_size: @options[:cylera_page_size]
         }
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]

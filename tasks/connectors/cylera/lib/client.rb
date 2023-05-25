@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'vcr'
+
 module Kenna
   module Toolkit
     module Cylera
