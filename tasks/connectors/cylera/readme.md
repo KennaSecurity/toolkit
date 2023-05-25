@@ -25,7 +25,7 @@ Complete list of Options:
 
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
-| cylera_api_host | true | Cylera instance hostname, e.g. https://partner.us1.cylera.com. Must escape hostname in command line script, e.g. \"https://partner.us1.cylera.com\" | n/a |
+| cylera_api_host | true | Cylera instance hostname, e.g. https://partner.us1.cylera.com. Must escape hostname in command line script, e.g. \\"https://partner.us1.cylera.com\" | n/a |
 | cylera_api_user | true | Cylera API user email | n/a |
 | cylera_api_password | true | Cylera API user password | n/a |
 | cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
