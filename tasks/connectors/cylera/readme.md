@@ -28,9 +28,15 @@ Complete list of Options:
 | cylera_api_host | true | Cylera instance hostname, e.g. partner.us1.cylera.com. Must escape hostname in command line script, e.g. \\"partner.us1.cylera.com\\" | n/a |
 | cylera_api_user | true | Cylera API user email | n/a |
 | cylera_api_password | true | Cylera API user password | n/a |
+| cylera_ip_address | false | Partial or complete IP or subnet | n/a |
+| cylera_mac_address | false | Partial or complete MAC address | n/a |
+| cylera_since_last_seen | false | Number of seconds since activity from device was last detected | n/a |
+| cylera_vendor | false | Device vendor or manufacturer (e.g. Natus) | n/a |
+| cylera_type | false | Device type (e.g. EEG) | n/a |
+| cylera_model | false | Device model (e.g. NATUS NeuroWorks XLTECH EEG Unit) | n/a |
+| cylera_class | false | Device class (e.g. Medical). One of [Medical, Infrastructure, Misc IoT] | n/a |
 | cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
 | cylera_detected_after | false | Epoch timestamp after which a vulnerability was detected | n/a |
-| cylera_mac_address | false | MAC address of device | n/a |
 | cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
 | cylera_severity | false | Vulnerability severity. One of [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
 | cylera_status | false | Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
@@ -43,11 +49,12 @@ Complete list of Options:
 
 ## Data Mappings
 
-| Kenna Asset | from Cylera Vulnerability | Conditions |
+| Kenna Asset | from Cylera Devices | Conditions |
 | --- | --- | --- |
-| ip_address | vulnerability.ip_address | |
-| mac_address | vulnerability.mac_address | |
-| tags | ["Vendor:#{vulnerability.vendor}", "Type:#{vulnerability.type}", "Model:#{vulnerability.model}", "Class:#{vulnerability.class}"] | if proper value exists |
+| ip_address | device.ip_address | |
+| mac_address | device.mac_address | |
+| os | device.os | |
+| tags | ["Vendor:#{device.vendor}", "Type:#{device.type}", "Model:#{device.model}", "Class:#{device.class}"] | if proper value exists |
 
 | Kenna Vulnerability | from Cylera Vulnerability | Conditions |
 | --- | --- | --- |
@@ -64,4 +71,5 @@ Complete list of Options:
 | scanner_type | "Cylera" | |
 | cve_identifiers | vulnerability.vulnerability_name | if vulnerability.vulnerability_name starts with "CVE" |
 | name | vulnerability.vulnerability_name | |
-| solution | mitigations | |
+| solution | "#{mitigation.mitigations}\nAdditional Info\n#{mitigation.additional_info}\nVendor Response\n#{mitigation.vendor_response}" | if proper value exists |
+| descriptions | mitigation.description | if value exists |

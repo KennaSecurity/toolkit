@@ -6,7 +6,6 @@ module Kenna
   module Toolkit
     class CyleraTask < Kenna::Toolkit::BaseTask
       CVE_PREFIX = 'CVE'
-      NO_SOLUTION_TEXT = 'No solution provided by vendor'
       SCANNER_TYPE = 'Cylera'
       SEVERITY_VALUES = {
         'Low' => 3,
@@ -49,6 +48,55 @@ module Kenna
               description: 'Cylera API user password'
             },
             {
+              name: 'cylera_ip_address',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Partial or complete IP or subnet'
+            },
+            {
+              name: 'cylera_mac_address',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Partial or complete MAC address'
+            },
+            {
+              name: 'cylera_since_last_seen',
+              type: 'integer',
+              required: false,
+              default: nil,
+              description: 'Number of seconds since activity from device was last detected'
+            },
+            {
+              name: 'cylera_vendor',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Device vendor or manufacturer (e.g. Natus)'
+            },
+            {
+              name: 'cylera_type',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Device type (e.g. EEG)'
+            },
+            {
+              name: 'cylera_model',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Device model (e.g. NATUS NeuroWorks XLTECH EEG Unit)'
+            },
+            {
+              name: 'cylera_class',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: 'Device class (e.g. Medical). One of [Medical, Infrastructure, Misc IoT]'
+            },
+            {
               name: 'cylera_confidence',
               type: 'string',
               required: false,
@@ -61,13 +109,6 @@ module Kenna
               required: false,
               default: nil,
               description: 'Epoch timestamp after which a vulnerability was detected'
-            },
-            {
-              name: 'cylera_mac_address',
-              type: 'string',
-              required: false,
-              default: nil,
-              description: 'MAC address of device'
             },
             {
               name: 'cylera_name',
@@ -143,29 +184,48 @@ module Kenna
 
         client = Kenna::Toolkit::Cylera::Client.new(@api_host, @api_user, @api_password)
 
-        risk_mitigations = {}
+        vulnerabilities = []
 
         loop do
           risk_vulnerabilities = client.get_risk_vulnerabilities(@risk_vulnerabilities_params)
-
-          risk_vulnerabilities['vulnerabilities'].each do |vulnerability|
-            cylera_vulnerability_name = vulnerability['vulnerability_name']
-            vulnerability['vulnerability_name'] = vulnerability_name(cylera_vulnerability_name)
-            risk_mitigations[vulnerability['vulnerability_name']] ||= client.get_risk_mitigations(cylera_vulnerability_name)['mitigations']
-
-            asset = extract_asset(vulnerability)
-            vuln = extract_vuln(vulnerability)
-            vuln_def = extract_vuln_def(vulnerability, risk_mitigations[vulnerability['vulnerability_name']])
-
-            create_kdi_asset_vuln(asset, vuln)
-            create_kdi_vuln_def(vuln_def)
-          end
-
-          kdi_upload(@output_directory, "cylera_#{risk_vulnerabilities['page']}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+          vulnerabilities << risk_vulnerabilities['vulnerabilities']
 
           break if risk_vulnerabilities['vulnerabilities'].count < @risk_vulnerabilities_params[:page_size]
 
           @risk_vulnerabilities_params[:page] += 1
+        end
+
+        vulnerabilities = vulnerabilities.flatten.group_by { |e| e['mac_address'] }
+        mitigations = {}
+
+        loop do
+          inventory_devices = client.get_inventory_devices(@inventory_devices_params)
+
+          inventory_devices['devices'].each do |device|
+            asset = extract_asset(device)
+
+            if vulnerabilities[device['mac_address']].present?
+              vulnerabilities[device['mac_address']].each do |vulnerability|
+                cylera_vulnerability_name = vulnerability['vulnerability_name']
+                vulnerability['vulnerability_name'] = vulnerability_name(cylera_vulnerability_name)
+                mitigations[vulnerability['vulnerability_name']] ||= client.get_risk_mitigations(cylera_vulnerability_name)
+
+                vuln = extract_vuln(vulnerability)
+                vuln_def = extract_vuln_def(vulnerability, mitigations[vulnerability['vulnerability_name']])
+
+                create_kdi_asset_vuln(asset, vuln)
+                create_kdi_vuln_def(vuln_def)
+              end
+            else
+              find_or_create_kdi_asset(asset)
+            end
+          end
+
+          kdi_upload(@output_directory, "cylera_#{inventory_devices['page']}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+
+          break if inventory_devices['devices'].count < @inventory_devices_params[:page_size]
+
+          @inventory_devices_params[:page] += 1
         end
 
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
@@ -179,6 +239,17 @@ module Kenna
         @api_host = @options[:cylera_api_host]
         @api_user = @options[:cylera_api_user]
         @api_password = @options[:cylera_api_password]
+        @inventory_devices_params = {
+          ip_address: @options[:cylera_ip_address],
+          mac_address: @options[:cylera_mac_address],
+          since_last_seen: @options[:cylera_since_last_seen],
+          vendor: @options[:cylera_vendor],
+          type: @options[:cylera_type],
+          model: @options[:cylera_model],
+          class: @options[:cylera_class],
+          page: @options[:cylera_page].to_i,
+          page_size: @options[:cylera_page_size]
+        }
         @risk_vulnerabilities_params = {
           confidence: @options[:cylera_confidence],
           detected_after: @options[:cylera_detected_after],
@@ -186,23 +257,24 @@ module Kenna
           name: @options[:cylera_name],
           severity: @options[:cylera_severity],
           status: @options[:cylera_status],
-          page: @options[:cylera_page].to_i,
-          page_size: @options[:cylera_page_size]
+          page: 0,
+          page_size: 100
         }
         @output_directory = @options[:output_directory]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-        @skip_autoclose = false
+        @skip_autoclose = true
         @retries = 3
         @kdi_version = 2
       end
 
-      def extract_asset(vulnerability)
+      def extract_asset(device)
         {
-          'ip_address' => vulnerability['ip_address'],
-          'mac_address' => vulnerability['mac_address'],
-          'tags' => tags(vulnerability)
+          'ip_address' => device['ip_address'],
+          'mac_address' => device['mac_address'],
+          'os' => device['os'],
+          'tags' => tags(device)
         }.compact
       end
 
@@ -223,16 +295,17 @@ module Kenna
           'scanner_type' => SCANNER_TYPE,
           'cve_identifiers' => cve_id(vulnerability['vulnerability_name']),
           'name' => vulnerability['vulnerability_name'],
-          'solution' => remove_html_tags(solution(mitigations))
+          'solution' => remove_html_tags(solution(mitigations)),
+          'description' => (remove_html_tags(mitigations['description']) if mitigations['description'])
         }.compact
       end
 
-      def tags(vulnerability)
+      def tags(device)
         tags = []
-        tags.push("Vendor:#{vulnerability['vendor']}") if vulnerability['vendor']
-        tags.push("Type:#{vulnerability['type']}") if vulnerability['type']
-        tags.push("Model:#{vulnerability['model']}") if vulnerability['model']
-        tags.push("Class:#{vulnerability['class']}") if vulnerability['class']
+        tags.push("Vendor:#{device['vendor']}") if device['vendor']
+        tags.push("Type:#{device['type']}") if device['type']
+        tags.push("Model:#{device['model']}") if device['model']
+        tags.push("Class:#{device['class']}") if device['class']
         tags
       end
 
@@ -249,11 +322,18 @@ module Kenna
       end
 
       def solution(mitigations)
-        return NO_SOLUTION_TEXT if mitigations.empty?
-
-        mitigations.map do |mitigation|
+        result = mitigations['mitigations'].map do |mitigation|
           "#{mitigation['name']} - #{mitigation['items'].pluck('description').join('; ')}"
-        end.join("\n")
+        end
+        if mitigations['additional_info'].present?
+          result << 'Additional Info'
+          result << mitigations['additional_info']
+        end
+        if mitigations['vendor_response'].present?
+          result << 'Vendor Response'
+          result << mitigations['vendor_response']
+        end
+        result.join("\n") if result.present?
       end
     end
   end

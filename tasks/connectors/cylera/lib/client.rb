@@ -18,6 +18,14 @@ module Kenna
           }
         end
 
+        def get_inventory_devices(params)
+          response = http_get("#{@api_host}/inventory/devices?#{params.compact.to_query}", @headers)
+
+          raise ApiError, 'Unable to retrieve inventory devices' unless response
+
+          JSON.parse(response)
+        end
+
         def get_risk_vulnerabilities(params)
           response = http_get("#{@api_host}/risk/vulnerabilities?#{params.compact.to_query}", @headers)
 

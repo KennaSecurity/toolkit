@@ -9,6 +9,24 @@ RSpec.describe Kenna::Toolkit::Cylera::Client do
 
   subject(:client) { described_class.new(api_host, api_user, api_password) }
 
+  describe '#get_inventory_devices' do
+    let(:params) { { page_size: 20 } }
+
+    context 'when API request is successfull' do
+      it 'returns a response with devices' do
+        expect(client.get_inventory_devices(params)['devices']).to be_present
+      end
+    end
+
+    context 'when API request is failed' do
+      before { allow(client).to receive(:http_get) }
+
+      it 'raises an error' do
+        expect { client.get_inventory_devices(params) }.to raise_error(described_class::ApiError)
+      end
+    end
+  end
+
   describe '#get_risk_vulnerabilities' do
     let(:params) { { page_size: 20 } }
 

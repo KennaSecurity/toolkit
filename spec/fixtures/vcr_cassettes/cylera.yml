@@ -32,6 +32,58 @@ http_interactions:
   recorded_at: Tue, 23 May 2023 23:45:17 GMT
 - request:
     method: get
+    uri: https://cylera.host/inventory/devices?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "devices": [
+            {
+              "aetitle": null,
+              "class": "Infrastructure",
+              "fda_class": null,
+              "first_seen": 1623041920,
+              "hostname": null,
+              "id": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "ip_address": "192.168.1.40",
+              "last_seen": 1626108920,
+              "location": "Jersey City Medical Center, Jersey City, NJ",
+              "mac_address": "00:15:bd:01:0f:10",
+              "model": "Group 4 Tec Access Control / Security Management System",
+              "os": null,
+              "outdated": null,
+              "risk": 1,
+              "serial_number": null,
+              "type": "Network Access Control System",
+              "uuid": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "vendor": "Group 4 Technology Ltd",
+              "version": null,
+              "vlan": -1
+            }
+          ],
+          "total": 5,
+          "page": 0
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:18 GMT
+- request:
+    method: get
     uri: https://cylera.host/risk/vulnerabilities?<%= query %>
     body:
       encoding: UTF-8
@@ -56,8 +108,8 @@ http_interactions:
         '{
           "vulnerabilities": [
             {
-              "ip_address": "10.30.0.108",
-              "mac_address": "00:11:25:08:29:38",
+              "ip_address": "192.168.1.40",
+              "mac_address": "00:15:bd:01:0f:10",
               "model": null,
               "type": "Endpoint",
               "vendor": null,
@@ -67,66 +119,6 @@ http_interactions:
               "first_seen": 1662778091,
               "last_seen": 1662778091,
               "severity": "Medium",
-              "status": "Open",
-              "confidence": "High"
-            },
-            {
-              "ip_address": "10.125.51.6",
-              "mac_address": "5c:f3:fc:8b:49:60",
-              "model": null,
-              "type": "Endpoint",
-              "vendor": null,
-              "class": "General",
-              "vulnerability_name": "CVE-2000-0761",
-              "vulnerability_category": "Security",
-              "first_seen": 1662778660,
-              "last_seen": 1662778660,
-              "severity": "Medium",
-              "status": "Open",
-              "confidence": "High"
-            },
-            {
-              "ip_address": "10.125.42.227",
-              "mac_address": "2c:27:d7:f0:37:8a",
-              "model": "Siemens Esoft Nuclear Medicine Workstation",
-              "type": "Nuclear Imaging Workstation",
-              "vendor": "Siemens",
-              "class": "Medical",
-              "vulnerability_name": "CVE-2001-0500",
-              "vulnerability_category": "Security",
-              "first_seen": 1681047170,
-              "last_seen": 1681047170,
-              "severity": "High",
-              "status": "Open",
-              "confidence": "High"
-            },
-            {
-              "ip_address": "10.10.36.133",
-              "mac_address": "00:14:22:5d:a3:b4",
-              "model": "Siemens IP1 w/ E-Cam Nuclear Camera",
-              "type": "Gamma Camera",
-              "vendor": "Siemens",
-              "class": "Medical",
-              "vulnerability_name": "CVE-2001-0500",
-              "vulnerability_category": "Security",
-              "first_seen": 1684039709,
-              "last_seen": 1684039709,
-              "severity": "High",
-              "status": "Open",
-              "confidence": "High"
-            },
-            {
-              "ip_address": "10.18.32.50",
-              "mac_address": "00:04:23:d1:38:c8",
-              "model": "Siemens Axiom Artis System",
-              "type": "Angiography",
-              "vendor": "Siemens",
-              "class": "Medical",
-              "vulnerability_name": "CVE-2002-0150",
-              "vulnerability_category": "Security",
-              "first_seen": 1681047171,
-              "last_seen": 1681047171,
-              "severity": "High",
               "status": "Open",
               "confidence": "High"
             }
@@ -159,10 +151,17 @@ http_interactions:
       encoding: UTF-8
       string:
         '{
+          "description": "OS2/Warp 4.5 FTP server allows remote attackers to cause a denial of service via a long username.",
+          "additional_info": [
+            "http://archives.neohapsis.com/archives/bugtraq/2000-08/0166.html",
+            "http://www.securityfocus.com/bid/1582",
+            "ftp://ftp.software.ibm.com/ps/products/tcpip/fixes/v4.3os2/ic27721/README"
+          ],
+          "vendor_response": null,
           "mitigations": [
             {
               "name": "Incident Response Plan",
-              "kind": "Solution",
+              "kind": "Compensating_Control",
               "items": [
                 {
                   "name": "Identify Contacts",
@@ -188,23 +187,6 @@ http_interactions:
                   "name": "Schedule Training Events",
                   "description": "Prioritize training and simulation events for device downtime.",
                   "order": 4
-                }
-              ],
-              "links": []
-            },
-            {
-              "name": "Limit access to device web server via network policies",
-              "kind": "Solution",
-              "items": [
-                {
-                  "name": "Confirm Feasibility",
-                  "description": "Ensure that your intended targets to block are not required for the device to function. Consult the network policies that can be generated by the Cylera platform for additional assurance.",
-                  "order": 0
-                },
-                {
-                  "name": "Block Access",
-                  "description": "Proceed to block access once the feasibility is confirmed. This can be done with firewall rules, micro-firewalls placed inline between the device and its access switch, or with software agents.",
-                  "order": 1
                 }
               ],
               "links": []
