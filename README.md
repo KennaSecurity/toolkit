@@ -31,7 +31,7 @@ In this case, the expanse task:
 
     docker pull kennasecurity/toolkit && docker run -it kennasecurity/toolkit task=kenna_api_key_check kenna_api_key=$KENNA_API_KEY
 
-NOTE: Assuming a LINUX/UNIX shell is invoking the above, any '$' characters contained in API key must be escaped, e.g.: `KENNA_API_KEY="123456ABCDEFG\$"`
+Please refer to [API Authentication Docs](https://apidocs.kennasecurity.com/reference/api-authentication) for note on API key usage.  
 
 ## Running on GitHub Actions
 
