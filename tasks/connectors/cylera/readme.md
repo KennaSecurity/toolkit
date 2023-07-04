@@ -30,7 +30,10 @@ Complete list of Options:
 | cylera_api_password | true | Cylera API user password | n/a |
 | cylera_ip_address | false | Partial or complete IP or subnet | n/a |
 | cylera_mac_address | false | Partial or complete MAC address | n/a |
-| cylera_since_last_seen | false | Number of seconds since activity from device was last detected | n/a |
+| cylera_first_seen_before | false | Finds devices that were first seen before this epoch timestamp | n/a |
+| cylera_first_seen_after | false | Finds devices that were first seen after this epoch timestamp | n/a |
+| cylera_last_seen_before | false | Finds devices that were last seen before this epoch timestamp | n/a |
+| cylera_last_seen_after | false | Finds devices that were last seen after this epoch timestamp | n/a |
 | cylera_vendor | false | Device vendor or manufacturer (e.g. Natus) | n/a |
 | cylera_type | false | Device type (e.g. EEG) | n/a |
 | cylera_model | false | Device model (e.g. NATUS NeuroWorks XLTECH EEG Unit) | n/a |

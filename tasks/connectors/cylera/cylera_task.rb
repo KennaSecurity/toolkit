@@ -62,11 +62,32 @@ module Kenna
               description: 'Partial or complete MAC address'
             },
             {
-              name: 'cylera_since_last_seen',
+              name: 'cylera_first_seen_before',
               type: 'integer',
               required: false,
               default: nil,
-              description: 'Number of seconds since activity from device was last detected'
+              description: 'Finds devices that were first seen before this epoch timestamp'
+            },
+            {
+              name: 'cylera_first_seen_after',
+              type: 'integer',
+              required: false,
+              default: nil,
+              description: 'Finds devices that were first seen after this epoch timestamp'
+            },
+            {
+              name: 'cylera_last_seen_before',
+              type: 'integer',
+              required: false,
+              default: nil,
+              description: 'Finds devices that were last seen before this epoch timestamp'
+            },
+            {
+              name: 'cylera_last_seen_after',
+              type: 'integer',
+              required: false,
+              default: nil,
+              description: 'Finds devices that were last seen after this epoch timestamp'
             },
             {
               name: 'cylera_vendor',
@@ -242,7 +263,10 @@ module Kenna
         @inventory_devices_params = {
           ip_address: @options[:cylera_ip_address],
           mac_address: @options[:cylera_mac_address],
-          since_last_seen: @options[:cylera_since_last_seen],
+          first_seen_before: @options[:cylera_first_seen_before],
+          first_seen_after: @options[:cylera_first_seen_after],
+          last_seen_before: @options[:cylera_last_seen_before],
+          last_seen_after: @options[:cylera_last_seen_after],
           vendor: @options[:cylera_vendor],
           type: @options[:cylera_type],
           model: @options[:cylera_model],
