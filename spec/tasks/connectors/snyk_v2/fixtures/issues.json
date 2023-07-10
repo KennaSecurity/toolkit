@@ -1,0 +1,63 @@
+{
+  "results": [
+    {
+      "issue": {
+        "url": "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+        "id": "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+        "title": "Deserialization of Untrusted Data",
+        "type": "vuln",
+        "package": "commons-collections:commons-collections",
+        "version": "3.1",
+        "severity": "critical",
+        "originalSeverity": null,
+        "uniqueSeveritiesList": [
+          "critical"
+        ],
+        "language": "java",
+        "packageManager": "maven",
+        "semver": {
+          "vulnerable": [
+            "[3.0,3.2.2)"
+          ]
+        },
+        "isIgnored": false,
+        "publicationTime": "2015-11-06T16:51:56.000Z",
+        "disclosureTime": "2015-11-06T16:51:56.000Z",
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": false,
+        "identifiers": {
+          "CVE": [
+            "CVE-2015-7501",
+            "CVE-2015-4852"
+          ],
+          "CWE": [
+            "CWE-502"
+          ]
+        },
+        "credit": [
+          "Unknown"
+        ],
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:H/RL:O",
+        "cvssScore": "9.8",
+        "patches": [],
+        "isPatched": false,
+        "exploitMaturity": "mature",
+        "reachability": "",
+        "priorityScore": 790,
+        "jiraIssueUrl": null
+      },
+      "isFixed": false,
+      "introducedDate": "2023-04-26",
+      "project": {
+        "url": "https://snyk.io/org/kenna-security-nfr-shared/project/9a134a37-7420-4418-9b85-b675ed9ac3dc",
+        "id": "9a134a37-7420-4418-9b85-b675ed9ac3dc",
+        "name": "JoyChou93/java-sec-code:pom.xml",
+        "source": "github",
+        "packageManager": "maven",
+        "targetFile": "pom.xml"
+      }
+    }
+  ],
+  "total": 1
+}

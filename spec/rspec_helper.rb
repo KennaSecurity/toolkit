@@ -8,6 +8,13 @@ require_relative "../lib/toolkit"
 
 require "timecop"
 require 'vcr'
+require 'webmock/rspec'
+
+RSpec.configure do |config|
+  config.before(:each) do
+    stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_raise(RestClient::Exceptions::OpenTimeout)
+  end
+end
 
 VCR.configure do |config|
   config.cassette_library_dir = "spec/fixtures/vcr_cassettes"

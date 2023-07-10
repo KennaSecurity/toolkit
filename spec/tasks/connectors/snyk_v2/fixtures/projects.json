@@ -1,0 +1,68 @@
+{
+  "org": {
+    "name": "Kenna Security NFR - Shared",
+    "id": "f0495cb5-f188-4745-86f7-289672d3a137"
+  },
+  "projects": [
+    {
+      "id": "9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "name": "JoyChou93/java-sec-code:pom.xml",
+      "created": "2023-04-26T15:33:04.803Z",
+      "origin": "github",
+      "type": "maven",
+      "readOnly": false,
+      "testFrequency": "daily",
+      "isMonitored": true,
+      "totalDependencies": 199,
+      "issueCountsBySeverity": {
+        "low": 14,
+        "high": 128,
+        "medium": 92,
+        "critical": 10
+      },
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "1.0.0",
+      "lastTestedDate": "2023-04-26T15:33:30.181Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "owner": null,
+      "tags": [],
+      "attributes": {
+        "criticality": [],
+        "lifecycle": [],
+        "environment": []
+      },
+      "branch": "master",
+      "targetReference": "master"
+    },
+    {
+      "id": "3e297402-893c-4a69-86dc-c642dce18fe6",
+      "name": "JoyChou93/java-sec-code",
+      "created": "2023-04-26T15:33:05.588Z",
+      "origin": "github",
+      "type": "sast",
+      "readOnly": false,
+      "testFrequency": "weekly",
+      "isMonitored": true,
+      "totalDependencies": null,
+      "issueCountsBySeverity": {
+        "low": 4,
+        "high": 86,
+        "medium": 27,
+        "critical": 0
+      },
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "",
+      "lastTestedDate": "2023-04-26T15:33:06.012Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/3e297402-893c-4a69-86dc-c642dce18fe6",
+      "owner": null,
+      "tags": [],
+      "attributes": {
+        "criticality": [],
+        "lifecycle": [],
+        "environment": []
+      },
+      "branch": "master",
+      "targetReference": "master"
+    }
+  ]
+}

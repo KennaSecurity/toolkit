@@ -47,8 +47,14 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/veracode",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
-
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            {
+              name: "omit_line_number",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "When set to true, it will omit the line number at the end of file_locator."
+            }
           ]
         }
       end
@@ -59,6 +65,7 @@ module Kenna
         veracode_id = @options[:veracode_id]
         veracode_key = @options[:veracode_key]
         page_size = @options[:veracode_page_size]
+        omit_line_number = @options[:omit_line_number]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
@@ -76,7 +83,7 @@ module Kenna
           guid = application.fetch("guid")
           appname = application.fetch("name").tr('"', "'")
           tags = application.fetch("tags")
-          client.issues(guid, appname, tags, page_size)
+          client.issues(guid, appname, tags, page_size, omit_line_number)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
