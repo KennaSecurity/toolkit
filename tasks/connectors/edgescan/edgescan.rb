@@ -69,7 +69,7 @@ module Kenna
               type: "boolean",
               required: false,
               default: false,
-              description: "Create assets from edgescan hosts, do not use location specifier data" }
+              description: "Use edgescan host information when creating assets, if available" }
           ]
         }
       end
