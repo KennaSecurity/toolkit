@@ -4,7 +4,7 @@ For all issues and inquiries relating to this toolkit implementation, contact Ed
 
 ## Prerequisites
 
-This task communicates with the Edgescan and Kenna APIs. To do it, it requires the following information:
+This task communicates with the Edgescan and Kenna APIs. To do it, use the following information:
 
 #### From Edgescan:
 
@@ -17,7 +17,7 @@ This task communicates with the Edgescan and Kenna APIs. To do it, it requires t
 
 ## Running a Task
 
-Fo more detailed inforamtion about running the task, see [here](https://github.com/KennaSecurity/toolkit/blob/master/README.md).
+For more detailed information about running the task, see [here](https://github.com/KennaSecurity/toolkit/blob/master/README.md).
 Here are some quick examples:
 
 - To print a list of available options: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan option=help`
@@ -26,13 +26,13 @@ Here are some quick examples:
 ## Types of Exports
 
 The connector exports all open vulnerabilities and their corresponding assets from Edgescan.
-By default the vulnerabilities are application and network types, and both types can be disabled.
+By default, the vulnerabilities are application and network types, and you can disable both types.
 
 ## List of Available Options
 
-> **Note:** You can also run `docker run -it --rm toolkit:latest task=edgescan option=help` to see this list in your console
+> **Note:** To see the following list on your console, run `docker run -it --rm toolkit:latest task=edgescan option=help`.
 
-| Option             | Required | Description                                                                  | default                  |
+| Option             | Required | Description                                                                  | Default                  |
 | ------------------ | -------- | ---------------------------------------------------------------------------- | ------------------------ |
 | edgescan_token     | true     | Edgescan token                                                               | none                     |
 | edgescan_page_size | false    | Number of records to bring back with each page request from Edgescan         | 100                      |
@@ -51,9 +51,10 @@ By default the vulnerabilities are application and network types, and both types
 Edgescan assets do not map directly to Kennna assets because Edgescan assets are more flexible in their definition.
 Edgescan location specifiers and hosts are more like Kenna assets. Location specifiers define the location and hosts hold extra information.
 Not all location specifiers have a host, and not all vulnerabilities have a directly related location specifier.
-To create the correct corresponding Kenna assets, the connector makes use of the data from all theree of the following sources:
+## To Create Assets
+To create the correct corresponding Kenna assets, the connector uses data from all three of the following sources:
 
-| Kenna Asset       | from Edgescan Host               | Conditions             |
+| Kenna Asset       | From Edgescan Host               | Conditions             |
 | ----------------- | -------------------------------- | ---------------------- |
 | external_id       | "ES#{asset.id} #{host.location}" |                        |
 | tags              | asset.tags                       |                        |
@@ -75,7 +76,7 @@ To create the correct corresponding Kenna assets, the connector makes use of the
 
 > **Note:** Location specifiers of type `cidr` and `block` that define a range of IP addresses will have a Kenna asset for each IP address
 
-| Kenna Asset       | from Edgescan Vulnerability               | Conditions                |
+| Kenna Asset       | From Edgescan Vulnerability               | Conditions                |
 | ----------------- | ----------------------------------------- | ------------------------- |
 | external_id       | "ES#{asset.id} #{vulnerability.location}" |                           |
 | tags              | asset.tags                                |                           |
@@ -85,7 +86,7 @@ To create the correct corresponding Kenna assets, the connector makes use of the
 | url               | vulnerability.location                    | if location is a hostname |
 | os_version        | -                                         |                           |
 
-| Kenna Vulnerability | from Edgescan Vulnerability    | Conditions                                           |
+| Kenna Vulnerability | From Edgescan Vulnerability    | Conditions                                           |
 | ------------------- | ------------------------------ | ---------------------------------------------------- |
 | scanner_type        | "EdgescanApp" or "EdgescanNet" | if vulnerability.layer == "application" or "network" |
 | scanner_identifier  | vulnerability.definition_id    |                                                      |
@@ -104,7 +105,7 @@ To create the correct corresponding Kenna assets, the connector makes use of the
 | severity            | vulnerability.threat * 2       | edgescan threat ranges from 1 to 5                   |
 | additional_fields   | {status, details}              |                                                      |
 
-| Kenna Definition    | from Edgescan Definition       | Conditions                                           |
+| Kenna Definition    | From Edgescan Definition       | Conditions                                           |
 | ------------------- | ------------------------------ | ---------------------------------------------------- |
 | scanner_type        | "EdgescanApp" or "EdgescanNet" | if vulnerability.layer == "application" or "network" |
 | scanner_identifier  | definition.id                  |                                                      |
