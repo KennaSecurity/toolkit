@@ -1,10 +1,10 @@
 ## Support
 
-All issues and inquiries relating to this toolkit implementation must contact Edgescan support at `shout@edgescan.com`.
+For all issues and inquiries relating to this toolkit implementation, contact Edgescan support at: shout@edgescan.com.
 
 ## Prerequisites
 
-This task will communicate with the Edgescan and Kenna APIs. In order to do so it will need the following pieces of information.
+This task communicates with the Edgescan and Kenna APIs. To do it, it requires the following information:
 
 #### From Edgescan:
 
@@ -15,20 +15,20 @@ This task will communicate with the Edgescan and Kenna APIs. In order to do so i
 - Kenna API key
 - Kenna connector ID
 
-## Running the task
+## Running a Task
 
-More in depth details about running the task are available [here](https://github.com/KennaSecurity/toolkit/blob/master/README.md).
-These are some quick examples:
+Fo more detailed inforamtion about running the task, see [here](https://github.com/KennaSecurity/toolkit/blob/master/README.md).
+Here are some quick examples:
 
 - To print a list of available options: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan option=help`
 - To sync all Edgescan data into Kenna: `docker run -it --rm kennasecurity/toolkit:latest task=edgescan edgescan_token='abc' kenna_api_key='abc' kenna_connector_id=123`
 
-## Types of Export
+## Types of Exports
 
-The connector will export all open vulnerabilities, and their corresponding assets, from Edgescan.
-By default the vulnerabilities will be both application and network types. Either of the types can be disabled.
+The connector exports all open vulnerabilities and their corresponding assets from Edgescan.
+By default the vulnerabilities are application and network types, and both types can be disabled.
 
-## List of available options
+## List of Available Options
 
 > **Note:** You can also run `docker run -it --rm toolkit:latest task=edgescan option=help` to see this list in your console
 
@@ -48,10 +48,10 @@ By default the vulnerabilities will be both application and network types. Eithe
 
 ## Data Mappings
 
-Edgescan assets do not map directly to Kennna assets due to Edgescan assets being more flexible in their definition.
+Edgescan assets do not map directly to Kennna assets because Edgescan assets are more flexible in their definition.
 Edgescan location specifiers and hosts are more like Kenna assets. Location specifiers define the location and hosts hold extra information.
 Not all location specifiers have a host, and not all vulnerabilities have a directly related location specifier.
-The connector makes use of the data from all 3 of these sources to create the correct corresponding Kenna assets.
+To create the correct corresponding Kenna assets, the connector makes use of the data from all theree of the following sources:
 
 | Kenna Asset       | from Edgescan Host               | Conditions             |
 | ----------------- | -------------------------------- | ---------------------- |
@@ -114,8 +114,8 @@ The connector makes use of the data from all 3 of these sources to create the co
 | cve_identifiers     | definition.cves                |                                                      |
 | cwe_identifiers     | definition.cwes                |                                                      |
 
-## For devs
+## For Developers
 
-Pass in this env variable to make the task talk to `localhost:3000` instead of `live.edgescan.com`:
+Use this pass env variable to make the task comminicate with `localhost:3000` instead of `live.edgescan.com`:
 
 - `EDGESCAN_ENVIRONMENT="local"`
