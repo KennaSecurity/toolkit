@@ -12,7 +12,7 @@ RSpec.describe Kenna::Toolkit::Cylera::Client do
   describe '#get_inventory_devices' do
     let(:params) { { page_size: 20 } }
 
-    context 'when API request is successfull' do
+    context 'when API request is successful' do
       it 'returns a response with devices' do
         expect(client.get_inventory_devices(params)['devices']).to be_present
       end
@@ -30,7 +30,7 @@ RSpec.describe Kenna::Toolkit::Cylera::Client do
   describe '#get_risk_vulnerabilities' do
     let(:params) { { page_size: 20 } }
 
-    context 'when API request is successfull' do
+    context 'when API request is successful' do
       it 'returns a response with vulnerabilities' do
         expect(client.get_risk_vulnerabilities(params)['vulnerabilities']).to be_present
       end
@@ -48,7 +48,7 @@ RSpec.describe Kenna::Toolkit::Cylera::Client do
   describe '#get_risk_mitigations' do
     let(:vulnerability_name) { 'CVE-123' }
 
-    context 'when API request is successfull' do
+    context 'when API request is successful' do
       it 'returns a response with mitigations' do
         expect(client.get_risk_mitigations(vulnerability_name)['mitigations']).to be_present
       end
