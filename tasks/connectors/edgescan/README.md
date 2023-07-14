@@ -117,6 +117,6 @@ To create the correct corresponding Kenna assets, the connector uses data from a
 
 ## For Developers
 
-Use this pass env variable to make the task comminicate with `localhost:3000` instead of `live.edgescan.com`:
+Use this environment variable to make the task comminicate with `localhost:3000` instead of `live.edgescan.com`:
 
 - `EDGESCAN_ENVIRONMENT="local"`
