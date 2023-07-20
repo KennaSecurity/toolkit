@@ -1,0 +1,197 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://cylera.host/auth/login_user
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "email": "api_user",
+          "password": "api_password"
+        }'
+    headers:
+      Content-Type:
+        - application/json
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY",
+          "user_role": "user"
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:17 GMT
+- request:
+    method: get
+    uri: https://cylera.host/inventory/devices?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "devices": [
+            {
+              "aetitle": null,
+              "class": "Infrastructure",
+              "fda_class": null,
+              "first_seen": 1623041920,
+              "hostname": null,
+              "id": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "ip_address": "192.168.1.40",
+              "last_seen": 1626108920,
+              "location": "Jersey City Medical Center, Jersey City, NJ",
+              "mac_address": "00:15:bd:01:0f:10",
+              "model": "Group 4 Tec Access Control / Security Management System",
+              "os": null,
+              "outdated": null,
+              "risk": 1,
+              "serial_number": null,
+              "type": "Network Access Control System",
+              "uuid": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "vendor": "Group 4 Technology Ltd",
+              "version": null,
+              "vlan": -1
+            }
+          ],
+          "total": 5,
+          "page": 0
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:18 GMT
+- request:
+    method: get
+    uri: https://cylera.host/risk/vulnerabilities?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "vulnerabilities": [
+            {
+              "ip_address": "192.168.1.40",
+              "mac_address": "00:15:bd:01:0f:10",
+              "model": null,
+              "type": "Endpoint",
+              "vendor": null,
+              "class": "General",
+              "vulnerability_name": "CVE-2000-0761",
+              "vulnerability_category": "Security",
+              "first_seen": 1662778091,
+              "last_seen": 1662778091,
+              "severity": "Medium",
+              "status": "Open",
+              "confidence": "High"
+            }
+          ],
+          "total": 5,
+          "page": 0
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:18 GMT
+- request:
+    method: get
+    uri: https://cylera.host/risk/mitigations?<%= query %>
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+        - application/json
+      Authorization:
+        - "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6InVzZXIiLCJpZCI6MTY0OCwidHNfZXhwaXJlZCI6MTY4NDUzOTUzMiwib3JnYW5pemF0aW9uX2lkIjo2LCJvcmdfaW50ZXJuYWxfbmFtZSI6InJ3aiIsInBlcm1pc3Npb25zIjp7InJvbGVzIjpbInVzZXIiXSwicGVybWlzc2lvbnMiOltdfSwidXVpZCI6ImZhYjJiNjQ4LWUyZTAtMTFlZC1hMGY0LTU2YWQ3ZGJlZTYxNSIsImF1dGh5X3N0YXR1cyI6bnVsbCwiYXV0aHlfaWQiOm51bGx9.WWi7YXDbsYPa1iMRML1yjm0VhbOS3ziIwi4l19e4PMY"
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string:
+        '{
+          "description": "OS2/Warp 4.5 FTP server allows remote attackers to cause a denial of service via a long username.",
+          "additional_info": [
+            "http://archives.neohapsis.com/archives/bugtraq/2000-08/0166.html",
+            "http://www.securityfocus.com/bid/1582",
+            "ftp://ftp.software.ibm.com/ps/products/tcpip/fixes/v4.3os2/ic27721/README"
+          ],
+          "vendor_response": null,
+          "mitigations": [
+            {
+              "name": "Incident Response Plan",
+              "kind": "Compensating_Control",
+              "items": [
+                {
+                  "name": "Identify Contacts",
+                  "description": "Identify contact within appropriate team, i.e. biomedical engineering, responsible for this device.",
+                  "order": 0
+                },
+                {
+                  "name": "Document Communication Procedures",
+                  "description": "Document procedure for alerting appropriate staff from IT, IS, biomedical engineering, and clinical staff in case of device compromise.",
+                  "order": 1
+                },
+                {
+                  "name": "Document Segmentation Scenarios",
+                  "description": "Document possibility and procedure for isolating or disconnecting device from network in various scenarios of clinical use.",
+                  "order": 2
+                },
+                {
+                  "name": "Document Workflow Changes",
+                  "description": "Document workflow changes that must occur if devices are disconnected from the network, i.e. manual drug library updates.",
+                  "order": 3
+                },
+                {
+                  "name": "Schedule Training Events",
+                  "description": "Prioritize training and simulation events for device downtime.",
+                  "order": 4
+                }
+              ],
+              "links": []
+            }
+          ]
+        }'
+  recorded_at: Tue, 23 May 2023 23:45:19 GMT
+recorded_with: VCR 6.1.0
