@@ -8,6 +8,19 @@ To run this task you need the following information from Cylera:
 2. Cylera api user email
 3. Cylera api user password
 
+### Incremental runs
+Cylera task supports incremental runs. Such approach improves performance as it allows to pull only latest changes, instead pulling all available assets and vulnerabilities each run.
+In order to benefit from incremental capabilities of Cylera task, the user should store time or day (if the task is triggered daily), when the connector is triggered. The stored time should be utilized for time-based filtering (e.g. cylera_last_seen_after).
+
+Belove you can find an example of incremental runs usage that utilizes 2 variables to track when the last successful task run happened.
+This allows to prevent missing data due to a task failure.
+It's recommended to automate this process with a scheduling tool of your choice.
+1. Create a record `last_run_success_time`=`<today - retention period>` in a database of your choice.
+2. Create a record `last_attempt_success_time`=`<today>`.
+3. Trigger Cylera task with `cylera_last_seen_after`=`last_run_success_time`.
+4. If the run was successful, update `last_run_success_time` by setting it to `last_attempt_success_time`.
+5. Repeat this process for each connector's run.
+
 ## Command Line
 
 See the main Toolkit for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna directly.
