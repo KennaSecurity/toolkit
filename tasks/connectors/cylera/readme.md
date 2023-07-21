@@ -35,7 +35,7 @@ For this task, you can leave off the Kenna API key and Kenna connector ID, so th
 3. Create the Kenna Data Importer connector in Cisco Vulnerability Management. You could name it **Cylera KDI**, for example.
 4. Upload the .json file to your connector and run it to verify there are no import errors and you can view Cylera data in Cisco VM.
 5. Click the connector name and copy the connector's ID.
-6. Run the task with **Cylera keys**, your **Kenna API key** and the **connector ID** to extract data from Cylera, upload it to Cisco, and run it all in one command.
+6. Run the task with **Cylera keys**, your **Kenna API key** and the **connector ID** to extract data from Cylera, upload it to Cisco, and import it all in one command.
 
 ### All Task Options
 
