@@ -88,7 +88,7 @@ For this task, you can leave off the Kenna API key and Kenna connector ID, so th
 | Cisco Definition | from Cylera Vulnerability and Mitigations | Conditions |
 | --- | --- | --- |
 | scanner_type | "Cylera" | |
-| cve_identifiers | vulnerability.vulnerability_name | If it's a vulnerability, the vulnerability_name starts with "CVE" |
+| cve_identifiers | vulnerability.vulnerability_name | If it starts with "CVE" |
 | name | vulnerability.vulnerability_name | |
 | solution | "#{mitigation.mitigations}\nAdditional Info\n#{mitigation.additional_info}\nVendor Response\n#{mitigation.vendor_response}" | If a proper value exists |
 | descriptions | mitigation.description | If a value exists |
