@@ -1,6 +1,6 @@
-## Running the Cylera task
+# Running the Cylera task
 
-Cylera provides security, operations, network and clinical data in real-time. Use this toolkit gets data from Cylera.
+Cylera provides security, operations, network and clinical data in real time. Use this toolkit task to get data from Cylera.
 
 To run this task, you require the following **Cylera** information:
 
@@ -8,39 +8,36 @@ To run this task, you require the following **Cylera** information:
 2. API user email
 3. API user password
 
-### Incremental runs
-A Cylera task supports incremental runs. Use them run to improve performance, and to pull only the latest changes; rather than pulling all available assets and vulnerabilities everytime.
+## Incremental runs
 
-To benefit from incremental runs in Cylera, store the time or day (if the task is run daily), when the connector is triggered. Also, use the stored time for time-based filtering (such as, cylera_last_seen_after).
+The Cylera task supports incremental runs. Use them to improve performance and pull only the latest changes rather than pulling all available assets and vulnerabilities every time. To benefit from incremental runs in Cylera, store the datetime when the connector is run outside toolkit and provide this value to toolkit for time-based filtering (such as, `cylera_last_seen_after`).
 
-In the following incremental run example, use two (2) variables to track when the last successful task run occured to prevent missing data from a task failure.
+The following steps illustrate using two variables to track when the last successful incremental run occurred and prevent missing data from a task failure.
 
-1. Create a record `last_run_success_time`=`<today - retention period>` in a database of your choice.
-2. Create a record `last_attempt_success_time`=`<today>`.
+1. Create a record `last_run_success_time`=`<now - retention period>` in a datastore of your choice.
+2. Create a record `last_attempt_success_time`=`<now>`.
 3. Trigger Cylera task with `cylera_last_seen_after`=`last_run_success_time`.
 4. If the run was successful, update `last_run_success_time` by setting it to `last_attempt_success_time`.
-5. Repeat this process for each connector run.
+5. Repeat Steps 2-4 each time you run the task.
 
-**Note: To improve efficiency, automate this process with a scheduling tool of your choice.**
+**Note:** To improve efficiency, automate this process with a scheduling tool of your choice.
 
 ## Command Line
 
-For instructions on running tasks, see the main Toolkit. 
+**Note:** For instructions on running tasks, see the main Toolkit README.
 
-**Note:** For instructions on running tasks, see the main Toolkit page.
+For this task, you can leave off the Kenna API key and Kenna connector ID, so the task creates a .json file in the default or specified output directory. You can then review the file before you upload it directly to Cisco Vulnerability Management.
 
-For this task, you can leave off the Kenna API Key and Kenna Connector ID, so the task creates a .JSON file in the default or specified output directory. You can then review the file, before you upload it directly to the Cisco.
+### Recommended Steps
 
-**Use these Recommended Steps:**
+1. Initially, run it with **Cylera keys** only.
+2. Review the output .json file to ensure you got the data you expected.
+3. Create the Kenna Data Importer connector in Cisco Vulnerability Management. You could name it **Cylera KDI**, for example.
+4. Upload the .json file to your connector and run it to verify there are no import errors and you can view Cylera data in Cisco VM.
+5. Click the connector name and copy the connector's ID.
+6. Run the task with **Cylera keys**, your **Kenna API key** and the **connector ID** to extract data from Cylera, upload it to Cisco, and run it all in one command.
 
-1. To ensure you can get data properly from the scanner, run it with **Cylera Keys** only. 
-2. Review the data output to ensure you got the expected data.
-3. Create the Kenna Data Importer connector in Cisco Vunerability Management  (for example, name it: **Cylera KDI**).
-4. Go back to Step 1, and then run the **connector** manually with the .JSON file. 
-5. To get the connector ID, click the **connector** name. 
-6. Run the task with **Cylera Keys** and **Kenna Key/connector ID**.
-
-**Complete the following list of Options:**
+### All Task Options
 
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
