@@ -53,18 +53,18 @@ For this task, you can leave off the Kenna API key and Kenna connector ID, so th
 | cylera_vendor | false | Device vendor or manufacturer (e.g. Natus) | n/a |
 | cylera_type | false | Device type (e.g. EEG) | n/a |
 | cylera_model | false | Device model (e.g. NATUS NeuroWorks XLTECH EEG Unit) | n/a |
-| cylera_class | false | Device class (e.g. Medical). One of the [Medical, Infrastructure, Misc IoT] | n/a |
+| cylera_class | false | Device class (e.g. Medical). One of: [Medical, Infrastructure, Misc IoT] | n/a |
 | cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
-| cylera_detected_after | false | Epoch timestamp after the vulnerability was detected | n/a |
+| cylera_detected_after | false | Finds vulnerabilities detected after this epoch timestamp | n/a |
 | cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
-| cylera_severity | false | Vulnerability severity. One of [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
-| cylera_status | false | Vulnerability status. One of the [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
+| cylera_severity | false | Vulnerability severity. One of: [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
+| cylera_status | false | Vulnerability status. One of: [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
 | cylera_page | false | Controls the page of results to return | 0 |
 | cylera_page_size | false | Controls the number of results in each response. Max 100. | 100 |
-| kenna_api_key | false | Uses the Kenna API Key with the connector option | n/a |
-| kenna_api_host | false | Kenna API Hostname if not the US shared | api.kennasecurity.com |
+| kenna_api_key | false | Your API key | n/a |
+| kenna_api_host | false | API hostname -- Defaults to US API endpoint. | api.kennasecurity.com |
 | kenna_connector_id | false | If set, tries to upload to this connector | n/a |
-| output_directory | false | If set, writes a file after it's complete. Path is relative to #{$basedir} | Output/Cylera |
+| output_directory | false | If set, saves the output file uploaded to Cisco VM. Path is relative to #{$basedir} | output/cylera |
 
 ## Data Mappings
 
