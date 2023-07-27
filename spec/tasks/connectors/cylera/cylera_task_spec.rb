@@ -51,7 +51,7 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
       end
     end
 
-    context 'when time value is unexpected' do
+    context 'when time value is an unexpected format' do
       let(:options) do
         {
           cylera_api_host: 'cylera.host',
