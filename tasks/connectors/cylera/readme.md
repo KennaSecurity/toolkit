@@ -1,27 +1,43 @@
-## Running the Cylera task
+# Running the Cylera task
 
-This toolkit brings in data from Cylera
+Cylera provides security, operations, network and clinical data in real time. Use this toolkit task to get data from Cylera.
 
-To run this task you need the following information from Cylera:
+To run this task, you require the following **Cylera** information:
 
-1. Cylera instance hostname
-2. Cylera api user email
-3. Cylera api user password
+1. Instance hostname
+2. API user email
+3. API user password
+
+## Incremental runs
+
+The Cylera task supports incremental runs. Use them to improve performance and pull only the latest changes rather than pulling all available assets and vulnerabilities every time. To benefit from incremental runs in Cylera, store the datetime when the connector is run outside toolkit and provide this value to toolkit for time-based filtering (such as, `cylera_last_seen_after`).
+
+The following steps illustrate using two variables to track when the last successful incremental run occurred and prevent missing data from a task failure.
+
+1. Create a record `last_run_success_time`=`<now - retention period>` in a datastore of your choice.
+2. Create a record `last_attempt_success_time`=`<now>`.
+3. Trigger Cylera task with `cylera_last_seen_after`=`last_run_success_time`.
+4. If the run was successful, update `last_run_success_time` by setting it to `last_attempt_success_time`.
+5. Repeat Steps 2-4 each time you run the task.
+
+**Note:** To improve efficiency, automate this process with a scheduling tool of your choice.
 
 ## Command Line
 
-See the main Toolkit for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna directly.
+**Note:** For instructions on running tasks, see the main Toolkit README.
 
-Recommended Steps:
+For this task, you can leave off the Kenna API key and Kenna connector ID, so the task creates a .json file in the default or specified output directory. You can then review the file before you upload it directly to Cisco Vulnerability Management.
 
-1. Run with Cylera Keys only to ensure you are able to get data properly from the scanner
-2. Review output for expected data
-3. Create Kenna Data Importer connector in Kenna (example name: Cylera KDI)
-4. Manually run the connector with the json from step 1
-5. Click on the name of the connector to get the connector id
-6. Run the task with Cylera Keys and Kenna Key/connector id
+### Recommended Steps
 
-Complete list of Options:
+1. Initially, run it with **Cylera keys** only.
+2. Review the output .json file to ensure you got the data you expected.
+3. Create the Kenna Data Importer connector in Cisco Vulnerability Management. You could name it **Cylera KDI**, for example.
+4. Upload the .json file to your connector and run it to verify there are no import errors and you can view Cylera data in Cisco VM.
+5. Click the connector name and copy the connector's ID.
+6. Run the task with **Cylera keys**, your **Kenna API key** and the **connector ID** to extract data from Cylera, upload it to Cisco, and import it all in one command.
+
+### All Task Options
 
 | Option | Required | Description | default |
 | --- | --- | --- | --- |
@@ -37,18 +53,18 @@ Complete list of Options:
 | cylera_vendor | false | Device vendor or manufacturer (e.g. Natus) | n/a |
 | cylera_type | false | Device type (e.g. EEG) | n/a |
 | cylera_model | false | Device model (e.g. NATUS NeuroWorks XLTECH EEG Unit) | n/a |
-| cylera_class | false | Device class (e.g. Medical). One of [Medical, Infrastructure, Misc IoT] | n/a |
+| cylera_class | false | Device class (e.g. Medical). One of: [Medical, Infrastructure, Misc IoT] | n/a |
 | cylera_confidence | false | Confidence in vulnerability detection. One of [LOW, MEDIUM, HIGH] | n/a |
-| cylera_detected_after | false | Epoch timestamp after which a vulnerability was detected | n/a |
+| cylera_detected_after | false | Finds vulnerabilities detected after this epoch timestamp | n/a |
 | cylera_name | false | Name of the vulnerability (complete or partial) | n/a |
-| cylera_severity | false | Vulnerability severity. One of [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
-| cylera_status | false | Vulnerability status. One of [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
-| cylera_page | false | Controls which page of results to return | 0 |
-| cylera_page_size | false | Controls number of results in each response. Max 100. | 100 |
-| kenna_api_key | false | Kenna API Key for use with connector option | n/a |
-| kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
-| kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
-| output_directory | false | If set, will write a file upon completion. Path is relative to #{$basedir} | output/cylera |
+| cylera_severity | false | Vulnerability severity. One of: [LOW, MEDIUM, HIGH, CRITICAL] | n/a |
+| cylera_status | false | Vulnerability status. One of: [OPEN, IN_PROGRESS, RESOLVED, SUPPRESSED] | n/a |
+| cylera_page | false | Controls the page of results to return | 0 |
+| cylera_page_size | false | Controls the number of results in each response. Max 100. | 100 |
+| kenna_api_key | false | Your API key | n/a |
+| kenna_api_host | false | API hostname -- Defaults to US API endpoint. | api.kennasecurity.com |
+| kenna_connector_id | false | If set, tries to upload to this connector | n/a |
+| output_directory | false | If set, saves the output file uploaded to Cisco VM. Path is relative to #{$basedir} | output/cylera |
 
 ## Data Mappings
 
@@ -57,9 +73,9 @@ Complete list of Options:
 | ip_address | device.ip_address | |
 | mac_address | device.mac_address | |
 | os | device.os | |
-| tags | ["Vendor:#{device.vendor}", "Type:#{device.type}", "Model:#{device.model}", "Class:#{device.class}"] | if proper value exists |
+| tags | ["Vendor:#{device.vendor}", "Type:#{device.type}", "Model:#{device.model}", "Class:#{device.class}"] | If a proper value exists |
 
-| Kenna Vulnerability | from Cylera Vulnerability | Conditions |
+| Cisco Vulnerability | from Cylera Vulnerability | Conditions |
 | --- | --- | --- |
 | scanner_identifier | vulnerability.vulnerability_name | |
 | scanner_type | "Cylera" | |
@@ -69,10 +85,10 @@ Complete list of Options:
 | status | vulnerability.status | |
 | vuln_def_name | vulnerability.vulnerability_name | |
 
-| Kenna Definition | from Cylera Vulnerability and Mitigations | Conditions |
+| Cisco Definition | from Cylera Vulnerability and Mitigations | Conditions |
 | --- | --- | --- |
 | scanner_type | "Cylera" | |
-| cve_identifiers | vulnerability.vulnerability_name | if vulnerability.vulnerability_name starts with "CVE" |
+| cve_identifiers | vulnerability.vulnerability_name | If it starts with "CVE" |
 | name | vulnerability.vulnerability_name | |
-| solution | "#{mitigation.mitigations}\nAdditional Info\n#{mitigation.additional_info}\nVendor Response\n#{mitigation.vendor_response}" | if proper value exists |
-| descriptions | mitigation.description | if value exists |
+| solution | "#{mitigation.mitigations}\nAdditional Info\n#{mitigation.additional_info}\nVendor Response\n#{mitigation.vendor_response}" | If a proper value exists |
+| descriptions | mitigation.description | If a value exists |
