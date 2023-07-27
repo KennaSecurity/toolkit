@@ -50,5 +50,24 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
         expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
       end
     end
+
+    context 'when time value is unexpected' do
+      let(:options) do
+        {
+          cylera_api_host: 'cylera.host',
+          cylera_api_user: 'api_user',
+          cylera_api_password: 'api_pass',
+          kenna_api_key: 'api_key',
+          kenna_api_host: 'kenna.example.com',
+          kenna_connector_id: '12',
+          cylera_last_seen_after: '60m'
+        }
+      end
+
+      it 'exits the script' do
+        expect { task.run(options) }.to raise_error(RuntimeError)
+      end
+    end
+
   end
 end
