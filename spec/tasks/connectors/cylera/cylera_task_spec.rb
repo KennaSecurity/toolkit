@@ -68,6 +68,5 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
         expect { task.run(options) }.to raise_error(RuntimeError)
       end
     end
-
   end
 end

@@ -362,16 +362,16 @@ module Kenna
       end
 
       def handle_time_delta(time)
-        return case time
-               when nil
-                 time
-               when /^\d+#{SECONDS}$/i
-                 Time.now.to_i - time.to_i
-               when /^\d+$/
-                 time.to_i
-               else
-                 raise "Invalid time value: #{time}. Only epoch timestamp and delta in seconds are supported."
-               end
+        case time
+        when nil
+          time
+        when /^\d+#{SECONDS}$/i
+          Time.now.to_i - time.to_i
+        when /^\d+$/
+          time.to_i
+        else
+          raise "Invalid time value: #{time}. Only epoch timestamp and delta in seconds are supported."
+        end
       end
     end
   end
