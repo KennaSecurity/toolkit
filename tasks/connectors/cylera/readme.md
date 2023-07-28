@@ -2,7 +2,7 @@
 
 Cylera provides security, operations, network and clinical data in real time. Use this toolkit task to get data from Cylera.
 
-**Note:** For more information about toolkits and how to use them, see the <a href="https://github.com/KennaSecurity/toolkit" title="README">README</a>.
+**Note:** For more information about toolkits and how to use them, see the [README](../../../README.md).
 
 To run this task, you require the following **Cylera** information:
 
