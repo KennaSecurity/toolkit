@@ -19,6 +19,7 @@ module Kenna
         'Resolved' => 'Closed',
         'Suppressed' => 'Closed'
       }.freeze
+      SECONDS = "s"
 
       def self.metadata
         {
@@ -63,28 +64,28 @@ module Kenna
             },
             {
               name: 'cylera_first_seen_before',
-              type: 'integer',
+              type: 'string',
               required: false,
               default: nil,
               description: 'Finds devices that were first seen before this epoch timestamp'
             },
             {
               name: 'cylera_first_seen_after',
-              type: 'integer',
+              type: 'string',
               required: false,
               default: nil,
               description: 'Finds devices that were first seen after this epoch timestamp'
             },
             {
               name: 'cylera_last_seen_before',
-              type: 'integer',
+              type: 'string',
               required: false,
               default: nil,
               description: 'Finds devices that were last seen before this epoch timestamp'
             },
             {
               name: 'cylera_last_seen_after',
-              type: 'integer',
+              type: 'string',
               required: false,
               default: nil,
               description: 'Finds devices that were last seen after this epoch timestamp'
@@ -263,10 +264,10 @@ module Kenna
         @inventory_devices_params = {
           ip_address: @options[:cylera_ip_address],
           mac_address: @options[:cylera_mac_address],
-          first_seen_before: @options[:cylera_first_seen_before],
-          first_seen_after: @options[:cylera_first_seen_after],
-          last_seen_before: @options[:cylera_last_seen_before],
-          last_seen_after: @options[:cylera_last_seen_after],
+          first_seen_before: handle_time_delta(@options[:cylera_first_seen_before]),
+          first_seen_after: handle_time_delta(@options[:cylera_first_seen_after]),
+          last_seen_before: handle_time_delta(@options[:cylera_last_seen_before]),
+          last_seen_after: handle_time_delta(@options[:cylera_last_seen_after]),
           vendor: @options[:cylera_vendor],
           type: @options[:cylera_type],
           model: @options[:cylera_model],
@@ -358,6 +359,19 @@ module Kenna
           result << mitigations['vendor_response']
         end
         result.join("\n") if result.present?
+      end
+
+      def handle_time_delta(time)
+        case time
+        when nil
+          time
+        when /^\d+#{SECONDS}$/i
+          Time.now.to_i - time.to_i
+        when /^\d+$/
+          time.to_i
+        else
+          raise "Invalid time value: #{time}. Only epoch timestamp and delta in seconds are supported."
+        end
       end
     end
   end
