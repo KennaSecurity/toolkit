@@ -68,5 +68,17 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
         expect { task.run(options) }.to raise_error(RuntimeError)
       end
     end
+
+    context 'when the incremental param present' do
+      before do
+        allow(kenna_client).to receive(:get_connector_runs)
+          .and_return({ results: [{ 'success': true, 'start_time': Time.now.to_s }] })
+      end
+
+      it 'calls the connector runs endpoint' do
+        expect(kenna_client).to receive(:get_connector_runs)
+        expect { task.run(options.merge(incremental: true)) }.to_not raise_error
+      end
+    end
   end
 end

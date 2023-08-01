@@ -168,6 +168,13 @@ module Kenna
               description: 'Controls number of results in each response. Max 100.'
             },
             {
+              name: 'incremental',
+              type: 'boolean',
+              required: false,
+              default: false,
+              description: 'Pulls data from the last successful run'
+            },
+            {
               name: 'kenna_api_key',
               type: 'api_key',
               required: false,
@@ -203,6 +210,12 @@ module Kenna
         super
 
         initialize_options
+
+        if @incremental
+          api_client = Kenna::Api::Client.new(@kenna_api_key, @kenna_api_host)
+          connector_runs = api_client.get_connector_runs(@kenna_connector_id)[:results]
+          @inventory_devices_params[:last_seen_after] = connector_runs.find { |e| e['success'] }.try(:[], 'start_time')&.to_datetime.to_i
+        end
 
         client = Kenna::Toolkit::Cylera::Client.new(@api_host, @api_user, @api_password)
 
@@ -289,6 +302,7 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        @incremental = @options[:incremental]
         @skip_autoclose = true
         @retries = 3
         @kdi_version = 2
