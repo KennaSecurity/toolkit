@@ -2,6 +2,8 @@
 
 Cylera provides security, operations, network and clinical data in real time. Use this toolkit task to get data from Cylera.
 
+**Note:** For more information about toolkits and how to use them, see the [README](../../../README.md).
+
 To run this task, you require the following **Cylera** information:
 
 1. Instance hostname
@@ -23,8 +25,6 @@ The following steps illustrate using two variables to track when the last succes
 **Note:** To improve efficiency, automate this process with a scheduling tool of your choice.
 
 ## Command Line
-
-**Note:** For instructions on running tasks, see the main Toolkit README.
 
 For this task, you can leave off the Kenna API key and Kenna connector ID, so the task creates a .json file in the default or specified output directory. You can then review the file before you upload it directly to Cisco Vulnerability Management.
 
