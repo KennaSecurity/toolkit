@@ -13,6 +13,7 @@ module Kenna
           @include_application_vulnerabilities = options[:application_vulns]
           @include_network_vulnerabilities = options[:network_vulns]
           @assets_from_hosts = options[:assets_from_hosts]
+          @create_findings = options[:create_findings]
         end
 
         # Fetches Edgescan assets and vulnerabilities in batches. Yields each batch.
@@ -62,28 +63,17 @@ module Kenna
           raw_vulnerabilities = fetch_vulnerabilities(asset_ids)
           definition_ids = raw_vulnerabilities.map { |vulnerability| vulnerability["definition_id"] }.uniq
           raw_definitions = fetch_definitions(definition_ids)
-          raw_hosts = fetch_hosts({ c: { asset_id_in: asset_ids.join(",") } })
 
-          vulnerabilities = build_vulnerability_classes(raw_assets, raw_vulnerabilities, raw_hosts)
+          vulnerabilities = build_vulnerability_classes(raw_assets, raw_vulnerabilities, [])
           definitions = build_definition_classes(raw_definitions)
-          location_specifiers = build_location_specifier_classes(raw_assets, raw_hosts)
 
-          [vulnerabilities, definitions, location_specifiers]
+          [vulnerabilities, definitions, []]
         end
 
         def build_host_classes(raw_assets, raw_hosts)
           raw_hosts.each_with_object([]) do |raw_host, hosts|
             asset = raw_assets.find { |raw_asset| raw_asset["id"] == raw_host["asset_id"] }
             hosts << EdgescanHost.new(asset, raw_host)
-          end
-        end
-
-        def build_location_specifier_classes(assets, hosts)
-          hosts = hosts.group_by { |host| host["asset_id"] }
-          assets.each_with_object([]) do |asset, location_specifiers|
-            asset["location_specifiers"].each do |location_specifier|
-              location_specifiers << EdgescanLocationSpecifier.new(asset, location_specifier, hosts[asset["id"]])
-            end
           end
         end
 
@@ -94,7 +84,7 @@ module Kenna
             asset = assets.find { |a| a["id"] == asset_id }
             vulnerabilities.each do |vulnerability|
               host = find_matching_host(hosts[asset_id], vulnerability["location"])
-              edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host)
+              edgescan_vulnerabilities << EdgescanVulnerability.new(asset, vulnerability, host, @create_findings)
             end
           end
         end
