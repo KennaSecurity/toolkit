@@ -214,7 +214,8 @@ module Kenna
         if @incremental
           api_client = Kenna::Api::Client.new(@kenna_api_key, @kenna_api_host)
           connector_runs = api_client.get_connector_runs(@kenna_connector_id)[:results]
-          @inventory_devices_params[:last_seen_after] = connector_runs.find { |e| e['success'] }.try(:[], 'start_time')&.to_datetime.to_i
+          last_connector_run_start_time = connector_runs.find { |e| e['success'] }.try(:[], 'start_time')&.to_datetime
+          @inventory_devices_params[:last_seen_after] = 1.day.ago(last_connector_run_start_time).to_i if last_connector_run_start_time
         end
 
         client = Kenna::Toolkit::Cylera::Client.new(@api_host, @api_user, @api_password)
