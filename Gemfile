@@ -24,6 +24,7 @@ gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
 gem "tty-pager"
+gem "vcr", "~> 6.1"
 
 group :development, :test do
   gem "pry"
@@ -32,6 +33,5 @@ group :development, :test do
   gem "rubocop", require: false
   gem "solargraph", require: false
   gem "timecop"
-  gem "vcr", "~> 6.1"
   gem "webmock", "~> 3.18"
 end
