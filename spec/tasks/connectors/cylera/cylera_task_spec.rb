@@ -29,7 +29,9 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
     before { allow(Kenna::Api::Client).to receive(:new) { kenna_client } }
 
     it 'succeeds' do
-      expect { task.run(options) }.to_not raise_error
+      VCR.use_cassette('cylera') do
+        expect { task.run(options) }.to_not raise_error
+      end
     end
 
     context 'when the required param is missed' do
@@ -44,7 +46,9 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
       let(:connector_run_success) { false }
 
       it 'exits the script' do
-        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+        VCR.use_cassette('cylera') do
+          expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+        end
       end
     end
 
@@ -52,7 +56,9 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
       before { allow_any_instance_of(Kenna::Toolkit::Cylera::Client).to receive(:http_get) }
 
       it 'exits the script' do
-        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+        VCR.use_cassette('cylera') do
+          expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+        end
       end
     end
 
@@ -65,7 +71,9 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
     context 'when the incremental param present' do
       it 'calls the connector runs endpoint' do
         expect(kenna_client).to receive(:get_connector_runs)
-        expect { task.run(options.merge(incremental: true)) }.to_not raise_error
+        VCR.use_cassette('cylera') do
+          expect { task.run(options.merge(incremental: true)) }.to_not raise_error
+        end
       end
     end
   end

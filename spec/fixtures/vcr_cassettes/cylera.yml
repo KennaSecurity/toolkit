@@ -32,7 +32,7 @@ http_interactions:
   recorded_at: Tue, 23 May 2023 23:45:17 GMT
 - request:
     method: get
-    uri: https://cylera.host/inventory/devices?<%= query %>
+    uri: https://cylera.host/inventory/devices?page=0&page_size=100
     body:
       encoding: UTF-8
       string: ''
@@ -84,7 +84,7 @@ http_interactions:
   recorded_at: Tue, 23 May 2023 23:45:18 GMT
 - request:
     method: get
-    uri: https://cylera.host/risk/vulnerabilities?<%= query %>
+    uri: https://cylera.host/risk/vulnerabilities?page=0&page_size=100
     body:
       encoding: UTF-8
       string: ''
@@ -129,7 +129,7 @@ http_interactions:
   recorded_at: Tue, 23 May 2023 23:45:18 GMT
 - request:
     method: get
-    uri: https://cylera.host/risk/mitigations?<%= query %>
+    uri: https://cylera.host/risk/mitigations?vulnerability=CVE-2000-0761
     body:
       encoding: UTF-8
       string: ''
