@@ -299,6 +299,8 @@ module Kenna
           'ip_address' => device['ip_address'],
           'mac_address' => device['mac_address'],
           'os' => device['os'],
+          'hostname' => device['hostname'],
+          'external_id' => device['id'],
           'tags' => tags(device)
         }.compact
       end
@@ -331,6 +333,12 @@ module Kenna
         tags.push("Type:#{device['type']}") if device['type']
         tags.push("Model:#{device['model']}") if device['model']
         tags.push("Class:#{device['class']}") if device['class']
+        tags.push("Location:#{device['location']}") if device['location']
+        tags.push("FDA Class:#{device['fda_class']}") if device['fda_class'] and device['fda_class'] != ""
+        tags.push("Serial Number:#{device['serial_number']}") if device['serial_number']
+        tags.push("Version:#{device['version']}") if device['version']
+        tags.push("VLAN:#{device['vlan']}") if device['vlan']
+        tags.push("AETitle:#{device['aetitle']}") if device['aetitle']
         tags
       end
 
