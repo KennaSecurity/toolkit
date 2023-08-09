@@ -55,28 +55,28 @@ http_interactions:
       string:
         '{
           "devices": [
-{
-            "aetitle": null,
-            "class": "Medical",
-            "fda_class": "",
-            "first_seen": 1575470260.0,
-            "hostname": "android-e9333a266418e2dc",
-            "id": "96d99cb1-1d25-11ea-8f8d-0242ac110002",
-            "ip_address": "192.168.5.12",
-            "last_seen": 1691007459.0,
-            "location": "Newark Beth Israel Medical Center",
-            "mac_address": "00:01:fb:20:04:40",
-            "model": "Sonosite iViz",
-            "os": "Android 4.4.2 OS",
-            "outdated": null,
-            "risk": 1,
-            "serial_number": null,
-            "type": "Ultrasound Machine",
-            "uuid": "96d99cb1-1d25-11ea-8f8d-0242ac110002",
-            "vendor": "Sonosite",
-            "version": null,
-            "vlan": 1100
-        }
+            {
+              "aetitle": null,
+              "class": "Infrastructure",
+              "fda_class": null,
+              "first_seen": 1623041920,
+              "hostname": null,
+              "id": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "ip_address": "192.168.1.40",
+              "last_seen": 1626108920,
+              "location": "Jersey City Medical Center, Jersey City, NJ",
+              "mac_address": "00:15:bd:01:0f:10",
+              "model": "Group 4 Tec Access Control / Security Management System",
+              "os": null,
+              "outdated": null,
+              "risk": 1,
+              "serial_number": null,
+              "type": "Network Access Control System",
+              "uuid": "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+              "vendor": "Group 4 Technology Ltd",
+              "version": null,
+              "vlan": -1
+            }
           ],
           "total": 5,
           "page": 0
@@ -108,8 +108,8 @@ http_interactions:
         '{
           "vulnerabilities": [
             {
-              "ip_address": "192.168.5.12",
-              "mac_address": "00:01:fb:20:04:40",
+              "ip_address": "192.168.1.40",
+              "mac_address": "00:15:bd:01:0f:10",
               "model": null,
               "type": "Endpoint",
               "vendor": null,
