@@ -349,7 +349,7 @@ module Kenna
         tags.push("Model:#{device['model']}") if device['model']
         tags.push("Class:#{device['class']}") if device['class']
         tags.push("Location:#{device['location']}") if device['location']
-        tags.push("FDA Class:#{device['fda_class']}") if device['fda_class'] and device['fda_class'] != ""
+        tags.push("FDA Class:#{device['fda_class']}") if device['fda_class'] && device['fda_class'] != ""
         tags.push("Serial Number:#{device['serial_number']}") if device['serial_number']
         tags.push("Version:#{device['version']}") if device['version']
         tags.push("VLAN:#{device['vlan']}") if device['vlan']
