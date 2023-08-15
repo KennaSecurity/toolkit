@@ -73,8 +73,10 @@ For this task, you can leave off the Kenna API key and Kenna connector ID, so th
 | --- | --- | --- |
 | ip_address | device.ip_address | |
 | mac_address | device.mac_address | |
+| hostname | device.hostname | |
+| external_id | device.id | |
 | os | device.os | |
-| tags | ["Vendor:#{device.vendor}", "Type:#{device.type}", "Model:#{device.model}", "Class:#{device.class}"] | If a proper value exists |
+| tags | ["Vendor:#{device.vendor}", "Type:#{device.type}", "Model:#{device.model}", "Class:#{device.class}", "Location:#{device.location}", "FDA Class:#{device.fda_class}", "Serial Number:#{device.serial_number}", "Version:#{device.version}", "VLAN:#{device.vlan}", "AETitle:#{device.aetitle}"] | If a proper value exists |
 
 | Cisco Vulnerability | from Cylera Vulnerability | Conditions |
 | --- | --- | --- |
