@@ -322,7 +322,7 @@ module Kenna
         return nil if ip_ignore_list.nil? || ip_ignore_list.empty?
 
         begin
-          ip_ignore_list.split(",").map { |ip| IPAddr.new(ip) }
+          ip_ignore_list.split(",").map { |ip| IPAddr.new(ip.strip) }
         rescue StandardError => e
           raise "Exception raised during ip_ignore_list parameter parsing => #{e.message}"
         end
