@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'lib/client'
+require "ipaddr"
 
 module Kenna
   module Toolkit
@@ -201,6 +202,13 @@ module Kenna
               required: false,
               default: 'output/cylera',
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}"
+            },
+            {
+              name: 'ip_ignore_list',
+              type: 'string',
+              required: false,
+              default: nil,
+              description: "The list of IP ranges that shouldn't be considered as locator"
             }
           ]
         }
@@ -275,6 +283,7 @@ module Kenna
         @api_host = @options[:cylera_api_host]
         @api_user = @options[:cylera_api_user]
         @api_password = @options[:cylera_api_password]
+        @ip_ignore_list = parse_ip_ignore_list(@options[:ip_ignore_list])
         @inventory_devices_params = {
           ip_address: @options[:cylera_ip_address],
           mac_address: @options[:cylera_mac_address],
@@ -309,15 +318,34 @@ module Kenna
         @kdi_version = 2
       end
 
+      def parse_ip_ignore_list(ip_ignore_list)
+        return nil if ip_ignore_list.nil? || ip_ignore_list.empty?
+
+        begin
+          ip_ignore_list.split(",").map { |ip| IPAddr.new(ip.strip) }
+        rescue StandardError => e
+          raise "Exception raised during ip_ignore_list parameter parsing => #{e.message}"
+        end
+      end
+
       def extract_asset(device)
         {
-          'ip_address' => device['ip_address'],
+          'ip_address' => validate_ip(device['ip_address']),
           'mac_address' => device['mac_address'],
           'os' => device['os'],
           'hostname' => device['hostname'],
           'external_id' => device['id'],
           'tags' => tags(device)
         }.compact
+      end
+
+      def validate_ip(ip)
+        return ip if @ip_ignore_list.nil?
+
+        @ip_ignore_list.each do |ip_range|
+          return nil if ip_range.include? ip
+        end
+        ip
       end
 
       def extract_vuln(vulnerability)

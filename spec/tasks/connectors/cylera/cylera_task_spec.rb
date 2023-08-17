@@ -135,5 +135,47 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
                          "ftp://ftp.software.ibm.com/ps/products/tcpip/fixes/v4.3os2/ic27721/README" })
       end
     end
+    context 'when ip_ignore_list is provided' do
+      before do
+        spy_on_accumulators
+        VCR.use_cassette('cylera') do
+          task.run(options.merge(ip_ignore_list: '0.0.0.0,192.168.1.0/24'))
+        end
+      end
+
+      it 'ignores matched ip address' do
+        expect(task.assets)
+          .to include({ "external_id" => "ae2e8de0-c764-11eb-8e8d-4627b9127261",
+                        "mac_address" => "00:15:bd:01:0f:10",
+                        "os" => "VxWorks",
+                        "hostname" => "dhcp-12-25-19-132",
+                        "priority" => 10,
+                        "tags" => ["Vendor:Group 4 Technology Ltd",
+                                   "Type:Network Access Control System",
+                                   "Model:Group 4 Tec Access Control / Security Management System",
+                                   "Class:Infrastructure",
+                                   "Location:Jersey City Medical Center, Jersey City, NJ",
+                                   "FDA Class:2",
+                                   "Serial Number:0000001",
+                                   "Version:4.0.1.0",
+                                   "VLAN:-1",
+                                   "AETitle:NBXXCU"],
+                        "vulns" => [{ "created_at" => "2022-09-10 02:48:11.000000000 +0000",
+                                      "last_seen_at" => "2022-09-10 02:48:11.000000000 +0000",
+                                      "scanner_identifier" => "CVE-2000-0761",
+                                      "scanner_score" => 6,
+                                      "scanner_type" => "Cylera",
+                                      "status" => "Open",
+                                      "vuln_def_name" => "CVE-2000-0761" }] })
+      end
+    end
+
+    context 'when ip_ignore_list contains unexpected values' do
+      it 'raises exception' do
+        VCR.use_cassette('cylera') do
+          expect { task.run(options.merge(ip_ignore_list: '0.0.0.0,192.168.1.0/43')) }.to raise_error(RuntimeError)
+        end
+      end
+    end
   end
 end

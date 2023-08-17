@@ -62,6 +62,7 @@ For this task, you can leave off the Kenna API key and Kenna connector ID, so th
 | cylera_page | false | Controls the page of results to return | 0 |
 | cylera_page_size | false | Controls the number of results in each response. Max 100. | 100 |
 | incremental | false | Pulls data from the last successful run | false |
+| ip_ignore_list | false | Comma separated list of IP addresses and ranges to ignore as locators, e.g. '0.0.0.0,127.0.0.0/24' | false |
 | kenna_api_key | false | Your API key | n/a |
 | kenna_api_host | false | API hostname -- Defaults to US API endpoint. | api.kennasecurity.com |
 | kenna_connector_id | false | If set, tries to upload to this connector | n/a |
