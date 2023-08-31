@@ -2,25 +2,26 @@
 
 Cylera provides security, operations, network and clinical data in real time. Use this toolkit task to get data from Cylera.
 
-**Note:** For more information about toolkits and how to use them, see the [README](../../../README.md).
+**Note:** For more general information about toolkits and how to use them, see the [README](../../../README.md).
 
 To run this task, you require the following **Cylera** information:
 
-1. Instance hostname
-2. API user email
-3. API user password
+1. Instance **hostname**
+2. API **user email**
+3. API **user password**
 
 ## Incremental runs
 
-The Cylera task supports incremental runs. Use them to improve performance and pull only the latest changes rather than pulling all available assets and vulnerabilities every time. To benefit from incremental runs in Cylera, store the datetime when the connector is run outside toolkit and provide this value to toolkit for time-based filtering (such as, `cylera_last_seen_after`).
+The Cylera task supports incremental runs. Use them to improve performance and pull only the latest changes, rather than pulling all available assets and vulnerabilities every time. 
 
-The following steps illustrate using two variables to track when the last successful incremental run occurred and prevent missing data from a task failure.
+Currently, you cannot determine exactly which **last_seen_after** parameter was used for the previous run. So, the incremental run pulls data for one (1) additional day, expecting that it takes less than a day to pull the data from Cylera.
 
-1. Create a record `last_run_success_time`=`<now - retention period>` in a datastore of your choice.
-2. Create a record `last_attempt_success_time`=`<now>`.
-3. Trigger Cylera task with `cylera_last_seen_after`=`last_run_success_time`.
-4. If the run was successful, update `last_run_success_time` by setting it to `last_attempt_success_time`.
-5. Repeat Steps 2-4 each time you run the task.
+### Using Incremental run parameters
+
+To do incremental runs, enable the following parameters:
+
+1. `incremental=true`: When enabled, the connector uses `last_connector_run_start_time`-`1 day` as the value for `cylera_last_seen_after`.
+2. `cylera_last_seen_after`: On the first run, this parameter limits the initial import to devices that were last seen after this timestamp. On subsequent runs, this parameter is ignored when used with **incremental=true**.
 
 **Note:** To improve efficiency, automate this process with a scheduling tool of your choice.
 
