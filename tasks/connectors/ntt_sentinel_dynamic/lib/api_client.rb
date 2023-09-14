@@ -40,8 +40,7 @@ module Kenna
 
         def assets(&)
           query = {
-            "display_asset" => 1,
-            "display_all" => 1
+            "display_asset" => 1
           }
 
           paginated("/asset", query, &)
