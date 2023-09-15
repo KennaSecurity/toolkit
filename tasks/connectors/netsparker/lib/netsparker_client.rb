@@ -13,6 +13,7 @@ module Kenna
             "Accept": "application/json",
             "Authorization": "Basic #{auth_token}"
           }
+          print_debug "API Client Successfully initialized with hostname: #{hostname}"
         end
 
         def get_last_scan_vulnerabilities(schedule_id, schedule_scans)

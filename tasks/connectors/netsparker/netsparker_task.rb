@@ -103,6 +103,7 @@ module Kenna
       def initialize_options
         @api_user = @options[:netsparker_api_user]
         @api_token = @options[:netsparker_api_token]
+        @netsparker_api_host = @options[:netsparker_api_host]
         @schedule_ids = extract_list(:netsparker_schedule_id)
         @issue_severity = extract_list(:netsparker_issue_severity, %w[BestPractice Information Low Medium High Critical])
         @output_directory = @options[:output_directory]
