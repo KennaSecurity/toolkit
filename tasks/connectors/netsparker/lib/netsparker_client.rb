@@ -4,11 +4,10 @@ module Kenna
   module Toolkit
     module Netsparker
       class NetsparkerClient
-        HOST = "https://www.netsparkercloud.com"
 
-        def initialize(user_id, token)
+        def initialize(user_id, token, hostname)
           auth_token = Base64.strict_encode64("#{user_id}:#{token}")
-          @endpoint = "#{HOST}/api/1.0"
+          @endpoint = "https://#{hostname}/api/1.0"
           @headers = {
             "content-type": "application/json",
             "Accept": "application/json",
