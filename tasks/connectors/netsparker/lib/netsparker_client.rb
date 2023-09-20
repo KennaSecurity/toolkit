@@ -4,7 +4,6 @@ module Kenna
   module Toolkit
     module Netsparker
       class NetsparkerClient
-
         def initialize(user_id, token, hostname)
           auth_token = Base64.strict_encode64("#{user_id}:#{token}")
           @endpoint = "https://#{hostname}/api/1.0"
