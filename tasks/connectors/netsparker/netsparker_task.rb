@@ -54,13 +54,19 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/netsparker",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "netsparker_api_host",
+              type: "hostname",
+              required: false,
+              default: "www.netsparkercloud.com",
+              description: "Allows a custom defined netsparker API url to use in all requests. Default value is www.netsparkercloud.com" }
           ]
         }
       end
 
       def run(opts)
         super
+        RestClient.log = 'stdout' if @options[:debug] == true
 
         initialize_options
         initialize_client
@@ -89,12 +95,13 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Kenna::Toolkit::Netsparker::NetsparkerClient.new(@api_user, @api_token)
+        @client = Kenna::Toolkit::Netsparker::NetsparkerClient.new(@api_user, @api_token, @netsparker_api_host)
       end
 
       def initialize_options
         @api_user = @options[:netsparker_api_user]
         @api_token = @options[:netsparker_api_token]
+        @netsparker_api_host = @options[:netsparker_api_host]
         @schedule_ids = extract_list(:netsparker_schedule_id)
         @issue_severity = extract_list(:netsparker_issue_severity, %w[BestPractice Information Low Medium High Critical])
         @output_directory = @options[:output_directory]
