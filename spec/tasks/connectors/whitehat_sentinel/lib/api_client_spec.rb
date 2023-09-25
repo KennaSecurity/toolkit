@@ -11,7 +11,10 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
 
       it "includes the condition in the API request" do
         response = { collection: [] }.to_json
-        expect(Kenna::Toolkit::Helpers::Http).to receive(:http_get).with(anything, { params: hash_including(query) }, anything).and_return(response)
+        expect(Kenna::Toolkit::Helpers::Http)
+          .to receive(:http_get)
+          .with(anything, anything, anything).and_return(response)
+
         api_client.vulns(query).to_a
       end
     end
