@@ -21,7 +21,9 @@ module Kenna
         end
 
         def asset_hash(node, sanitized_url)
-          site_id = node[:site].to_i
+          # TODO: investigate whether subID is the right key
+          # to use here or if we should use ID
+          site_id = node[:subID].to_i
 
           {
             application: node[:site_name],
@@ -85,9 +87,9 @@ module Kenna
 
         def tags_for(asset)
           [asset[:tags],
-           asset[:label],
-           asset[:asset_owner_name],
-           asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
+           asset[:name],
+           asset[:assetOwnerName],
+           asset[:customAssetId]].flatten.compact.reject(&:empty?)
         end
 
         def attack_vectors(node)
