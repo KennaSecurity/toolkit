@@ -9,7 +9,7 @@ module Kenna
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
         DEFAULT_PAGE_SIZE = 1_000
         V1_VULNS_ENDPOINT = "/vuln"
-        V1_ASSETS_ENDPOINT = "/asset" # NOTE: deprecated Nov 6th 2023
+        V1_ASSETS_ENDPOINT = "/asset" # NOTE: deprecation occurs Nov 6th 2023
         V2_ASSETS_ENDPOINT = "/assets"
 
         attr_reader :api_key, :page_size
@@ -52,6 +52,9 @@ module Kenna
         def paginated(endpoint, query, &block)
           return to_enum(__method__, endpoint, query) unless block
 
+          # TODO v1 pagination is different than v2 pagination
+          # page:limit and page:offset are v1
+          # limit and offset are v2
           query["page:limit"] = page_size
           offset = 0
           loop do
