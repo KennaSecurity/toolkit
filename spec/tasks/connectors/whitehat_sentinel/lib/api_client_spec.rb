@@ -16,4 +16,25 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
       end
     end
   end
+
+  describe '#assets' do
+    let(:json_file) { File.read 'spec/fixtures/ntt_sentinel_dynamic/v2_assets1.json' }
+    let(:response) { JSON.parse(json_file).to_json }
+
+    context 'when given query conditions' do
+      it 'gets the assets' do
+        expect(Kenna::Toolkit::Helpers::Http).to receive(:http_get).with(anything, anything, anything).and_return(response)
+        assets = api_client.assets.to_a
+        expect(assets.size).to eq(2)
+        assets.each do |asset|
+          expect(asset[:subID]).to be_a(Integer) # site id
+          expect(asset[:id]).to be_a(Integer)
+          expect(asset[:name]).to be_a(String) # label
+          expect(asset[:tags]).to be_a(Array)
+          expect(asset[:customAssetID]).to be_a(String)
+          expect(asset[:assetOwnerName]).to be_a(String)
+        end
+      end
+    end
+  end
 end

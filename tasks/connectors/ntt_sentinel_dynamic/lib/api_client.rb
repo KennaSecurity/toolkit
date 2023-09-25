@@ -8,6 +8,9 @@ module Kenna
 
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
         DEFAULT_PAGE_SIZE = 1_000
+        V1_VULNS_ENDPOINT = "/vuln"
+        V1_ASSETS_ENDPOINT = "/asset" # NOTE: deprecated Nov 6th 2023
+        V2_ASSETS_ENDPOINT = "/assets"
 
         attr_reader :api_key, :page_size
         attr_accessor :logger
@@ -35,15 +38,13 @@ module Kenna
             "display_abbr" => "0"
           }.merge(filters)
 
-          paginated("/vuln", query, &)
+          paginated(V1_VULNS_ENDPOINT, query, &)
         end
 
         def assets(&)
-          query = {
-            "display_asset" => 1
-          }
+          query = {}
 
-          paginated("/asset", query, &)
+          paginated(V2_ASSETS_ENDPOINT, query, &)
         end
 
         private

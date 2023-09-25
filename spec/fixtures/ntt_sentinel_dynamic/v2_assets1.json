@@ -1,0 +1,71 @@
+{
+	"page": {
+		"totalCount": 2,
+		"filteredCount": 2
+	},
+	"collection": [
+		{
+			"id": 24813,
+			"subID": 48011,
+			"name": "sentinel.kennasecurity.com",
+			"type": "site",
+			"location": [
+				"https://sentinel.kennasecurity.com"
+			],
+			"serviceLevel": "PE",
+			"clientRatingMethod": "advanced",
+			"phase": "production",
+			"status": "active",
+			"customAssetID": "123456",
+			"assetOwnerName": "",
+			"tags": [],
+			"scheduleName": "continuous",
+			"scheduleTimeZone": "America/Chicago",
+			"creationT": 1444924522,
+			"lang": "",
+			"averageLinesScanned": null,
+			"lastScanDateT": 1695333442,
+			"scanStatus": "Paused for Schedule",
+			"isWhiteHatEnabled": true,
+			"activeUser": true,
+			"keepUnreachableFindingsOpen": {
+				"Bool": false,
+				"Valid": false
+			}
+		},
+		{
+			"id": 167697,
+			"subID": 25726,
+			"name": "WebGoat",
+			"type": "application",
+			"location": [
+				"https://github.com/WebGoat/WebGoat/archive/refs/heads/develop.zip"
+			],
+			"serviceLevel": "SCA",
+			"clientRatingMethod": "advanced",
+			"phase": "",
+			"status": "active",
+			"customAssetID": "",
+			"assetOwnerName": "",
+			"tags": [],
+			"scheduleName": "scan_daily",
+			"scheduleTimeZone": "America/Chicago",
+			"creationT": 1636140378,
+			"lang": "Discover",
+			"averageLinesScanned": 56098,
+			"averageFileSize": 3927925,
+			"assetSize": "X Small",
+			"lastScanDateT": 1653282222,
+			"scanStatus": "Complete",
+			"isWhiteHatEnabled": false,
+			"activeUser": true,
+			"keepUnreachableFindingsOpen": {
+				"Bool": false,
+				"Valid": false
+			},
+			"preScanStatus": "Rejected",
+			"applianceID": 3897,
+			"scanLocation": "Appliance"
+		}
+	]
+}
