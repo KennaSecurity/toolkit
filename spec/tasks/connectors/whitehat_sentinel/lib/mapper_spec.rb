@@ -127,8 +127,8 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
   end
 
   describe "#asset_hash" do
-    let(:node) { { subID: subID, site_name: } }
     let(:subID) { 12 }
+    let(:node) { { subID: subID.to_i, site_name: } }
     let(:site_name) { "Example dot com" }
     let(:url) { "http://foo.example.com/path" }
 
