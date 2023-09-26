@@ -38,27 +38,26 @@ module Kenna
             "display_abbr" => "0"
           }.merge(filters)
 
-          paginated(V1_VULNS_ENDPOINT, query, &)
+          paginated(V1_VULNS_ENDPOINT, query,
+                    { limit: 'page:limit', offset: 'page:offset' }, &)
         end
 
         def assets(&)
           query = {}
 
-          paginated(V2_ASSETS_ENDPOINT, query, &)
+          paginated(V2_ASSETS_ENDPOINT, query,
+                    { limit: 'limit', offset: 'offset' }, &)
         end
 
         private
 
-        def paginated(endpoint, query, &block)
-          return to_enum(__method__, endpoint, query) unless block
+        def paginated(endpoint, query, pagination_keys, &block)
+          return to_enum(__method__, endpoint, query, pagination_keys) unless block
 
-          # TODO v1 pagination is different than v2 pagination
-          # page:limit and page:offset are v1
-          # limit and offset are v2
-          query["page:limit"] = page_size
+          query[pagination_keys[:limit]] = page_size
           offset = 0
           loop do
-            query["page:offset"] = offset
+            query[pagination_keys[:offset]] = offset
             response = get(endpoint, query)
             parsed = JSON.parse(response, symbolize_names: true)
             parsed[:collection].each(&block)

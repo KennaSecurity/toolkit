@@ -11,9 +11,12 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
 
       it "includes the condition in the API request" do
         response = { collection: [] }.to_json
+        expected_params = { 'page:limit' => 1000, 'page:offset' => 0 }
+
         expect(Kenna::Toolkit::Helpers::Http)
           .to receive(:http_get)
-          .with(anything, anything, anything).and_return(response)
+          .with(anything, hash_including({ params: hash_including(expected_params)}), anything)
+          .and_return(response)
 
         api_client.vulns(query).to_a
       end
@@ -26,7 +29,13 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
 
     context 'when given query conditions' do
       it 'gets the assets' do
-        expect(Kenna::Toolkit::Helpers::Http).to receive(:http_get).with(anything, anything, anything).and_return(response)
+        expected_params = { 'limit' => 1000, 'offset' => 0 }
+
+        expect(Kenna::Toolkit::Helpers::Http)
+          .to receive(:http_get)
+          .with(anything, hash_including({ params: hash_including(expected_params)}), anything)
+          .and_return(response)
+
         assets = api_client.assets.to_a
         expect(assets.size).to eq(2)
         assets.each do |asset|
