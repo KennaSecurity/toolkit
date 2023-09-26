@@ -15,7 +15,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
 
         expect(Kenna::Toolkit::Helpers::Http)
           .to receive(:http_get)
-          .with(anything, hash_including({ params: hash_including(expected_params)}), anything)
+          .with(anything, hash_including({ params: hash_including(expected_params) }), anything)
           .and_return(response)
 
         api_client.vulns(query).to_a
@@ -33,7 +33,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::ApiClient do
 
         expect(Kenna::Toolkit::Helpers::Http)
           .to receive(:http_get)
-          .with(anything, hash_including({ params: hash_including(expected_params)}), anything)
+          .with(anything, hash_including({ params: hash_including(expected_params) }), anything)
           .and_return(response)
 
         assets = api_client.assets.to_a
