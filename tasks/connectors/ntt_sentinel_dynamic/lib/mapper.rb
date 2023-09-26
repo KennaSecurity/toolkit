@@ -14,9 +14,7 @@ module Kenna
           @sanitizer = Sanitize.new(remove_contents: false, parser_options: { max_attributes: -1 })
         end
 
-        def register_asset(node)
-          asset = node[:asset]
-
+        def register_asset(asset)
           @tag_hash[asset[:id]] = tags_for(asset)
         end
 

@@ -141,13 +141,11 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
     context "when an asset has been registered" do
       let(:asset) do
         {
-          asset: {
-            id: subID,
-            customAssetId: whitehat_custom_id,
-            name: whitehat_name,
-            assetOwnerName: whitehat_owner,
-            tags: whitehat_tags
-          }
+          id: subID,
+          customAssetId: whitehat_custom_id,
+          name: whitehat_name,
+          assetOwnerName: whitehat_owner,
+          tags: whitehat_tags
         }
       end
       let(:whitehat_custom_id) { "custom id" }
@@ -202,12 +200,10 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
       context "when a field is missing" do
         let(:asset) do
           {
-            asset: {
-              id: subID,
-              name: whitehat_name,
-              assetOwnerName: whitehat_owner,
-              tags: whitehat_tags
-            }
+            id: subID,
+            name: whitehat_name,
+            assetOwnerName: whitehat_owner,
+            tags: whitehat_tags
           }
         end
 
