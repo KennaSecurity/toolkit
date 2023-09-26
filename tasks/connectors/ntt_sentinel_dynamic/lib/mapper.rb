@@ -19,8 +19,6 @@ module Kenna
         end
 
         def asset_hash(node, sanitized_url)
-          # TODO: investigate why we use the site id (subID)
-          # as the asset id
           site_id = node[:subID].to_i
 
           {

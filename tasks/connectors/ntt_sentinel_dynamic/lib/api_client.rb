@@ -9,7 +9,6 @@ module Kenna
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
         DEFAULT_PAGE_SIZE = 1_000
         V1_VULNS_ENDPOINT = "/vuln"
-        V1_ASSETS_ENDPOINT = "/asset" # NOTE: deprecation occurs Nov 6th 2023
         V2_ASSETS_ENDPOINT = "/assets"
 
         attr_reader :api_key, :page_size
