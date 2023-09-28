@@ -7,10 +7,10 @@ module Kenna
     class ArmisTask < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Armis"
       SCANNER_SCORE_HASH = {
-        "Confirmed" => 10,
-        "High" => 8,
-        "Medium" => 5,
-        "Low" => 3
+        "CRITICAL" => 10,
+        "HIGH" => 8,
+        "MEDIUM" => 5,
+        "LOW" => 3
       }.freeze
 
       def self.metadata
@@ -145,31 +145,32 @@ module Kenna
       end
 
       def extract_asset(device)
-        tag_fields = {
-          "manufacturer": device["manufacturer"],
-          "model": device["model"],
-          "name": device["name"],
-          "category": device["category"],
-          "type": device["type"]
-        }.compact
+        site_location = device.dig("site", "location")
+        device["site_location"] = site_location if site_location && site_location != "No location"
+        device["site_name"] = device.dig("site", "name")
+        tag_fields = device.slice("manufacturer", "model", "category", "type", "site_location", "site_name").compact
         tags = (device["tags"] || []) + tag_fields.map { |field, value| "#{field}:#{value}" }
+        mac_address = (device["macAddress"] || "").split(",")[0]
+        ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
         {
           "external_id" => device.fetch("id").to_s,
-          "ip_address" => device.fetch("ipAddress"),
-          "mac_address" => device.fetch("macAddress"),
+          "hostname" => device["name"],
           "tags" => tags,
-          "os" => device.fetch("operatingSystem"),
-          "os_version" => device.fetch("operatingSystemVersion"),
-          "priority" => device.fetch("riskLevel")
+          "os" => device["operatingSystem"],
+          "os_version" => device["operatingSystemVersion"],
+          "mac_address" => mac_address&.strip,
+          "ip_address" => ip_address&.strip
         }.compact
       end
 
       def extract_vuln(vuln)
+        avm_rating = vuln["avmRating"] ? SCANNER_SCORE_HASH[vuln["avmRating"].upcase] : nil
+
         {
           "scanner_identifier" => vuln.fetch("cveUid"),
           "scanner_type" => SCANNER_TYPE,
-          "scanner_score" => SCANNER_SCORE_HASH[vuln["confidenceLevel"]],
+          "scanner_score" => avm_rating,
           "vuln_def_name" => "#{SCANNER_TYPE} #{vuln.fetch('cveUid')}",
           "created_at" => vuln.fetch("firstDetected"),
           "last_seen_at" => vuln.fetch("lastDetected"),

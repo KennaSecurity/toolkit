@@ -69,7 +69,7 @@ Complete list of Options:
 | armis_api_host | true | Armis instance hostname, e.g. "integration-xyz"  | n/a |
 | armis_api_secret_token | true | Armis Secret Key | n/a |
 | batch_size | false | Maximum number of devices to retrieve in single batch | 500 |
-| armis_aql_query | true | Armis Query Language. `timeFrame` option is not supported in provided aql string. Must escape query string in command line script, e.g. \\"in:devices\\". | "in:devices" |
+| armis_aql_query | true | Armis Query Language. `timeFrame` option is not supported in provided aql string. Must be valid AQL string in url-encoded format. Example, `in:devices brand:"Huawei Technologies",Microsoft` must be url-encoded to `in%3Adevices%20brand%3A%22Huawei%20Technologies%22%2CMicrosoft%20`. To url-encode AQL string, you can use [urlencoder.org](https://www.urlencoder.org/).  | "in:devices" |
 | armis_backfill_duration | false | Armis Backfill Duration (In Days): Number of days to look back. In case `enable_checkpoint` is `true` and checkpoint file exists, this option will have no effect. | 15 |
 | enable_checkpoint | false | If set to true, enables checkpoint mechanism. This feature instructs task to track last run information at directory specified in `checkpoint_directory` option. Used to fetch only devices which have been detected since last run. | true |
 | checkpoint_directory | false | If set, will write a file upon completion. Checkpoint file will contain `lastSeen` date of last pulled device. Path is relative to #{$basedir} | output/armis/checkpoint |
