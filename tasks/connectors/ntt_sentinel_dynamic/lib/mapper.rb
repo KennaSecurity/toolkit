@@ -15,11 +15,11 @@ module Kenna
         end
 
         def register_asset(asset)
-          @tag_hash[asset[:id]] = tags_for(asset)
+          @tag_hash[asset[:subID]] = tags_for(asset)
         end
 
         def asset_hash(node, sanitized_url)
-          site_id = node[:subID].to_i
+          site_id = node[:site].to_i
 
           {
             application: node[:site_name],

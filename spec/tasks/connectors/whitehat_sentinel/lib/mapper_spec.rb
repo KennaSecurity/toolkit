@@ -128,7 +128,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
 
   describe "#asset_hash" do
     let(:subID) { 12 }
-    let(:node) { { subID: subID.to_i, site_name: } }
+    let(:node) { { site: subID.to_i, site_name: } }
     let(:site_name) { "Example dot com" }
     let(:url) { "http://foo.example.com/path" }
 
@@ -141,7 +141,8 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
     context "when an asset has been registered" do
       let(:asset) do
         {
-          id: subID,
+          id: 1,
+          subID: subID,
           customAssetId: whitehat_custom_id,
           name: whitehat_name,
           assetOwnerName: whitehat_owner,
@@ -200,7 +201,8 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
       context "when a field is missing" do
         let(:asset) do
           {
-            id: subID,
+            id: 2,
+            subID: subID,
             name: whitehat_name,
             assetOwnerName: whitehat_owner,
             tags: whitehat_tags
