@@ -142,7 +142,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
       let(:asset) do
         {
           id: 1,
-          subID: subID,
+          subID:,
           customAssetId: whitehat_custom_id,
           name: whitehat_name,
           assetOwnerName: whitehat_owner,
@@ -202,7 +202,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
         let(:asset) do
           {
             id: 2,
-            subID: subID,
+            subID:,
             name: whitehat_name,
             assetOwnerName: whitehat_owner,
             tags: whitehat_tags
