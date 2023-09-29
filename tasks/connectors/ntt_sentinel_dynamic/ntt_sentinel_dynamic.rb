@@ -107,7 +107,7 @@ module Kenna
                 finding = mapper.finding_hash(node)
                 vuln_def = mapper.vuln_def_hash(node)
 
-                create_kdi_asset_finding(asset, finding)
+                create_kdi_asset_finding(asset.stringify_keys, finding)
                 create_kdi_vuln_def(vuln_def.stringify_keys)
               end
             end
