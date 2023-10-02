@@ -8,6 +8,8 @@ module Kenna
 
         BASE_PATH = "https://sentinel.whitehatsec.com/api"
         DEFAULT_PAGE_SIZE = 1_000
+        V1_VULNS_ENDPOINT = "/vuln"
+        V2_ASSETS_ENDPOINT = "/assets"
 
         attr_reader :api_key, :page_size
         attr_accessor :logger
@@ -35,26 +37,26 @@ module Kenna
             "display_abbr" => "0"
           }.merge(filters)
 
-          paginated("/vuln", query, &)
+          paginated(V1_VULNS_ENDPOINT, query,
+                    { limit: 'page:limit', offset: 'page:offset' }, &)
         end
 
         def assets(&)
-          query = {
-            "display_asset" => 1
-          }
+          query = {}
 
-          paginated("/asset", query, &)
+          paginated(V2_ASSETS_ENDPOINT, query,
+                    { limit: 'limit', offset: 'offset' }, &)
         end
 
         private
 
-        def paginated(endpoint, query, &block)
-          return to_enum(__method__, endpoint, query) unless block
+        def paginated(endpoint, query, pagination_keys, &block)
+          return to_enum(__method__, endpoint, query, pagination_keys) unless block
 
-          query["page:limit"] = page_size
+          query[pagination_keys[:limit]] = page_size
           offset = 0
           loop do
-            query["page:offset"] = offset
+            query[pagination_keys[:offset]] = offset
             response = get(endpoint, query)
             parsed = JSON.parse(response, symbolize_names: true)
             parsed[:collection].each(&block)

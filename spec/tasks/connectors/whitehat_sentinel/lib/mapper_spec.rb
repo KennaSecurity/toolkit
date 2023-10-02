@@ -127,8 +127,8 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
   end
 
   describe "#asset_hash" do
-    let(:node) { { site: site_id.to_s, site_name: } }
-    let(:site_id) { 12 }
+    let(:subID) { 12 }
+    let(:node) { { site: subID.to_i, site_name: } }
     let(:site_name) { "Example dot com" }
     let(:url) { "http://foo.example.com/path" }
 
@@ -141,18 +141,17 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
     context "when an asset has been registered" do
       let(:asset) do
         {
-          asset: {
-            id: site_id,
-            custom_asset_id: whitehat_custom_id,
-            label: whitehat_label,
-            asset_owner_name: whitehat_owner,
-            tags: whitehat_tags
-          }
+          id: 1,
+          subID:,
+          customAssetId: whitehat_custom_id,
+          name: whitehat_name,
+          assetOwnerName: whitehat_owner,
+          tags: whitehat_tags
         }
       end
       let(:whitehat_custom_id) { "custom id" }
       let(:whitehat_tags) { %w[tag_one tag_two] }
-      let(:whitehat_label) { "label" }
+      let(:whitehat_name) { "name" }
       let(:whitehat_owner) { "owner" }
 
       before do
@@ -163,8 +162,8 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
         expect(asset_hash[:tags]).to include(*whitehat_tags)
       end
 
-      it "includes the asset's label from Whitehat" do
-        expect(asset_hash[:tags]).to include(whitehat_label)
+      it "includes the asset's name from Whitehat" do
+        expect(asset_hash[:tags]).to include(whitehat_name)
       end
 
       it "includes the asset's owner name from Whitehat" do
@@ -179,7 +178,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
         let(:whitehat_tags) { [] }
 
         it "includes the other fields" do
-          expect(asset_hash[:tags]).to contain_exactly(whitehat_label, whitehat_owner, whitehat_custom_id)
+          expect(asset_hash[:tags]).to contain_exactly(whitehat_name, whitehat_owner, whitehat_custom_id)
         end
       end
 
@@ -192,7 +191,7 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
       end
 
       context "when a field is nil" do
-        let(:whitehat_label) { nil }
+        let(:whitehat_name) { nil }
 
         it "excludes the nil" do
           expect(asset_hash[:tags]).to_not include(nil)
@@ -202,17 +201,16 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Mapper do
       context "when a field is missing" do
         let(:asset) do
           {
-            asset: {
-              id: site_id,
-              label: whitehat_label,
-              asset_owner_name: whitehat_owner,
-              tags: whitehat_tags
-            }
+            id: 2,
+            subID:,
+            name: whitehat_name,
+            assetOwnerName: whitehat_owner,
+            tags: whitehat_tags
           }
         end
 
         it "includes the other fields" do
-          expect(asset_hash[:tags]).to contain_exactly(*[whitehat_tags, whitehat_label, whitehat_owner].flatten)
+          expect(asset_hash[:tags]).to contain_exactly(*[whitehat_tags, whitehat_name, whitehat_owner].flatten)
         end
       end
     end

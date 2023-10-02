@@ -14,10 +14,8 @@ module Kenna
           @sanitizer = Sanitize.new(remove_contents: false, parser_options: { max_attributes: -1 })
         end
 
-        def register_asset(node)
-          asset = node[:asset]
-
-          @tag_hash[asset[:id]] = tags_for(asset)
+        def register_asset(asset)
+          @tag_hash[asset[:subID]] = tags_for(asset)
         end
 
         def asset_hash(node, sanitized_url)
@@ -85,9 +83,9 @@ module Kenna
 
         def tags_for(asset)
           [asset[:tags],
-           asset[:label],
-           asset[:asset_owner_name],
-           asset[:custom_asset_id]].flatten.compact.reject(&:empty?)
+           asset[:name],
+           asset[:assetOwnerName],
+           asset[:customAssetId]].flatten.compact.reject(&:empty?)
         end
 
         def attack_vectors(node)
