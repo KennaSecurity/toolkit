@@ -59,15 +59,13 @@ module Kenna
               type: "hostname",
               required: false,
               default: "www.netsparkercloud.com",
-              description: "Allows a custom defined netsparker API url to use in all requests. Default value is www.netsparkercloud.com"
-              }
+              description: "Allows a custom defined netsparker API url to use in all requests. Default value is www.netsparkercloud.com" }
           ]
         }
       end
 
       def run(opts)
         super
-        
         RestClient.log = 'stdout' if @options[:debug] == true
 
         initialize_options
