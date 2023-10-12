@@ -72,8 +72,10 @@ module Kenna
 
         initialize_options
         initialize_client
-
+        print_debug "Attempting to pull all scheduled scans..."
         schedule_scans = client.retrieve_all_scheduled_scans
+        print_debug "#{schedule_scans}"
+
         @schedule_ids = schedule_scans.map { |scan| scan.fetch("Id") } if @schedule_ids == ["*"]
 
         @schedule_ids.each do |schedule_id|

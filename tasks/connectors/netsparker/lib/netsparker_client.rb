@@ -25,15 +25,26 @@ module Kenna
         end
 
         def retrieve_all_scheduled_scans
+          print_debug "starting retrieve_all_scheduled_scans..."
           page = 1
+          print_debug "querying page 1..."
           scheduled_scan_result = scheduled_scan_result(page)
-          schedule_scans = []
 
+          print_debug "printing scheduled_scan_result..."
+          print_debug "#{scheduled_scan_result}"
+          schedule_scans = []
+          
+          print_debug = "starting the loop..."
+          x = 1
           loop do
+            print_debug "Loop number #{x}"
             schedule_scans.push(*scheduled_scan_result.fetch("List"))
+            print_debug "scheduled_scan_result Is Last Page = #{scheduled_scan_result["IsLastPage"]}"
             break if scheduled_scan_result["IsLastPage"]
 
             page += 1
+            print_debug "finished with page #{page}, continuing..."
+            x +=1
           end
 
           schedule_scans.uniq
