@@ -25,10 +25,10 @@ module Kenna
 
         def retrieve_all_scheduled_scans
           page = 1
-          scheduled_scan_result = scheduled_scan_result(page)
           schedule_scans = []
 
           loop do
+            scheduled_scan_result = scheduled_scan_result(page)
             schedule_scans.push(*scheduled_scan_result.fetch("List"))
             break if scheduled_scan_result["IsLastPage"]
 
