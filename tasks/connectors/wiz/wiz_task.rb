@@ -193,7 +193,7 @@ module Kenna
               vuln = mapper.extract_vuln(node)
               definition = mapper.extract_definition(node)
               batch.append do
-                create_kdi_asset_vuln(asset, vuln, nil, {skip_priority: true})
+                create_kdi_asset_vuln(asset, vuln, nil, { skip_priority: true })
                 create_kdi_vuln_def(definition)
               end
             end
