@@ -127,10 +127,15 @@ module Kenna
       # }
       # optional param of match_key will look for a matching asset by locator value
       #    without this optional param it will match on the entire asset array.
-      def create_kdi_asset_vuln(asset_hash, vuln_hash, match_key = nil)
+      # optional opts: skip_priority will remove the priority field from the asset
+      def create_kdi_asset_vuln(asset_hash, vuln_hash, match_key = nil, opts = {})
         kdi_initialize unless @assets
 
         a = find_or_create_kdi_asset(asset_hash, match_key)
+
+        if opts[:skip_priority]
+          a.delete("priority")
+        end
 
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
