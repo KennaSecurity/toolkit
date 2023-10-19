@@ -133,9 +133,7 @@ module Kenna
 
         a = find_or_create_kdi_asset(asset_hash, match_key)
 
-        if opts[:skip_priority]
-          a.delete("priority")
-        end
+        a.delete("priority") if opts[:skip_priority]
 
         # Default values & type conversions... just make it work
         vuln_hash["status"] = "open" unless vuln_hash["status"]
