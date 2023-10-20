@@ -27,14 +27,8 @@ RSpec.describe Kenna::Toolkit::KdiHelpers do
       }
     end
 
-    it 'left priority as 10' do
-      example_class.create_kdi_asset_vuln(asset_hash, vuln_hash)
-      asset = example_class.instance_variable_get(:@assets).find { |a| a["external_id"] == "7339373" }
-      expect(asset["priority"]).to eq(10)
-    end
-
-    it 'removes the priority field' do
-      example_class.create_kdi_asset_vuln(asset_hash, vuln_hash, nil, { skip_priority: true })
+    it 'creates an asset without the priority field' do
+      example_class.create_kdi_asset_vuln(asset_hash, vuln_hash, nil)
       asset = example_class.instance_variable_get(:@assets).find { |a| a["external_id"] == "7339373" }
       expect(asset.key?("priority")).to eq(false)
     end
