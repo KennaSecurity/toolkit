@@ -66,7 +66,6 @@ module Kenna
         end
 
         # create default values
-        asset_hash["priority"] = 10 unless asset_hash["priority"]
         asset_hash["tags"] = [] unless asset_hash["tags"]
         asset_hash["vulns"] = []
 

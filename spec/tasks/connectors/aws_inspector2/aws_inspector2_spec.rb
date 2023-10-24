@@ -49,7 +49,6 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                         hostname: "",
                         ip_address: "34.235.255.215",
                         os: "AMAZON_LINUX",
-                        priority: 10,
                         tags: be_an(Array),
                         vulns: be_an(Array) })
         expect(task.assets)
@@ -58,7 +57,6 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
                         hostname: "Sonarcube",
                         ip_address: "54.242.136.219",
                         os: "AMAZON_LINUX_2",
-                        priority: 10,
                         tags: be_an(Array),
                         vulns: be_an(Array) })
       end
@@ -67,7 +65,6 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
         expect(task.assets)
           .to include({ asset_type: "image",
                         image_id: start_with("sha256:34ca666355"),
-                        priority: 10,
                         tags: be_an(Array),
                         vulns: be_an(Array) })
       end
