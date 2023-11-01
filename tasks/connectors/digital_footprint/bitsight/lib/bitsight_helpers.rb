@@ -42,13 +42,13 @@ module Kenna
 
             if page_count > 10
               filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
-              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+              #kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
               page_count = 0
             end
             page_count += 1
           end
           filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
-          kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+          #kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
       end
 
@@ -201,8 +201,16 @@ module Kenna
       ###
       def create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
         # set the port if it's available
-        port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
-        detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
+        if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
+          port_number = (finding["details"]["dest_port"]).to_s.to_i
+        end
+
+        if finding["details"].key?("diligence_annotations")
+          if finding["details"]["diligence_annotations"].key?("message")
+            detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",")
+          end
+        end
+
         vuln_def_name = detected_service.nil? ? vuln_def_id : detected_service[0]
         scanner_identifier = detected_service.nil? ? vuln_def_id : "#{detected_service[0].gsub(/^Allows insecure protocol: /im, '').gsub(/^Insecure signature algorithm: /im, '').to_s.tr(' ', '_').tr('-', '_').downcase.strip}_open_port"
         vd = {
