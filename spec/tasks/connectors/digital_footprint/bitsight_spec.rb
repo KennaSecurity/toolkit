@@ -4,34 +4,35 @@ require "rspec_helper"
 
 RSpec.describe Kenna::Toolkit::BitsightTask do
   let(:options) { { bitsight_api_key: "1234" } }
-  let(:aws_host_params) do {
-      :method=>:get,
-      :timeout=>1,
-      :url=>"http://169.254.169.254/latest/metadata/"
+  let(:aws_host_params) do
+    {
+      method: :get,
+      timeout: 1,
+      url: "http://169.254.169.254/latest/metadata/"
     }
   end
   let(:validate_key_expected_params) do
     {
-      :method=>:get,
-      :url=>"https://api.bitsighttech.com/"
+      method: :get,
+      url: "https://api.bitsighttech.com/"
     }
   end
   let(:portafolio_expected_params) do
     {
-      :method=>:get,
-      :url=>"https://1234:@api.bitsighttech.com/portfolio"
+      method: :get,
+      url: "https://1234:@api.bitsighttech.com/portfolio"
     }
   end
   let(:findings1_expected_params) do
     {
-      :method=>:get,
-    :url => 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?limit=100&last_seen_gte=2023-08-01'
+      method: :get,
+      url: 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?limit=100&last_seen_gte=2023-08-01'
     }
   end
   let(:findings2_expected_params) do
     {
-      :method=>:get,
-    :url => 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?last_seen_gte=2023-08-01&limit=100&offset=100'
+      method: :get,
+      url: 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?last_seen_gte=2023-08-01&limit=100&offset=100'
     }
   end
   let(:validate_key_json_file) { File.read 'spec/fixtures/digital_footprint/bitsight_validate_key.json' }
