@@ -42,13 +42,13 @@ module Kenna
 
             if page_count > 10
               filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
-              #kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+              kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
               page_count = 0
             end
             page_count += 1
           end
           filename = "bitsight_#{Time.now.strftime('%Y%m%dT%H%M')}-#{rand(100_000)}.json"
-          #kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
+          kdi_upload @output_dir, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, 3, 2
         end
       end
 
@@ -206,8 +206,16 @@ module Kenna
         end
 
         if finding["details"].key?("diligence_annotations")
-          if finding["details"]["diligence_annotations"].key?("message")
-            detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",")
+          # NOTE: the diligence_annotations field is an array for webapp_sec,
+          # but a hash for the other finding types
+          diligence_annotations = finding["details"]["diligence_annotations"]
+          diligence_annotation = if diligence_annotations.is_a?(Array)
+                                   diligence_annotations.first
+                                 else
+                                   diligence_annotations
+                                 end
+          if diligence_annotation.key?("message") && diligence_annotation["message"].present?
+            detected_service = diligence_annotation.fetch("message").sub(/^Detected service: /im, "").split(",")
           end
         end
 
