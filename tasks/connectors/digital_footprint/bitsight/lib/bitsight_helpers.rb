@@ -201,9 +201,7 @@ module Kenna
       ###
       def create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
         # set the port if it's available
-        if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
-          port_number = (finding["details"]["dest_port"]).to_s.to_i
-        end
+        port_number = finding.dig("details", "dest_port")&.to_s&.to_i
 
         if finding["details"].key?("diligence_annotations")
           # NOTE: the diligence_annotations field is an array for webapp_sec,
@@ -214,9 +212,7 @@ module Kenna
                                  else
                                    diligence_annotations
                                  end
-          if diligence_annotation.key?("message") && diligence_annotation["message"].present?
-            detected_service = diligence_annotation.fetch("message").sub(/^Detected service: /im, "").split(",")
-          end
+          detected_service = extract_service_from(diligence_annotation) if diligence_annotation["message"]&.present?
         end
 
         vuln_def_name = detected_service.nil? ? vuln_def_id : detected_service[0]
@@ -256,6 +252,10 @@ module Kenna
         ###
         cvd.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(cvd)
+      end
+
+      def extract_service_from(diligence_annotation)
+        diligence_annotation.fetch("message").sub(/^Detected service: /im, "").split(",")
       end
 
       def extract_vuln_def(finding, name, scanner_type)
