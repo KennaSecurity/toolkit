@@ -1,0 +1,91 @@
+{
+	"links": {
+		"next": "https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?last_seen_gte=2023-08-01&limit=100&offset=100",
+		"previous": null
+	},
+	"count": 22333,
+	"results": [
+		{
+			"temporary_id": "XXX",
+			"affects_rating": true,
+			"assets": [
+				{
+					"asset": "xxx.xxx.111.11",
+					"identifier": null,
+					"category": "low",
+					"importance": 0.0,
+					"is_ip": true
+				}
+			],
+			"details": {
+				"cvss": {
+					"base": [
+						5.9
+					]
+				},
+				"check_pass": "",
+				"diligence_annotations": {
+					"message": "Detected service: HTTPS  (potential ROBOT vulnerability)",
+					"CPE": [],
+					"Product": "BigIP",
+					"Title": "Logout Page",
+					"transport": "tcp",
+					"Status": "HTTP/1.1 200 OK",
+					"Server": "BigIP"
+				},
+				"final_location": "https://111.22.333.11/my.logout.php3?errorcode=19",
+				"geo_ip_location": "US",
+				"country": "United States",
+				"grade": "GOOD",
+				"remediations": [
+					{
+						"message": "Detected service: HTTPS  (potential ROBOT vulnerability)",
+						"help_text": "ROBOT is an RSA vulnerability which enables attackers to passively record traffic and later decrypt it.",
+						"remediation_tip": "Update all affected hardware and software packages that are vulnerable to this exploit. See the list of <a target=\"new\" href=\"https://robotattack.org/#patches\">affected enterprise vendors</a> that have released updates that fix this vulnerability. If patches are not available for the organization's hardware, disable ciphers that start with TLS_RSA."
+					}
+				],
+				"sample_timestamp": "2023-10-31T00:00:00Z",
+				"vulnerabilities": [
+					{
+						"name": "CVE-2000-55555",
+						"alias": "ROBOT (potential)",
+						"display_name": "ROBOT (potential)",
+						"description": "ROBOT is an RSA vulnerability which enables attackers to passively record traffic and later decrypt it.",
+						"remediation_tip": "Update all affected hardware and software packages that are vulnerable to this exploit. [See this page](https://robotattack.org/#patches) for a list of which enterprise vendors are affected and which have released updates that fix this vulnerability. If patches are not available for the organization's hardware, disable ciphers that start with TLS_RSA.",
+						"confidence": "LOW",
+						"cvss": {
+							"base": 5.9
+						},
+						"severity": "Moderate"
+					}
+				],
+				"dest_port": 853,
+				"rollup_end_date": "2023-10-31",
+				"rollup_start_date": "2022-10-31",
+				"searchable_details": "Detected service: HTTPS  (potential ROBOT vulnerability),tcp,BigIP"
+			},
+			"evidence_key": "xxx.xxx.111.11:853",
+			"first_seen": "2022-01-01",
+			"last_seen": "2023-10-31",
+			"related_findings": [],
+			"risk_category": "Diligence",
+			"risk_vector": "open_ports",
+			"risk_vector_label": "Open Ports",
+			"rolledup_observation_id": "0jkSNhSmcGy0_z5pWroy5g==",
+			"severity": 1.0,
+			"severity_category": "minor",
+			"tags": [],
+			"remediation_history": {
+				"last_requested_refresh_date": null,
+				"last_refresh_status_date": null,
+				"last_refresh_status_label": null,
+				"last_refresh_reason_code": null
+			},
+			"duration": null,
+			"comments": null,
+			"remaining_decay": 59,
+			"remediated": null,
+			"impacts_risk_vector_details": "AFFECTS_RATING"
+		}
+	]
+}

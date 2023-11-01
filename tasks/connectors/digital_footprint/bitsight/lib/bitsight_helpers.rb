@@ -201,8 +201,20 @@ module Kenna
       ###
       def create_cwe_vuln(vuln_def_id, finding, asset_attributes, dfm)
         # set the port if it's available
-        port_number = (finding["details"]["dest_port"]).to_s.to_i if finding["details"] && finding["details"]["dest_port"].to_s.to_i.positive?
-        detected_service = finding["details"]["diligence_annotations"].fetch("message").sub(/^Detected service: /im, "").split(",") if finding["details"].key?("diligence_annotations") && finding["details"]["diligence_annotations"].key?("message")
+        port_number = finding.dig("details", "dest_port")&.to_s&.to_i
+
+        if finding["details"].key?("diligence_annotations")
+          # NOTE: the diligence_annotations field is an array for webapp_sec,
+          # but a hash for the other finding types
+          diligence_annotations = finding["details"]["diligence_annotations"]
+          diligence_annotation = if diligence_annotations.is_a?(Array)
+                                   diligence_annotations.first
+                                 else
+                                   diligence_annotations
+                                 end
+          detected_service = extract_service_from(diligence_annotation) if diligence_annotation["message"]&.present?
+        end
+
         vuln_def_name = detected_service.nil? ? vuln_def_id : detected_service[0]
         scanner_identifier = detected_service.nil? ? vuln_def_id : "#{detected_service[0].gsub(/^Allows insecure protocol: /im, '').gsub(/^Insecure signature algorithm: /im, '').to_s.tr(' ', '_').tr('-', '_').downcase.strip}_open_port"
         vd = {
@@ -240,6 +252,10 @@ module Kenna
         ###
         cvd.tap { |hs| hs.delete("scanner_identifier") }
         create_kdi_vuln_def(cvd)
+      end
+
+      def extract_service_from(diligence_annotation)
+        diligence_annotation.fetch("message").sub(/^Detected service: /im, "").split(",")
       end
 
       def extract_vuln_def(finding, name, scanner_type)

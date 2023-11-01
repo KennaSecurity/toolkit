@@ -1,0 +1,77 @@
+{
+	"links": {
+		"next": null,
+		"previous":"https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?last_seen_gte=2023-08-01&limit=100&offset=0"
+	},
+	"count": 22333,
+	"results": [
+		{
+			"temporary_id": "YYYY",
+			"affects_rating": true,
+			"assets": [
+				{
+					"asset": "my-asset-yyyy.com",
+					"identifier": null,
+					"category": "low",
+					"importance": 3.16458e-05,
+					"is_ip": false
+				}
+			],
+			"details": {
+				"cvss": {
+					"base": []
+				},
+				"check_pass": "",
+				"diligence_annotations": [
+					{
+						"name": "NAMESOMETHING",
+						"message": "Cookie does not have the SameSite attribute",
+						"value": "123123123",
+						"attributes": "NAMESOMETHING=123123123; Path=/; Secure; HTTPOnly",
+						"status": "Failed",
+						"severity": "Minor",
+						"assessmentName": "cookie_same_site_attribute"
+					}
+				],
+				"failed_evidence": 1,
+				"grade": "NEUTRAL",
+				"remediations": [
+					{
+						"message": "Cookie set without the SameSite attribute defined",
+						"remediation_tip": "Session and other tracking cookies should be explicit about how permissive the use of the cookie can be across origins.",
+						"help_text": "SameSite attributes prevent cookies from being passed to cross-origin browsing contexts and is one mitigating technique to prevent cross-site request forgery. Most modern browsers default behavior is SameSite=Lax, which may be too permissive for session cookies of some web applications."
+					}
+				],
+				"sample_timestamp": "2023-10-31T00:00:02Z",
+				"total_evidence": 1,
+				"vulnerabilities": [],
+				"assessment_name": "cookie_same_site_attribute",
+				"rollup_end_date": "2023-10-31",
+				"rollup_start_date": "2000-01-01",
+				"searchable_details": "Cookie SameSite Attribute"
+			},
+			"evidence_key": "domain.com:443",
+			"first_seen": "2000-01-01",
+			"last_seen": "2023-10-31",
+			"related_findings": [],
+			"risk_category": "Diligence",
+			"risk_vector": "web_appsec",
+			"risk_vector_label": "Web Application Security",
+			"rolledup_observation_id": "KKKAAAA==",
+			"severity": 1.0,
+			"severity_category": "minor",
+			"tags": [],
+			"remediation_history": {
+				"last_requested_refresh_date": null,
+				"last_refresh_status_date": null,
+				"last_refresh_status_label": null,
+				"last_refresh_reason_code": null
+			},
+			"duration": null,
+			"comments": null,
+			"remaining_decay": 59,
+			"remediated": null,
+			"impacts_risk_vector_details": "AFFECTS_RATING"
+		}
+	]
+}
