@@ -147,19 +147,10 @@ module Kenna
               subscriptionTags
             }
             note
-            serviceTicket {
-              externalId
-              name
-              url
-            }
             serviceTickets {
               externalId
               name
               url
-              action {
-                id
-                type
-              }
             }
           }"
         end
