@@ -160,7 +160,8 @@ module Kenna
           "os" => device["operatingSystem"],
           "os_version" => device["operatingSystemVersion"],
           "mac_address" => mac_address&.strip,
-          "ip_address" => ip_address&.strip
+          "ip_address" => ip_address&.strip,
+          "last_seen_time" => device["lastSeen"]
         }.compact
       end
 
