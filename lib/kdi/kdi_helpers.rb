@@ -206,7 +206,7 @@ module Kenna
         ### Write KDI format
         !@paged_assets.nil? && @paged_assets.any? ? (write_assets = @paged_assets) : (write_assets = @assets)
         return unless write_assets.present?
-
+        
         write_file_stream(output_dir, filename, skip_autoclose, write_assets, @vuln_defs, version)
         print_good "Output is available at: #{output_dir}/#{filename}"
 
@@ -214,7 +214,6 @@ module Kenna
         if kenna_connector_id && kenna_api_host && kenna_api_key
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
           response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
-          puts response_json
           filenum = response_json.fetch("data_file")
           @uploaded_files = [] if @uploaded_files.nil?
           @uploaded_files << filenum
@@ -262,6 +261,7 @@ module Kenna
         end
         true
       end
+      
     end
   end
 end

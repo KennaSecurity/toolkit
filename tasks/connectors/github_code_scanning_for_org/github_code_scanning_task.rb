@@ -92,24 +92,9 @@ module Kenna
           initialize_options
           initialize_client
 
-          #conditionally checking if the github_organization is set, if set, change to another endpoint
-       
-          # @repositories.each do |repo|
-          #   endpoint = "/repos/#{repo}/code-scanning/alerts"
-          #   #the this is endpoint for org
-          #   #endpoint = "/orgs/#{repo}/code-scanning/alerts"
-          #   import_alerts(repo, endpoint)
-          # end
-
-          # if @organization
-          #   endpoint = "/orgs/#{@organization}/code-scanning/alerts"
-          #   puts endpoint
-          # end
 
           @organization.each do |org|
             endpoint = "/orgs/#{org}/code-scanning/alerts"
-            #the this is endpoint for org
-            #endpoint = "/orgs/#{repo}/code-scanning/alerts"
             import_alerts(org, endpoint)
           end
 
@@ -125,7 +110,6 @@ module Kenna
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
           #set Org instance variables
-          #@organization = @options[:github_organization]
           @organization = extract_list(:github_organization, [])
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
@@ -169,11 +153,9 @@ module Kenna
           while (alerts = @client.code_scanning_alerts(endpoint, page, @page_size, @state, @tool_name)).present?
             alerts.each do |alert|
               next unless import?(alert)
-
               asset = extract_asset(alert, org)
               finding = extract_finding(alert, org)
               definition = extract_definition(alert)
-
               create_kdi_asset_finding(asset, finding)
               create_kdi_vuln_def(definition)
             end
@@ -182,6 +164,7 @@ module Kenna
             kdi_upload(@output_directory, "github_code_scanning_#{org.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
+
         end
 
         # This works like a filter because it's useful and GitHub API doesn't provide the functionality in the API
@@ -190,13 +173,14 @@ module Kenna
         end
 
         def extract_asset(alert, org)
+
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
             "application" => org
           }
-          asset.compact
           
+         asset.compact
         end
 
         def extract_finding(alert, repo)
