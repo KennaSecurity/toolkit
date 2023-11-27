@@ -131,6 +131,8 @@ module Kenna
 
         File.open(output_path, 'w') do |file|
           JSON.dump(obj, file)
+          puts file
+          puts obj
         end
       end
 

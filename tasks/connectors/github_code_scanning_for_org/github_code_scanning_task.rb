@@ -5,13 +5,13 @@ module Kenna
   module Toolkit
     module GithubCodeScanning
       class Task < Kenna::Toolkit::BaseTask
-        SCANNER_TYPE = "GitHubCodeScanning"
+        SCANNER_TYPE = "GitHubCodeScanningForOrganization"
 
         def self.metadata
           {
-            id: "github_code_scanning",
-            name: "GitHub Code Scanning",
-            description: "Pulls Code Scanning alerts from GitHub.",
+            id: "github_code_scanning_for_org",
+            name: "GitHub Code Scanning for Organization",
+            description: "Pulls Code Scanning alerts from GitHub Organization.",
             options: [
               { name: "github_username",
                 type: "api_key",
@@ -23,9 +23,10 @@ module Kenna
                 required: true,
                 default: nil,
                 description: "GitHub token" },
+              #making reposotories require to false since we're not using here
               { name: "github_repositories",
                 type: "string",
-                required: true,
+                required: false,
                 default: nil,
                 description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit" },
               { name: "github_tool_name",
@@ -78,9 +79,9 @@ module Kenna
                 #add new options in to conditionally render the endpoint
                 name: "github_organization",
                 type: "string",
-                required: false, 
+                required: true, 
                 default: nil, 
-                description: "If you want to scan on Organization level, input your Org name here"
+                description: "Input your Organization name here"
                 }
             ]
           }
@@ -93,13 +94,24 @@ module Kenna
 
           #conditionally checking if the github_organization is set, if set, change to another endpoint
        
-          @repositories.each do |repo|
-            endpoint = "/repos/#{repo}/code-scanning/alerts"
+          # @repositories.each do |repo|
+          #   endpoint = "/repos/#{repo}/code-scanning/alerts"
+          #   #the this is endpoint for org
+          #   #endpoint = "/orgs/#{repo}/code-scanning/alerts"
+          #   import_alerts(repo, endpoint)
+          # end
+
+          # if @organization
+          #   endpoint = "/orgs/#{@organization}/code-scanning/alerts"
+          #   puts endpoint
+          # end
+
+          @organization.each do |org|
+            endpoint = "/orgs/#{org}/code-scanning/alerts"
             #the this is endpoint for org
             #endpoint = "/orgs/#{repo}/code-scanning/alerts"
-            import_alerts(repo, endpoint)
+            import_alerts(org, endpoint)
           end
-        
 
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         rescue Kenna::Toolkit::Sample::Client::ApiError => e
@@ -113,6 +125,8 @@ module Kenna
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
           #set Org instance variables
+          #@organization = @options[:github_organization]
+          @organization = extract_list(:github_organization, [])
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
           @severity = extract_list(:github_severity)
@@ -150,23 +164,22 @@ module Kenna
           fail_task("Invalid task parameters. state must be one of [open, fixed, dismissed] if present.") unless [nil, "open", "fixed", "dismissed"].include?(@state)
         end
 
-        def import_alerts(repo, endpoint)
+        def import_alerts(org, endpoint)
           page = 1
           while (alerts = @client.code_scanning_alerts(endpoint, page, @page_size, @state, @tool_name)).present?
             alerts.each do |alert|
               next unless import?(alert)
 
-              asset = extract_asset(alert, repo)
-              finding = extract_finding(alert, repo)
+              asset = extract_asset(alert, org)
+              finding = extract_finding(alert, org)
               definition = extract_definition(alert)
 
               create_kdi_asset_finding(asset, finding)
               create_kdi_vuln_def(definition)
             end
 
-            print_good("Processed #{alerts.count} alerts for #{repo}.")
-            kdi_upload(@output_directory, "github_code_scanning_#{repo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            puts kdi_upload(@output_directory, "github_code_scanning_#{repo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+            print_good("Processed #{alerts.count} alerts for #{org}}.")
+            kdi_upload(@output_directory, "github_code_scanning_#{org.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
         end
@@ -176,13 +189,14 @@ module Kenna
           (@severity.blank? || @severity.include?(alert.dig("rule", "severity"))) && (@security_severity.blank? || @security_severity.include?(alert.dig("rule", "security_severity_level")))
         end
 
-        def extract_asset(alert, repo)
+        def extract_asset(alert, org)
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
-            "application" => repo
+            "application" => org
           }
           asset.compact
+          
         end
 
         def extract_finding(alert, repo)

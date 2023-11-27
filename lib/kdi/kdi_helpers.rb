@@ -214,6 +214,7 @@ module Kenna
         if kenna_connector_id && kenna_api_host && kenna_api_key
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
           response_json = upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}", false, max_retries
+          puts response_json
           filenum = response_json.fetch("data_file")
           @uploaded_files = [] if @uploaded_files.nil?
           @uploaded_files << filenum
