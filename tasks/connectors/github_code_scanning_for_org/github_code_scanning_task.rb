@@ -23,12 +23,12 @@ module Kenna
                 required: true,
                 default: nil,
                 description: "GitHub token" },
-              #making reposotories require to false since we're not using here
-              { name: "github_repositories",
-                type: "string",
-                required: false,
-                default: nil,
-                description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit" },
+              #comment out reposotories options since we're not using here
+              # { name: "github_repositories",
+              #   type: "string",
+              #   required: false,
+              #   default: nil,
+              #   description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit" },
               { name: "github_tool_name",
                 type: "string",
                 required: false,
@@ -72,9 +72,8 @@ module Kenna
               { name: "output_directory",
                 type: "filename",
                 required: false,
-                default: "output/github_code_scanning",
+                default: "output/github_code_scanning_for_org",
                 description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-               
               {
                 #add new options in to conditionally render the endpoint
                 name: "github_organization",
@@ -152,7 +151,6 @@ module Kenna
           page = 1
           while (alerts = @client.code_scanning_alerts(endpoint, page, @page_size, @state, @tool_name)).present?
             alerts.each do |alert|
-              next unless import?(alert)
               asset = extract_asset(alert, org)
               finding = extract_finding(alert, org)
               definition = extract_definition(alert)
@@ -161,7 +159,7 @@ module Kenna
             end
 
             print_good("Processed #{alerts.count} alerts for #{org}}.")
-            kdi_upload(@output_directory, "github_code_scanning_#{org.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+            kdi_upload(@output_directory, "github_code_scanning_for_org_#{org.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
 

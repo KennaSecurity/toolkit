@@ -131,7 +131,6 @@ module Kenna
 
         File.open(output_path, 'w') do |file|
           JSON.dump(obj, file)
-          absolute_path = File.expand_path(file.path)
         end
       end
 
