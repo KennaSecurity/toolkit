@@ -7,13 +7,13 @@ module Kenna
         class ApiError < StandardError; end
         HOST = "https://api.github.com"
 
-       def initialize(username, token)
+        def initialize(username, token)
          auth_token = Base64.strict_encode64("#{username}:#{token}")
          @headers = {
            "Accept": "application/vnd.github.v3+json",
            "Authorization": "Basic #{auth_token}"
          }
-       end
+        end
 
         def code_scanning_alerts(endpoint, page, page_size, state, tool_name)
           url = +"#{HOST}#{endpoint}?page=#{page}&per_page=#{page_size}"

@@ -208,7 +208,7 @@ module Kenna
         return unless write_assets.present?
         
         write_file_stream(output_dir, filename, skip_autoclose, write_assets, @vuln_defs, version)
-        print_good "Output is available at: #{output_dir}/#{filename}. Consider using the -v <local path>:<toolkit path> option to extract docker output"
+        print_good "Output is available at: #{output_dir}/#{filename}.Consider using the -v <local path>:<toolkit path> option to extract docker output"
 
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key

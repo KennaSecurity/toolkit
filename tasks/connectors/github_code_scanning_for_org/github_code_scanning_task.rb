@@ -23,12 +23,6 @@ module Kenna
                 required: true,
                 default: nil,
                 description: "GitHub token" },
-              #comment out reposotories options since we're not using here
-              # { name: "github_repositories",
-              #   type: "string",
-              #   required: false,
-              #   default: nil,
-              #   description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit" },
               { name: "github_tool_name",
                 type: "string",
                 required: false,
@@ -74,14 +68,11 @@ module Kenna
                 required: false,
                 default: "output/github_code_scanning_for_org",
                 description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-              {
-                #add new options in to conditionally render the endpoint
-                name: "github_organization",
+              { name: "github_organization",
                 type: "string",
                 required: true, 
                 default: nil, 
-                description: "Input your Organization name here"
-                }
+                description: "Input your Organization name here"}
             ]
           }
         end
@@ -108,7 +99,6 @@ module Kenna
           @username = @options[:github_username]
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
-          #set Org instance variables
           @organization = extract_list(:github_organization, [])
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
@@ -171,14 +161,12 @@ module Kenna
         end
 
         def extract_asset(alert, org)
-
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
             "application" => org
           }
-          
-         asset.compact
+          asset.compact
         end
 
         def extract_finding(alert, repo)

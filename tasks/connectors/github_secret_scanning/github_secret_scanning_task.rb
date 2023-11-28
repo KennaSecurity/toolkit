@@ -158,11 +158,10 @@ module Kenna
           repo = matches[2]
           fail_task "Unable to extract repo info from #{url}." if org.blank? || repo.blank?
           details = locations.first.fetch("details")
-          file_path = details.fetch("path","No Path Found")
+          file_path = details.fetch("path", "No Path Found")
 
           asset = {
             "url" => alert.fetch("html_url"),
-            #"file" => locations.first.fetch("details").fetch("path"),
             "file" => file_path,
             "application" => "#{org}/#{repo}"
           }

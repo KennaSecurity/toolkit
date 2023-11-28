@@ -72,16 +72,7 @@ module Kenna
                 type: "filename",
                 required: false,
                 default: "output/github_code_scanning",
-                description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-               
-              {
-                #add new options in to conditionally render the endpoint
-                name: "github_organization",
-                type: "string",
-                required: false, 
-                default: nil, 
-                description: "If you want to scan on Organization level, input your Org name here"
-                }
+                description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
             ]
           }
         end
@@ -91,12 +82,8 @@ module Kenna
           initialize_options
           initialize_client
 
-          #conditionally checking if the github_organization is set, if set, change to another endpoint
-       
           @repositories.each do |repo|
             endpoint = "/repos/#{repo}/code-scanning/alerts"
-            #the this is endpoint for org
-            #endpoint = "/orgs/#{repo}/code-scanning/alerts"
             import_alerts(repo, endpoint)
           end
         
