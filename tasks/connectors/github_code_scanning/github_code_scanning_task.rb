@@ -86,8 +86,6 @@ module Kenna
             endpoint = "/repos/#{repo}/code-scanning/alerts"
             import_alerts(repo, endpoint)
           end
-        
-
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         rescue Kenna::Toolkit::Sample::Client::ApiError => e
           fail_task e.message

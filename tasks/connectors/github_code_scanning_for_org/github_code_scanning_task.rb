@@ -81,8 +81,6 @@ module Kenna
           super
           initialize_options
           initialize_client
-
-
           @organization.each do |org|
             endpoint = "/orgs/#{org}/code-scanning/alerts"
             import_alerts(org, endpoint)
@@ -152,9 +150,8 @@ module Kenna
             kdi_upload(@output_directory, "github_code_scanning_for_org_#{org.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
-
         end
-
+        
         # This works like a filter because it's useful and GitHub API doesn't provide the functionality in the API
         def import?(alert)
           (@severity.blank? || @severity.include?(alert.dig("rule", "severity"))) && (@security_severity.blank? || @security_severity.include?(alert.dig("rule", "security_severity_level")))

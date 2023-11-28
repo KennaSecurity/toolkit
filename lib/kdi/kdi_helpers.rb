@@ -206,6 +206,7 @@ module Kenna
         ### Write KDI format
         !@paged_assets.nil? && @paged_assets.any? ? (write_assets = @paged_assets) : (write_assets = @assets)
         return unless write_assets.present?
+        
         write_file_stream(output_dir, filename, skip_autoclose, write_assets, @vuln_defs, version)
         print_good "Output is available at: #{output_dir}/#{filename}.Consider using the -v <local path>:<toolkit path> option to extract docker output"
 
