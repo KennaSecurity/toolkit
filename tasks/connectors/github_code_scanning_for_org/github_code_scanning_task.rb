@@ -166,7 +166,7 @@ module Kenna
           asset.compact
         end
 
-        def extract_finding(alert, repo)
+        def extract_finding(alert, org)
           severity = alert.dig("rule", "security_severity_level")
           {
             "url" => alert.fetch("url"),
@@ -177,7 +177,7 @@ module Kenna
             "vuln_def_name" => vuln_def_name(alert),
             "severity" => (SEVERITY_VALUE[severity] if severity),
             "triage_state" => triage_value(alert.fetch("state")),
-            "additional_fields" => { "Repository": repo }.merge(extract_additional_fields(alert))
+            "additional_fields" => { "Organization": org }.merge(extract_additional_fields(alert))
           }.compact
         end
 
