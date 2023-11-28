@@ -10,8 +10,8 @@ module Kenna
         def initialize(username, token)
           auth_token = Base64.strict_encode64("#{username}:#{token}")
           @headers = {
-           "Accept": "application/vnd.github.v3+json",
-           "Authorization": "Basic #{auth_token}"
+          "Accept": "application/vnd.github.v3+json",
+          "Authorization": "Basic #{auth_token}"
           }
         end
 
@@ -21,6 +21,7 @@ module Kenna
           url.concat("&tool_name=#{tool_name}") if tool_name.present?
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve alerts, please check credentials or GitHub permissions" unless response
+          
           JSON.parse(response)
         end
       end
