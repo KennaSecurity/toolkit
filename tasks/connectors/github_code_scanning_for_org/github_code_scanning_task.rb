@@ -72,7 +72,7 @@ module Kenna
                 type: "string",
                 required: true, 
                 default: nil, 
-                description: "Input your Organization name here"}
+                description: "Input your Organization name here" }
             ]
           }
         end

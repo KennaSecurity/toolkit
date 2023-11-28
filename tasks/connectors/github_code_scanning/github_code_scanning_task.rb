@@ -99,7 +99,6 @@ module Kenna
           @username = @options[:github_username]
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
-          #set Org instance variables
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
           @severity = extract_list(:github_severity)
