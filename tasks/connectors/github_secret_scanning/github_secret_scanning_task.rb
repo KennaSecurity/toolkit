@@ -163,7 +163,6 @@ module Kenna
 
           asset = {
             "url" => alert.fetch("html_url"),
-            #"file" => locations.first.fetch("details").fetch("path"),
             "file" => file_path,
             "application" => "#{org}/#{repo}"
           }
