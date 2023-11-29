@@ -75,8 +75,8 @@ module Kenna
                 description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
               { name: "github_organizations",
                 type: "string",
-                required: false, 
-                default: nil, 
+                required: false,
+                default: nil,
                 description: "Input your Organizations name here (comma-separated). This is required if no repositories are specified. Use organization name format, e.g. KennaSecurityOrg" }
             ]
           }
@@ -97,7 +97,7 @@ module Kenna
               endpoint = "/orgs/#{org}/code-scanning/alerts"
               import_alerts(org, endpoint)
             end
-          else   
+          else
             fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories. You cannot specify both or not input anything"
           end
 
@@ -189,8 +189,8 @@ module Kenna
           severity = alert.dig("rule", "security_severity_level")
           # 6. conditionally construct the additional field
           additional_fields = if !@repositories.empty?
-                                { "Repository": orgorrepo }.merge(extract_additional_fields(alert))  
-                              else 
+                                { "Repository": orgorrepo }.merge(extract_additional_fields(alert)) 
+                              else
                                 { "Organization": orgorrepo }.merge(extract_additional_fields(alert))
                               end
 
