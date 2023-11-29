@@ -95,7 +95,7 @@ module Kenna
               endpoint = "/repos/#{repo}/code-scanning/alerts"
               import_alerts(repo, endpoint)
             end
-          elsif @repositories.empty? && !organizations.empty?
+          elsif @repositories.empty? && !@organizations.empty?
             @organizations.each do |org|
               endpoint = "/orgs/#{org}/code-scanning/alerts"
               import_alerts(org, endpoint)
