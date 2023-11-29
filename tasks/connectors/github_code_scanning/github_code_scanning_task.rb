@@ -23,9 +23,10 @@ module Kenna
                 required: true,
                 default: nil,
                 description: "GitHub token" },
+              # 7. make the required to false 
               { name: "github_repositories",
                 type: "string",
-                required: true,
+                required: false,
                 default: nil,
                 description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurityOwner/toolkit" },
               { name: "github_tool_name",
@@ -73,10 +74,10 @@ module Kenna
                 required: false,
                 default: "output/github_code_scanning",
                 description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-              # 1. add organization option here
+              # 1. add organization option here, set require to false
               { name: "github_organizations",
                 type: "string",
-                required: true, 
+                required: false, 
                 default: nil, 
                 description: "Input your Organizations name here (comma-separated). This is required if no repositories are specified. Use organization name format, e.g. KennaSecurityOrg" }
             ]
@@ -100,8 +101,7 @@ module Kenna
               import_alerts(org, endpoint)
             end
           else   
-            puts "You can only input Organizations or Repositories. You cannot specify both"
-            break
+            fail_task "You can only input Organizations or Repositories. You cannot specify both"
           end
 
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
