@@ -23,7 +23,6 @@ module Kenna
                 required: true,
                 default: nil,
                 description: "GitHub token" },
-              # 7. make the required to false 
               { name: "github_repositories",
                 type: "string",
                 required: false,
@@ -74,7 +73,6 @@ module Kenna
                 required: false,
                 default: "output/github_code_scanning",
                 description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-              # 1. add organization option here, set require to false
               { name: "github_organizations",
                 type: "string",
                 required: false, 
@@ -89,7 +87,6 @@ module Kenna
           initialize_options
           initialize_client
 
-          # 3. conditionally set up the endpoint based on input
           if !@repositories.empty? && @organizations.empty?
             @repositories.each do |repo|
               endpoint = "/repos/#{repo}/code-scanning/alerts"
@@ -115,7 +112,6 @@ module Kenna
           @username = @options[:github_username]
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
-          # 2. extract organizations from the list
           @organizations = extract_list(:github_organizations, [])
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
@@ -154,23 +150,22 @@ module Kenna
           fail_task("Invalid task parameters. state must be one of [open, fixed, dismissed] if present.") unless [nil, "open", "fixed", "dismissed"].include?(@state)
         end
 
-        def import_alerts(orgORrepo, endpoint)
-          # 4. rename the variables to orgOrrepo
+        def import_alerts(orgorrepo, endpoint)
           page = 1
           while (alerts = @client.code_scanning_alerts(endpoint, page, @page_size, @state, @tool_name)).present?
             alerts.each do |alert|
               next unless import?(alert)
 
-              asset = extract_asset(alert, orgORrepo)
-              finding = extract_finding(alert, orgORrepo)
+              asset = extract_asset(alert, orgorrepo)
+              finding = extract_finding(alert, orgorrepo)
               definition = extract_definition(alert)
 
               create_kdi_asset_finding(asset, finding)
               create_kdi_vuln_def(definition)
             end
 
-            print_good("Processed #{alerts.count} alerts for #{orgORrepo}.")
-            kdi_upload(@output_directory, "github_code_scanning_#{orgORrepo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+            print_good("Processed #{alerts.count} alerts for #{orgorrepo}.")
+            kdi_upload(@output_directory, "github_code_scanning_#{orgorrepo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
         end
@@ -180,23 +175,23 @@ module Kenna
           (@severity.blank? || @severity.include?(alert.dig("rule", "severity"))) && (@security_severity.blank? || @security_severity.include?(alert.dig("rule", "security_severity_level")))
         end
 
-        def extract_asset(alert, orgORrepo)
+        def extract_asset(alert, orgorrepo)
           # 5. refactor the variable name to orgOrrepo
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
-            "application" => orgORrepo
+            "application" => orgorrepo
           }
           asset.compact
         end
 
-        def extract_finding(alert, orgORrepo)
+        def extract_finding(alert, orgorrepo)
           severity = alert.dig("rule", "security_severity_level")
           # 6. conditionally construct the additional field
           additional_fields = if !@repositories.empty?
-                                { "Repository": orgORrepo }.merge(extract_additional_fields(alert))  
+                                { "Repository": orgorrepo }.merge(extract_additional_fields(alert))  
                               else 
-                                { "Organization": orgORrepo }.merge(extract_additional_fields(alert))
+                                { "Organization": orgorrepo }.merge(extract_additional_fields(alert))
                               end
 
           {
