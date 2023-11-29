@@ -10,7 +10,7 @@ module Kenna
         def self.metadata
           {
             id: "github_code_scanning",
-            name: "GitHub Code Scanning",
+            name: "GitHub Code Scanning__ForIndividualReposAndOrg",
             description: "Pulls Code Scanning alerts from GitHub.",
             options: [
               { name: "github_username",
@@ -171,7 +171,6 @@ module Kenna
 
             print_good("Processed #{alerts.count} alerts for #{orgORrepo}.")
             kdi_upload(@output_directory, "github_code_scanning_#{orgORrepo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
-            puts kdi_upload(@output_directory, "github_code_scanning_#{orgORrepo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
         end
