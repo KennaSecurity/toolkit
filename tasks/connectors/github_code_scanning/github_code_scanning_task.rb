@@ -101,7 +101,7 @@ module Kenna
               import_alerts(org, endpoint)
             end
           else   
-            fail_task "ERROR! Shutting Down! You can only input Organizations or Repositories. You cannot specify both"
+            fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories. You cannot specify both or not input anything"
           end
 
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
