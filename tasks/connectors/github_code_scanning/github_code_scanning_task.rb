@@ -187,12 +187,7 @@ module Kenna
 
         def extract_finding(alert, orgorrepo)
           severity = alert.dig("rule", "security_severity_level")
-          # 6. conditionally construct the additional field
-          additional_fields = if !@repositories.empty?
-                                { "Repository": orgorrepo }.merge(extract_additional_fields(alert)) 
-                              else
-                                { "Organization": orgorrepo }.merge(extract_additional_fields(alert))
-                              end
+          additional_fields_key = @repositories.empty? ? "Organization" : "Repository"
 
           {
             "url" => alert.fetch("url"),
@@ -203,7 +198,7 @@ module Kenna
             "vuln_def_name" => vuln_def_name(alert),
             "severity" => (SEVERITY_VALUE[severity] if severity),
             "triage_state" => triage_value(alert.fetch("state")),
-            "additional_fields" => additional_fields
+            "additional_fields" => {additional_fields_key}.merge(extract_additional_fields(alert))
           }.compact
         end
 
