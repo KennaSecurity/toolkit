@@ -21,7 +21,7 @@ module Kenna
           url.concat("&tool_name=#{tool_name}") if tool_name.present?
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve alerts, please check credentials or GitHub permissions" unless response
-          
+
           JSON.parse(response)
         end
       end
