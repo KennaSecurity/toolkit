@@ -28,4 +28,3 @@ module Kenna
     end
   end
 end
-
