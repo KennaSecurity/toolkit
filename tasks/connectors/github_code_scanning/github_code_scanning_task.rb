@@ -198,7 +198,7 @@ module Kenna
             "vuln_def_name" => vuln_def_name(alert),
             "severity" => (SEVERITY_VALUE[severity] if severity),
             "triage_state" => triage_value(alert.fetch("state")),
-            "additional_fields" => {additional_fields_key}.merge(extract_additional_fields(alert))
+            "additional_fields" => {additional_fields_key => orgorrepo}.merge(extract_additional_fields(alert))
           }.compact
         end
 
