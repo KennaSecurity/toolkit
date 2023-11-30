@@ -28,8 +28,8 @@ module Kenna
         }.compact
       end
 
-      #  Create an asset if it doesnt already exist
-      #  A "*" indicates required
+      # Create an asset if it doesnt already exist
+      # A "*" indicates required
       #  {
       #  file: string,  + (At least one of the fields with a + is required for each asset.)
       #  ip_address: string, + (See help center or support for locator order set for your instance)
@@ -206,9 +206,10 @@ module Kenna
         ### Write KDI format
         !@paged_assets.nil? && @paged_assets.any? ? (write_assets = @paged_assets) : (write_assets = @assets)
         return unless write_assets.present?
-        
+
         write_file_stream(output_dir, filename, skip_autoclose, write_assets, @vuln_defs, version)
-        print_good "Output is available at: #{output_dir}/#{filename}."
+        print_good "Output is available at: #{output_dir}/#{filename}"
+
         ### Finish by uploading if we're all configured
         if kenna_connector_id && kenna_api_host && kenna_api_key
           print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
