@@ -87,20 +87,6 @@ module Kenna
           initialize_options
           initialize_client
 
-          # if !@repositories.empty? && @organizations.empty?
-          #   @repositories.each do |repo|
-          #     endpoint = "/repos/#{repo}/code-scanning/alerts"
-          #     import_alerts(repo, endpoint)
-          #   end
-          # elsif @repositories.empty? && !@organizations.empty?
-          #   @organizations.each do |org|
-          #     endpoint = "/orgs/#{org}/code-scanning/alerts"
-          #     import_alerts(org, endpoint)
-          #   end
-          # else
-          #   fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories. You cannot specify both or not input anything"
-          # end
-
           if !@repositories.empty? && @organizations.empty?
             @repositories.each do |repo|
               endpoint = "/repos/#{repo}/code-scanning/alerts"

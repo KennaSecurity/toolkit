@@ -13,7 +13,7 @@ To run this task you need the following information from GitHub:
 If GitHub 2FA is enabled, the access token MUST be configured for SSO. 
 If the user is not an admin at the time of Key generation, you will need to promote the user to admin, and regenerate the key. **
 
-**IMPORTANT: you can input your organizations names or repositories list at the same time or provide only one of them. Providing the organization names will return all the repositories scan from that organization. Providing the repositories will return the scans from the selected repositories from that individual owner. If you provide both, both type of vulnerabilities will be returned. You CANNOT provide Organisation Name + Repositories. Ex. KennaSecurityOrg/repo1. You can only provide Owner + Repositories. Ex. KennaSecurity/repo1. **
+**IMPORTANT: you can input your organizations names or repositories list at the same time or provide only one of them. It's needed to provide at least one of the option. (Organization name or repositories). Providing the organization names will return all the repositories scan from that organization. Providing the repositories will return the scans from the selected repositories from that individual owner. If you provide both, both type of vulnerabilities will be returned. You CANNOT provide Organisation Name + Repositories. Ex. KennaSecurityOrg/repo1. You can only provide Owner + Repositories. Ex. KennaSecurity/repo1. **
 
 ## Command Line
 
