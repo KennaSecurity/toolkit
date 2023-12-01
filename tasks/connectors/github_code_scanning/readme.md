@@ -13,7 +13,7 @@ To run this task you need the following information from GitHub:
 If GitHub 2FA is enabled, the access token MUST be configured for SSO. 
 If the user is not an admin at the time of Key generation, you will need to promote the user to admin, and regenerate the key. **
 
-**IMPORTANT: you can only input your organizations names or repositories list in one command. You CANNOT provide both organizations and repositories at the same time. Providing the organization names will return all the repositories scan from that organization. Providing the repositories will return the scans from the selected repositories from that individual owner. You CANNOT provide Organisation Name + Repositories. Ex. KennaSecurityOrg/repo1. You can only provide Owner + Repositories. Ex. KennaSecurity/repo1. **
+**IMPORTANT: you can input your organizations names or repositories list at the same time or provide only one of them. Providing the organization names will return all the repositories scan from that organization. Providing the repositories will return the scans from the selected repositories from that individual owner. If you provide both, both type of vulnerabilities will be returned. You CANNOT provide Organisation Name + Repositories. Ex. KennaSecurityOrg/repo1. You can only provide Owner + Repositories. Ex. KennaSecurity/repo1. **
 
 ## Command Line
 
@@ -56,3 +56,5 @@ For extracting Image vulnerability data:
     task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_repositories=myuser/WebGoat,myuser/juice-shop
     
     task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_organizations=myOrg 
+
+    task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_repositories=myuser/WebGoat,myuser/juice-shop github_organizations=myOrg

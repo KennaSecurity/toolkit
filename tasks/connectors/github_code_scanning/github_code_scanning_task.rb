@@ -87,18 +87,42 @@ module Kenna
           initialize_options
           initialize_client
 
+          # if !@repositories.empty? && @organizations.empty?
+          #   @repositories.each do |repo|
+          #     endpoint = "/repos/#{repo}/code-scanning/alerts"
+          #     import_alerts(repo, endpoint)
+          #   end
+          # elsif @repositories.empty? && !@organizations.empty?
+          #   @organizations.each do |org|
+          #     endpoint = "/orgs/#{org}/code-scanning/alerts"
+          #     import_alerts(org, endpoint)
+          #   end
+          # else
+          #   fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories. You cannot specify both or not input anything"
+          # end
+
           if !@repositories.empty? && @organizations.empty?
             @repositories.each do |repo|
               endpoint = "/repos/#{repo}/code-scanning/alerts"
               import_alerts(repo, endpoint)
             end
-          elsif @repositories.empty? && !@organizations.empty?
+          elsif !@organizations.empty? && @repositories.empty?
+            @organizations.each do |org|
+              endpoint = "/orgs/#{org}/code-scanning/alerts"
+              import_alerts(org, endpoint)
+            end
+          elsif !@repositories.empty? && !@organizations.empty?
+            @repositories.each do |repo|
+              endpoint = "/repos/#{repo}/code-scanning/alerts"
+              import_alerts(repo, endpoint)
+            end
+
             @organizations.each do |org|
               endpoint = "/orgs/#{org}/code-scanning/alerts"
               import_alerts(org, endpoint)
             end
           else
-            fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories. You cannot specify both or not input anything"
+            fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories"
           end
 
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
@@ -176,7 +200,6 @@ module Kenna
         end
 
         def extract_asset(alert, orgorrepo)
-          # 5. refactor the variable name to orgOrrepo
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
@@ -187,7 +210,7 @@ module Kenna
 
         def extract_finding(alert, orgorrepo)
           severity = alert.dig("rule", "security_severity_level")
-          additional_fields_key = @repositories.empty? ? "Organization" : "Repository"
+          additional_fields_key = @repositories.include?(orgorrepo) ? "Repository" : "Organization"
 
           {
             "url" => alert.fetch("url"),
