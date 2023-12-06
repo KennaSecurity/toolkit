@@ -6,9 +6,10 @@ module Kenna
       class Client
         class ApiError < StandardError; end
 
-        def initialize(client_id, client_secret, auth_endpoint, api_host, page_size, days_back, vuln_object_types, severity, issue_status)
+        def initialize(client_id, client_secret, auth_endpoint, api_host, page_size_vulns, page_size_issues, days_back, vuln_object_types, severity, issue_status)
           @api_host = api_host
-          @page_size = page_size
+          @page_size_vulns = page_size_vulns
+          @page_size_issues = page_size_issues
           @days_back = days_back
           @vuln_object_types = vuln_object_types
           @severity = severity
@@ -157,7 +158,7 @@ module Kenna
 
         def issues_params(after = nil)
           params = {
-            first: @page_size,
+            first: @page_size_issues,
             filterBy: {}
           }
           params[:after] = after if after
@@ -235,7 +236,7 @@ module Kenna
 
         def vulns_params(after = nil)
           params = {
-            first: @page_size,
+            first: @page_size_vulns,
             filterBy: {}
           }
           params[:after] = after if after
