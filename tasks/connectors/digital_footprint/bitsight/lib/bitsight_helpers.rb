@@ -246,6 +246,7 @@ module Kenna
         vuln_attributes["vuln_def_name"] = cvd["name"] if cvd["name"]
         vuln_attributes["scanner_score"] = cvd["scanner_score"] if cvd["scanner_score"]
         vuln_attributes["override_score"] = cvd["override_score"] if cvd["override_score"]
+        # vuln_def_name needs to be max 246 to guarantee the identifier built in CVM ("Bitsight " + vuln_def_name) does not surpass 255 chars
         vuln_attributes["vuln_def_name"] = vuln_attributes["vuln_def_name"].slice(0, MAX_VULN_DEF_NAME_LENGTH)
         vuln_attributes.compact!
         create_kdi_asset_vuln(asset_attributes, vuln_attributes)
