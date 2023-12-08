@@ -255,6 +255,8 @@ module Kenna
         ### Put them through our mapper
         ###
         cvd.tap { |hs| hs.delete("scanner_identifier") }
+        # vuln_def name needs to be max 246 to guarantee the identifier built in CVM ("Bitsight " + vuln_def_name) does not surpass 255 chars
+        cvd["name"] = cvd["name"].slice(0, MAX_VULN_DEF_NAME_LENGTH)
         create_kdi_vuln_def(cvd)
       end
 
