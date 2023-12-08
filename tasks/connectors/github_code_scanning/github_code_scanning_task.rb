@@ -10,7 +10,7 @@ module Kenna
         def self.metadata
           {
             id: "github_code_scanning",
-            name: "GitHub Code Scanning",
+            name: "GitHub Code Scanning__ForIndividualReposAndOrg",
             description: "Pulls Code Scanning alerts from GitHub.",
             options: [
               { name: "github_username",
@@ -25,9 +25,9 @@ module Kenna
                 description: "GitHub token" },
               { name: "github_repositories",
                 type: "string",
-                required: true,
+                required: false,
                 default: nil,
-                description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit" },
+                description: "A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurityOwner/toolkit" },
               { name: "github_tool_name",
                 type: "string",
                 required: false,
@@ -72,7 +72,12 @@ module Kenna
                 type: "filename",
                 required: false,
                 default: "output/github_code_scanning",
-                description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+                description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+              { name: "github_organizations",
+                type: "string",
+                required: false,
+                default: nil,
+                description: "Input your Organizations name here (comma-separated). This is required if no repositories are specified. Use organization name format, e.g. KennaSecurityOrg" }
             ]
           }
         end
@@ -82,9 +87,28 @@ module Kenna
           initialize_options
           initialize_client
 
-          @repositories.each do |repo|
-            endpoint = "/repos/#{repo}/code-scanning/alerts"
-            import_alerts(repo, endpoint)
+          if !@repositories.empty? && @organizations.empty?
+            @repositories.each do |repo|
+              endpoint = "/repos/#{repo}/code-scanning/alerts"
+              import_alerts(repo, endpoint)
+            end
+          elsif !@organizations.empty? && @repositories.empty?
+            @organizations.each do |org|
+              endpoint = "/orgs/#{org}/code-scanning/alerts"
+              import_alerts(org, endpoint)
+            end
+          elsif !@repositories.empty? && !@organizations.empty?
+            @repositories.each do |repo|
+              endpoint = "/repos/#{repo}/code-scanning/alerts"
+              import_alerts(repo, endpoint)
+            end
+
+            @organizations.each do |org|
+              endpoint = "/orgs/#{org}/code-scanning/alerts"
+              import_alerts(org, endpoint)
+            end
+          else
+            fail_task "ERROR! Shutting Down! You need to input either Organizations names or Owner's Repositories"
           end
 
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
@@ -98,6 +122,7 @@ module Kenna
           @username = @options[:github_username]
           @token = @options[:github_token]
           @repositories = extract_list(:github_repositories, [])
+          @organizations = extract_list(:github_organizations, [])
           @tool_name = @options[:github_tool_name]
           @state = @options[:github_state]
           @severity = extract_list(:github_severity)
@@ -135,22 +160,22 @@ module Kenna
           fail_task("Invalid task parameters. state must be one of [open, fixed, dismissed] if present.") unless [nil, "open", "fixed", "dismissed"].include?(@state)
         end
 
-        def import_alerts(repo, endpoint)
+        def import_alerts(orgorrepo, endpoint)
           page = 1
           while (alerts = @client.code_scanning_alerts(endpoint, page, @page_size, @state, @tool_name)).present?
             alerts.each do |alert|
               next unless import?(alert)
 
-              asset = extract_asset(alert, repo)
-              finding = extract_finding(alert, repo)
+              asset = extract_asset(alert, orgorrepo)
+              finding = extract_finding(alert, orgorrepo)
               definition = extract_definition(alert)
 
               create_kdi_asset_finding(asset, finding)
               create_kdi_vuln_def(definition)
             end
 
-            print_good("Processed #{alerts.count} alerts for #{repo}.")
-            kdi_upload(@output_directory, "github_code_scanning_#{repo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
+            print_good("Processed #{alerts.count} alerts for #{orgorrepo}.")
+            kdi_upload(@output_directory, "github_code_scanning_#{orgorrepo.tr('/', '_')}_report_#{page}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version)
             page += 1
           end
         end
@@ -160,17 +185,19 @@ module Kenna
           (@severity.blank? || @severity.include?(alert.dig("rule", "severity"))) && (@security_severity.blank? || @security_severity.include?(alert.dig("rule", "security_severity_level")))
         end
 
-        def extract_asset(alert, repo)
+        def extract_asset(alert, orgorrepo)
           asset = {
             "url" => alert.fetch("html_url"),
             "file" => alert.fetch("most_recent_instance").fetch("location").fetch("path"),
-            "application" => repo
+            "application" => orgorrepo
           }
           asset.compact
         end
 
-        def extract_finding(alert, repo)
+        def extract_finding(alert, orgorrepo)
           severity = alert.dig("rule", "security_severity_level")
+          additional_fields_key = @repositories.include?(orgorrepo) ? "Repository" : "Organization"
+
           {
             "url" => alert.fetch("url"),
             "scanner_identifier" => alert.fetch("number"),
@@ -180,7 +207,7 @@ module Kenna
             "vuln_def_name" => vuln_def_name(alert),
             "severity" => (SEVERITY_VALUE[severity] if severity),
             "triage_state" => triage_value(alert.fetch("state")),
-            "additional_fields" => { "Repository": repo }.merge(extract_additional_fields(alert))
+            "additional_fields" => { additional_fields_key => orgorrepo }.merge(extract_additional_fields(alert))
           }.compact
         end
 

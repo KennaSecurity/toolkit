@@ -6,11 +6,14 @@ To run this task you need the following information from GitHub:
 
 1. GitHub username
 2. GitHub token 
-3. One or more repository names
+3. One or more repository/organization names
+
 
 **IMPORTANT: you must be an administrator for the repository or organization, and you must use an access token with the repo scope or security_events scope.
 If GitHub 2FA is enabled, the access token MUST be configured for SSO. 
 If the user is not an admin at the time of Key generation, you will need to promote the user to admin, and regenerate the key. **
+
+**IMPORTANT: you can input your organizations names or repositories list at the same time or provide only one of them. It's needed to provide at least one of the option. (Organization name or repositories). Providing the organization names will return all the repositories scan from that organization. Providing the repositories will return the scans from the selected repositories from that individual owner. If you provide both, both type of vulnerabilities will be returned. You CANNOT provide Organisation Name + Repositories. Ex. KennaSecurityOrg/repo1. You can only provide Owner + Repositories. Ex. KennaSecurity/repo1. **
 
 ## Command Line
 
@@ -33,7 +36,8 @@ Complete list of Options:
 |--------------------------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | github_username          | true     | GitHub username                                                                                                                                                            | n/a                         |
 | github_token             | true     | GitHub token. You must be an administrator for the repository or organization, and you must use an access token with the repo scope or security_events scope.              | n/a                         |
-| github_repositories      | true     | A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit            | n/a                         |
+| github_repositories      | false     | A list of GitHub repository names (comma-separated). This is required if no organizations are specified. Use owner/repo name format, e.g. KennaSecurity/toolkit            | n/a                         |
+| github_organizations      | false     | A list of GitHub organizations names (comma-separated). This is required if no repositories are specified. Use organization name format, e.g. KennaSecurityOrg            | n/a
 | github_tool_name         | false    | The name of a code scanning tool. Only results by this tool will be imported. If not present, ALL will be imported                                                         | n/a                         |
 | github_state             | false    | Set to open or resolved to only import secret scanning alerts in a specific state.                                                                                         | n/a                         |
 | github_severity          | false    | A list of [error, warning, note] (comma separated). Only secret scanning alerts with one of these severities are imported. If not present, ALL will be imported.           | n/a                         |
@@ -50,3 +54,7 @@ Complete list of Options:
 For extracting Image vulnerability data:
 
     task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_repositories=myuser/WebGoat,myuser/juice-shop
+    
+    task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_organizations=myOrg 
+
+    task=github_code_scanning github_token=ghp_xxx github_username=myuser kenna_api_host=api.kennasecurity.com kenna_api_key=xxx kenna_connector_id=15xxxx github_repositories=myuser/WebGoat,myuser/juice-shop github_organizations=myOrg
