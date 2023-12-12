@@ -26,6 +26,7 @@ Complete list of Options:
 | --- | --- | --- | --- |
 | insight_appsec_api_key | true | Insight AppSec User API key | n/a |
 | insight_appsec_app_name | true | Insight AppSec application name | n/a |
+| insight_appsec_region_code | false | Insight AppSec region code for API host (it should be one of: us, us2, us3, eu, ca, au, ap) | us |
 | insight_appsec_issue_severity | false | A list of [SAFE, INFORMATIONAL, LOW, MEDIUM, HIGH] (comma separated) | INFORMATIONAL, LOW, MEDIUM, HIGH |
 | page_size | false | The number of objects per page (currently limited from 1 to 100). | 500 |
 | batch_size | false | The maximum number of issues to submit to Kenna in each batch. | 100 |

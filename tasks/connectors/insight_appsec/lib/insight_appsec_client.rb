@@ -10,9 +10,9 @@ module Kenna
           "severity" => "vulnerability.severity",
           "status" => "vulnerability.status"
         }.freeze
-        HOST = "https://us.api.insight.rapid7.com"
 
-        def initialize(api_key, app_name)
+        def initialize(api_host, api_key, app_name)
+          @api_host = api_host
           @api_key  = api_key
           @app_name = app_name
           @headers  = { "Content-Type": "application/json", "X-Api-Key": api_key.to_s }
@@ -23,7 +23,7 @@ module Kenna
         end
 
         def receive_vulns(app_id, filters, page_number, page_size)
-          response = http_post("#{HOST}/ias/v1/search?size=#{page_size}&&index=#{page_number}", @headers, receive_query(app_id, filters))
+          response = http_post("#{@api_host}/ias/v1/search?size=#{page_size}&&index=#{page_number}", @headers, receive_query(app_id, filters))
 
           raise ApiError, "Unable to retrieve vulnerabilities, please check credentials." unless response
 
@@ -31,7 +31,7 @@ module Kenna
         end
 
         def receive_module(module_id)
-          response = http_get("#{HOST}/ias/v1/modules/#{module_id}", @headers)
+          response = http_get("#{@api_host}/ias/v1/modules/#{module_id}", @headers)
 
           raise ApiError, "Unable to retrieve modules, please check credentials." unless response
 
@@ -69,7 +69,7 @@ module Kenna
         end
 
         def receive_apps
-          response = http_get("#{HOST}/ias/v1/apps", @headers)
+          response = http_get("#{@api_host}/ias/v1/apps", @headers)
 
           raise ApiError, "Unable to retrieve applications, please check credentials." unless response
 
