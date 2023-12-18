@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "pry"
 
 module Kenna
   module Toolkit
@@ -38,6 +39,8 @@ module Kenna
         print "Kenna API key: #{api_token}" if show_api_key == "yes"
 
         api_client = Kenna::Api::Client.new(api_token, api_host)
+
+        binding.pry
 
         # get connectors
         response = api_client.get_connectors
