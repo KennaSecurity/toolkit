@@ -19,9 +19,5 @@ jobs:
       - name: Smoke test
         run: ruby toolkit.rb task=help
       - name: Run tests
-        run: bundle exec rspec
-      - name: Generate test summary
-        # generate summary even if specs fail
-        if: always()
-        run: bundle exec rspec-gh-summary >> $GITHUB_STEP_SUMMARY
+        run: bundle exec rspec --format RSpec::Github::Formatter --format documentation
 

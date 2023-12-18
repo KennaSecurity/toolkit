@@ -1,13 +1,3 @@
-GIT
-  remote: https://github.com/taichi-ishitani/rspec-github-actions-summary.git
-  revision: 160c4aa6ef6a6b330a255b85eaf502d590b2e033
-  branch: update_rggen_markdown
-  specs:
-    rspec-github-actions-summary (0.1.0)
-      rggen-core (~> 0.27.0)
-      rggen-markdown (~> 0.23.0)
-      rspec (>= 2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -47,12 +37,9 @@ GEM
       rexml
     crass (1.0.6)
     diff-lcs (1.5.0)
-    docile (1.4.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     e2mmap (0.1.0)
-    erubi (1.12.0)
-    facets (3.1.0)
     hashdiff (1.0.1)
     http-accept (1.7.0)
     http-cookie (1.0.5)
@@ -110,12 +97,6 @@ GEM
     reverse_markdown (2.1.1)
       nokogiri
     rexml (3.2.6)
-    rggen-core (0.27.0)
-      docile (>= 1.1.5, != 1.3.3)
-      erubi (>= 1.7)
-      facets (>= 3.0)
-      tomlrb (>= 2.0)
-    rggen-markdown (0.23.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -125,6 +106,8 @@ GEM
     rspec-expectations (3.12.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
+    rspec-github (2.4.0)
+      rspec-core (~> 3.0)
     rspec-mocks (3.12.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
@@ -173,7 +156,6 @@ GEM
     thor (1.2.2)
     tilt (2.3.0)
     timecop (0.9.8)
-    tomlrb (2.0.3)
     tty-pager (0.14.0)
       strings (~> 0.2.0)
       tty-screen (~> 0.8)
@@ -211,7 +193,7 @@ DEPENDENCIES
   rest-client
   rexml (>= 3.2.5)
   rspec
-  rspec-github-actions-summary!
+  rspec-github
   rubocop
   ruby-limiter
   sanitize
