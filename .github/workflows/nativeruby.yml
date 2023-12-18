@@ -15,7 +15,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
       - name: Install dependencies
-        run: bundle install --without 'development test'
+        run: BUNDLE_WITHOUT="development test" bundle install
       - name: Smoke test
         run: ruby toolkit.rb task=help
       - name: Install dev/test dependencies
