@@ -29,13 +29,10 @@ group :development, :test do
   gem "pry"
   gem "pry-byebug"
   gem "rspec"
+  gem "rspec-github-actions-summary", github: "taichi-ishitani/rspec-github-actions-summary", branch: "update_rggen_markdown"
   gem "rubocop", require: false
   gem "solargraph", require: false
   gem "timecop"
   gem "vcr", "~> 6.1"
   gem "webmock", "~> 3.18"
-end
-
-group :test do
-  gem "rspec-github-actions-summary", "~> 0.1.0"
 end
