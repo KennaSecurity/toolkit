@@ -6,6 +6,7 @@ require 'pry-byebug'
 
 require_relative "../lib/toolkit"
 
+require 'rspec_github_actions_summary'
 require "timecop"
 require 'vcr'
 require 'webmock/rspec'

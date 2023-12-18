@@ -20,5 +20,12 @@ jobs:
         run: bundle config set --local without 'development test'
       - name: Install dependencies
         run: bundle install
-      - name: Run Toolkit
+      - name: Smoke test
         run: ruby toolkit.rb task=help
+      - name: RSpec
+        run: bundle exec rspec
+      - name: Generate summary
+        # generate summary even if specs fail
+        if: always()
+        run: bundle exec rspec-gh-summary >> $GITHUB_STEP_SUMMARY
+
