@@ -4,6 +4,7 @@ require "rspec_helper"
 require_relative "snyk_v2_stubs"
 
 RSpec.describe Kenna::Toolkit::SnykV2Task do
+  include SnykV2Stubs
   subject(:task) { described_class.new }
 
   describe "#run" do

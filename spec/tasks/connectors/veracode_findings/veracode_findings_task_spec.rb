@@ -4,6 +4,7 @@ require "rspec_helper"
 require_relative "veracode_findings_stubs"
 
 RSpec.describe Kenna::Toolkit::SnykV2Task do
+  include VeracodeFindingsStubs
   subject(:task) { described_class.new }
 
   describe "#run" do
