@@ -40,8 +40,6 @@ module Kenna
 
         api_client = Kenna::Api::Client.new(api_token, api_host)
 
-        binding.pry
-
         # get connectors
         response = api_client.get_connectors
         if response[:status] == "success"
