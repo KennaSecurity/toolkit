@@ -23,6 +23,7 @@ module Kenna
             raise ApiError, "Unable to retrieve data from GitHub GraphQL API, please check credentials" unless response
 
             response_hash = JSON.parse(response)
+
             raise ApiError, "Unable to retrieve data. GitHub GraphQL API returned the following errors:\n\n#{build_api_errors_string(response_hash['errors'])}" if response_hash["errors"]
 
             raise ApiError, "GitHub GraphQL API unrecognized owner. Check github_organization_name parameter is a valid user or organization." unless response_hash.dig("data", "repositoryOwner")
@@ -66,7 +67,7 @@ module Kenna
         def repositories_query
           "query($organization_name: String!, $end_cursor: String, $page_size: Int!) {
             repositoryOwner(login: $organization_name) {
-              repositories(first: $page_size, after: $end_cursor, affiliations: OWNER) {
+              repositories(first: $page_size, after: $end_cursor, affiliations: OWNER, isArchived: false) {
                 nodes {
                   name
                 }
@@ -84,10 +85,11 @@ module Kenna
           "query($repo_name: String!, $repo_owner: String!, $end_cursor: String, $page_size: Int!) {
           repository(name: $repo_name, owner: $repo_owner) {
                 url
-                vulnerabilityAlerts(first: $page_size, after: $end_cursor) {
+                vulnerabilityAlerts(first: $page_size, after: $end_cursor, states: [OPEN]) {
                   nodes {
                     id
                     number
+                    state
                     createdAt
                     securityAdvisory {
                       description
