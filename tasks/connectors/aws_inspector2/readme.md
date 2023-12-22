@@ -2,6 +2,11 @@
 
 This task brings in asset and vulnerability data from AWS Inspector V2.
 
+## Skip_autoclose and Ignore_scanner_last_seen_time Settings
+**Skip_autoclose**: This setting's default is set to **True**. In some cases, you may need change the skip_autoclose default to close specific vulnerabilities. To change it, in the JSON or source code, change the skip_autoclose to **False**.
+
+**Ignore_scanner_last_seen_time**: This setting's default is set to **False**. When it imports the data, it uses the scanners' reported time, instead of the time of the connector's last run, so it may cause an issue if you have an asset inactive-limit shorter then the frequency of your scans. For example, if you have an asset inactive limit set to 2 days, but you scan assets every 5 days, assets are then set to inactive. To solve this issue, change the ignore_scanner_last_seen_time to **True** so the assets_last_seen_time is set to when the connector runs. Currently, this setting only exists in backend administration. For help, contact **support**.
+
 ## Running the task
 
 See the main toolkit README for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna API.
