@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: 'Bundler Audit'
-        uses: andrewmcodes/bundler-audit-action@main
+        # uses: andrewmcodes/bundler-audit-action@main
+        uses: laicuRoot/bundler-audit-action@use-ruby-3.2.2 # Temporarily fixes Ruby 3 issue: andrewmcodes/bundler-audit-action#6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
