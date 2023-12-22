@@ -65,7 +65,7 @@ module Kenna
         kdi_batch_upload(@batch_size, @output_directory, "github_dependabot_kdi.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version) do |batch|
           client.repositories.each do |repo_name|
             print_good "Processing repository #{@github_organization_name}/#{repo_name}."
-            vulns = client.vulnerabilities(repo_name).reject{|ad| ad["identifiers"].last.has_value?("GHSA") }
+            vulns = client.vulnerabilities(repo_name).reject { |ad| ad["identifiers"].last.value?("GHSA") }
             batch.append do
               process_repo(repo_name, vulns)
             end
@@ -107,7 +107,7 @@ module Kenna
             "vulnerableVersionRange" => vuln.dig("securityVulnerability", "vulnerableVersionRange"),
             "dependabot_url" => "https://github.com/#{@github_organization_name}/#{repo_name}/security/dependabot/#{number}"
           }.compact
-          vuln_hash =  {
+          vuln_hash = {
             "scanner_identifier" => vuln_name,
             "created_at" => vuln["createdAt"],
             "scanner_type" => SCANNER_TYPE,
