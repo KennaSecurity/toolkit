@@ -23,4 +23,3 @@ module SnykV2Stubs
       .to_return_json(body: read_fixture_file("issues_empty.json"))
   end
 end
- 
