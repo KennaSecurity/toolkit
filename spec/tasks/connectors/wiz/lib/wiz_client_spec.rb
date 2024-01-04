@@ -4,7 +4,7 @@ require 'rspec_helper'
 require 'webmock/rspec' # We don't have access to Wiz, so we can't make VCR recordings.
 
 RSpec.describe Kenna::Toolkit::Wiz::Client do
-  subject(:client) { described_class.new(nil, nil, 'http://api.example.com/', nil, nil, nil, nil, nil, nil) }
+  subject(:client) { described_class.new(nil, nil, 'http://api.example.com/', nil, nil, nil, nil, nil, nil, nil) }
   let(:empty_response) { { 'data' => { 'vulnerabilityFindings' => { 'pageInfo' => {} } } } }
   before do
     stub_request(:post, "api.example.com/").to_return_json(body: { access_token: 'foo' }, status: 200)
