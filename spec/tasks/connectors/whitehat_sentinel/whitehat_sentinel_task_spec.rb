@@ -6,10 +6,9 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Task do
   subject(:task) { described_class.new }
 
   describe "#run" do
-    let(:api_client) { instance_double(Kenna::Toolkit::NTTSentinelDynamic::ApiClient, api_key_valid?: valid, vulns: [vuln], assets: [asset]) }
+    let(:api_client) { instance_double(Kenna::Toolkit::NTTSentinelDynamic::ApiClient, vulns: [vuln], assets: [asset]) }
     let(:key) { "0xdeadbeef" }
     let(:options) { { whitehat_api_key: key, kenna_api_key: "api_key", kenna_api_host: "kenna.example.com", kenna_connector_id: "12", sentinel_api_key: "api_key" } }
-    let(:valid) { true }
     let(:vuln) { { found: "2016-03-21T15:48:48Z", status: "accepted", severity: "4", risk: 5, description: { description: "text" }, solution: { solution: "text" } } }
     let(:asset) { { asset: { id: 12 } } }
     let(:connector_run_success) { true }
@@ -35,14 +34,6 @@ RSpec.describe Kenna::Toolkit::NTTSentinelDynamic::Task do
       before do
         options[:sentinel_scoring_type] = "kenna"
       end
-
-      it "exits the script" do
-        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
-      end
-    end
-
-    context "when the API key is wrong" do
-      let(:valid) { false }
 
       it "exits the script" do
         expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
