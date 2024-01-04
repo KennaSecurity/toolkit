@@ -23,6 +23,8 @@ RSpec.describe Kenna::Toolkit::VeracodeFindings do
 
     context "veracode findings" do
       it "should map the scanner_identifier to include the application name and the issue id" do
+        pending "FIXME CON-4429: This spec was copied from Snyk and never set up properly."
+
         expect(task.vuln_defs).to include(
           an_object_having_attributes({
                                         "scanner_identifier": "app1:123"
