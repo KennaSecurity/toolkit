@@ -32,10 +32,15 @@ module Kenna
               required: true,
               default: nil,
               description: "WIZ API Endpoint URL. If schema is included, it should be between double quotes escaped." },
-            { name: "wiz_page_size",
+            { name: "vuln_page_size",
               type: "integer",
               required: false,
               default: 5000,
+              description: "Maximum number of vulnerabilities to retrieve in each page." },
+            { name: "issue_page_size",
+              type: "integer",
+              required: false,
+              default: 500,
               description: "Maximum number of issues to retrieve in each page." },
             { name: "days_back",
               type: "integer",
@@ -129,7 +134,7 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Wiz::Client.new(@client_id, @client_secret, @auth_endpoint, @api_host, @page_size, @days_back, @vuln_object_types, @severity, @issue_status)
+        @client = Wiz::Client.new(@client_id, @client_secret, @auth_endpoint, @api_host, @page_size_vulns, @page_size_issues, @days_back, @vuln_object_types, @severity, @issue_status)
       end
 
       def initialize_options
@@ -142,7 +147,8 @@ module Kenna
         @severity = extract_list(:severity)
         @issue_status = extract_list(:issue_status)
         @days_back = @options[:days_back].to_i if @options[:days_back].present?
-        @page_size = @options[:wiz_page_size].to_i if @options[:wiz_page_size].present?
+        @page_size_vulns = @options[:vuln_page_size].to_i if @options[:vuln_page_size].present?
+        @page_size_issues = @options[:issue_page_size].to_i if @options[:issue_page_size].present?
         @import_type = @options[:import_type].downcase
         @issues_external_id_attr = @options[:issues_external_id_attr]
         @vulns_external_id_attr = @options[:vulns_external_id_attr]
@@ -173,15 +179,15 @@ module Kenna
 
       def import_issues
         print_good "Issues import started."
-        import(client.paged_issues, Wiz::IssuesMapper.new(@issues_external_id_attr, @issues_hostname_attr))
+        import(client.paged_issues, @page_size_issues, Wiz::IssuesMapper.new(@issues_external_id_attr, @issues_hostname_attr))
       end
 
       def import_vulns
         print_good "Vulns import started."
-        import(client.paged_vulns, Wiz::VulnsMapper.new(@vulns_external_id_attr, @vulns_hostname_attr))
+        import(client.paged_vulns, @page_size_vulns, Wiz::VulnsMapper.new(@vulns_external_id_attr, @vulns_hostname_attr))
       end
 
-      def import(pages, mapper)
+      def import(pages, page_size, mapper)
         pos = 0
         total_count = nil
         kdi_batch_upload(@kenna_batch_size, @output_directory, "wiz_#{mapper.plural_name.downcase}.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version) do |batch|
@@ -197,8 +203,8 @@ module Kenna
                 create_kdi_vuln_def(definition)
               end
             end
-            print_good("Processed #{[pos + @page_size, total_count].min} of #{total_count} #{mapper.plural_name.downcase}.")
-            pos += @page_size
+            print_good("Processed #{[pos + page_size, total_count].min} of #{total_count} #{mapper.plural_name.downcase}.")
+            pos += page_size
           end
         end
       end

@@ -35,3 +35,7 @@ group :development, :test do
   gem "vcr", "~> 6.1"
   gem "webmock", "~> 3.18"
 end
+
+group :test do
+  gem 'rspec-github', require: false
+end

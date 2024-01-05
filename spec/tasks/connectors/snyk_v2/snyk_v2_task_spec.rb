@@ -4,6 +4,7 @@ require "rspec_helper"
 require_relative "snyk_v2_stubs"
 
 RSpec.describe Kenna::Toolkit::SnykV2Task do
+  include SnykV2Stubs
   subject(:task) { described_class.new }
 
   describe "#run" do
@@ -40,7 +41,6 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
           {
             "file" => "pom.xml",
             "application" => "JoyChou93/java-sec-code:pom.xml",
-            "priority" => 10,
             "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
             "vulns" => [
               { "created_at" => "2023-04-26",
@@ -84,7 +84,6 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
           hash_including("file" => "pom.xml",
                          "application" => "JoyChou93/java-sec-code:pom.xml",
                          "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-                         "priority" => 10,
                          "findings" => [
                            asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
                          ])
