@@ -3,7 +3,8 @@
 require "rspec_helper"
 require_relative "veracode_findings_stubs"
 
-RSpec.describe Kenna::Toolkit::SnykV2Task do
+RSpec.describe Kenna::Toolkit::VeracodeFindings do
+  include VeracodeFindingsStubs
   subject(:task) { described_class.new }
 
   describe "#run" do
@@ -12,6 +13,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     let(:options) { { veracode_id: '', veracode_key: '' } }
 
     before do
+      skip "FIXME CON-4429: This spec was copied from Snyk and never set up properly."
       stub_findings_request
       stub_sca_findings_request
       stub_applications_request

@@ -11,6 +11,12 @@ require 'vcr'
 require 'webmock/rspec'
 
 RSpec.configure do |config|
+  # Use the GitHub Annotations formatter for CI
+  if ENV['GITHUB_ACTIONS'] == 'true'
+    require 'rspec/github'
+    config.add_formatter RSpec::Github::Formatter
+  end
+
   config.before(:each) do
     stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_raise(RestClient::Exceptions::OpenTimeout)
   end

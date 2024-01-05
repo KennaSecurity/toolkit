@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "rspec_helper"
-# require_relative "aws_inspector2_stubs"
 
 RSpec.describe Kenna::Toolkit::AwsInspector2 do
   subject(:task) { described_class.new }

@@ -188,7 +188,7 @@ module Kenna
             references = issue.fetch("references") if issue.key?("references")
             semver = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
             issue_severity = issue.fetch("severity") if issue.key?("severity")
-            version =  issue.fetch("version") if issue.key?("version")
+            version = issue.fetch("version") if issue.key?("version")
             description = issue.fetch("description") if issue.key?("description")
             cves = nil
             cwes = nil

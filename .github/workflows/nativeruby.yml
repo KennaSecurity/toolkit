@@ -14,11 +14,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.2.2
-      - name: Config environment
-        run: bundle config set --local without 'development test'
       - name: Install dependencies
         run: bundle install
-      - name: Run Toolkit
+      - name: Smoke test
         run: ruby toolkit.rb task=help
+      - name: Run tests
+        run: bundle exec rspec --format RSpec::Github::Formatter --format documentation
+
