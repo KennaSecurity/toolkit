@@ -1,0 +1,12 @@
+{
+  "_links": {
+  },
+  "_embedded": {
+    "categories": [
+      {
+        "id": "abc",
+        "recommendation": "123"
+      }
+    ]
+  }
+}

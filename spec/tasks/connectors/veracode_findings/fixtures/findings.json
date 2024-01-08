@@ -1,4 +1,6 @@
 {
+  "_links": {
+  },
   "_embedded": {
     "findings": [
       {
@@ -10,6 +12,9 @@
           "cwe": {
             "id": "TEST",
             "name": "TEST NAME"
+          },
+          "finding_category": {
+            "id": "abc"
           }
         },
         "issue_id": 123,
