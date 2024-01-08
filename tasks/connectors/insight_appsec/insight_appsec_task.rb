@@ -28,6 +28,11 @@ module Kenna
               required: false,
               default: "INFORMATIONAL, LOW, MEDIUM, HIGH",
               description: "A list of [SAFE, INFORMATIONAL, LOW, MEDIUM, HIGH] (comma separated)" },
+            { name: "insight_appsec_region_code",
+              type: "string",
+              required: false,
+              default: "us",
+              description: "Region code to use for the Insight Appsec API host (us, us2, us3, eu, ca, au, ap)" },
             { name: "page_size",
               type: "integer",
               required: false,
@@ -102,12 +107,13 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Kenna::Toolkit::InsightAppSec::Client.new(@api_key, @app_name)
+        @client = Kenna::Toolkit::InsightAppSec::Client.new(@api_host, @api_key, @app_name)
       end
 
       def initialize_options
         @issue_severities = extract_list(:insight_appsec_issue_severity,
                                          %w[safe informational low medium high])
+        @api_host = "https://#{@options[:insight_appsec_region_code]}.api.insight.rapid7.com"
         @api_key = @options[:insight_appsec_api_key]
         @app_name = @options[:insight_appsec_app_name]
         @output_directory = @options[:output_directory]
