@@ -67,7 +67,7 @@ module Kenna
         def repositories_query
           "query($organization_name: String!, $end_cursor: String, $page_size: Int!) {
             repositoryOwner(login: $organization_name) {
-              repositories(first: $page_size, after: $end_cursor, affiliations: OWNER, isArchived: false) {
+              repositories(first: $page_size, after: $end_cursor, affiliations: OWNER) {
                 nodes {
                   name
                 }
