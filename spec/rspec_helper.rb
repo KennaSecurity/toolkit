@@ -23,6 +23,7 @@ VCR.configure do |config|
   %w[
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
+    GITHUB_TOKEN
   ].each do |key|
     config.filter_sensitive_data("<#{key}>") { ENV[key] }
   end
