@@ -34,9 +34,9 @@ RSpec.describe Kenna::Toolkit::GithubDependabot do
       before do
         spy_on_accumulators
 
-        now = Time.new(2021, 10, 30, 8, 9, 10)
+        @now = Time.new(2021, 10, 30, 8, 9, 10)
 
-        Timecop.freeze(now) do
+        Timecop.freeze(@now) do
           VCR.use_cassette('github_dependabot') do
             task.run(options)
           end
@@ -54,7 +54,7 @@ RSpec.describe Kenna::Toolkit::GithubDependabot do
                         "created_at" => "2017-11-16T05:26:48Z",
                         "scanner_type" => "GitHubDependabot",
                         "scanner_score" => 0,
-                        :last_seen_at => Time.parse("2021-10-30 13:09:10 UTC"),
+                        :last_seen_at => @now,
                         :status => "open",
                         "vuln_def_name" => "CVE-2009-4492",
                         "details" =>
