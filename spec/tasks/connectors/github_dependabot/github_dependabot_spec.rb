@@ -62,6 +62,10 @@ RSpec.describe Kenna::Toolkit::GithubDependabot do
                         "status" => "open",
                         "last_seen_at" => "2021-10-30" })
       end
+
+      it 'creates one single asset per repo' do
+        expect(task.assets.map { |a| a["application"] }.size).to eq(task.assets.map { |a| a["application"] }.uniq.size)
+      end
     end
 
     context 'when required options are missing' do
