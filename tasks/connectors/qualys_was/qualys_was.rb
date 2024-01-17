@@ -159,7 +159,7 @@ module Kenna
 
                 # start finding section
                 finding_data = {
-                  "scanner_identifier" => "#{find_from['qid']} - #{find_from['id']}",
+                  "scanner_identifier" => name(find_from),
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
@@ -230,7 +230,7 @@ module Kenna
       end
 
       def name(find_from)
-        "#{find_from['qid']}-#{find_from['name']}"
+        "#{find_from['name']} - #{find_from['qid']} - #{find_from['id']}"
       end
 
       def status(find_from)
