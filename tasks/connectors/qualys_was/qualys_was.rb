@@ -230,7 +230,9 @@ module Kenna
       end
 
       def name(find_from)
-        "#{find_from['name']} - #{find_from['qid']} - #{find_from['id']}"
+        return if find_from.nil? 
+        structured_name = [find_from['name'], find_from['qid'], find_from['id']].compact.join(' - ')
+        structured_name unless structured_name.empty?
       end
 
       def status(find_from)
