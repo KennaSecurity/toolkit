@@ -170,7 +170,8 @@ module Kenna
               finding = extract_finding(alert, orgorrepo)
               definition = extract_definition(alert)
 
-              create_kdi_asset_finding(asset, finding)
+              #create_kdi_asset_finding(asset, finding)
+              create_kdi_asset_vuln(asset, finding)
               create_kdi_vuln_def(definition)
             end
 

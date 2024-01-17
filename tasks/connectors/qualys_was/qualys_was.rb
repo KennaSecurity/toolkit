@@ -158,14 +158,15 @@ module Kenna
                 details.compact!
 
                 # start finding section
+                uniq_scanner_vulndef_name_identifier = "#{find_from['name']} - #{find_from['qid']} - #{find_from['id']}"
                 finding_data = {
-                  "scanner_identifier" => "#{find_from['qid']} - #{find_from['id']}",
+                  "scanner_identifier" => uniq_scanner_vulndef_name_identifier,
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
                   "last_seen_at" => find_from["lastTestedDate"],
                   "additional_fields" => details,
-                  "vuln_def_name" => name(find_from)
+                  "vuln_def_name" => uniq_scanner_vulndef_name_identifier
                 }.tap do |f|
                   f["triage_state"] = status(find_from) if find_from["status"].present?
                 end
@@ -173,7 +174,7 @@ module Kenna
                 finding_data.compact!
 
                 vuln_def = {
-                  "name" => name(find_from),
+                  "name" => uniq_scanner_vulndef_name_identifier,
                   "scanner_type" => "QualysWas"
                 }
 
@@ -230,7 +231,7 @@ module Kenna
       end
 
       def name(find_from)
-        "#{find_from['qid']}-#{find_from['name']}"
+        "#{find_from['qid']} - #{find_from['name']}"
       end
 
       def status(find_from)
