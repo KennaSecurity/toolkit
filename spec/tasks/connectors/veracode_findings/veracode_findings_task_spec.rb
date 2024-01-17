@@ -28,11 +28,11 @@ RSpec.describe Kenna::Toolkit::VeracodeFindings do
         output = JSON.parse(File.read("#{$basedir}/output/veracode/veracode_app1.json"))
         expect(output['vuln_defs']).to include(
           {
-            "cwe_identifiers"=>"CWE-TEST",
-            "name"=>"TEST NAME",
-            "scanner_type"=>"veracode",
-            "solution"=>"123",
-            "scanner_identifier"=>"app1:123"
+            "cwe_identifiers" => "CWE-TEST",
+            "name" => "TEST NAME",
+            "scanner_type" => "veracode",
+            "solution" => "123",
+            "scanner_identifier" => "app1:123"
           }
         )
       end
