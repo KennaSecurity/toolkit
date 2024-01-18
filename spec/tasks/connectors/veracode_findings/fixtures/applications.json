@@ -1,4 +1,6 @@
 {
+  "_links": {
+  },
   "_embedded": {
     "applications": [
       {
@@ -7,6 +9,11 @@
           "business_unit": {
             "name": "BU"
           },
+          "business_owners": [
+            {
+              "name": "John Doe"
+            }
+          ],
           "name": "app1"
         },
         "guid": "TESTGUID"

@@ -1,0 +1,12 @@
+{
+  "_links": {
+  },
+  "_embedded": {
+    "cwes": [
+      {
+        "id": "TEST",
+        "recommendation": "Test CWE Recommendation!"
+      }
+    ]
+  }
+}
