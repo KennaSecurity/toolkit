@@ -172,7 +172,7 @@ module Kenna
                   "additional_fields" => details,
                   "vuln_def_name" => name(find_from)
                 }.tap do |f|
-                    f["triage_state"] = status(find_from) if find_from["status"].present?
+                  f["triage_state"] = status(find_from) if find_from["status"].present?
                 end
                 # in case any values are null, it's good to remove them
                 finding_data.compact!
