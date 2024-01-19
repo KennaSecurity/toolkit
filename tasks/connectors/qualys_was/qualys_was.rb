@@ -81,7 +81,12 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/qualys_was",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "match_ScannerIdentifier_with_vuln_def_name",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "If true, the Scanner Description in UI will be coming from the vuln_defs' name in original JSON file matched with scanner_identifier. Each imported finding unless have the exact same qid, id, and name from source data, will be created as new one." }
           ]
         }
       end
@@ -159,7 +164,7 @@ module Kenna
 
                 # start finding section
                 finding_data = {
-                  "scanner_identifier" => "#{find_from['qid']} - #{find_from['id']}",
+                  "scanner_identifier" => @options[:match_ScannerIdentifier_with_vuln_def_name] ? name(find_from) : "#{find_from['qid']} - #{find_from['id']}",
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
@@ -167,8 +172,8 @@ module Kenna
                   "additional_fields" => details,
                   "vuln_def_name" => name(find_from)
                 }.tap do |f|
-                  f["triage_state"] = status(find_from) if find_from["status"].present?
-                end
+                    f["triage_state"] = status(find_from) if find_from["status"].present?
+                  end
                 # in case any values are null, it's good to remove them
                 finding_data.compact!
 
@@ -230,7 +235,14 @@ module Kenna
       end
 
       def name(find_from)
-        "#{find_from['qid']}-#{find_from['name']}"
+        if @options[:match_ScannerIdentifier_with_vuln_def_name]
+          return if find_from.nil?
+
+          structured_name = [find_from['qid'], find_from['id'], find_from['name']].compact.join('-')
+          structured_name unless structured_name.empty?
+        else
+          "#{find_from['qid']}-#{find_from['name']}"
+        end
       end
 
       def status(find_from)
