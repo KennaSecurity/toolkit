@@ -46,9 +46,10 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
+| match_ScannerIdentifier_with_vuln_def_name | boolean | false | If true, the Scanner Description in UI will be coming from the vuln_defs' name in original JSON file matched with scanner_identifier. Each imported finding unless it has the exact same qid, id, and name from source data, will be created as new one. |
 
 
 ## Example Command Line:
 
     toolkit:latest task=qualys_was qualys_was_domain=qualysapi.qg3.apps.qualys.com qualys_was_user=xxx qualys_was_password=xxx
-    qualys_was_api_version_url=/qps/rest/3.0/ qualys_was_score_filter=2 kenna_connector_id=15xxxx kenna_api_host=api.kennasecurity.com kenna_api_key=xxx
+    qualys_was_api_version_url=/qps/rest/3.0/ qualys_was_score_filter=2 kenna_connector_id=15xxxx kenna_api_host=api.kennasecurity.com kenna_api_key=xxx match_ScannerIdentifier_with_vuln_def_name=true
