@@ -113,7 +113,6 @@ module Kenna
             "scanner_type" => SCANNER_TYPE,
             "scanner_score" => vuln["cvss"]["score"].to_i,
             "last_seen_at": Time.now.utc,
-            "status": "open",
             "vuln_def_name" => vuln_name,
             "details" => JSON.pretty_generate(details)
           }.compact
