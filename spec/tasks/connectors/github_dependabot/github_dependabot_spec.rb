@@ -55,7 +55,6 @@ RSpec.describe Kenna::Toolkit::GithubDependabot do
                         "scanner_type" => "GitHubDependabot",
                         "scanner_score" => 0,
                         :last_seen_at => @now,
-                        :status => "open",
                         "vuln_def_name" => "CVE-2009-4492",
                         "details" =>
                     "{\n  \"packageName\": \"webrick\",\n  \"firstPatchedVersion\": \"1.4.0\",\n  \"vulnerableVersionRange\": \"<= 1.3.1\",\n  \"dependabot_url\": \"https://github.com/shotop/sjh/security/dependabot/1\"\n}",
