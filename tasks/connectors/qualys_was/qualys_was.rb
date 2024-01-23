@@ -82,11 +82,11 @@ module Kenna
               required: false,
               default: "output/qualys_was",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-            { name: "match_ScannerIdentifier_with_vuln_def_name",
+            { name: "match_finding_with_vuln_def",
               type: "boolean",
               required: false,
               default: false,
-              description: "If true, the Scanner Description in UI will be coming from the vuln_defs' name in original JSON file matched with scanner_identifier. Each imported finding unless have the exact same qid, id, and name from source data, will be created as new one." }
+              description: "If true, the finding scanner_identifier and the vuln_def name will match the format 'QID - ID - Name'. If a connector first ran without this parameter and it is enabled in a later run, it will result in automatic resolution of the existing findings with the previous format ('QID - ID') and creation of new findings with the new format within CVM." }
           ]
         }
       end
@@ -164,7 +164,7 @@ module Kenna
 
                 # start finding section
                 finding_data = {
-                  "scanner_identifier" => @options[:match_ScannerIdentifier_with_vuln_def_name] ? name(find_from) : "#{find_from['qid']} - #{find_from['id']}",
+                  "scanner_identifier" => @options[:match_finding_with_vuln_def] ? name(find_from) : "#{find_from['qid']} - #{find_from['id']}",
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
@@ -235,7 +235,7 @@ module Kenna
       end
 
       def name(find_from)
-        if @options[:match_ScannerIdentifier_with_vuln_def_name]
+        if @options[:match_finding_with_vuln_def]
           return if find_from.nil?
 
           structured_name = [find_from['qid'], find_from['id'], find_from['name']].compact.join('-')
