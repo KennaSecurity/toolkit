@@ -46,7 +46,7 @@ Run the QualysWas task following the guidelines on the main [toolkit help page](
 | kenna_api_host | hostname | false | Kenna API Hostname |
 | kenna_connector_id | integer | false | If set, we'll try to upload to this connector |
 | output_directory | filename | false | Will alter default filename for output. Path is relative to #{$basedir} |
-| match_ScannerIdentifier_with_vuln_def_name | boolean | false | If true, the finding scanner_identifier and the vuln_def name will match the format 'QID - ID - Name'. If a connector first ran without this parameter and it is enabled in a later run, it will result in automatic resolution of the existing findings with the previous format ('QID - ID') and creation of new findings with the new format within CVM. |
+| match_finding_with_vuln_def | boolean | false | If true, the finding scanner_identifier and the vuln_def name will match the format 'QID - ID - Name'. If a connector first ran without this parameter and it is enabled in a later run, it will result in automatic resolution of the existing findings with the previous format ('QID - ID') and creation of new findings with the new format within CVM. |
 
 
 ## Example Command Line:
