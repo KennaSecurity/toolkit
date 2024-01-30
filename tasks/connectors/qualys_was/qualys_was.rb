@@ -128,6 +128,7 @@ module Kenna
                   max_records = 0
                 end
                 find_from = data["Finding"]
+                abort("Error: No finding data found. Exiting the process") if find_from.nil?
                 max_records += 1
                 total_count += 1
                 asset = {
@@ -235,6 +236,8 @@ module Kenna
       end
 
       def name(find_from)
+        substitute_nil_with_string_values(find_from, 'qid', 'id', 'name')
+
         if @options[:match_finding_with_vuln_def]
           structured_name = [find_from['qid'], find_from['id'], find_from['name']].compact.join('-')
           structured_name unless structured_name.empty?
@@ -248,6 +251,16 @@ module Kenna
           IGNORE_STATUS[find_from["ignoredReason"].downcase]
         else
           STATUS[find_from["status"].downcase]
+        end
+      end
+      # set up function to check for nil value, if nil, we update the hash
+
+      def substitute_nil_with_string_values(hash, keys)
+        keys.each do |key|
+          if hash[key].nil?
+            puts "#{key} is nil, substituting with 'no #{key} found' "
+            hash[key] = "no #{key} found"
+          end
         end
       end
     end
