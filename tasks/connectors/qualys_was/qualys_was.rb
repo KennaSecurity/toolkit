@@ -236,7 +236,7 @@ module Kenna
       end
 
       def name(find_from)
-        substitute_nil_with_string_values(find_from, 'qid', 'id', 'name')
+        substitute_nil_with_string_values(find_from, ['qid', 'id', 'name'])
 
         if @options[:match_finding_with_vuln_def]
           structured_name = [find_from['qid'], find_from['id'], find_from['name']].compact.join('-')
