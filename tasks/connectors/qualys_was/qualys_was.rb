@@ -253,7 +253,6 @@ module Kenna
           STATUS[find_from["status"].downcase]
         end
       end
-      # set up function to check for nil value, if nil, we update the hash
 
       def substitute_nil_with_string_values(hash, keys)
         keys.each do |key|
