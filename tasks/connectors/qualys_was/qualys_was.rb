@@ -109,7 +109,7 @@ module Kenna
         while more_records == true
           findings_response = qualys_was_get_webapp_findings(token, @options[:qualys_page_size].to_i, page)
           more_records = findings_response["ServiceResponse"]["hasMoreRecords"] == "true"
-          print_debug "there was a problem with the RESPONSE" if findings_response.nil?
+          fail_task "there was a problem with the RESPONSE. Nil value provided" if findings_response.nil?
           findings << findings_response
           findings.each do |findg|
             findg.map do |_, finding|
@@ -128,7 +128,10 @@ module Kenna
                   max_records = 0
                 end
                 find_from = data["Finding"]
-                abort("Error: No finding data found. Exiting the process") if find_from.nil?
+                if find_from.nil?
+                  print_error("Error: No Finding data found! Skipping this finding data!")
+                  next
+                end
                 max_records += 1
                 total_count += 1
                 asset = {
