@@ -108,8 +108,8 @@ module Kenna
 
         while more_records == true
           findings_response = qualys_was_get_webapp_findings(token, @options[:qualys_page_size].to_i, page)
-          more_records = findings_response["ServiceResponse"]["hasMoreRecords"] == "true"
           fail_task "there was a problem with the RESPONSE. Nil value provided" if findings_response.nil?
+          more_records = findings_response["ServiceResponse"]["hasMoreRecords"] == "true"
           findings << findings_response
           findings.each do |findg|
             findg.map do |_, finding|
