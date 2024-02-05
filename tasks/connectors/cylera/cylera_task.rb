@@ -372,16 +372,16 @@ module Kenna
 
       def tags(device)
         tags = []
-        tags.push("Vendor:#{device['vendor']}") if device['vendor']
-        tags.push("Type:#{device['type']}") if device['type']
-        tags.push("Model:#{device['model']}") if device['model']
-        tags.push("Class:#{device['class']}") if device['class']
-        tags.push("Location:#{device['location']}") if device['location']
-        tags.push("FDA Class:#{device['fda_class']}") if device['fda_class'] && device['fda_class'] != ""
-        tags.push("Serial Number:#{device['serial_number']}") if device['serial_number']
-        tags.push("Version:#{device['version']}") if device['version']
-        tags.push("VLAN:#{device['vlan']}") if device['vlan']
-        tags.push("AETitle:#{device['aetitle']}") if device['aetitle']
+        tags.push("Cy:Vendor:#{device['vendor']}") if device['vendor']
+        tags.push("Cy:Type:#{device['type']}") if device['type']
+        tags.push("Cy:Model:#{device['model']}") if device['model']
+        tags.push("Cy:Class:#{device['class']}") if device['class']
+        tags.push("Cy:Location:#{device['location']}") if device['location']
+        tags.push("Cy:FDA Class:#{device['fda_class']}") if device['fda_class'] && device['fda_class'] != ""
+        tags.push("Cy:Serial Number:#{device['serial_number']}") if device['serial_number']
+        tags.push("Cy:Version:#{device['version']}") if device['version']
+        tags.push("Cy:VLAN:#{device['vlan']}") if device['vlan']
+        tags.push("Cy:AETitle:#{device['aetitle']}") if device['aetitle']
         tags
       end
 
