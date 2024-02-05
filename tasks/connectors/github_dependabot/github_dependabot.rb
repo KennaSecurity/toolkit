@@ -65,10 +65,9 @@ module Kenna
         kdi_batch_upload(@batch_size, @output_directory, "github_dependabot_kdi.json", @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries, @kdi_version) do |batch|
           client.repositories.each do |repo_name|
             print_good "Processing repository #{@github_organization_name}/#{repo_name}."
-            client.vulnerabilities(repo_name).each do |alert|
-              batch.append do
-                process_alert(repo_name, alert)
-              end
+            vulns = client.vulnerabilities(repo_name)
+            batch.append do
+              process_repo(repo_name, vulns)
             end
           end
         end
@@ -93,33 +92,40 @@ module Kenna
         @kdi_version = 2
       end
 
-      def process_alert(repo_name, alert)
-        number = alert["number"]
-        dependabot_url = "https://github.com/#{@github_organization_name}/#{repo_name}/security/dependabot/#{number}"
-        asset = { "url" => dependabot_url, "application" => repo_name, "tags" => [SCANNER_TYPE] }
-        cve_identifier = alert["identifiers"].detect { |identifier| identifier["type"] == "CVE" }
-        vuln_name = cve_identifier&.fetch("value") || alert["identifiers"].last["value"]
-        details = {
-          "packageName" => alert.dig("securityVulnerability", "package", "name"),
-          "firstPatchedVersion" => alert.dig("securityVulnerability", "firstPatchedVersion", "identifier"),
-          "vulnerableVersionRange" => alert.dig("securityVulnerability", "vulnerableVersionRange")
-        }.compact
-        vuln = {
-          "scanner_identifier" => alert["number"],
-          "created_at" => alert["createdAt"],
-          "scanner_type" => SCANNER_TYPE,
-          "scanner_score" => alert["cvss"]["score"].to_i,
-          "vuln_def_name" => vuln_name,
-          "details" => JSON.pretty_generate(details)
-        }.compact
-        vuln_def = {
-          "scanner_type" => SCANNER_TYPE,
-          "name" => vuln_name,
-          "cve_identifiers" => (cve_identifier["value"] if cve_identifier),
-          "description" => alert["description"]
-        }.compact
-        create_kdi_asset_vuln(asset, vuln)
-        create_kdi_vuln_def(vuln_def)
+      def process_repo(repo_name, vulns)
+        asset_hash = { "application" => repo_name, "tags" => [SCANNER_TYPE] }
+
+        create_kdi_asset(asset_hash)
+
+        vulns.each do |vuln|
+          cve_identifier = vuln["identifiers"].detect { |identifier| identifier["type"] == "CVE" }
+          vuln_name = cve_identifier&.fetch("value") || vuln["identifiers"].last["value"]
+          number = vuln["number"]
+          details = {
+            "packageName" => vuln.dig("securityVulnerability", "package", "name"),
+            "firstPatchedVersion" => vuln.dig("securityVulnerability", "firstPatchedVersion", "identifier"),
+            "vulnerableVersionRange" => vuln.dig("securityVulnerability", "vulnerableVersionRange"),
+            "dependabot_url" => "https://github.com/#{@github_organization_name}/#{repo_name}/security/dependabot/#{number}"
+          }.compact
+          vuln_hash = {
+            "scanner_identifier" => vuln_name,
+            "created_at" => vuln["createdAt"],
+            "scanner_type" => SCANNER_TYPE,
+            "scanner_score" => vuln["cvss"]["score"].to_i,
+            "last_seen_at": Time.now.utc,
+            "vuln_def_name" => vuln_name,
+            "details" => JSON.pretty_generate(details)
+          }.compact
+          vuln_def_hash = {
+            "scanner_type" => SCANNER_TYPE,
+            "name" => vuln_name,
+            "cve_identifiers" => (cve_identifier["value"] if cve_identifier),
+            "description" => vuln["description"]
+          }.compact
+
+          create_kdi_asset_vuln(asset_hash, vuln_hash)
+          create_kdi_vuln_def(vuln_def_hash)
+        end
       end
     end
   end
