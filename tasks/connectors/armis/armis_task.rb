@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "lib/armis_client"
+require "active_support/inflector"
 
 module Kenna
   module Toolkit
@@ -145,18 +146,13 @@ module Kenna
       end
 
       def extract_asset(device)
-        site_location = device.dig("site", "location")
-        device["site_location"] = site_location if site_location && site_location != "No location"
-        device["site_name"] = device.dig("site", "name")
-        tag_fields = device.slice("manufacturer", "model", "category", "type", "site_location", "site_name").compact
-        tags = (device["tags"] || []) + tag_fields.map { |field, value| "#{field}:#{value}" }
         mac_address = (device["macAddress"] || "").split(",")[0]
         ip_address = (device["ipAddress"] || device["ipv6"] || "").split(",")[0]
 
         {
           "external_id" => device.fetch("id").to_s,
           "hostname" => device["name"],
-          "tags" => tags,
+          "tags" => build_tags(device),
           "os" => device["operatingSystem"],
           "os_version" => device["operatingSystemVersion"],
           "mac_address" => mac_address&.strip,
@@ -208,6 +204,20 @@ module Kenna
             find_or_create_kdi_asset(asset)
           end
         end
+      end
+
+      def build_tags(device)
+        site_location = device.dig("site", "location")
+        device["site_location"] = site_location if site_location && site_location != "No location"
+        device["site_name"] = device.dig("site", "name")
+        tag_fields = device.slice("manufacturer", "model", "category", "type", "site_location", "site_name").compact
+        field_tags = tag_fields.map { |field, value| "#{field}:#{value}" }
+
+        custom_properties_tags = (device["customProperties"] || {}).map do |field, value|
+          "custom_properties_#{field.underscore}:#{value}"
+        end
+
+        (device["tags"] || []) + field_tags + custom_properties_tags
       end
 
       def initialize_options
