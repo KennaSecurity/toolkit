@@ -214,7 +214,7 @@ module Kenna
         field_tags = tag_fields.map { |field, value| "#{field}:#{value}" }
 
         custom_properties_tags = (device["customProperties"] || {}).map do |field, value|
-          "custom_properties_#{field.underscore}:#{value}"
+          "#{field.underscore}:#{value}"
         end
 
         (device["tags"] || []) + field_tags + custom_properties_tags
