@@ -64,11 +64,13 @@ GEM
     minitest (5.20.0)
     multi_xml (0.6.0)
     netrc (0.11.0)
-    nokogiri (1.15.3-aarch64-linux)
+    nokogiri (1.16.2-aarch64-linux)
       racc (~> 1.4)
-    nokogiri (1.15.3-x86_64-darwin)
+    nokogiri (1.16.2-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.15.3-x86_64-linux)
+    nokogiri (1.16.2-x86_64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.16.2-x86_64-linux)
       racc (~> 1.4)
     parallel (1.22.1)
     parser (3.2.0.0)
@@ -80,7 +82,7 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (5.0.1)
-    racc (1.7.1)
+    racc (1.7.3)
     rainbow (3.1.1)
     regexp_parser (2.6.1)
     rest-client (2.1.0)
@@ -169,6 +171,7 @@ GEM
 
 PLATFORMS
   aarch64-linux
+  arm64-darwin-23
   x86_64-darwin-22
   x86_64-darwin-23
   x86_64-linux
