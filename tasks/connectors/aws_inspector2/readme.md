@@ -15,7 +15,7 @@ docker run -v ~/.aws:/root/.aws --env AWS_REGION=us-east-1 --env AWS_PROFILE=exa
   task=aws_inspector2
 ```
 
-...or by directly providing them to the task as shown below.
+...or by directly providing them to the task as shown below. **(Not recommended! See below.)**
 
 ```
 docker run --rm -it toolkit:latest task=aws_inspector2 aws_regions=us-east-1,us-east-2 aws_access_key_id=AKIAIOSFODNN7EXAMPLE \
@@ -41,7 +41,8 @@ docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolk
 
 This task supports several kinds of credentials, facilitated by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/#Configuration):
 
-1. Long-term credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+1. Long-term credentials: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY. 
+   *Note: AWS discourages passing these as clear text on the command line: "Many developers have had their account compromised by leaked keys." Environment variables are preferred, but still weaker than options 2 and 3.*
 2. Temporary credentials issued by STS, which require an AWS_SESSION_TOKEN in addition to the above.
 3. IAM roles. You provide your keys as in #1, but can't access the Inspector v2 API until you assume the IAM role.
 
