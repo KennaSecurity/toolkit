@@ -81,7 +81,12 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/qualys_was",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "match_finding_with_vuln_def",
+              type: "boolean",
+              required: false,
+              default: false,
+              description: "If true, the finding scanner_identifier and the vuln_def name will match the format 'QID - ID - Name'. If a connector first ran without this parameter and it is enabled in a later run, it will result in automatic resolution of the existing findings with the previous format ('QID - ID') and creation of new findings with the new format within CVM." }
           ]
         }
       end
@@ -103,8 +108,8 @@ module Kenna
 
         while more_records == true
           findings_response = qualys_was_get_webapp_findings(token, @options[:qualys_page_size].to_i, page)
+          fail_task "there was a problem with the RESPONSE. Nil value provided" if findings_response.nil?
           more_records = findings_response["ServiceResponse"]["hasMoreRecords"] == "true"
-          print_debug "there was a problem with the RESPONSE" if findings_response.nil?
           findings << findings_response
           findings.each do |findg|
             findg.map do |_, finding|
@@ -123,6 +128,10 @@ module Kenna
                   max_records = 0
                 end
                 find_from = data["Finding"]
+                if find_from.nil?
+                  print_error("Error: No Finding data found! Skipping this finding data!")
+                  next
+                end
                 max_records += 1
                 total_count += 1
                 asset = {
@@ -159,7 +168,7 @@ module Kenna
 
                 # start finding section
                 finding_data = {
-                  "scanner_identifier" => "#{find_from['qid']} - #{find_from['id']}",
+                  "scanner_identifier" => @options[:match_finding_with_vuln_def] ? name(find_from) : "#{find_from['qid']} - #{find_from['id']}",
                   "scanner_type" => "QualysWas",
                   "severity" => find_from["severity"].to_i * 2,
                   "created_at" => find_from["firstDetectedDate"],
@@ -230,7 +239,14 @@ module Kenna
       end
 
       def name(find_from)
-        "#{find_from['qid']}-#{find_from['name']}"
+        substitute_nil_with_string_values(find_from, ['qid', 'id', 'name'])
+
+        if @options[:match_finding_with_vuln_def]
+          structured_name = [find_from['qid'], find_from['id'], find_from['name']].compact.join('-')
+          structured_name unless structured_name.empty?
+        else
+          "#{find_from['qid']}-#{find_from['name']}"
+        end
       end
 
       def status(find_from)
@@ -238,6 +254,15 @@ module Kenna
           IGNORE_STATUS[find_from["ignoredReason"].downcase]
         else
           STATUS[find_from["status"].downcase]
+        end
+      end
+
+      def substitute_nil_with_string_values(hash, keys)
+        keys.each do |key|
+          if hash[key].nil?
+            puts "#{key} is nil, substituting with 'no #{key} found' "
+            hash[key] = "no #{key} found"
+          end
         end
       end
     end
