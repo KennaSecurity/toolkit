@@ -5,10 +5,9 @@ module Kenna
     module Whitesource
       class Client
         class ApiError < StandardError; end
-        API_BASE_URL = "https://saas.whitesourcesoftware.com/api/v1.3"
 
-        def initialize(user_key, request_type, request_token, alert_type, days_back)
-          @endpoint = API_BASE_URL
+        def initialize(api_base_url, user_key, request_type, request_token, alert_type, days_back)
+          @endpoint = api_base_url
           @headers = { "accept": "application/json", "content-type": "application/json" }
           @user_key = user_key
           @request_type = request_type

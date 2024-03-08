@@ -71,7 +71,11 @@ module Kenna
 
         initialize_options
 
-        client = Kenna::Toolkit::Whitesource::Client.new(@user_key, @request_type, @request_token, @alert_type, @days_back)
+        puts "Introduce the API Base URL (v1.4) of your Mend Organization:"
+        api_base_url = STDIN.gets.chomp
+        puts "Working on the task with API Base URL: " + api_base_url
+
+        client = Kenna::Toolkit::Whitesource::Client.new(api_base_url, @user_key, @request_type, @request_token, @alert_type, @days_back)
 
         alerts = client.alerts
         total_issues = alerts.count
