@@ -71,7 +71,7 @@ module Kenna
 
         initialize_options
 
-        puts "Introduce the API Base URL (v1.4) of your Mend Organization:"
+        puts "Please enter the Base URL for your Mend Organization's API (v1.4): "
         api_base_url = $stdin.gets.chomp.to_s
 
         client = Kenna::Toolkit::Whitesource::Client.new(api_base_url, @user_key, @request_type, @request_token, @alert_type, @days_back)
