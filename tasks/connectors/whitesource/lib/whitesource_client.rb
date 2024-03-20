@@ -6,7 +6,7 @@ module Kenna
       class Client
         class ApiError < StandardError; end
 
-        def initialize(api_base_url, user_key, request_type, request_token, alert_type, days_back)
+        def initialize(user_key, request_type, request_token, alert_type, days_back, api_base_url)
           @endpoint = api_base_url
           @headers = { "accept": "application/json", "content-type": "application/json" }
           @user_key = user_key
