@@ -4,9 +4,9 @@ This toolkit brings in data from Whitesource.
 
 To run this task, you need the following information from Whitesource:
 
-1. Whitesource user key.
-2. Whitesource token for organization, product, or project.
-3. Whitesource API base URL.
+1. Whitesource user key
+2. Whitesource token for organization, product, or project
+3. Whitesource API base URL
 
 ## Command Line
 
@@ -14,12 +14,12 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
 
 Recommended Steps:
 
-1. Run with Whitesource Keys only to ensure you are able to get data properly from the scanner.
-2. Review output for expected data.
-3. Create a Kenna Data Importer connector in Kenna (example name: Whitesource KDI).
-4. Manually run the connector with the JSON from step 1.
-5. Click on the name of the connector to get the connector ID.
-6. Run the task with Whitesource Keys and Kenna Key/connector ID.
+1. Run with Whitesource Keys only to ensure you are able to get data properly from the scanner
+2. Review output for expected data
+3. Create a Kenna Data Importer connector in Kenna (example name: Whitesource KDI)
+4. Manually run the connector with the JSON from step 1
+5. Click on the name of the connector to get the connector ID
+6. Run the task with Whitesource Keys and Kenna Key/connector ID
 
 **Example Command:**
 
