@@ -62,11 +62,11 @@ module Kenna
               required: false,
               default: "output/whitesource",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-              { name: 'whitesource_api_base',
-              type: 'string',
+            { name: "whitesource_api_base",
+              type: "string",
               required: true,
               default: nil,
-              description: 'Whitesource API base URL' }
+              description: "Whitesource API base URL" }
           ]
         }
       end
