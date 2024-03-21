@@ -66,7 +66,7 @@ module Kenna
               type: "string",
               required: true,
               default: nil,
-              description: "Whitesource API base URL" }
+              description: "Whitesource environment API v4 base URL without prefix e.g. saas.mend.io" }
           ]
         }
       end

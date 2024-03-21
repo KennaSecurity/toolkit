@@ -6,7 +6,7 @@ To run this task, you need the following information from Whitesource:
 
 1. Whitesource user key
 2. Whitesource token for organization, product, or project
-3. Whitesource API base URL
+3. Whitesource environment API v4 base URL without prefix e.g. saas.mend.io
 
 ## Command Line
 
@@ -21,16 +21,6 @@ Recommended Steps:
 5. Click on the name of the connector to get the connector ID
 6. Run the task with Whitesource Keys and Kenna Key/connector ID
 
-**Example Command:**
-
-```shell
-docker run -it --rm \
--v ~/Desktop/toolkit_input:/opt/app/toolkit/input \
--v ~/Desktop/toolkit_output:/opt/app/toolkit/output \
--t toolkit:latest task=whitesource:whitesource_user_key=<your_whitesource_user_key>:whitesource_request_token=<your_whitesource_request_token>:whitesource_api_base='"<your_whitesource_api_base_url>"'
-```
-
-**Note:** When specifying the `whitesource_api_base` URL, ensure to enclose the URL in single quotes `' '` if it's already surrounded by double quotes `" "`. This is necessary to correctly pass the URL as a parameter.
 
 Complete list of Options:
 
@@ -46,4 +36,4 @@ Complete list of Options:
 | kenna_api_host            | false    | Kenna API Hostname if not the US shared.                                                                                                                                                                             | api.kennasecurity.com  |
 | kenna_connector_id        | false    | If set, we'll try to upload to this connector.                                                                                                                                                                       | n/a                    |
 | output_directory          | false    | If set, will write a file upon completion. Path is relative to #{$basedir}.                                                                                                                                          | output/whitesource     |
-| whitesource_api_base      | true    | Whitesource API base URL.                                                                                                                                           | n/a                    |
+| whitesource_api_base      | true    | Whitesource environment API v4 base URL without prefix e.g. saas.mend.io URL.                                                                                                                                           | n/a                    |
