@@ -31,6 +31,7 @@ group :development, :test do
   gem "rspec"
   gem "rubocop", require: false
   gem "solargraph", require: false
+  gem 'yard', '>= 0.9.36'
   gem "timecop"
   gem "vcr", "~> 6.1"
   gem "webmock", "~> 3.18"

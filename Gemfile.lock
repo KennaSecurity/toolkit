@@ -66,6 +66,8 @@ GEM
     netrc (0.11.0)
     nokogiri (1.16.2-aarch64-linux)
       racc (~> 1.4)
+    nokogiri (1.16.2-arm64-darwin)
+      racc (~> 1.4)
     nokogiri (1.16.2-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.2-x86_64-linux)
@@ -163,12 +165,11 @@ GEM
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.7.0)
-    yard (0.9.28)
-      webrick (~> 1.7.0)
+    yard (0.9.36)
 
 PLATFORMS
   aarch64-linux
+  arm64-darwin-23
   x86_64-darwin-22
   x86_64-darwin-23
   x86_64-linux
@@ -196,9 +197,10 @@ DEPENDENCIES
   tty-pager
   vcr (~> 6.1)
   webmock (~> 3.18)
+  yard (>= 0.9.36)
 
 RUBY VERSION
    ruby 3.2.2p53
 
 BUNDLED WITH
-   2.4.6
+   2.4.10
