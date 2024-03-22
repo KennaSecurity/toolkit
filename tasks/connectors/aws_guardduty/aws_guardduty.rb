@@ -153,8 +153,8 @@ module Kenna
 
         # write a file with the output
         kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-        print_good "Output being written to: #{output_path}"
-        File.open(output_path, "w") { |f| f.puts JSON.pretty_generate(kdi_output) }
+        print_good "Output being written to: #{output_dir}/#{filename}"
+        File.open("#{output_dir}/#{filename}", "w") { |f| f.puts JSON.pretty_generate(kdi_output) }
 
         # actually write it
         write_file output_dir, filename, JSON.pretty_generate(kdi_output)
