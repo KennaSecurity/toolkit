@@ -61,7 +61,12 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/whitesource",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "whitesource_api_base",
+              type: "string",
+              required: true,
+              default: nil,
+              description: "Whitesource environment API v4 base URL without prefix e.g. saas.mend.io" }
           ]
         }
       end
@@ -71,7 +76,7 @@ module Kenna
 
         initialize_options
 
-        client = Kenna::Toolkit::Whitesource::Client.new(@user_key, @request_type, @request_token, @alert_type, @days_back)
+        client = Kenna::Toolkit::Whitesource::Client.new(@user_key, @request_type, @request_token, @alert_type, @days_back, @api_base_url)
 
         alerts = client.alerts
         total_issues = alerts.count
@@ -112,6 +117,7 @@ module Kenna
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
         @output_directory = @options[:output_directory]
+        @api_base_url = @options[:whitesource_api_base]
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
