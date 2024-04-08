@@ -153,7 +153,7 @@ module Kenna
 
         # write a file with the output
         kdi_output = { skip_autoclose: false, assets: @assets, vuln_defs: @vuln_defs }
-        print_good "Output being written to: #{output_path}"
+        print_good "Output being written to: #{output_dir}/#{filename}"
         File.open(output_path, "w") { |f| f.puts JSON.pretty_generate(kdi_output) }
 
         # actually write it
@@ -163,7 +163,7 @@ module Kenna
         ####
         ### Finish by uploading if we're all configured
         ####
-        return unless kenna_connector_id && kenna_api_host && kenna_api_key
+        return unless @options[:kenna_connector_id] && @options[:kenna_api_host] && @options[:kenna_api_key]
 
         print_good "Attempting to upload to Kenna API at #{kenna_api_host}"
         upload_file_to_kenna_connector kenna_connector_id, kenna_api_host, kenna_api_key, "#{output_dir}/#{filename}"
