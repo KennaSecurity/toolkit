@@ -37,6 +37,20 @@ docker run -v ~/.aws:/root/.aws --env AWS_PROFILE=example_profile --rm -it toolk
   aws_regions=us-east-1,us-east-2 kenna_api_key=$KENNA_API_KEY kenna_connector_id=12345
 ```
 
+Complete list of Options:
+
+| Option | Required | Description | default |
+| --- | --- | --- | --- |
+| aws_access_key_id | false |  AWS access key | --- |
+| aws_secret_access_key | false | AWS secret key | --- |
+| aws_regions | false | Comma-separated list of AWS regions to include when collecting findings | --- |
+| aws_session_token | false | AWS session token | --- |
+| aws_role_arn | false | AWS IAM role ARN used to assume access to Inspector v2 | --- |
+| kenna_api_key | false | Kenna API Key for use with connector option | n/a |
+| kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
+| kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
+| output_directory | false | If set, will write a file upon completion. Path is relative to /opt/app/toolkit/ | output/aws_inspector |
+
 ### AWS Authentication
 
 This task supports several kinds of credentials, facilitated by the [AWS SDK](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/#Configuration):
