@@ -93,11 +93,11 @@ module Kenna
                 resource_type: [
                   {
                       comparison: "EQUALS",
-                      value: "AWS_EC2_INSTANCE",
+                      value: "AWS_ECR_CONTAINER_IMAGE",
                   },
                   {
-                      comparison: "EQUALS",
-                      value: "AWS_ECR_CONTAINER_IMAGE",
+                    comparison: "EQUALS",
+                    value: "AWS_EC2_INSTANCE",
                   }
                 ]
               },
