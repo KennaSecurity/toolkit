@@ -88,21 +88,6 @@ module Kenna
 
           loop do
             response = aws_client.list_findings(next_token: @next_token)
-            response = aws_client.list_findings({
-              filter_criteria: { 
-                resource_type: [
-                  {
-                      comparison: "EQUALS",
-                      value: "AWS_ECR_CONTAINER_IMAGE",
-                  },
-                  {
-                    comparison: "EQUALS",
-                    value: "AWS_EC2_INSTANCE",
-                  }
-                ]
-              },
-              next_token: @next_token 
-            })
             response.findings.each do |finding|
               # We only handle package vulns for now.
               next unless finding.type == "PACKAGE_VULNERABILITY"
