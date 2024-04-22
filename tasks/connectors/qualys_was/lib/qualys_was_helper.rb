@@ -20,7 +20,7 @@ module Kenna
           "Authorization" => "Basic #{token}"
         }
 
-        offset = page == 1 ? 1 : ((page -1) * page_size) + 1
+        offset = page == 1 ? 1 : ((page - 1) * page_size) + 1
         print_debug "Fetching Page = #{page}"
         payload = {
           "ServiceRequest": {
