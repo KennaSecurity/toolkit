@@ -89,7 +89,7 @@ module Kenna
           loop do
             response = aws_client.list_findings(
               {
-                filter_criteria: 
+                filter_criteria:
                   {
                     resource_type: [
                       {
