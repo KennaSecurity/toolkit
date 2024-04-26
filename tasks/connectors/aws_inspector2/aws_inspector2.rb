@@ -87,7 +87,6 @@ module Kenna
           print_debug "Querying #{aws_client.config.region} for findings"
 
           loop do
-            response = aws_client.list_findings(next_token: @next_token)
             response = aws_client.list_findings({
               filter_criteria: { 
                 resource_type: [
