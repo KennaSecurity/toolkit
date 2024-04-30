@@ -147,10 +147,12 @@ You can find connector development documentation in the project [Wiki](https://g
 If you have fixed a bug, enhanced a task, or added a new toolkit task, please share it! To submit a pull request:
 
 1. Fork this repository.
-2. Make your changes in a feature branch.
+2. Make your changes in a feature branch. Please include specs!
 3. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
+4. Verify that all checks pass and make corrections on your feature branch if they don't.
 
-<img width="829" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/dbc8ec07-3ad3-478e-b6f3-aec1e1e6f62b">
+<img width="819" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/c3c5cca7-f8af-427f-a932-6f798d91c7e1">
+
 
 ## QA
 
