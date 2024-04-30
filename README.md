@@ -148,8 +148,8 @@ If you have fixed a bug, enhanced a task, or added a new toolkit task, please sh
 
 1. Fork this repository.
 2. Make your changes in a feature branch. Please include specs!
-3. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
-4. Verify that all checks pass and make corrections on your feature branch if they don't.
+3. It will speed things along if the lint checks pass and all your specs are green. You can use [act](https://nektosact.com/installation/index.html) to run the checks locally before submitting.
+4. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
 
 <img width="819" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/c3c5cca7-f8af-427f-a932-6f798d91c7e1">
 
