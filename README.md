@@ -148,7 +148,9 @@ If you have fixed a bug, enhanced a task, or added a new toolkit task, please sh
 
 1. Fork this repository.
 2. Make your changes in a feature branch.
-3. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork).
+3. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
+
+<img width="829" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/dbc8ec07-3ad3-478e-b6f3-aec1e1e6f62b">
 
 ## QA
 
