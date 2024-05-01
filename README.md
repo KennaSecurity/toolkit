@@ -8,8 +8,6 @@ The Kenna toolkit is a set of functions for data and api manipulation around the
 
 ## System Requirements
 
----
-
 - A container tool capable of running a standalone docker image.
   - [Podman](https://podman.io/)
   - [Docker](https://www.docker.com)
@@ -17,8 +15,6 @@ The Kenna toolkit is a set of functions for data and api manipulation around the
 - Network Access
 
 ## Running The Latest Image
-
----
 
 The easiest way to get started is to use the pre-built image on Docker Hub.
 
@@ -41,8 +37,6 @@ Please, refer to these [detailed instructions](https://github.com/KennaSecurity/
 
 ## Building your own Image
 
----
-
 If you've made some modifications to the code and/or just want to build the image yourself, you can easily do that.
 
 Then, build the image using the following command:
@@ -56,8 +50,6 @@ Building Your Own Image With Podman:
     podman build . -t toolkit:latest
 
 ## Launching Your Own Container Image
-
----
 
 Excellent, now you have an image, and are ready to launch it!
 
@@ -73,8 +65,6 @@ If everything's working, lets move on to accessing the toolkit's functionality t
 
 ## Calling A Specific Task
 
----
-
 In order to utilize the toolkit's functionality, you'll want to pass a 'task=[name of task]' variable. See below for all the possible task names!
 
 Calling A Specific Task With Docker:
@@ -86,8 +76,6 @@ Calling A Specific Task With Podman:
     podman run -it --rm toolkit:latest task=example
 
 ## Calling a Task with Arguments
-
----
 
 Sometimes, you'll need to send arguments to tasks in order to specify how they should behave.
 
@@ -111,16 +99,12 @@ Podman:
 
 ## Getting Data In & Out Of The API
 
----
-
 Many tasks will require input and output json or log files. The way to handle this is with docker volumes. Volumes can be mapped into the container's OS at runtime.  The toolkit's tasks are programmed to use directories relative to "/opt/toolkit" to facilitate input and output. Specifically, tasks should use these directories as the base when looking for files:
 
     - Default Input Directory: /opt/toolkit/input
     - Default Output Directory: /opt/toolkit/output
 
 ## Configuring Persistent Storage Volumes
-
----
 
 Below is an example that maps volumes to directories on the local system - both input and output.
 
@@ -140,33 +124,38 @@ Configuring A Volume With Podman:
 
 ## Toolkit Capabilities (TASKS)
 
----
-
 To see the current tasks available please visit the Tasks Library [here](https://github.com/KennaSecurity/toolkit/tree/main/tasks/readme.md)
 
 ## Advanced Usage
-
----
 
 Proxy:
 If you need to use a proxy with this container the suggested implementation is to use the built-in [Docker](https://docs.docker.com/network/proxy/) or [Podman](https://access.redhat.com/solutions/3939131) proxy support.
 
 ## Help us become better
 
----
-
 When you find an error, please create a GitHub issue with a detailed description of the error. Our team will solve it as
 soon as possible. [Instructions for creating an issue.](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue)
 
 Please send all toolkit feature requests to kenna.toolkit.list@cisco.com.
 
-## Development
+# Development
 
----
+You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation). 
 
-You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation)
+## Pull requests
+
+If you have fixed a bug, enhanced a task, or added a new toolkit task, please share it! To submit a pull request:
+
+1. Fork this repository.
+2. Make your changes in a feature branch. Please include specs!
+3. It will speed things along if the lint checks pass and all your specs are green. You can use [act](https://nektosact.com/installation/index.html) to run the checks locally before submitting.
+4. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
+
+<img width="819" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/c3c5cca7-f8af-427f-a932-6f798d91c7e1">
+
 
 ## QA
+
 If you wish to upload the /output folder to your local development environment, run:
 
 `bundle exec ruby toolkit.rb task=your-task kenna_api_host=your-local-api-host`
