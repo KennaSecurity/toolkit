@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "lib/asimily_client"
 module Kenna
   module Toolkit

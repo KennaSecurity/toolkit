@@ -65,7 +65,7 @@ module Kenna
             transformed_vulnerabilities << {
               "status" => check_cve_status(cve),
               "scanner_type" => SCANNER_TYPE,
-              "scanner_identifier" => "#{cve['cveName']}|#{device_id.to_s}",
+              "scanner_identifier" => "#{cve['cveName']}|#{device_id}",
               "cve_identifiers" => cve['cveName'],
               "name" => (nil_if(cve['cveTitle']).nil? ? nil : cve['cveTitle']),
               "desciption" => (nil_if(cve['desciption']).nil? ? nil : cve['desciption']),
