@@ -32,29 +32,29 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       it "creates vuln_defs" do
         expect(task.vuln_defs)
           .to include({
-                        cve_identifiers: "CVE-2022-21426",
-                        name: "CVE-2022-21426 - java-1.7.0-openjdk",
-                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/f7108e88a43e52e5f5168861180f1efd",
+                        cve_identifiers: "CVE-2024-26598",
+                        description: start_with(" In the Linux kernel, the following vulnerability has been resolved: KVM: arm64:"),
+                        name: "CVE-2024-26598 - linux-image-aws",
+                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/002dafdaaad8d66b7829d617031415c9",
                         scanner_type: "AWS Inspector V2",
-                        description: start_with("Vulnerability in the Oracle Java SE, Oracle GraalVM Enterprise Edition product"),
                         solution: "None Provided"
                       })
       end
 
       it "creates ec2 assets" do
         expect(task.assets)
-          .to include({ ec2: "i-0c0fe138a5367ef34",
-                        fqdn: "nessus.connectorlab.org",
-                        hostname: "",
-                        ip_address: "34.235.255.215",
-                        os: "AMAZON_LINUX",
+          .to include({ ec2: "i-0325ce909a8eac7d1",
+                        fqdn: "",
+                        hostname: "VM for Scanners",
+                        ip_address: "52.203.164.153",
+                        os: "UBUNTU_20_04",
                         tags: be_an(Array),
                         vulns: be_an(Array) })
         expect(task.assets)
-          .to include({ ec2: "i-09fd5b46b5457d22c",
+          .to include({ ec2: "i-054fe8def0d3d3306",
                         fqdn: "",
-                        hostname: "Sonarcube",
-                        ip_address: "54.242.136.219",
+                        hostname: "splunk",
+                        ip_address: "3.218.161.161",
                         os: "AMAZON_LINUX_2",
                         tags: be_an(Array),
                         vulns: be_an(Array) })
@@ -63,34 +63,32 @@ RSpec.describe Kenna::Toolkit::AwsInspector2 do
       it "creates ecr image assets" do
         expect(task.assets)
           .to include({ asset_type: "image",
-                        image_id: start_with("sha256:34ca666355"),
+                        image_id: start_with("sha256:01d39a8f0b"),
                         tags: be_an(Array),
                         vulns: be_an(Array) })
       end
 
       it "creates vulns on the assets" do
-        expect(select_asset("i-09fd5b46b5457d22c")[:vulns])
-          .to include({ created_at: be_a(Time),
-                        last_seen_at: be_a(Time),
-                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/32750bb2f6cae06b828c652864bc1060",
+        expect(select_asset("i-054fe8def0d3d3306")[:vulns])
+          .to include({ scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/011a86590a40dd0f548ce7ba4f2fdb63",
                         scanner_type: "AWS Inspector V2",
-                        status: "open",
-                        scanner_score: 7,
-                        vuln_def_name: "CVE-2022-36123 - kernel" })
-        expect(select_asset("sha256:34ca666355")[:vulns])
-          .to include({ created_at: be_a(Time),
+                        created_at: be_a(Time),
                         last_seen_at: be_a(Time),
-                        scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/01078690981ce6c19ba17107030248d6",
-                        scanner_type: "AWS Inspector V2",
                         status: "open",
-                        scanner_score: 8,
-                        vuln_def_name: "IN1-JS-TOUGHCOOKIE-10119 - tough-cookie" })
+                        vuln_def_name: "CVE-2023-50387 - bind-utils, bind-libs-lite and 3 more",
+                        scanner_score: 8 })
+        expect(select_asset("sha256:01d39a8f0b")[:vulns])
+          .to include({ scanner_identifier: "arn:aws:inspector2:us-east-1:612899039241:finding/004b20187b011e240f1ec712682eb112",
+                        scanner_type: "AWS Inspector V2",
+                        created_at: be_a(Time),
+                        last_seen_at: be_a(Time),
+                        status: "open",
+                        vuln_def_name: "CVE-2019-7149 - elfutils, libelf1",
+                        scanner_score: 7 })
       end
 
       it "creates tags on the assets" do
-        expect(select_asset("i-0c0fe138a5367ef34")[:tags])
-          .to include("Schedule:nightnight", "state:started")
-        expect(select_asset("sha256:34ca666355")[:tags])
+        expect(select_asset("sha256:01d39a8f0b")[:tags])
           .to include("registry-612899039241", "repository-inspector2_ecr_scanning")
       end
     end
