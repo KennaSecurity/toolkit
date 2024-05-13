@@ -37,7 +37,7 @@ Run the Asimily task following the guidelines on the main [toolkit help page](ht
 | asimily_user |user | true | Asimily Username |
 | asimily_password |password | true | Asimily Password |
 | asimily_api_endpoint | string | true | Your Asimily portal url, e.g. myportal.asimily.com |
-| asimily_filter | string | false | To send the selected devices that match the filter criteria |
+| asimily_filter | string | false | Filter devices by the provided criteria. Comma-separated key=value pairs. |
 | asimily_page_size | integer | false | Optional, Page size for Asimily API calls |
 | kenna_batch_size | integer | false | Optional, Kenna post batch size |
 | kenna_api_key | api_key | false | Kenna API Key |
@@ -48,7 +48,8 @@ Run the Asimily task following the guidelines on the main [toolkit help page](ht
 ## Example Command Line:
 
 ```
-    toolkit:latest task=Asimily kenna_api_key="xxx" kenna_api_host="api.kennasecurity.com" asimily_api_endpoint="xxx.asimily.com" asimily_user="xxx" asimily_password="xxx" asimily_filter="xxx"  kenna_connector_id=xxx 
+docker run --rm -it toolkit:latest task=asimily kenna_api_key="xxx" kenna_api_host="api.kennasecurity.com" asimily_api_endpoint="myportal.asimily.com" \
+asimily_user="myusername" asimily_password="password" asimily_filter="ipAddr=10.40.0.0/16,macAddr=00:c0:b7:b2:a7:fd" kenna_connector_id=12345678 
 ```
 
 # Contact

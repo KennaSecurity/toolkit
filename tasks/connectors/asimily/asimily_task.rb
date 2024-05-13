@@ -7,7 +7,7 @@ module Kenna
       class Task < Kenna::Toolkit::BaseTask
         def self.metadata
           {
-            id: "Asimily",
+            id: "asimily",
             name: "Asimily",
             description: "Pulls assets and vulnerabilities from Asimily",
             options: [
