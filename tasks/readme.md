@@ -16,6 +16,7 @@
 | [AppScan Enterprise](connectors/appscan_enterprise/readme.md) | Pre-Release/Beta | Cisco Vulnerability Management |
 | [Aqua](connectors/aqua/readme.md) | Released | Aqua |
 | [Armis](connectors/armis/readme.md) | Released | Armis |
+| [Asimily](connectors/asimily/readme.md) | Pre-Release/Beta | [Asimily](https://asimily.com) |
 | [AWS GuardDuty](connectors/aws_guardduty/ReadME.md) | Pre-Release/Beta | Cisco Vulnerability Management |
 | [AWS Inspector V1](connectors/aws_inspector/readme.md) | Released | Cisco Vulnerability Management |
 | [AWS Inspector V2](connectors/aws_inspector2/readme.md) | Released | Cisco Vulnerability Management |
