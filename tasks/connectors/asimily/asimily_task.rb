@@ -102,6 +102,7 @@ module Kenna
 
         def string_to_hash(input_string)
           return {} if input_string.nil? || input_string.strip.empty?
+          
           hash = {}
           key_value_pairs = input_string.split(',')
           key_value_pairs.each do |pair|
