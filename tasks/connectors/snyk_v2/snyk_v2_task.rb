@@ -243,7 +243,7 @@ module Kenna
 
       def initialize_options
         @snyk_api_token = @options[:snyk_api_token]
-        @api_base_url = @options[:snyk_api_base]
+        @api_base_url = @options[:snyk_api_base] || "api.snyk.io"
         @import_findings = @options[:import_type] == "findings"
         @output_directory = @options[:output_directory]
         @include_license = @options[:include_license]
