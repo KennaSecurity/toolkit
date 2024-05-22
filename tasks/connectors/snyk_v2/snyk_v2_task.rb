@@ -87,7 +87,7 @@ module Kenna
             { name: "snyk_api_base",
               type: "string",
               required: true,
-              default: nil,
+              default: "api.snyk.io",
               description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io" }
           ]
         }
