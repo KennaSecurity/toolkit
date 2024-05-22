@@ -5,6 +5,7 @@ This toolkit brings in data from Snyk V2
 To run this task you need the following information from Snyk V2:
 
 1. Snyk API Token
+2. Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io
 
 ## Command Line
 
@@ -13,11 +14,11 @@ See the main Toolkit for instructions on running tasks. For this task, if you le
 Recommended Steps:
 
 1. Run with Snyk V2 Keys only to ensure you are able to get data properly from the scanner
-1. Review output for expected data
-1. Create Kenna Data Importer connector in Kenna (example name: Snyk V2 KDI)
-1. Manually run the connector with the json from step 1
-1. Click on the name of the connector to get the connector id
-1. Run the task with Snyk V2 Keys and Kenna Key/connector id
+2. Review output for expected data
+3. Create Kenna Data Importer connector in Kenna (example name: Snyk V2 KDI)
+4. Manually run the connector with the json from step 1
+5. Click on the name of the connector to get the connector id
+6. Run the task with Snyk V2 Keys and Kenna Key/connector id
 
 Complete list of Options:
 
@@ -36,4 +37,5 @@ Complete list of Options:
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | kenna_api_key | false | Kenna API Key | n/a |
 | kenna_api_host | false | Kenna API Hostname | api.kennasecurity.com |
+| Snyk_api_url | true | Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io | n/a  |
 | output_directory | false | If set, will write a file upon completion. Path is relative to toolkit root directory | output/snyk |

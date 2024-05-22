@@ -83,8 +83,12 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/snyk",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
-
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "snyk_api_base",
+              type: "string",
+              required: true,
+              default: nil,
+              description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io" }
           ]
         }
       end
@@ -234,11 +238,12 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token)
+        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token, @api_base_url)
       end
 
       def initialize_options
         @snyk_api_token = @options[:snyk_api_token]
+        @api_base_url = @options[:snyk_api_base]
         @import_findings = @options[:import_type] == "findings"
         @output_directory = @options[:output_directory]
         @include_license = @options[:include_license]
