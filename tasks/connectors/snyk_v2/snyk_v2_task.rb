@@ -84,11 +84,11 @@ module Kenna
               required: false,
               default: "output/snyk",
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
-            { name: "snyk_api_base",
+            { name: "api_base_url",
               type: "string",
-              required: true,
+              required: false,
               default: "api.snyk.io",
-              description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io" }
+              description: "Snyk environment API base URL without prefix"}
           ]
         }
       end
@@ -243,7 +243,7 @@ module Kenna
 
       def initialize_options
         @snyk_api_token = @options[:snyk_api_token]
-        @api_base_url = @options[:snyk_api_base] || "api.snyk.io"
+        @api_base_url = @options[:api_base_url] || "api.snyk.io"
         @import_findings = @options[:import_type] == "findings"
         @output_directory = @options[:output_directory]
         @include_license = @options[:include_license]
