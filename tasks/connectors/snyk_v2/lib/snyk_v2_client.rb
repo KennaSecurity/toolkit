@@ -28,7 +28,7 @@ module Kenna
         def snyk_get_projects(org)
           print "Getting list of projects"
 
-          response = http_get("#{@api_base_url}/orgs/#{org}/projects", @headers)
+          response = http_get("#{@api_base_url}/org/#{org}/projects", @headers)
           raise ApiError, "Unable to retrieve submissions, please check credentials." unless response
 
           JSON.parse(response)["projects"]
