@@ -6,9 +6,9 @@ module Kenna
       class SnykV2Client
         class ApiError < StandardError; end
 
-        def initialize(token, api_base_url)
+        def initialize(token, snyk_api_base)
           @token = token
-          @api_base_url = "https://#{api_base_url}/rest"
+          @api_base_url = "https://#{snyk_api_base}/rest"
           @headers = {
             "Content-Type" => "application/json",
             "Accept" => "application/json",
@@ -28,24 +28,38 @@ module Kenna
         def snyk_get_projects(org)
           print "Getting list of projects"
 
-          response = http_get("#{@api_base_url}/orgs/#{org}/projects?version=2024-04-29", @headers)
+          response = http_get("#{@api_base_url}/orgs/#{org}/projects?version=2024-04-29&limit=100", @headers)
           raise ApiError, "Unable to retrieve projects, please check credentials." unless response
 
           JSON.parse(response)["data"]
         end
 
-        def snyk_get_issues(per_page, search_json, page_num, from_date, to_date, org)
+        def snyk_get_issues(per_page, page_num, from_date, to_date, org)
           print "Getting list of issues"
+          pages = page_num
 
-          snyk_query_api = "#{@api_base_url}/orgs/#{org}/issues?version=2024-04-29&perPage=#{per_page}&page=#{page_num}&from=#{from_date}&to=#{to_date}"
+          all_issues = []
+          next_url = "#{@api_base_url}/orgs/#{org}/issues?version=2024-04-29&limit=#{per_page}&created_after=#{from_date}&created_before=#{to_date}"
 
-          print_debug("Get issues query: #{snyk_query_api}")
+          pages.times do |page|
+            print_debug("Fetching data from URL: #{next_url}")
 
-          response = http_get(snyk_query_api, @headers)
-          raise ApiError, "Unable to retrieve issues, please check credentials." unless response
+            response = http_get(next_url, @headers)
+            raise ApiError, "Unable to retrieve issues, please check credentials." unless response
 
-          JSON.parse(response)["data"]
+            data = JSON.parse(response)
+            page_issues = data["data"]
+            all_issues << page_issues
+
+            next_url = data.dig("links", "next")
+            break unless next_url
+
+            next_url = URI.join(@api_base_url, next_url).to_s
+          end
+
+          all_issues
         end
+
       end
     end
   end

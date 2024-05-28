@@ -18,52 +18,32 @@ module Kenna
               type: "api_key",
               required: true,
               default: nil,
-              description: "Snyk API Token" },
-            { name: "import_type",
-              type: "string",
-              required: false,
-              default: "vulns",
-              description: "what to import \"vulns\" or \"findings\". By default \"vulns\"" },
+              description: "Snyk API Token"},
             { name: "retrieve_from",
               type: "date",
               required: false,
-              default: 90,
-              description: "default will be 90 days before today" },
+              default: 60,
+              description: "default will be 60 days before today"},
             { name: "include_license",
               type: "boolean",
               required: false,
               default: false,
               description: "retrieve license issues." },
-            { name: "projectName_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from Project Name - used as application identifier" },
-            { name: "packageManager_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from packageManager - used in asset file locator" },
-            { name: "package_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from package - used in asset file locator" },
-            { name: "application_locator_mapping",
-              type: "string",
-              required: false,
-              default: "application",
-              description: "indicates which field should be used in application locator. Valid options are application and organization. Default is application." },
             { name: "page_size",
               type: "integer",
               required: false,
-              default: 1000,
-              description: "The number of objects per page (currently limited from 1 to 1000)." },
+              default: 100,
+              description: "The number of objects per page (Min 10┃Max 100┃ multiple of 10)." },
             { name: "batch_size",
               type: "integer",
               required: false,
               default: 500,
               description: "The maximum number of issues to submit to Kenna in each batch." },
+            { name: "page_num",
+              type: "integer",
+              required: false,
+              default: 5000,
+              description: "Max pagination number" },
             { name: "kenna_connector_id",
               type: "integer",
               required: false,
@@ -99,11 +79,7 @@ module Kenna
         initialize_options
         initialize_client
 
-        cves = nil
-        cwes = nil
-        page_num = 0
-        more_pages = true
-        suffix = @import_findings ? "findings" : "vulns"
+        suffix = "vulns"
 
         kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", "snyk_kdi_#{suffix}.json",
                          @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries,
@@ -115,36 +91,18 @@ module Kenna
           types = ["vuln"]
           types << "license" if @include_license
 
-          while more_pages
-            issue_json = []
-
-            projects.keys.each_slice(500) do |sliced_ids|
-              issue_filter_json = {
-                "filters": {
-                  "orgs": org_ids,
-                  "projects": sliced_ids,
-                  "isFixed": false,
-                  "types": types
-                }
-              }
-              print_debug "issue filter json = #{issue_filter_json}"
-
-              page_num += 1
-              org_ids.each do |org_id|
-                issues_page_data = client.snyk_get_issues(@page_size, issue_filter_json.to_json, page_num, @from_date, @to_date, org_id)
-                issue_json.concat(issues_page_data) unless issues_page_data.empty?
-              end
-
-              print_debug "issue json = #{issue_json}"
-              issue_json.flatten!
+          issue_json = []
+          projects.keys.each_slice(500) do |sliced_ids|
+            org_ids.each do |org_id|
+              issues_page_data = client.snyk_get_issues(@page_size, @page_num, @from_date, @to_date, org_id)
+              issue_json.concat(issues_page_data) unless issues_page_data.empty?
             end
 
-            if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
-              more_pages = false
-              break
-            end
+            print_debug "issue json = #{issue_json}"
+          end
 
-            issue_json.each do |issue_obj|
+          issue_json.each do |issue_arr|
+            issue_arr.each do |issue_obj|
               issue = issue_obj["attributes"]
               project = issue_obj["relationships"]["scan_item"]["data"]
               org_id = issue_obj["relationships"]["organization"]["data"]["id"]
@@ -187,7 +145,9 @@ module Kenna
                   "severity" => issue_severity,
                   "package" => package_name,
                   "version" => issue["coordinates"][0]["representations"][0]["dependency"]["package_version"],
-                  "identifiers" => { "CVE" => [problem["id"]], "CWE" => issue["classes"].map { |c| c["id"] } },
+                  "identifiers" => {
+                    "CVE" => [problem["id"]],
+                    "CWE" => issue["classes"] ? issue["classes"].map { |c| c["id"] } : [] },
                   "publicationTime" => issue["updated_at"]
                 }.compact
 
@@ -224,26 +184,22 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token, @api_base_url)
+        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token, @snyk_api_base)
       end
 
       def initialize_options
         @snyk_api_token = @options[:snyk_api_token]
-        @api_base_url = @options[:snyk_api_base]
-        @import_findings = @options[:import_type] == "findings"
+        @snyk_api_base = @options[:snyk_api_base]
         @output_directory = @options[:output_directory]
         @include_license = @options[:include_license]
 
-        @project_name_strip_colon = @options[:projectName_strip_colon]
-        @package_manager_strip_colon = @options[:packageManager_strip_colon]
-        @package_strip_colon = @options[:package_strip_colon]
-
         @retrieve_from = @options[:retrieve_from]
-        @from_date = (Date.today - @retrieve_from.to_i).strftime("%Y-%m-%d")
-        @to_date = Date.today.strftime("%Y-%m-%d")
+        @from_date = "#{(Date.today - @retrieve_from.to_i).strftime('%Y-%m-%d')}T00:00:00Z"
+        @to_date = "#{Date.today.strftime('%Y-%m-%d')}T00:00:00Z"
 
         @page_size = @options[:page_size].to_i
         @batch_size = @options[:batch_size].to_i
+        @page_num = @options[:page_num].to_i
 
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
