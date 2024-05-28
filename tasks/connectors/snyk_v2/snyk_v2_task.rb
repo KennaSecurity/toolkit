@@ -18,12 +18,12 @@ module Kenna
               type: "api_key",
               required: true,
               default: nil,
-              description: "Snyk API Token"},
+              description: "Snyk API Token" },
             { name: "retrieve_from",
               type: "date",
               required: false,
               default: 60,
-              description: "default will be 60 days before today"},
+              description: "default will be 60 days before today" },
             { name: "include_license",
               type: "boolean",
               required: false,
@@ -92,7 +92,7 @@ module Kenna
           types << "license" if @include_license
 
           issue_json = []
-          projects.keys.each_slice(500) do |sliced_ids|
+          projects.keys.each_slice(500) do
             org_ids.each do |org_id|
               issues_page_data = client.snyk_get_issues(@page_size, @page_num, @from_date, @to_date, org_id)
               issue_json.concat(issues_page_data) unless issues_page_data.empty?
@@ -147,7 +147,8 @@ module Kenna
                   "version" => issue["coordinates"][0]["representations"][0]["dependency"]["package_version"],
                   "identifiers" => {
                     "CVE" => [problem["id"]],
-                    "CWE" => issue["classes"] ? issue["classes"].map { |c| c["id"] } : [] },
+                    "CWE" => issue["classes"] ? issue["classes"].map { |c| c["id"] } : []
+                  },
                   "publicationTime" => issue["updated_at"]
                 }.compact
 
