@@ -41,7 +41,7 @@ module Kenna
           all_issues = []
           next_url = "#{@api_base_url}/orgs/#{org}/issues?version=2024-04-29&limit=#{per_page}&created_after=#{from_date}&created_before=#{to_date}"
 
-          pages.times do |page|
+          pages.times do
             print_debug("Fetching data from URL: #{next_url}")
 
             response = http_get(next_url, @headers)
@@ -59,7 +59,6 @@ module Kenna
 
           all_issues
         end
-
       end
     end
   end
