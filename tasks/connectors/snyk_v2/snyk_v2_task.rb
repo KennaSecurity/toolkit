@@ -22,8 +22,8 @@ module Kenna
             { name: "retrieve_from",
               type: "date",
               required: false,
-              default: 60,
-              description: "default will be 60 days before today" },
+              default: 30,
+              description: "default will be 30 days before today format: YYYY-MM-DD" },
             { name: "include_license",
               type: "boolean",
               required: false,
@@ -68,7 +68,7 @@ module Kenna
               type: "string",
               required: false,
               default: "api.snyk.io",
-              description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io or api.snyk.io or api.au.snyk.io" }
+              description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io" }
           ]
         }
       end
@@ -127,7 +127,7 @@ module Kenna
                 scanner_identifier = "#{issue_identifier}-#{problem['id']}"
                 scanner_type = "Snyk"
                 vuln_def_name = problem["id"]
-                created_at = issue["created_at"]
+                created_at = format_date(issue["created_at"])
 
                 details = {
                   "url" => problem["url"],
@@ -135,7 +135,7 @@ module Kenna
                   "title" => issue["title"],
                   "file" => package_name,
                   "application" => application,
-                  "introducedDate" => issue["created_at"],
+                  "introducedDate" => format_date(issue["created_at"]),
                   "source" => problem["source"],
                   "isPatchable" => issue["coordinates"][0]["is_patchable"].to_s,
                   "isUpgradable" => issue["coordinates"][0]["is_upgradeable"].to_s,
@@ -149,7 +149,7 @@ module Kenna
                     "CVE" => [problem["id"]],
                     "CWE" => issue["classes"] ? issue["classes"].map { |c| c["id"] } : []
                   },
-                  "publicationTime" => issue["updated_at"]
+                  "publicationTime" => format_date(issue["updated_at"])
                 }.compact
 
                 kdi_issue = {
@@ -228,6 +228,10 @@ module Kenna
         print_debug "orgs = #{org_ids}"
 
         org_ids
+      end
+
+      def format_date(date_string)
+        date_string.include?('T') ? date_string : "#{date_string}T00:00:00Z"
       end
     end
   end
