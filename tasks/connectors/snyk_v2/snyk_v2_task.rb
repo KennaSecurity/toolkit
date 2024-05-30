@@ -101,6 +101,9 @@ module Kenna
             print_debug "issue json = #{issue_json}"
           end
 
+          unique_issues = {}
+          unique_vuln_defs = {}
+
           issue_json.each do |issue_arr|
             issue_arr.each do |issue_obj|
               issue = issue_obj["attributes"]
@@ -169,9 +172,18 @@ module Kenna
                   "solution" => issue["resolution"] ? issue["resolution"]["details"] : nil
                 }.compact
 
-                batch.append do
-                  create_kdi_asset_vuln(asset, kdi_issue)
-                  create_kdi_vuln_def(vuln_def)
+                unless unique_issues[scanner_identifier]
+                  unique_issues[scanner_identifier] = true
+                  batch.append do
+                    create_kdi_asset_vuln(asset, kdi_issue)
+                  end
+                end
+
+                unless unique_vuln_defs[vuln_def_name]
+                  unique_vuln_defs[vuln_def_name] = true
+                  batch.append do
+                    create_kdi_vuln_def(vuln_def)
+                  end
                 end
               end
             end
