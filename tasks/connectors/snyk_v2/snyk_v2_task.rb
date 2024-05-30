@@ -66,8 +66,8 @@ module Kenna
               description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
             { name: "snyk_api_base",
               type: "string",
-              required: true,
-              default: nil,
+              required: false,
+              default: "api.snyk.io",
               description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io or api.snyk.io or api.au.snyk.io" }
           ]
         }
