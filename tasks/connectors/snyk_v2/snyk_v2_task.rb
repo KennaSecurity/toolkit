@@ -33,7 +33,7 @@ module Kenna
               type: "integer",
               required: false,
               default: 100,
-              description: "The number of objects per page (Min 10┃Max 100┃ multiple of 10)." },
+              description: "The number of objects per page (Min 10 |Max 100| multiple of 10)." },
             { name: "batch_size",
               type: "integer",
               required: false,
@@ -79,7 +79,7 @@ module Kenna
         initialize_options
         initialize_client
 
-        suffix = "vulns"
+        suffix = "findings_vulns"
 
         kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", "snyk_kdi_#{suffix}.json",
                          @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries,
@@ -129,36 +129,33 @@ module Kenna
                 vuln_def_name = problem["id"]
                 created_at = format_date(issue["created_at"])
 
-                details = {
-                  "url" => problem["url"],
-                  "id" => issue_obj["id"],
-                  "title" => issue["title"],
-                  "file" => package_name,
-                  "application" => application,
-                  "introducedDate" => format_date(issue["created_at"]),
-                  "source" => problem["source"],
-                  "isPatchable" => issue["coordinates"][0]["is_patchable"].to_s,
-                  "isUpgradable" => issue["coordinates"][0]["is_upgradeable"].to_s,
-                  "language" => nil,
-                  "references" => issue["problems"].map { |p| p["url"] },
-                  "cvssScore" => scanner_score,
-                  "severity" => issue_severity,
-                  "package" => package_name,
-                  "version" => issue["coordinates"][0]["representations"][0]["dependency"]["package_version"],
-                  "identifiers" => {
-                    "CVE" => [problem["id"]],
-                    "CWE" => issue["classes"] ? issue["classes"].map { |c| c["id"] } : []
-                  },
-                  "publicationTime" => format_date(issue["updated_at"])
+                additional_fields = {
+                  "is_fixable_manually" => issue["coordinates"][0]["is_fixable_manually"],
+                  "is_fixable_snyk" => issue["coordinates"][0]["is_fixable_snyk"],
+                  "is_fixable_upstream" => issue["coordinates"][0]["is_fixable_upstream"],
+                  "is_patchable" => issue["coordinates"][0]["is_patchable"],
+                  "is_upgradeable" => issue["coordinates"][0]["is_upgradeable"],
+                  "reachability" => issue["coordinates"][0]["reachability"],
+                  "dependency" => issue["coordinates"][0]["representations"][0]["dependency"]
                 }.compact
+
+                finding = {
+                  "scanner_identifier" => scanner_identifier,
+                  "vuln_def_name" => vuln_def_name,
+                  "scanner_type" => scanner_type,
+                  "created_at" => created_at,
+                  "last_seen_at" => format_date(issue["updated_at"]),
+                  "severity" => scanner_score,
+                  "additional_fields" => additional_fields
+                }
 
                 kdi_issue = {
                   "scanner_identifier" => scanner_identifier,
                   "scanner_type" => scanner_type,
                   "vuln_def_name" => vuln_def_name,
+                  "last_seen_at" => format_date(issue["updated_at"]),
                   "scanner_score" => scanner_score,
-                  "created_at" => created_at,
-                  "details" => details
+                  "created_at" => created_at
                 }
 
                 vuln_def = {
@@ -170,6 +167,7 @@ module Kenna
                 }.compact
 
                 batch.append do
+                  create_kdi_asset_finding(asset, finding)
                   create_kdi_asset_vuln(asset, kdi_issue)
                   create_kdi_vuln_def(vuln_def)
                 end
