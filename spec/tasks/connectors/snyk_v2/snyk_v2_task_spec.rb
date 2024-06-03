@@ -10,7 +10,21 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:options) { { snyk_api_token: '0xdeadbeef', import_type: } }
+    let(:options) do
+      {
+        snyk_api_token: '0xdeadbeef',
+        retrieve_from: 30,
+        include_license: false,
+        page_size: 100,
+        batch_size: 500,
+        page_num: 5000,
+        kenna_connector_id: nil,
+        kenna_api_key: nil,
+        kenna_api_host: "api.kennasecurity.com",
+        output_directory: "output/snyk",
+        snyk_api_base: "api.snyk.io"
+      }
+    end
 
     before do
       stub_orgs_request
@@ -43,14 +57,16 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
             "application" => "JoyChou93/java-sec-code:pom.xml",
             "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
             "vulns" => [
-              { "created_at" => "2023-04-26",
+              {
+                "created_at" => "2023-04-26",
                 "details" => be_kind_of(String),
                 "last_seen_at" => be_kind_of(String),
                 "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
                 "scanner_score" => 9,
                 "scanner_type" => "Snyk",
                 "status" => "open",
-                "vuln_def_name" => "CVE-2015-7501" }
+                "vuln_def_name" => "CVE-2015-7501"
+              }
             ]
           }
         )
@@ -91,29 +107,32 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       end
 
       def asset_finding_for_cve(cve)
-        { "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
+        {
+          "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
           "scanner_type" => "Snyk",
           "vuln_def_name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
           "severity" => 9,
           "last_seen_at" => "2023-04-26",
-          "additional_fields" =>
-                          { "url" => "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                            "id" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                            "title" => "Deserialization of Untrusted Data",
-                            "file" => "pom.xml",
-                            "application" => "JoyChou93/java-sec-code:pom.xml",
-                            "introducedDate" => "2023-04-26",
-                            "isPatchable" => "false",
-                            "isUpgradable" => "false",
-                            "language" => "java",
-                            "semver" => "{\n  \"vulnerable\": [\n    \"[3.0,3.2.2)\"\n  ]\n}",
-                            "cvssScore" => "9.8",
-                            "severity" => "critical",
-                            "package" => "commons-collections:commons-collections",
-                            "version" => "3.1",
-                            "identifiers" => { "CVE" => ["CVE-2015-7501", "CVE-2015-4852"], "CWE" => ["CWE-502"] },
-                            "publicationTime" => "2015-11-06T16:51:56.000Z" },
-          "triage_state" => "new" }
+          "additional_fields" => {
+            "url" => "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+            "id" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+            "title" => "Deserialization of Untrusted Data",
+            "file" => "pom.xml",
+            "application" => "JoyChou93/java-sec-code:pom.xml",
+            "introducedDate" => "2023-04-26",
+            "isPatchable" => "false",
+            "isUpgradable" => "false",
+            "language" => "java",
+            "semver" => "{\n  \"vulnerable\": [\n    \"[3.0,3.2.2)\"\n  ]\n}",
+            "cvssScore" => "9.8",
+            "severity" => "critical",
+            "package" => "commons-collections:commons-collections",
+            "version" => "3.1",
+            "identifiers" => { "CVE" => ["CVE-2015-7501", "CVE-2015-4852"], "CWE" => ["CWE-502"] },
+            "publicationTime" => "2015-11-06T16:51:56.000Z"
+          },
+          "triage_state" => "new"
+        }
       end
     end
   end

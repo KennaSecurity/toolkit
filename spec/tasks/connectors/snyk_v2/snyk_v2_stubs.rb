@@ -6,19 +6,20 @@ module SnykV2Stubs
   end
 
   def stub_orgs_request
-    stub_request(:get, "https://snyk.io/api/v1/orgs").to_return_json(body: read_fixture_file("orgs.json"))
+    stub_request(:get, "https://api.snyk.io/rest/orgs?version=2024-04-29")
+      .to_return_json(body: read_fixture_file("orgs.json"))
   end
 
   def stub_projects_request
-    stub_request(:get, Addressable::Template.new("https://snyk.io/api/v1/org/{orgId}/projects"))
+    stub_request(:get, Addressable::Template.new("https://api.snyk.io/rest/orgs/{orgId}/projects?version=2024-04-29&limit=100"))
       .to_return_json(body: read_fixture_file("projects.json"))
   end
 
   def stub_issues_request
-    stub_request(:post, "https://snyk.io/api/v1/reporting/issues")
+    stub_request(:get, Addressable::Template.new("https://api.snyk.io/rest/orgs/{orgId}/issues?version=2024-04-29&limit=100&created_after={fromDate}&created_before={toDate}"))
       .with(query: hash_including({ "page" => "1" }))
       .to_return_json(body: read_fixture_file("issues.json"))
-    stub_request(:post, "https://snyk.io/api/v1/reporting/issues")
+    stub_request(:get, Addressable::Template.new("https://api.snyk.io/rest/orgs/{orgId}/issues?version=2024-04-29&limit=100&created_after={fromDate}&created_before={toDate}"))
       .with(query: hash_including({ "page" => "2" }))
       .to_return_json(body: read_fixture_file("issues_empty.json"))
   end
