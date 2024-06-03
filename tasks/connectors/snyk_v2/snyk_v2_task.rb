@@ -220,7 +220,7 @@ module Kenna
       end
 
       def fetch_orgs_ids(org_json)
-        org_ids = org_json.map { |org| org.fetch("id") }
+        org_ids = Array.wrap(org_json).map { |org| org.fetch("id") }
 
         print_debug org_json
         print_debug "orgs = #{org_ids}"
