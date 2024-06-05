@@ -2,6 +2,7 @@
 
 require "rspec_helper"
 require_relative "snyk_v2_stubs"
+require "json"
 
 RSpec.describe Kenna::Toolkit::SnykV2Task do
   include SnykV2Stubs
@@ -26,10 +27,14 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       }
     end
 
+    let(:org_id) { JSON.parse(read_fixture_file("orgs.json"))["data"].first["id"] }
+    let(:from_date) { "2024-05-06T00:00:00Z" }
+    let(:to_date) { "2024-06-05T00:00:00Z" }
+
     before do
       stub_orgs_request
-      stub_projects_request
-      stub_issues_request
+      stub_projects_request(org_id)
+      stub_issues_request(org_id, from_date, to_date)
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
       task.run(options)
