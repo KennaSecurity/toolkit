@@ -5,15 +5,15 @@
   "data": [
     {
       "type": "project",
-      "id": "12345678-1234-1234-1234-1234567890ab",
+      "id": "034629b9-c709-4af7-b31f-433f9f2f7027",
       "meta": {
         "cli_monitored_at": "2024-06-03T14:23:31.605Z"
       },
       "attributes": {
-        "name": "docker-image|dockersnapshots.example.com/example/dlm-partners",
+        "name": "docker-image|dockersnapshots.verisure.com/verisure/dlm-partners",
         "type": "rpm",
         "target_file": "",
-        "target_reference": "docker-image|dockersnapshots.example.com/example/dlm-partners",
+        "target_reference": "docker-image|dockersnapshots.verisure.com/verisure/dlm-partners",
         "origin": "cli",
         "created": "2024-05-30T04:58:37.625Z",
         "status": "active",
@@ -38,43 +38,43 @@
         "organization": {
           "data": {
             "type": "org",
-            "id": "abcdefab-cdef-cdef-cdef-abcdefabcdef"
+            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
           }
         },
         "target": {
           "data": {
             "type": "target",
-            "id": "11223344-5566-7788-99aa-bbccddeeff00"
+            "id": "28ed3494-2baf-41dc-87f5-8d12c88dc942"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/targets/11223344-5566-7788-99aa-bbccddeeff00"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/targets/28ed3494-2baf-41dc-87f5-8d12c88dc942"
           }
         },
         "importer": {
           "data": {
             "type": "user",
-            "id": "33445566-7788-99aa-bbcc-ddeeffaabbcc"
+            "id": "3df7f98c-8071-414f-8dae-d4bc08dd2d41"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/users/33445566-7788-99aa-bbcc-ddeeffaabbcc"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/users/3df7f98c-8071-414f-8dae-d4bc08dd2d41"
           }
         }
       }
     },
     {
       "type": "project",
-      "id": "22334455-6677-8899-aabb-ccddeeff0011",
+      "id": "0d39bcdf-8c43-4a1d-b68c-67f38b8c97c4",
       "meta": {
         "cli_monitored_at": "2024-06-03T15:45:21.345Z"
       },
       "attributes": {
-        "name": "docker-image|dockersnapshots.example.com/example/web-portal",
+        "name": "docker-image|dockersnapshots.verisure.com/verisure/web-portal",
         "type": "rpm",
         "target_file": "",
-        "target_reference": "docker-image|dockersnapshots.example.com/example/web-portal",
+        "target_reference": "docker-image|dockersnapshots.verisure.com/verisure/web-portal",
         "origin": "cli",
         "created": "2024-05-30T06:30:45.671Z",
         "status": "active",
@@ -99,28 +99,28 @@
         "organization": {
           "data": {
             "type": "org",
-            "id": "abcdefab-cdef-cdef-cdef-abcdefabcdef"
+            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
           }
         },
         "target": {
           "data": {
             "type": "target",
-            "id": "33445566-7788-99aa-bbcc-ddeeffaabbcc"
+            "id": "39bcdf0d-8c43-4a1d-b68c-67f38b8c97c4"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/targets/33445566-7788-99aa-bbcc-ddeeffaabbcc"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/targets/39bcdf0d-8c43-4a1d-b68c-67f38b8c97c4"
           }
         },
         "importer": {
           "data": {
             "type": "user",
-            "id": "44556677-8899-aabb-ccdd-eeff00112233"
+            "id": "5df9e8b7-1c34-4b89-91db-d4f84d6a0b51"
           },
           "links": {
-            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/users/44556677-8899-aabb-ccdd-eeff00112233"
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/users/5df9e8b7-1c34-4b89-91db-d4f84d6a0b51"
           }
         }
       }
