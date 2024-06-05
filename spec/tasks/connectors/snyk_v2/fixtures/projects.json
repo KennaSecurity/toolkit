@@ -1,12 +1,130 @@
-[
-  {
-    "id": "project1",
-    "name": "Project 1",
-    "org": { "id": "org1" }
+{
+  "jsonapi": {
+    "version": "1.0"
   },
-  {
-    "id": "project2",
-    "name": "Project 2",
-    "org": { "id": "org2" }
-  }
-]
+  "data": [
+    {
+      "type": "project",
+      "id": "12345678-1234-1234-1234-1234567890ab",
+      "meta": {
+        "cli_monitored_at": "2024-06-03T14:23:31.605Z"
+      },
+      "attributes": {
+        "name": "docker-image|dockersnapshots.example.com/example/dlm-partners",
+        "type": "rpm",
+        "target_file": "",
+        "target_reference": "docker-image|dockersnapshots.example.com/example/dlm-partners",
+        "origin": "cli",
+        "created": "2024-05-30T04:58:37.625Z",
+        "status": "active",
+        "business_criticality": [],
+        "environment": [],
+        "lifecycle": [],
+        "tags": [],
+        "read_only": false,
+        "settings": {
+          "recurring_tests": {
+            "frequency": "daily"
+          },
+          "pull_requests": {
+            "fail_only_for_issues_with_fix": false
+          }
+        },
+        "build_args": {
+          "platform": "linux/amd64"
+        }
+      },
+      "relationships": {
+        "organization": {
+          "data": {
+            "type": "org",
+            "id": "abcdefab-cdef-cdef-cdef-abcdefabcdef"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef"
+          }
+        },
+        "target": {
+          "data": {
+            "type": "target",
+            "id": "11223344-5566-7788-99aa-bbccddeeff00"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/targets/11223344-5566-7788-99aa-bbccddeeff00"
+          }
+        },
+        "importer": {
+          "data": {
+            "type": "user",
+            "id": "33445566-7788-99aa-bbcc-ddeeffaabbcc"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/users/33445566-7788-99aa-bbcc-ddeeffaabbcc"
+          }
+        }
+      }
+    },
+    {
+      "type": "project",
+      "id": "22334455-6677-8899-aabb-ccddeeff0011",
+      "meta": {
+        "cli_monitored_at": "2024-06-03T15:45:21.345Z"
+      },
+      "attributes": {
+        "name": "docker-image|dockersnapshots.example.com/example/web-portal",
+        "type": "rpm",
+        "target_file": "",
+        "target_reference": "docker-image|dockersnapshots.example.com/example/web-portal",
+        "origin": "cli",
+        "created": "2024-05-30T06:30:45.671Z",
+        "status": "active",
+        "business_criticality": [],
+        "environment": [],
+        "lifecycle": [],
+        "tags": [],
+        "read_only": false,
+        "settings": {
+          "recurring_tests": {
+            "frequency": "daily"
+          },
+          "pull_requests": {
+            "fail_only_for_issues_with_fix": false
+          }
+        },
+        "build_args": {
+          "platform": "linux/amd64"
+        }
+      },
+      "relationships": {
+        "organization": {
+          "data": {
+            "type": "org",
+            "id": "abcdefab-cdef-cdef-cdef-abcdefabcdef"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef"
+          }
+        },
+        "target": {
+          "data": {
+            "type": "target",
+            "id": "33445566-7788-99aa-bbcc-ddeeffaabbcc"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/targets/33445566-7788-99aa-bbcc-ddeeffaabbcc"
+          }
+        },
+        "importer": {
+          "data": {
+            "type": "user",
+            "id": "44556677-8899-aabb-ccdd-eeff00112233"
+          },
+          "links": {
+            "related": "/rest/orgs/abcdefab-cdef-cdef-cdef-abcdefabcdef/users/44556677-8899-aabb-ccdd-eeff00112233"
+          }
+        }
+      }
+    }
+  ],
+  "links": {}
+}
