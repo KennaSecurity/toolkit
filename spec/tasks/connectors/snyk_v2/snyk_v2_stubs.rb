@@ -17,10 +17,8 @@ module SnykV2Stubs
 
   def stub_issues_request(org_id, from_date, to_date)
     stub_request(:get, "https://api.snyk.io/rest/orgs/#{org_id}/issues?version=2024-04-29&limit=100&created_after=#{from_date}&created_before=#{to_date}")
-      .with(query: hash_including({ "page" => "1" }))
       .to_return_json(body: read_fixture_file("issues.json"))
-    stub_request(:get, "https://api.snyk.io/rest/orgs/#{org_id}/issues?version=2024-04-29&limit=100&created_after=#{from_date}&created_before=#{to_date}&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiJmNTBlZDA2Yi00MDI3LTRiMDAtYmVkNy0wMzY1ZDgzMjMyNzgiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D")
-      .with(query: hash_including({ "page" => "2" }))
+    stub_request(:get, "https://api.snyk.io/rest/orgs/#{org_id}/issues?version=2024-04-29&limit=100&created_after=#{from_date}&created_before=#{to_date}&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiIwY2EwMzQ1My0zOTkxLTQ1OTYtYjYzOS1iYmE4NDM5ZWZhZjAiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D")
       .to_return_json(body: read_fixture_file("issues_empty.json"))
   end
 end
