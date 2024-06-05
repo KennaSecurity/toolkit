@@ -14,7 +14,8 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     let(:options) do
       {
         snyk_api_token: '0xdeadbeef',
-        retrieve_from: 30,
+        from_date: "2024-05-06T00:00:00Z",
+        to_date: "2024-06-05T00:00:00Z",
         include_license: false,
         page_size: 100,
         batch_size: 500,
@@ -28,13 +29,11 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     end
 
     let(:org_id) { JSON.parse(read_fixture_file("orgs.json"))["data"].first["id"] }
-    let(:from_date) { "2024-05-06T00:00:00Z" }
-    let(:to_date) { "2024-06-05T00:00:00Z" }
 
     before do
       stub_orgs_request
       stub_projects_request(org_id)
-      stub_issues_request(org_id, from_date, to_date)
+      stub_issues_request(org_id, options[:from_date], options[:to_date])
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
       task.run(options)
