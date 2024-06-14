@@ -19,4 +19,9 @@ module SnykV2Stubs
     stub_request(:get, "https://api.snyk.io/rest/orgs/#{org_id}/issues?version=2024-04-29&limit=100&created_after=#{from_date}&created_before=#{to_date}")
       .to_return(status: 200, body: read_fixture_file("issues.json"), headers: {})
   end
+
+  def stub_empty_issues_request(org_id, from_date, to_date)
+    stub_request(:get, "https://api.snyk.io/rest/orgs/#{org_id}/issues?version=2024-04-29&limit=100&created_after=#{from_date}&created_before=#{to_date}")
+      .to_return(status: 200, body: read_fixture_file("issues_empty.json"), headers: {})
+  end
 end
