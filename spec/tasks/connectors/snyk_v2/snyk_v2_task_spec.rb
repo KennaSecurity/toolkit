@@ -36,44 +36,49 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       stub_issues_request(org_id, options[:from_date], options[:to_date])
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
-      task.run(options)
     end
 
     context "vulnerability" do
       let(:import_type) { "vulns" }
 
       it "creates normalized (non-duplicative) vuln_defs" do
-        expect(task.vuln_defs).to include(
-          {
-            "cve_identifiers" => "CVE-2015-7501,CVE-2015-4852",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "CVE-2015-7501",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-            "scanner_type" => "Snyk"
-          }
-        )
+        VCR.use_cassette("snyk_v2_task/vuln_defs") do
+          task.run(options)
+          expect(task.vuln_defs).to include(
+            {
+              "cve_identifiers" => "CVE-2015-7501,CVE-2015-4852",
+              "description" => "Deserialization of Untrusted Data",
+              "name" => "CVE-2015-7501",
+              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+              "scanner_type" => "Snyk"
+            }
+          )
+        end
       end
 
       it "creates normalized (non-duplicative) vulns on assets" do
-        expect(task.assets).to include(
-          {
-            "file" => "pom.xml",
-            "application" => "JoyChou93/java-sec-code:pom.xml",
-            "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-            "vulns" => [
-              {
-                "created_at" => "2023-04-26",
-                "details" => be_kind_of(String),
-                "last_seen_at" => be_kind_of(String),
-                "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                "scanner_score" => 9,
-                "scanner_type" => "Snyk",
-                "status" => "open",
-                "vuln_def_name" => "CVE-2015-7501"
-              }
-            ]
-          }
-        )
+        VCR.use_cassette("snyk_v2_task/assets") do
+          task.run(options)
+          expect(task.assets).to include(
+            {
+              "file" => "pom.xml",
+              "application" => "JoyChou93/java-sec-code:pom.xml",
+              "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
+              "vulns" => [
+                {
+                  "created_at" => "2023-04-26",
+                  "details" => be_kind_of(String),
+                  "last_seen_at" => be_kind_of(String),
+                  "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+                  "scanner_score" => 9,
+                  "scanner_type" => "Snyk",
+                  "status" => "open",
+                  "vuln_def_name" => "CVE-2015-7501"
+                }
+              ]
+            }
+          )
+        end
       end
     end
 
@@ -81,33 +86,39 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       let(:import_type) { "findings" }
 
       it "creates duplicate vuln_defs" do
-        expect(task.vuln_defs).to include(
-          {
-            "cve_identifiers" => "CVE-2015-7501",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-            "scanner_type" => "Snyk"
-          },
-          {
-            "cve_identifiers" => "CVE-2015-4852",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-            "scanner_type" => "Snyk"
-          }
-        )
+        VCR.use_cassette("snyk_v2_task/duplicate_vuln_defs") do
+          task.run(options)
+          expect(task.vuln_defs).to include(
+            {
+              "cve_identifiers" => "CVE-2015-7501",
+              "description" => "Deserialization of Untrusted Data",
+              "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
+              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
+              "scanner_type" => "Snyk"
+            },
+            {
+              "cve_identifiers" => "CVE-2015-4852",
+              "description" => "Deserialization of Untrusted Data",
+              "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
+              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
+              "scanner_type" => "Snyk"
+            }
+          )
+        end
       end
 
       it "creates assets with duplicate findings" do
-        expect(task.assets).to include(
-          hash_including("file" => "pom.xml",
-                         "application" => "JoyChou93/java-sec-code:pom.xml",
-                         "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-                         "findings" => [
-                           asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
-                         ])
-        )
+        VCR.use_cassette("snyk_v2_task/duplicate_findings") do
+          task.run(options)
+          expect(task.assets).to include(
+            hash_including("file" => "pom.xml",
+                           "application" => "JoyChou93/java-sec-code:pom.xml",
+                           "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
+                           "findings" => [
+                             asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
+                           ])
+          )
+        end
       end
 
       def asset_finding_for_cve(cve)
