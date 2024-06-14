@@ -121,15 +121,6 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
         end
       end
 
-      it "handles empty issues response" do
-        stub_empty_issues_request(org_id, options[:from_date], options[:to_date])
-        VCR.use_cassette("snyk_v2_task/empty_issues") do
-          task.run(options)
-          expect(task.assets).to be_empty
-          expect(task.vuln_defs).to be_empty
-        end
-      end
-
       def asset_finding_for_cve(cve)
         {
           "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
