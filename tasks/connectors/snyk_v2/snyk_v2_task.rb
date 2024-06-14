@@ -8,6 +8,8 @@ module Kenna
       SCANNER_TYPE = "Snyk"
       ISSUE_SEVERITY_MAPPING = { "critical" => 10, "high" => 6, "medium" => 4, "low" => 1, "info" => 0 }.freeze
 
+      attr_reader :vuln_defs, :assets
+
       def self.metadata
         {
           id: "snyk_v2",
@@ -78,6 +80,9 @@ module Kenna
 
         initialize_options
         initialize_client
+
+        @vuln_defs = []
+        @assets = []
 
         suffix = "findings_vulns"
 
@@ -171,6 +176,9 @@ module Kenna
                   create_kdi_asset_vuln(asset, kdi_issue)
                   create_kdi_vuln_def(vuln_def)
                 end
+
+                @vuln_defs << vuln_def
+                @assets << asset
               end
             end
           end
