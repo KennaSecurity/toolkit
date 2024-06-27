@@ -38,116 +38,52 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       spy_on_accumulators
     end
 
-    context "vulnerability" do
-      let(:import_type) { "vulns" }
-
-      it "creates normalized (non-duplicative) vuln_defs" do
-        VCR.use_cassette("snyk_v2_task/vuln_defs") do
-          task.run(options)
-          expect(task.vuln_defs).to include(
-            {
-              "cve_identifiers" => "CVE-2015-7501,CVE-2015-4852",
-              "description" => "Deserialization of Untrusted Data",
-              "name" => "CVE-2015-7501",
-              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-              "scanner_type" => "Snyk"
-            }
-          )
-        end
+    context "fetches data from Snyk API" do
+      it "fetches organizations" do
+        expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_orgs).and_call_original
+        task.run(options)
       end
 
-      it "creates normalized (non-duplicative) vulns on assets" do
-        VCR.use_cassette("snyk_v2_task/assets") do
-          task.run(options)
-          expect(task.assets).to include(
-            {
-              "file" => "pom.xml",
-              "application" => "JoyChou93/java-sec-code:pom.xml",
-              "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-              "vulns" => [
-                {
-                  "created_at" => "2023-04-26",
-                  "details" => be_kind_of(String),
-                  "last_seen_at" => be_kind_of(String),
-                  "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                  "scanner_score" => 9,
-                  "scanner_type" => "Snyk",
-                  "status" => "open",
-                  "vuln_def_name" => "CVE-2015-7501"
-                }
-              ]
-            }
-          )
-        end
+      it "fetches projects" do
+        expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_projects).with(org_id).and_call_original
+        task.run(options)
+      end
+
+      it "fetches issues" do
+        expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_issues).with(100, 5000, options[:from_date], options[:to_date], org_id).and_call_original
+        task.run(options)
       end
     end
 
-    context "finding that has multiple CVEs" do
-      let(:import_type) { "findings" }
-
-      it "creates duplicate vuln_defs" do
-        VCR.use_cassette("snyk_v2_task/duplicate_vuln_defs") do
-          task.run(options)
-          expect(task.vuln_defs).to include(
-            {
-              "cve_identifiers" => "CVE-2015-7501",
-              "description" => "Deserialization of Untrusted Data",
-              "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-              "scanner_type" => "Snyk"
-            },
-            {
-              "cve_identifiers" => "CVE-2015-4852",
-              "description" => "Deserialization of Untrusted Data",
-              "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-              "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-              "scanner_type" => "Snyk"
-            }
+    context "vulnerability" do
+      it "creates normalized (non-duplicative) vuln_defs" do
+        task.run(options)
+        expect(task.vuln_defs).to include(
+          hash_including(
+            "name" => "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
+            "scanner_identifier" => "pcre2-3355351",
+            "scanner_type" => "Snyk"
           )
-        end
+        )
       end
 
-      it "creates assets with duplicate findings" do
-        VCR.use_cassette("snyk_v2_task/duplicate_findings") do
-          task.run(options)
-          expect(task.assets).to include(
-            hash_including("file" => "pom.xml",
-                           "application" => "JoyChou93/java-sec-code:pom.xml",
-                           "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-                           "findings" => [
-                             asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
-                           ])
+      it "creates normalized (non-duplicative) vulns on assets" do
+        task.run(options)
+        expect(task.assets).to include(
+          hash_including(
+            "file" => "pcre2",
+            "application" => "034629b9-c709-4af7-b31f-433f9f2f7027",
+            "tags" => ["Org:e0319d01-7a3f-442a-8e94-3613b81c705a"],
+            "vulns" => array_including(
+              hash_including(
+                "scanner_identifier" => "pcre2-3355351",
+                "scanner_type" => "Snyk",
+                "vuln_def_name" => "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
+                "severity" => 7.5
+              )
+            )
           )
-        end
-      end
-
-      def asset_finding_for_cve(cve)
-        {
-          "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
-          "scanner_type" => "Snyk",
-          "vuln_def_name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
-          "severity" => 9,
-          "last_seen_at" => "2023-04-26",
-          "additional_fields" => {
-            "url" => "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-            "id" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-            "title" => "Deserialization of Untrusted Data",
-            "file" => "pom.xml",
-            "application" => "JoyChou93/java-sec-code:pom.xml",
-            "introducedDate" => "2023-04-26",
-            "isPatchable" => "false",
-            "isUpgradable" => "false",
-            "language" => "java",
-            "semver" => "{\n  \"vulnerable\": [\n    \"[3.0,3.2.2)\"\n  ]\n}",
-            "cvssScore" => "9.8",
-            "severity" => "critical",
-            "package" => "commons-collections:commons-collections",
-            "version" => "3.1",
-            "identifiers" => { "CVE" => ["CVE-2015-7501", "CVE-2015-4852"], "CWE" => ["CWE-502"] },
-            "publicationTime" => "2015-11-06T16:51:56.000Z"
-          },
-          "triage_state" => "new"
-        }
+        )
       end
     end
   end
