@@ -1,63 +1,53 @@
 {
-  "results": [
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "links": {
+    "self": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?version=2024-04-29&limit=10&created_after=2024-05-06T00:00:00Z&created_before=2024-06-05T00:00:00Z",
+    "first": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&limit=10&version=2024-04-29",
+    "last": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=end&limit=10&version=2024-04-29",
+    "prev": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiIwY2EwMzQ1My0zOTkxLTQ1OTYtYjYzOS1iYmE4NDM5ZWZhZjAiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&limit=10&version=2024-04-29",
+    "next": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&limit=10&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiJmNTBlZDA2Yi00MDI3LTRiMDAtYmVkNy0wMzY1ZDgzMjMyNzgiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&version=2024-04-29"
+  },
+  "data": [
     {
-      "issue": {
-        "url": "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-        "id": "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-        "title": "Deserialization of Untrusted Data",
-        "type": "vuln",
-        "package": "commons-collections:commons-collections",
-        "version": "3.1",
-        "severity": "critical",
-        "originalSeverity": null,
-        "uniqueSeveritiesList": [
-          "critical"
-        ],
-        "language": "java",
-        "packageManager": "maven",
-        "semver": {
-          "vulnerable": [
-            "[3.0,3.2.2)"
-          ]
+      "id": "pcre2-3355351",
+      "type": "issue",
+      "attributes": {
+        "created_at": "2024-05-07T08:48:12.422Z",
+        "description": "pcre2/libpcre2-8-0 Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
+        "severity": "high",
+        "title": "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
+        "issue_type": "vuln",
+        "severity_source": "SNYK",
+        "language": "C",
+        "package": {
+          "name": "pcre2",
+          "version": "10.36"
         },
-        "isIgnored": false,
-        "publicationTime": "2015-11-06T16:51:56.000Z",
-        "disclosureTime": "2015-11-06T16:51:56.000Z",
-        "isUpgradable": false,
-        "isPatchable": false,
-        "isPinnable": false,
-        "identifiers": {
-          "CVE": [
-            "CVE-2015-7501",
-            "CVE-2015-4852"
-          ],
-          "CWE": [
-            "CWE-502"
-          ]
-        },
-        "credit": [
-          "Unknown"
-        ],
-        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:H/RL:O",
-        "cvssScore": "9.8",
-        "patches": [],
-        "isPatched": false,
-        "exploitMaturity": "mature",
-        "reachability": "",
-        "priorityScore": 790,
-        "jiraIssueUrl": null
+        "cvss_score": 7.5,
+        "cvss_v3": "AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
       },
-      "isFixed": false,
-      "introducedDate": "2023-04-26",
-      "project": {
-        "url": "https://snyk.io/org/kenna-security-nfr-shared/project/9a134a37-7420-4418-9b85-b675ed9ac3dc",
-        "id": "9a134a37-7420-4418-9b85-b675ed9ac3dc",
-        "name": "JoyChou93/java-sec-code:pom.xml",
-        "source": "github",
-        "packageManager": "maven",
-        "targetFile": "pom.xml"
+      "relationships": {
+        "organization": {
+          "data": {
+            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a",
+            "type": "org"
+          },
+          "links": {
+            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
+          }
+        },
+        "project": {
+          "data": {
+            "id": "034629b9-c709-4af7-b31f-433f9f2f7027",
+            "type": "project"
+          },
+          "links": {
+            "related": "/rest/projects/034629b9-c709-4af7-b31f-433f9f2f7027"
+          }
+        }
       }
     }
-  ],
-  "total": 1
+  ]
 }
