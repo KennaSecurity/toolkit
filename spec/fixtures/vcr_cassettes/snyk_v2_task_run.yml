@@ -1,0 +1,291 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - 2db3becb-f470-461c-a6d1-bb08218c6d10
+      Date:
+      - Thu, 27 Jun 2024 12:23:50 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491029.428fe48
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:23:50 GMT
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - 61d6e836-98fd-41d3-8a61-ea543b6400b7
+      Date:
+      - Thu, 27 Jun 2024 12:24:05 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491045.4290eda
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:24:05 GMT
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - 7c4912cc-fbe0-4049-9a31-e1ce60b0f7f6
+      Date:
+      - Thu, 27 Jun 2024 12:24:20 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491060.4291f7a
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:24:20 GMT
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - 4bda60b5-9313-4e28-8d1e-09e78c39ae8f
+      Date:
+      - Thu, 27 Jun 2024 12:24:36 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491076.4293048
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:24:36 GMT
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - d129ad53-da76-452f-be19-cc77f9421a87
+      Date:
+      - Thu, 27 Jun 2024 12:24:51 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491091.429414e
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:24:51 GMT
+- request:
+    method: get
+    uri: https://api.snyk.io/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-28T00:00:00Z&created_before=2024-06-27T00:00:00Z&limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 0xdeadbeef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.snyk.io
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Content-Length:
+      - '84'
+      Snyk-Request-Id:
+      - 2ac1eb21-519c-4d63-88ec-8881ac483a00
+      Date:
+      - Thu, 27 Jun 2024 12:25:06 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.17acc117.1719491106.4295258
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '''{"jsonapi":{"version":"1.0"},"errors":[{"status":"401","details":"Unauthorized"}]}'''
+  recorded_at: Thu, 27 Jun 2024 12:25:06 GMT
+recorded_with: VCR 6.1.0

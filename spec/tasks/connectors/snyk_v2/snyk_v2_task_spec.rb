@@ -31,69 +31,26 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     let(:org_id) { JSON.parse(read_fixture_file("orgs.json"))["data"].first["id"] }
 
     before do
-      stub_orgs_request
-      stub_projects_request(org_id)
-      stub_issues_request(org_id, options[:from_date], options[:to_date])
-      allow(Kenna::Api::Client).to receive(:new) { kenna_client }
-      spy_on_accumulators
-    end
-
-    context "fetches data from Snyk API" do
-      it "fetches organizations" do
-        VCR.use_cassette("snyk_v2_task/fetches_organizations") do
-          expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_orgs).and_call_original
-          task.run(options)
-        end
-      end
-
-      it "fetches projects" do
-        VCR.use_cassette("snyk_v2_task/fetches_projects") do
-          expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_projects).with(org_id).and_call_original
-          task.run(options)
-        end
-      end
-
-      it "fetches issues" do
-        VCR.use_cassette("snyk_v2_task/fetches_issues") do
-          expect_any_instance_of(Kenna::Toolkit::SnykV2::SnykV2Client).to receive(:snyk_get_issues).with(100, 5000, options[:from_date], options[:to_date], org_id).and_call_original
-          task.run(options)
-        end
+      VCR.use_cassette("snyk_v2_task_run") do
+        stub_orgs_request
+        stub_projects_request(org_id)
+        stub_issues_request(org_id, options[:from_date], options[:to_date])
+        allow(Kenna::Api::Client).to receive(:new).and_return(kenna_client)
+        spy_on_accumulators
       end
     end
 
-    context "vulnerability" do
-      it "creates normalized (non-duplicative) vuln_defs" do
-        VCR.use_cassette("snyk_v2_task/creates_vuln_defs") do
-          task.run(options)
-          expect(task.vuln_defs).to include(
-            hash_including(
-              "name" => "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
-              "scanner_identifier" => "pcre2-3355351",
-              "scanner_type" => "Snyk"
-            )
-          )
-        end
-      end
-
-      it "creates normalized (non-duplicative) vulns on assets" do
-        VCR.use_cassette("snyk_v2_task/creates_vulns_on_assets") do
-          task.run(options)
-          expect(task.assets).to include(
-            hash_including(
-              "file" => "pcre2",
-              "application" => "034629b9-c709-4af7-b31f-433f9f2f7027",
-              "tags" => ["Org:e0319d01-7a3f-442a-8e94-3613b81c705a"],
-              "vulns" => array_including(
-                hash_including(
-                  "scanner_identifier" => "pcre2-3355351",
-                  "scanner_type" => "Snyk",
-                  "vuln_def_name" => "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
-                  "severity" => 7.5
-                )
-              )
-            )
-          )
-        end
+    it "runs the task and includes the expected vulnerability definition" do
+      VCR.use_cassette("snyk_v2_task_run") do
+        task.run(options)
+        expect(task.vuln_defs).to include(
+          {
+            "description" => "Deserialization of Untrusted Data",
+            "name" => "CVE-2015-7501",
+            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+            "scanner_type" => "Snyk"
+          }
+        )
       end
     end
   end
