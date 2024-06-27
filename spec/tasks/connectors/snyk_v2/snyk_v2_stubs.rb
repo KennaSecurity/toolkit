@@ -2,7 +2,7 @@
 
 module SnykV2Stubs
   def read_fixture_file(filename)
-    File.read(File.join('spec', 'fixtures', 'vcr_cassettes', filename))
+    File.read(File.join('spec', 'tasks', 'connectors', 'snyk_v2', 'fixtures', filename))
   end
 
   def stub_orgs_request
