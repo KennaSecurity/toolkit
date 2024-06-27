@@ -32,8 +32,8 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
 
     before do
       stub_orgs_request
-      stub_projects_request
-      stub_issues_request
+      stub_projects_request(org_id)
+      stub_issues_request(org_id, options[:from_date], options[:to_date])
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
     end
