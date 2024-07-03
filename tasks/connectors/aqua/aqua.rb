@@ -91,9 +91,10 @@ module Kenna
         max_batch_size = @options[:batch_pages_count]
 
         cont_pagenum = 0
-        pagenum = 0
-        batch_count = 0
-        page_size = 500
+        pagenum      = 0
+        batch_count  = 0
+        page_size    = 500
+
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -101,6 +102,8 @@ module Kenna
 
         token = aqua_get_token(aqua_url, username, password)
         fail_task "Unable to authenticate with Aqua, please check credentials" unless token
+
+        aqua_url = get_wp_url(token) if cloud_url?(aqua_url)
 
         if container_data
           print_debug "Container_data flag set to true"
@@ -198,7 +201,7 @@ module Kenna
             os = "#{vuln_obj['os']}-#{vuln_obj['os_version']}" if vuln_obj.key?("os_version")
             arch = resource_obj.fetch("arch") if resource_obj.key?("arch")
             ack_date = vuln_obj["acknowledged_date"]
-            aqua_score = (vuln_obj["aqua_score"]).ceil
+            aqua_score = (vuln_obj["aqua_score"])&.ceil
             print_debug "Vuln name: #{vuln_name}"
 
             vuln_details = {
