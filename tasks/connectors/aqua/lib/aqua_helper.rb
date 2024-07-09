@@ -5,10 +5,26 @@ require "json"
 module Kenna
   module Toolkit
     module AquaHelper
-      SAAS_AUTH_URL = "https://api.cloudsploit.com/v2/signin"
-      WP_URL_API    = "https://prov.cloud.aquasec.com/v1/envs"
+      def select_region_urls(aqua_url)
+        case aqua_url
+        when /eu-1\.cloud\.aquasec\.com/
+          @saas_auth_url = "https://eu-1.api.cloudsploit.com/v2/signin"
+          @wp_url_api = "https://prov-eu-1.cloud.aquasec.com/v1/envs"
+        when /asia-1\.cloud\.aquasec\.com/
+          @saas_auth_url = "https://asia-1.api.cloudsploit.com/v2/signin"
+          @wp_url_api = "https://prov-asia-1.cloud.aquasec.com/v1/envs"
+        when /ap-2\.cloud\.aquasec\.com/
+          @saas_auth_url = "https://ap-2.api.cloudsploit.com/v2/signin"
+          @wp_url_api = "https://prov-ap-2.cloud.aquasec.com/v1/envs"
+        else
+          @saas_auth_url = "https://api.cloudsploit.com/v2/signin"
+          @wp_url_api = "https://prov.cloud.aquasec.com/v1/envs"
+        end
+      end
 
       def aqua_get_token(aqua_url, username, password)
+        select_region_urls(aqua_url)
+
         if cloud_url?(aqua_url)
           get_token_from_cloud(username, password)
         else
@@ -21,14 +37,14 @@ module Kenna
       end
 
       def get_token_from_cloud(username, password)
-        get_token(SAAS_AUTH_URL, username, password)
+        get_token(@saas_auth_url, username, password)
       end
 
       def get_token(auth_url, username, password)
         print_debug "Getting Auth Token from #{auth_url}"
 
         headers = { "Content-Type" => "application/json" }
-        payload = if auth_url == SAAS_AUTH_URL
+        payload = if auth_url == @saas_auth_url
                     { "email": username, "password": password }.to_json
                   else
                     { "id": username.to_s, "password": password }.to_json
@@ -59,7 +75,7 @@ module Kenna
       def get_wp_url(token)
         print_debug "Getting Workload Protection URL"
         headers  = { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-        response = safe_http_get(WP_URL_API, headers)
+        response = safe_http_get(@wp_url_api, headers)
 
         return unless response
 
