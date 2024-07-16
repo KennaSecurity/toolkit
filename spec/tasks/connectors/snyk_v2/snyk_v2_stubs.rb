@@ -1,4 +1,4 @@
-# snyk_v2_stubs.rb
+# frozen_string_literal: true
 
 module SnykV2Stubs
   def read_fixture_file(filename)
