@@ -8,8 +8,6 @@ module Kenna
       SCANNER_TYPE = "Snyk"
       ISSUE_SEVERITY_MAPPING = { "critical" => 10, "high" => 6, "medium" => 4, "low" => 1, "info" => 0 }.freeze
 
-      attr_reader :vuln_defs, :assets
-
       def self.metadata
         {
           id: "snyk_v2",
@@ -44,7 +42,7 @@ module Kenna
             { name: "page_num",
               type: "integer",
               required: false,
-              default: 5000,
+              default: 500,
               description: "Max pagination number" },
             { name: "kenna_connector_id",
               type: "integer",
@@ -81,9 +79,6 @@ module Kenna
         initialize_options
         initialize_client
 
-        @vuln_defs = []
-        @assets = []
-
         suffix = "findings_vulns"
 
         kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", "snyk_kdi_#{suffix}.json",
@@ -111,27 +106,28 @@ module Kenna
               issue = issue_obj["attributes"]
               project = issue_obj["relationships"]["scan_item"]["data"]
               org_id = issue_obj["relationships"]["organization"]["data"]["id"]
+              issue_identifier = issue["key"]
 
               application = project.fetch("id")
               package_name = issue["coordinates"][0]["representations"][0]["dependency"]["package_name"]
               tags = ["Org:#{org_id}"]
 
               asset = {
-                "file" => package_name,
-                "application" => application,
-                "tags" => tags
+                "file" => "Snyk_#{issue_identifier.split('-')[2]}_#{issue_obj['id']}",
+                "tags" => tags,
+                "os" => (match = issue_identifier.match(/SNYK-([A-Z0-9]+)-/)) ? match[1] : nil,
+                "priority" => 10
               }
 
-              issue_identifier = issue["key"]
               issue_severity = issue["effective_severity_level"]
               scanner_score = ISSUE_SEVERITY_MAPPING[issue_severity]
 
               issue["problems"].each do |problem|
                 next unless problem["source"] == "NVD"
 
-                scanner_identifier = "#{issue_identifier}-#{problem['id']}"
+                scanner_identifier = "#{issue_obj['id']}"
+                vuln_def_name = issue_identifier
                 scanner_type = "Snyk"
-                vuln_def_name = problem["id"]
                 created_at = format_date(issue["created_at"])
 
                 additional_fields = {
@@ -156,19 +152,22 @@ module Kenna
 
                 kdi_issue = {
                   "scanner_identifier" => scanner_identifier,
-                  "scanner_type" => scanner_type,
                   "vuln_def_name" => vuln_def_name,
+                  "scanner_type" => scanner_type,
+                  "created_at" => created_at,
                   "last_seen_at" => format_date(issue["updated_at"]),
-                  "scanner_score" => scanner_score,
-                  "created_at" => created_at
+                  "status" => issue["status"] == "resolved" ? "closed" : issue["status"],
+                  "details" => issue["title"] == "details" ? nil : "#{problem["id"]} : #{issue["title"]}_#{issue["type"]}",
+                  "scanner_score" => scanner_score
                 }
 
                 vuln_def = {
                   "name" => vuln_def_name,
                   "scanner_type" => scanner_type,
-                  "scanner_identifier" => issue_identifier,
-                  "description" => issue["title"],
-                  "solution" => issue["resolution"] ? issue["resolution"]["details"] : nil
+                  "cve_identifiers" => problem["id"],
+                  "cwe_identifiers"=> issue["classes"] && issue["classes"][0] ? issue["classes"][0]["id"] : nil,
+                  "description" => issue["title"] == "details" ? nil : "#{problem["id"]}: #{issue["title"]}_#{issue["type"]}",
+                  "solution" => problem["url"] ? "For more information, go to this link: #{problem["url"]}" : nil
                 }.compact
 
                 batch.append do
@@ -176,9 +175,6 @@ module Kenna
                   create_kdi_asset_vuln(asset, kdi_issue)
                   create_kdi_vuln_def(vuln_def)
                 end
-
-                @vuln_defs << vuln_def
-                @assets << asset
               end
             end
           end
