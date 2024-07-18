@@ -19,7 +19,7 @@ gem "aws-sdk-inspector2"
 gem "httparty"
 gem "ipaddress"
 gem "rest-client"
-gem "rexml", ">= 3.2.7"
+gem 'rexml', '>= 3.3.2'
 gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
