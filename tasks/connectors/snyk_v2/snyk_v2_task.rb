@@ -108,8 +108,6 @@ module Kenna
               org_id = issue_obj["relationships"]["organization"]["data"]["id"]
               issue_identifier = issue["key"]
 
-              application = project.fetch("id")
-              package_name = issue["coordinates"][0]["representations"][0]["dependency"]["package_name"]
               tags = ["Org:#{org_id}"]
 
               asset = {
@@ -125,7 +123,7 @@ module Kenna
               issue["problems"].each do |problem|
                 next unless problem["source"] == "NVD"
 
-                scanner_identifier = "#{issue_obj['id']}"
+                scanner_identifier = issue_obj['id'].to_s
                 vuln_def_name = issue_identifier
                 scanner_type = "Snyk"
                 created_at = format_date(issue["created_at"])
@@ -157,7 +155,7 @@ module Kenna
                   "created_at" => created_at,
                   "last_seen_at" => format_date(issue["updated_at"]),
                   "status" => issue["status"] == "resolved" ? "closed" : issue["status"],
-                  "details" => issue["title"] == "details" ? nil : "#{problem["id"]} : #{issue["title"]}_#{issue["type"]}",
+                  "details" => issue["title"] == "details" ? nil : "#{problem['id']} : #{issue['title']}_#{issue['type']}",
                   "scanner_score" => scanner_score
                 }
 
@@ -165,9 +163,9 @@ module Kenna
                   "name" => vuln_def_name,
                   "scanner_type" => scanner_type,
                   "cve_identifiers" => problem["id"],
-                  "cwe_identifiers"=> issue["classes"] && issue["classes"][0] ? issue["classes"][0]["id"] : nil,
-                  "description" => issue["title"] == "details" ? nil : "#{problem["id"]}: #{issue["title"]}_#{issue["type"]}",
-                  "solution" => problem["url"] ? "For more information, go to this link: #{problem["url"]}" : nil
+                  "cwe_identifiers" => issue["classes"] && issue["classes"][0] ? issue["classes"][0]["id"] : nil,
+                  "description" => issue["title"] == "details" ? nil : "#{problem['id']}: #{issue['title']}_#{issue['type']}",
+                  "solution" => problem["url"] ? "For more information, go to this link: #{problem['url']}" : nil
                 }.compact
 
                 batch.append do
