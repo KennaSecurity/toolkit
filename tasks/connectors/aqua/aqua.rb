@@ -100,10 +100,15 @@ module Kenna
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
 
-        token = aqua_get_token(aqua_url, username, password)
+        setup(aqua_url, username, password)
+
+        token = aqua_get_token
         fail_task "Unable to authenticate with Aqua, please check credentials" unless token
 
-        aqua_url = get_wp_url(token) if cloud_url?(aqua_url)
+        if cloud?
+          aqua_url = get_wp_url(token)
+          fail_task "Unable to retrieve Workload Protection URL" unless aqua_url
+        end
 
         if container_data
           print_debug "Container_data flag set to true"

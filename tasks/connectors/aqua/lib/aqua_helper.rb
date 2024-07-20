@@ -1,53 +1,65 @@
 # frozen_string_literal: true
 
 require "json"
+require "uri"
 
 module Kenna
   module Toolkit
     module AquaHelper
-      def select_region_urls(aqua_url)
-        case aqua_url
-        when /eu-1\.cloud\.aquasec\.com/
-          @saas_auth_url = "https://eu-1.api.cloudsploit.com/v2/signin"
-          @wp_url_api = "https://prov-eu-1.cloud.aquasec.com/v1/envs"
-        when /asia-1\.cloud\.aquasec\.com/
-          @saas_auth_url = "https://asia-1.api.cloudsploit.com/v2/signin"
-          @wp_url_api = "https://prov-asia-1.cloud.aquasec.com/v1/envs"
-        when /ap-2\.cloud\.aquasec\.com/
-          @saas_auth_url = "https://ap-2.api.cloudsploit.com/v2/signin"
-          @wp_url_api = "https://prov-ap-2.cloud.aquasec.com/v1/envs"
+      REGION_URLS = {
+        "default" => { auth: "https://api.cloudsploit.com/v2/signin",
+                       wp: "https://prov.cloud.aquasec.com/v1/envs" },
+        "ap-2" => { auth: "https://ap-2.api.cloudsploit.com/v2/signin",
+                    wp: "https://prov-ap-2.cloud.aquasec.com/v1/envs" },
+        "asia-1" => { auth: "https://asia-1.api.cloudsploit.com/v2/signin",
+                      wp: "https://prov-asia-1.cloud.aquasec.com/v1/envs" },
+        "eu-1" => { auth: "https://eu-1.api.cloudsploit.com/v2/signin",
+                    wp: "https://prov-eu-1.cloud.aquasec.com/v1/envs" }
+      }.freeze
+
+      def setup(aqua_url, username, password)
+        @aqua_url = aqua_url
+        @username = username
+        @password = password
+        @cloud = cloud_url?(aqua_url)
+      end
+
+      def cloud?
+        @cloud
+      end
+
+      def select_region_urls
+        region = case @aqua_url
+                 when /eu-1\.cloud\.aquasec\.com/
+                   "eu-1"
+                 when /asia-1\.cloud\.aquasec\.com/
+                   "asia-1"
+                 when /ap-2\.cloud\.aquasec\.com/
+                   "ap-2"
+                 else
+                   "default"
+                 end
+
+        REGION_URLS[region]
+      end
+
+      def aqua_get_token
+        if cloud?
+          region_urls = select_region_urls
+          get_token(region_urls[:auth], @username, @password)
         else
-          @saas_auth_url = "https://api.cloudsploit.com/v2/signin"
-          @wp_url_api = "https://prov.cloud.aquasec.com/v1/envs"
+          get_token("#{@aqua_url}/api/v1/login", @username, @password)
         end
-      end
-
-      def aqua_get_token(aqua_url, username, password)
-        select_region_urls(aqua_url)
-
-        if cloud_url?(aqua_url)
-          get_token_from_cloud(username, password)
-        else
-          get_token_from_on_prem(aqua_url, username, password)
-        end
-      end
-
-      def get_token_from_on_prem(aqua_url, username, password)
-        get_token("#{aqua_url}/api/v1/login", username, password)
-      end
-
-      def get_token_from_cloud(username, password)
-        get_token(@saas_auth_url, username, password)
       end
 
       def get_token(auth_url, username, password)
         print_debug "Getting Auth Token from #{auth_url}"
 
         headers = { "Content-Type" => "application/json" }
-        payload = if auth_url == @saas_auth_url
-                    { "email": username, "password": password }.to_json
+        payload = if cloud?
+                    { email: username, password: }.to_json
                   else
-                    { "id": username.to_s, "password": password }.to_json
+                    { id: username.to_s, password: }.to_json
                   end
 
         begin
@@ -74,8 +86,10 @@ module Kenna
 
       def get_wp_url(token)
         print_debug "Getting Workload Protection URL"
-        headers  = { "Authorization" => "Bearer #{token}", "Content-Type" => "application/json" }
-        response = safe_http_get(@wp_url_api, headers)
+        region_urls = select_region_urls
+        headers = { "Authorization" => "Bearer #{token}",
+                    "Content-Type" => "application/json" }
+        response = safe_http_get(region_urls[:wp], headers)
 
         return unless response
 
@@ -112,11 +126,11 @@ module Kenna
         print_debug "Getting All Image Vulnerabilities"
         aqua_query_api = "#{aqua_url}/api/v2/risks/vulnerabilities?pagesize=#{pagesize}&page=#{pagenum}"
         puts "finding #{aqua_query_api}"
-        @headers = { "Content-Type" => "application/json",
-                     "accept" => "application/json",
-                     "Authorization" => "Bearer #{token}" }
+        headers = { "Content-Type" => "application/json",
+                    "accept" => "application/json",
+                    "Authorization" => "Bearer #{token}" }
 
-        response = http_get(aqua_query_api, @headers)
+        response = http_get(aqua_query_api, headers)
         return nil unless response
 
         begin
@@ -132,11 +146,11 @@ module Kenna
         print_debug "Getting All Containers"
         aqua_cont_api = "#{aqua_url}/api/v2/containers?pagesize=#{pagesize}&page=#{pagenum}"
         puts "finding #{aqua_cont_api}"
-        @headers = { "Content-Type" => "application/json",
-                     "accept" => "application/json",
-                     "Authorization" => "Bearer #{token}" }
+        headers = { "Content-Type" => "application/json",
+                    "accept" => "application/json",
+                    "Authorization" => "Bearer #{token}" }
 
-        response = http_get(aqua_cont_api, @headers)
+        response = http_get(aqua_cont_api, headers)
         return nil unless response
 
         begin
@@ -152,11 +166,11 @@ module Kenna
         print_debug "Getting Vulnerabilities for a Container image"
         aqua_cont_img_api = "#{aqua_url}/api/v2/risks/vulnerabilities?image_name=#{image}&pagesize=#{pagesize}&page=#{pagenum}"
         puts "finding #{aqua_cont_img_api}"
-        @headers = { "Content-Type" => "application/json",
-                     "accept" => "application/json",
-                     "Authorization" => "Bearer #{token}" }
+        headers = { "Content-Type" => "application/json",
+                    "accept" => "application/json",
+                    "Authorization" => "Bearer #{token}" }
 
-        response = http_get(aqua_cont_img_api, @headers)
+        response = http_get(aqua_cont_img_api, headers)
         return nil unless response
 
         begin
