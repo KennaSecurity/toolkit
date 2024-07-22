@@ -81,14 +81,7 @@ module Kenna
 
         return unless response
 
-        wp_url = "https://#{JSON.parse(response.body).dig('data', 'ese_url')}"
-
-        if wp_url
-          print_debug("Workload Protection URL retrieved successfully")
-        else
-          print_error("Failed to retrieve Workload Protection URL")
-        end
-        wp_url
+        "https://#{JSON.parse(response.body).dig('data', 'ese_url')}"
       end
 
       def safe_http_get(url, headers)
