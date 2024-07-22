@@ -17,28 +17,21 @@ module Kenna
                     wp: "https://prov-eu-1.cloud.aquasec.com/v1/envs" }
       }.freeze
 
-      def setup(aqua_url, username, password)
-        @aqua_url = aqua_url
-        @username = username
-        @password = password
-        @cloud = cloud_url?(aqua_url)
-      end
-
       def cloud?
-        @cloud
+        @cloud ||= cloud_url?(@console_url)
       end
 
       def region_urls
-        region = REGION_URLS.keys.find { |key| @aqua_url =~ Regexp.new(key) } || "default"
+        region = REGION_URLS.keys.find { |key| @console_url =~ Regexp.new(key) } || "default"
         REGION_URLS[region]
       end
 
-      def aqua_get_token
-        if cloud?
-          get_token(region_urls[:auth], @username, @password)
-        else
-          get_token("#{@aqua_url}/api/v1/login", @username, @password)
-        end
+      def token
+        @token ||= if cloud?
+                     get_token(region_urls[:auth], @username, @password)
+                   else
+                     get_token("#{@console_url}/api/v1/login", @username, @password)
+                   end or fail_task("Unable to authenticate with Aqua. Please check credentials.")
       end
 
       def get_token(auth_url, username, password)
@@ -79,7 +72,7 @@ module Kenna
                     "Content-Type" => "application/json" }
         response = safe_http_get(region_urls[:wp], headers)
 
-        return unless response
+        fail_task "Unable to retrieve Workload Protection URL" unless response
 
         "https://#{JSON.parse(response.body).dig('data', 'ese_url')}"
       end
@@ -98,7 +91,7 @@ module Kenna
         return false unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
         return false if uri.host.nil?
 
-        !!(uri.host =~ /(\.|^)cloud\.aquasec\.com$/)
+        uri.host =~ /(\.|^)cloud\.aquasec\.com$/
       rescue URI::InvalidURIError
         false
       end
