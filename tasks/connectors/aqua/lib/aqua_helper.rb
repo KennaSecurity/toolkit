@@ -29,17 +29,7 @@ module Kenna
       end
 
       def select_region_urls
-        region = case @aqua_url
-                 when /eu-1\.cloud\.aquasec\.com/
-                   "eu-1"
-                 when /asia-1\.cloud\.aquasec\.com/
-                   "asia-1"
-                 when /ap-2\.cloud\.aquasec\.com/
-                   "ap-2"
-                 else
-                   "default"
-                 end
-
+        region = REGION_URLS.keys.find { |key| @aqua_url =~ Regexp.new(key) } || "default"
         REGION_URLS[region]
       end
 
