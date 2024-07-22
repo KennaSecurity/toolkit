@@ -28,14 +28,13 @@ module Kenna
         @cloud
       end
 
-      def select_region_urls
+      def region_urls
         region = REGION_URLS.keys.find { |key| @aqua_url =~ Regexp.new(key) } || "default"
         REGION_URLS[region]
       end
 
       def aqua_get_token
         if cloud?
-          region_urls = select_region_urls
           get_token(region_urls[:auth], @username, @password)
         else
           get_token("#{@aqua_url}/api/v1/login", @username, @password)
@@ -76,7 +75,6 @@ module Kenna
 
       def get_wp_url(token)
         print_debug "Getting Workload Protection URL"
-        region_urls = select_region_urls
         headers = { "Authorization" => "Bearer #{token}",
                     "Content-Type" => "application/json" }
         response = safe_http_get(region_urls[:wp], headers)
