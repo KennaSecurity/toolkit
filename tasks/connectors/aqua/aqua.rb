@@ -76,17 +76,15 @@ module Kenna
       def run(opts)
         super # opts -> @options
 
-        username = @options[:aqua_user]
-        password = @options[:aqua_password]
+        @username = @options[:aqua_user]
+        @password = @options[:aqua_password]
         aqua_port = @options[:aqua_console_port]
         aqua_console = @options[:aqua_console]
         aqua_console_https = @options[:aqua_console_https]
         aqua_prefix = aqua_console_https ? "https://" : "http://"
-        aqua_url = if aqua_port
-                     "#{aqua_prefix}#{aqua_console}:#{aqua_port}"
-                   else
-                     "#{aqua_prefix}#{aqua_console}"
-                   end
+        @console_url = aqua_prefix + aqua_console
+        @console_url += ":#{aqua_port}" if aqua_port
+        aqua_url = cloud? ? get_wp_url(token) : @console_url
         container_data = @options[:container_data]
         max_batch_size = @options[:batch_pages_count]
 
@@ -99,11 +97,6 @@ module Kenna
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
-
-        token = aqua_get_token(aqua_url, username, password)
-        fail_task "Unable to authenticate with Aqua, please check credentials" unless token
-
-        aqua_url = get_wp_url(token) if cloud_url?(aqua_url)
 
         if container_data
           print_debug "Container_data flag set to true"
