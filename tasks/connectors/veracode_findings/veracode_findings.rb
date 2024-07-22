@@ -43,6 +43,11 @@ module Kenna
               required: false,
               default: nil,
               description: "If set, we'll try to upload to this connector" },
+            { name: "match_key",
+              type: "string",
+              required: false,
+              default: nil,
+              description: "If set, payloads will be constructed deduplicating onto the match key" },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -65,14 +70,14 @@ module Kenna
         veracode_id = @options[:veracode_id]
         veracode_key = @options[:veracode_key]
         page_size = @options[:veracode_page_size]
-        omit_line_number = @options[:omit_line_number]
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
         @kenna_connector_id = @options[:kenna_connector_id]
+        @match_key = @options[:match_key]
         @output_dir = "#{$basedir}/#{@options[:output_directory]}"
         @filename = ".json"
 
-        client = Kenna::Toolkit::Veracode::FindingsClient.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key)
+        client = Kenna::Toolkit::Veracode::FindingsClient.new(veracode_id, veracode_key, @output_dir, @filename, @kenna_api_host, @kenna_connector_id, @kenna_api_key, @match_key)
 
         client.category_recommendations(page_size)
 
@@ -83,7 +88,7 @@ module Kenna
           guid = application.fetch("guid")
           appname = application.fetch("name").tr('"', "'")
           tags = application.fetch("tags")
-          client.issues(guid, appname, tags, page_size, omit_line_number)
+          client.issues(guid, appname, tags, page_size)
         end
 
         return unless @kenna_connector_id && @kenna_api_host && @kenna_api_key
