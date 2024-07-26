@@ -11,40 +11,83 @@
   },
   "data": [
     {
-      "id": "pcre2-3355351",
+      "id": "f5798261-5db0-442a-9eb8-10bf21d50888",
       "type": "issue",
       "attributes": {
-        "created_at": "2024-05-07T08:48:12.422Z",
-        "description": "pcre2/libpcre2-8-0 Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
-        "severity": "high",
-        "title": "Improper Restriction of Operations within the Bounds of a Memory Buffer (CWE-125)",
-        "issue_type": "vuln",
-        "severity_source": "SNYK",
-        "language": "C",
-        "package": {
-          "name": "pcre2",
-          "version": "10.36"
+        "classes": [
+          {
+            "id": "CWE-940",
+            "source": "CWE",
+            "type": "weakness"
+          }
+        ],
+        "coordinates": [
+          {
+            "is_fixable_manually": false,
+            "is_fixable_snyk": false,
+            "is_fixable_upstream": false,
+            "is_patchable": false,
+            "is_pinnable": false,
+            "is_upgradeable": false,
+            "reachability": "no-info",
+            "representations": [
+              {
+                "dependency": {
+                  "package_name": "glib2",
+                  "package_version": "2.68.4-6.el9"
+                }
+              }
+            ]
+          }
+        ],
+        "created_at": "2024-05-11T01:12:50.945Z",
+        "effective_severity_level": "medium",
+        "ignored": false,
+        "key": "SNYK-RHEL9-GLIB2-6820066",
+        "problems": [
+          {
+            "id": "SNYK-RHEL9-GLIB2-6820066",
+            "source": "SNYK",
+            "type": "vulnerability",
+            "updated_at": "2024-05-11T01:12:51.532106Z"
+          },
+          {
+            "id": "CVE-2024-34397",
+            "source": "NVD",
+            "type": "vulnerability",
+            "updated_at": "2024-05-11T01:12:51.532107Z",
+            "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34397"
+          }
+        ],
+        "risk": {
+          "factors": [],
+          "score": {
+            "model": "v1",
+            "value": 90
+          }
         },
-        "cvss_score": 7.5,
-        "cvss_v3": "AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+        "status": "open",
+        "title": "Improper Verification of Source of a Communication Channel",
+        "type": "package_vulnerability",
+        "updated_at": "2024-05-11T01:12:50.945Z"
       },
       "relationships": {
         "organization": {
           "data": {
             "id": "e0319d01-7a3f-442a-8e94-3613b81c705a",
-            "type": "org"
+            "type": "organization"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "related": "/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
           }
         },
-        "project": {
+        "scan_item": {
           "data": {
-            "id": "034629b9-c709-4af7-b31f-433f9f2f7027",
+            "id": "4f817b49-833f-47c2-bfa3-634f3d17fc63",
             "type": "project"
           },
           "links": {
-            "related": "/rest/projects/034629b9-c709-4af7-b31f-433f9f2f7027"
+            "related": "/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/projects/4f817b49-833f-47c2-bfa3-634f3d17fc63"
           }
         }
       }
