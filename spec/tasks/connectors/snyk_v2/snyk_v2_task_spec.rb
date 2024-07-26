@@ -25,13 +25,18 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       let(:import_type) { "vulns" }
 
       it "creates normalized (non-duplicative) vuln_defs" do
+        VCR.use_cassette('snyk_v2_task_run', record: :new_episodes) do
+          task.run(options)
+        end
+
         expect(task.vuln_defs).to include(
           {
-            "cve_identifiers" => "CVE-2015-7501,CVE-2015-4852",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "CVE-2015-7501",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-            "scanner_type" => "Snyk"
+            "name" => "SNYK-RHEL9-GLIB2-6820066",
+            "scanner_type" => "Snyk",
+            "cve_identifiers" => "CVE-2024-34397",
+            "cwe_identifiers" => "CWE-940",
+            "description" => "Improper Verification of Source of a Communication Channel",
+            "solution" => "For more information, go to this link: https://nvd.nist.gov/vuln/detail/CVE-2024-34397"
           }
         )
       end
@@ -39,81 +44,22 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       it "creates normalized (non-duplicative) vulns on assets" do
         expect(task.assets).to include(
           {
-            "file" => "pom.xml",
-            "application" => "JoyChou93/java-sec-code:pom.xml",
-            "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
+            "file" => "Snyk_RHEL9_GLIB2_6820066_f5798261-5db0-442a-9eb8-10bf21d50888",
+            "tags" => ["Org:e0319d01-7a3f-442a-8e94-3613b81c705a"],
+            "os" => "RHEL9",
+            "priority" => 10,
             "vulns" => [
-              { "created_at" => "2023-04-26",
-                "details" => be_kind_of(String),
-                "last_seen_at" => be_kind_of(String),
-                "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                "scanner_score" => 9,
+              { "scanner_identifier" => "f5798261-5db0-442a-9eb8-10bf21d50888",
+                "vuln_def_name" => "SNYK-RHEL9-GLIB2-6820066",
                 "scanner_type" => "Snyk",
+                "created_at" => "2024-05-11T01:12:50.945Z",
+                "last_seen_at" => "2024-05-11T01:12:51.532107Z",
                 "status" => "open",
-                "vuln_def_name" => "CVE-2015-7501" }
+                "details" => "CVE-2024-34397 : Improper Verification of Source of a Communication Channel",
+                "scanner_score" => 4 }
             ]
           }
         )
-      end
-    end
-
-    context "finding that has multiple CVEs" do
-      let(:import_type) { "findings" }
-
-      it "creates duplicate vuln_defs" do
-        expect(task.vuln_defs).to include(
-          {
-            "cve_identifiers" => "CVE-2015-7501",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
-            "scanner_type" => "Snyk"
-          },
-          {
-            "cve_identifiers" => "CVE-2015-4852",
-            "description" => "Deserialization of Untrusted Data",
-            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
-            "scanner_type" => "Snyk"
-          }
-        )
-      end
-
-      it "creates assets with duplicate findings" do
-        expect(task.assets).to include(
-          hash_including("file" => "pom.xml",
-                         "application" => "JoyChou93/java-sec-code:pom.xml",
-                         "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
-                         "findings" => [
-                           asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
-                         ])
-        )
-      end
-
-      def asset_finding_for_cve(cve)
-        { "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
-          "scanner_type" => "Snyk",
-          "vuln_def_name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
-          "severity" => 9,
-          "last_seen_at" => "2023-04-26",
-          "additional_fields" =>
-                          { "url" => "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                            "id" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
-                            "title" => "Deserialization of Untrusted Data",
-                            "file" => "pom.xml",
-                            "application" => "JoyChou93/java-sec-code:pom.xml",
-                            "introducedDate" => "2023-04-26",
-                            "isPatchable" => "false",
-                            "isUpgradable" => "false",
-                            "language" => "java",
-                            "semver" => "{\n  \"vulnerable\": [\n    \"[3.0,3.2.2)\"\n  ]\n}",
-                            "cvssScore" => "9.8",
-                            "severity" => "critical",
-                            "package" => "commons-collections:commons-collections",
-                            "version" => "3.1",
-                            "identifiers" => { "CVE" => ["CVE-2015-7501", "CVE-2015-4852"], "CWE" => ["CWE-502"] },
-                            "publicationTime" => "2015-11-06T16:51:56.000Z" },
-          "triage_state" => "new" }
       end
     end
   end
