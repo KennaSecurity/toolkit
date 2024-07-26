@@ -186,7 +186,7 @@ DEPENDENCIES
   pry
   pry-byebug
   rest-client
-  rexml (>= 3.3.2)
+  rexml (>= 3.2.7)
   rspec
   rspec-github
   rubocop
