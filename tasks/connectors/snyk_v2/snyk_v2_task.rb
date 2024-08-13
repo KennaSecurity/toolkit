@@ -104,7 +104,6 @@ module Kenna
           issue_json.each do |issue_arr|
             issue_arr.each do |issue_obj|
               issue = issue_obj["attributes"]
-              project = issue_obj["relationships"]["scan_item"]["data"]
               org_id = issue_obj["relationships"]["organization"]["data"]["id"]
               issue_identifier = issue["key"]
 
