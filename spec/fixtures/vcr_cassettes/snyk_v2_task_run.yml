@@ -59,7 +59,7 @@ http_interactions:
   recorded_at: Fri, 02 Aug 2024 18:24:47 GMT
 - request:
     method: get
-    uri: https://api.eu.snyk.io/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00:00:00Z&created_before=2024-08-02T00:00:00Z&limit=10&version=2024-04-29
+    uri: https://api.eu.snyk.io/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-14T00:00:00Z&created_before=2024-08-13T00:00:00Z&limit=10&version=2024-04-29
     body:
       encoding: US-ASCII
       string: ''
