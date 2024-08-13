@@ -5,17 +5,17 @@
   "data": [
     {
       "type": "project",
-      "id": "034629b9-c709-4af7-b31f-433f9f2f7027",
+      "id": "abcd5678-1234-efgh-ijkl-mnopqrstuvwx",
       "meta": {
-        "cli_monitored_at": "2024-06-03T14:23:31.605Z"
+        "cli_monitored_at": "2024-06-10T11:19:36.263Z"
       },
       "attributes": {
-        "name": "docker-image|dockersnapshots.verisure.com/verisure/dlm-partners",
-        "type": "rpm",
+        "name": "sim-management-ui",
+        "type": "npm",
         "target_file": "",
-        "target_reference": "docker-image|dockersnapshots.verisure.com/verisure/dlm-partners",
+        "target_reference": "main",
         "origin": "cli",
-        "created": "2024-05-30T04:58:37.625Z",
+        "created": "2024-06-10T11:19:36.268Z",
         "status": "active",
         "business_criticality": [],
         "environment": [],
@@ -29,54 +29,51 @@
           "pull_requests": {
             "fail_only_for_issues_with_fix": false
           }
-        },
-        "build_args": {
-          "platform": "linux/amd64"
         }
       },
       "relationships": {
         "organization": {
           "data": {
             "type": "org",
-            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
           }
         },
         "target": {
           "data": {
             "type": "target",
-            "id": "28ed3494-2baf-41dc-87f5-8d12c88dc942"
+            "id": "ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/targets/28ed3494-2baf-41dc-87f5-8d12c88dc942"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
           }
         },
         "importer": {
           "data": {
             "type": "user",
-            "id": "3df7f98c-8071-414f-8dae-d4bc08dd2d41"
+            "id": "abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/users/3df7f98c-8071-414f-8dae-d4bc08dd2d41"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
           }
         }
       }
     },
     {
       "type": "project",
-      "id": "0d39bcdf-8c43-4a1d-b68c-67f38b8c97c4",
+      "id": "abcd5678-ijkl-90mn-opqr-stuvwxyzabcd",
       "meta": {
-        "cli_monitored_at": "2024-06-03T15:45:21.345Z"
+        "cli_monitored_at": "2024-06-10T11:19:34.049Z"
       },
       "attributes": {
-        "name": "docker-image|dockersnapshots.verisure.com/verisure/web-portal",
-        "type": "rpm",
+        "name": "com.sdi:VerisureSimManagement",
+        "type": "maven",
         "target_file": "",
-        "target_reference": "docker-image|dockersnapshots.verisure.com/verisure/web-portal",
+        "target_reference": "main",
         "origin": "cli",
-        "created": "2024-05-30T06:30:45.671Z",
+        "created": "2024-06-10T11:19:34.055Z",
         "status": "active",
         "business_criticality": [],
         "environment": [],
@@ -90,37 +87,34 @@
           "pull_requests": {
             "fail_only_for_issues_with_fix": false
           }
-        },
-        "build_args": {
-          "platform": "linux/amd64"
         }
       },
       "relationships": {
         "organization": {
           "data": {
             "type": "org",
-            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
           }
         },
         "target": {
           "data": {
             "type": "target",
-            "id": "39bcdf0d-8c43-4a1d-b68c-67f38b8c97c4"
+            "id": "ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/targets/39bcdf0d-8c43-4a1d-b68c-67f38b8c97c4"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
           }
         },
         "importer": {
           "data": {
             "type": "user",
-            "id": "5df9e8b7-1c34-4b89-91db-d4f84d6a0b51"
+            "id": "abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
           },
           "links": {
-            "related": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/users/5df9e8b7-1c34-4b89-91db-d4f84d6a0b51"
+            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
           }
         }
       }

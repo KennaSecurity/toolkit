@@ -3,20 +3,20 @@
     "version": "1.0"
   },
   "links": {
-    "self": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?version=2024-04-29&limit=10&created_after=2024-05-06T00:00:00Z&created_before=2024-06-05T00:00:00Z",
-    "first": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&limit=10&version=2024-04-29",
-    "last": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=end&limit=10&version=2024-04-29",
-    "prev": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiIwY2EwMzQ1My0zOTkxLTQ1OTYtYjYzOS1iYmE4NDM5ZWZhZjAiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&limit=10&version=2024-04-29",
-    "next": "/rest/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&limit=10&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiJmNTBlZDA2Yi00MDI3LTRiMDAtYmVkNy0wMzY1ZDgzMjMyNzgiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&version=2024-04-29"
+    "self": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?version=2024-04-29&limit=10&created_after=2024-07-03T00:00:00Z&created_before=2024-08-02T00:00:00Z",
+    "first": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&limit=10&version=2024-04-29",
+    "last": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&ending_before=end&limit=10&version=2024-04-29",
+    "prev": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&ending_before=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5IjozMCwiY3JlYXRlZEF0IjoiMjAyNC0wNy0wOFQxMDoxMzozNy41NDhaIiwiaWQiOiJlNjJjNTE2MS05YmI4LTQxYjMtOTg3Yi00ODdjODM4ODE4NDEiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&limit=10&version=2024-04-29",
+    "next": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&limit=10&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5IjozMCwiY3JlYXRlZEF0IjoiMjAyNC0wNy0xMVQwNjozMzozNS4yMDhaIiwiaWQiOiI2ZWFkOWFkZi03NjhiLTQyMWEtODQ0MC1iNWNmNjJlNDgxZTQiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&version=2024-04-29"
   },
   "data": [
     {
-      "id": "f5798261-5db0-442a-9eb8-10bf21d50888",
+      "id": "d62c5f6a-ABCD-41b3-EFGH-487c83881841",
       "type": "issue",
       "attributes": {
         "classes": [
           {
-            "id": "CWE-940",
+            "id": "CWE-613",
             "source": "CWE",
             "type": "weakness"
           }
@@ -24,70 +24,152 @@
         "coordinates": [
           {
             "is_fixable_manually": false,
-            "is_fixable_snyk": false,
+            "is_fixable_snyk": true,
             "is_fixable_upstream": false,
             "is_patchable": false,
             "is_pinnable": false,
-            "is_upgradeable": false,
+            "is_upgradeable": true,
             "reachability": "no-info",
             "representations": [
               {
                 "dependency": {
-                  "package_name": "glib2",
-                  "package_version": "2.68.4-6.el9"
+                  "package_name": "org.apache.tomcat.embed:tomcat-embed-core",
+                  "package_version": "9.0.12"
                 }
               }
             ]
           }
         ],
-        "created_at": "2024-05-11T01:12:50.945Z",
-        "effective_severity_level": "medium",
+        "created_at": "2024-07-08T10:13:37.548Z",
+        "effective_severity_level": "high",
         "ignored": false,
-        "key": "SNYK-RHEL9-GLIB2-6820066",
+        "key": "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175",
         "problems": [
           {
-            "id": "SNYK-RHEL9-GLIB2-6820066",
+            "id": "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175",
             "source": "SNYK",
             "type": "vulnerability",
-            "updated_at": "2024-05-11T01:12:51.532106Z"
+            "updated_at": "2024-07-08T10:13:38.759844Z"
           },
           {
-            "id": "CVE-2024-34397",
+            "id": "CVE-2024-34750",
             "source": "NVD",
             "type": "vulnerability",
-            "updated_at": "2024-05-11T01:12:51.532107Z",
-            "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34397"
+            "updated_at": "2024-07-08T10:13:38.759846Z",
+            "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34750"
           }
         ],
         "risk": {
           "factors": [],
           "score": {
             "model": "v1",
-            "value": 90
+            "value": 124
           }
         },
         "status": "open",
-        "title": "Improper Verification of Source of a Communication Channel",
+        "title": "Insufficient Session Expiration",
         "type": "package_vulnerability",
-        "updated_at": "2024-05-11T01:12:50.945Z"
+        "updated_at": "2024-07-08T10:13:37.548Z"
       },
       "relationships": {
         "organization": {
           "data": {
-            "id": "e0319d01-7a3f-442a-8e94-3613b81c705a",
+            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv",
             "type": "organization"
           },
           "links": {
-            "related": "/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a"
+            "related": "/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
           }
         },
         "scan_item": {
           "data": {
-            "id": "4f817b49-833f-47c2-bfa3-634f3d17fc63",
+            "id": "d1d1d1d1-ABCD-49b6-FFFF-8b0528afbe5b",
             "type": "project"
           },
           "links": {
-            "related": "/orgs/e0319d01-7a3f-442a-8e94-3613b81c705a/projects/4f817b49-833f-47c2-bfa3-634f3d17fc63"
+            "related": "/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/projects/d1d1d1d1-ABCD-49b6-FFFF-8b0528afbe5b"
+          }
+        }
+      }
+    },
+    {
+      "id": "7cfb92c9-WXYZ-55gc-IJKL-99f1fd01b412",
+      "type": "issue",
+      "attributes": {
+        "classes": [
+          {
+            "id": "CWE-613",
+            "source": "CWE",
+            "type": "weakness"
+          }
+        ],
+        "coordinates": [
+          {
+            "is_fixable_manually": false,
+            "is_fixable_snyk": true,
+            "is_fixable_upstream": false,
+            "is_patchable": false,
+            "is_pinnable": false,
+            "is_upgradeable": true,
+            "reachability": "no-info",
+            "representations": [
+              {
+                "dependency": {
+                  "package_name": "org.apache.tomcat.embed:tomcat-embed-core",
+                  "package_version": "8.5.11"
+                }
+              }
+            ]
+          }
+        ],
+        "created_at": "2024-07-09T00:40:58.934Z",
+        "effective_severity_level": "high",
+        "ignored": false,
+        "key": "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175",
+        "problems": [
+          {
+            "id": "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175",
+            "source": "SNYK",
+            "type": "vulnerability",
+            "updated_at": "2024-07-09T00:41:00.779608Z"
+          },
+          {
+            "id": "CVE-2024-34750",
+            "source": "NVD",
+            "type": "vulnerability",
+            "updated_at": "2024-07-09T00:41:00.77961Z",
+            "url": "https://nvd.nist.gov/vuln/detail/CVE-2024-34750"
+          }
+        ],
+        "risk": {
+          "factors": [],
+          "score": {
+            "model": "v1",
+            "value": 124
+          }
+        },
+        "status": "open",
+        "title": "Insufficient Session Expiration",
+        "type": "package_vulnerability",
+        "updated_at": "2024-07-09T00:40:58.934Z"
+      },
+      "relationships": {
+        "organization": {
+          "data": {
+            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv",
+            "type": "organization"
+          },
+          "links": {
+            "related": "/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
+          }
+        },
+        "scan_item": {
+          "data": {
+            "id": "cecdbd27-0d35-467d-bac8-19c96d9e5c88",
+            "type": "project"
+          },
+          "links": {
+            "related": "/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/projects/cecdbd27-0d35-467d-bac8-19c96d9e5c88"
           }
         }
       }

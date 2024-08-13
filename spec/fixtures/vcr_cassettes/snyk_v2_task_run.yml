@@ -1,0 +1,120 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.eu.snyk.io/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/projects?limit=100&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 2dfbc991-a5e2-487b-a19c-eeb213bd0c7c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.eu.snyk.io
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/vnd.api+json; charset=utf-8
+      Snyk-Request-Id:
+      - 22f628f3-07b6-42af-9138-5d6880f8a460
+      Snyk-Version-Requested:
+      - '2024-04-29'
+      Snyk-Version-Served:
+      - '2023-08-28'
+      Snyk-Version-Lifecycle-Stage:
+      - ga
+      Vary:
+      - Accept-Encoding
+      Date:
+      - Fri, 02 Aug 2024 18:24:47 GMT
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - Transfer-Encoding
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.25acc117.1722623087.2c0fae9
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '{"jsonapi":{"version":"1.0"},"data":[{"type":"project","id":"abcd5678-1234-efgh-ijkl-mnopqrstuvwx","meta":{"cli_monitored_at":"2024-06-10T11:19:36.263Z"},"attributes":{"name":"sim-management-ui","type":"npm","target_file":"","target_reference":"main","origin":"cli","created":"2024-06-10T11:19:36.268Z","status":"active","business_criticality":[],"environment":[],"lifecycle":[],"tags":[],"read_only":false,"settings":{"recurring_tests":{"frequency":"daily"},"pull_requests":{"fail_only_for_issues_with_fix":false}}},"relationships":{"organization":{"data":{"type":"org","id":"abcd1234-5678-90ef-ghij-klmnopqrstuv"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"}},"target":{"data":{"type":"target","id":"ijkl9012-3456-mnop-qrst-uvwxyzabcd12"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"}},"importer":{"data":{"type":"user","id":"abcd3456-7890-efgh-ijkl-mnopqrstuvwx"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"}}}},{"type":"project","id":"abcd5678-ijkl-90mn-opqr-stuvwxyzabcd","meta":{"cli_monitored_at":"2024-06-10T11:19:34.049Z"},"attributes":{"name":"com.sdi:VerisureSimManagement","type":"maven","target_file":"","target_reference":"main","origin":"cli","created":"2024-06-10T11:19:34.055Z","status":"active","business_criticality":[],"environment":[],"lifecycle":[],"tags":[],"read_only":false,"settings":{"recurring_tests":{"frequency":"daily"},"pull_requests":{"fail_only_for_issues_with_fix":false}}},"relationships":{"organization":{"data":{"type":"org","id":"abcd1234-5678-90ef-ghij-klmnopqrstuv"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"}},"target":{"data":{"type":"target","id":"ijkl9012-3456-mnop-qrst-uvwxyzabcd12"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"}},"importer":{"data":{"type":"user","id":"abcd3456-7890-efgh-ijkl-mnopqrstuvwx"},"links":{"related":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"}}}}],"links":{}}'
+  recorded_at: Fri, 02 Aug 2024 18:24:47 GMT
+- request:
+    method: get
+    uri: https://api.eu.snyk.io/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00:00:00Z&created_before=2024-08-02T00:00:00Z&limit=10&version=2024-04-29
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - rest-client/2.1.0 (darwin23 arm64) ruby/3.2.2p53
+      Content-Type:
+      - application/json
+      Authorization:
+      - Token 2dfbc991-a5e2-487b-a19c-eeb213bd0c7c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - api.eu.snyk.io
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/vnd.api+json
+      Vary:
+      - Origin
+      X-Envoy-Upstream-Service-Time:
+      - '9'
+      Snyk-Request-Id:
+      - 3c347e60-5c1e-408b-96a4-95de92416432
+      Snyk-Version-Requested:
+      - '2024-04-29'
+      Snyk-Version-Served:
+      - '2024-01-23'
+      Snyk-Version-Lifecycle-Stage:
+      - ga
+      Server:
+      - envoy
+      Content-Length:
+      - '15581'
+      Date:
+      - Fri, 02 Aug 2024 18:24:47 GMT
+      Connection:
+      - keep-alive
+      Akamai-Cache-Status:
+      - Miss from child, Miss from parent
+      Akamai-Grn:
+      - 0.25acc117.1722623087.2c102b0
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=31536000; preload
+    body:
+      encoding: UTF-8
+      string: '{"jsonapi":{"version":"1.0"},"links":{"self":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?version=2024-04-29&limit=10&created_after=2024-07-03T00:00:00Z&created_before=2024-08-02T00:00:00Z","first":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&limit=10&version=2024-04-29","last":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&ending_before=end&limit=10&version=2024-04-29","prev":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&ending_before=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5IjozMCwiY3JlYXRlZEF0IjoiMjAyNC0wNy0wOFQxMDoxMzozNy41NDhaIiwiaWQiOiJlNjJjNTE2MS05YmI4LTQxYjMtOTg3Yi00ODdjODM4ODE4NDEiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&limit=10&version=2024-04-29","next":"/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-07-03T00%3A00%3A00Z&created_before=2024-08-02T00%3A00%3A00Z&limit=10&starting_after=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5IjozMCwiY3JlYXRlZEF0IjoiMjAyNC0wNy0xMVQwNjozMzozNS4yMDhaIiwiaWQiOiI2ZWFkOWFkZi03NjhiLTQyMWEtODQ0MC1iNWNmNjJlNDgxZTQiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&version=2024-04-29"},"data":[{"id":"d62c5f6a-ABCD-41b3-EFGH-487c83881841","type":"issue","attributes":{"classes":[{"id":"CWE-613","source":"CWE","type":"weakness"}],"coordinates":[{"is_fixable_manually":false,"is_fixable_snyk":true,"is_fixable_upstream":false,"is_patchable":false,"is_pinnable":false,"is_upgradeable":true,"reachability":"no-info","representations":[{"dependency":{"package_name":"org.apache.tomcat.embed:tomcat-embed-core","package_version":"9.0.12"}}]}],"created_at":"2024-07-08T10:13:37.548Z","effective_severity_level":"high","ignored":false,"key":"SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175","problems":[{"id":"SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175","source":"SNYK","type":"vulnerability","updated_at":"2024-07-08T10:13:38.759844Z"},{"id":"CVE-2024-34750","source":"NVD","type":"vulnerability","updated_at":"2024-07-08T10:13:38.759846Z","url":"https://nvd.nist.gov/vuln/detail/CVE-2024-34750"}],"risk":{"factors":[],"score":{"model":"v1","value":124}},"status":"open","title":"Insufficient Session Expiration","type":"package_vulnerability","updated_at":"2024-07-08T10:13:37.548Z"},"relationships":{"organization":{"data":{"id":"abcd1234-5678-90ef-ghij-klmnopqrstuv","type":"organization"},"links":{"related":"/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"}},"scan_item":{"data":{"id":"d1d1d1d1-ABCD-49b6-FFFF-8b0528afbe5b","type":"project"},"links":{"related":"/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/projects/d1d1d1d1-ABCD-49b6-FFFF-8b0528afbe5b"}}}},{"id":"7cfb92c9-WXYZ-55gc-IJKL-99f1fd01b412","type":"issue","attributes":{"classes":[{"id":"CWE-613","source":"CWE","type":"weakness"}],"coordinates":[{"is_fixable_manually":false,"is_fixable_snyk":true,"is_fixable_upstream":false,"is_patchable":false,"is_pinnable":false,"is_upgradeable":true,"reachability":"no-info","representations":[{"dependency":{"package_name":"org.apache.tomcat.embed:tomcat-embed-core","package_version":"8.5.11"}}]}],"created_at":"2024-07-09T00:40:58.934Z","effective_severity_level":"high","ignored":false,"key":"SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175","problems":[{"id":"SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175","source":"SNYK","type":"vulnerability","updated_at":"2024-07-09T00:41:00.779608Z"},{"id":"CVE-2024-34750","source":"NVD","type":"vulnerability","updated_at":"2024-07-09T00:41:00.77961Z","url":"https://nvd.nist.gov/vuln/detail/CVE-2024-34750"}],"risk":{"factors":[],"score":{"model":"v1","value":124}},"status":"open","title":"Insufficient Session Expiration","type":"package_vulnerability","updated_at":"2024-07-09T00:40:58.934Z"},"relationships":{"organization":{"data":{"id":"abcd1234-5678-90ef-ghij-klmnopqrstuv","type":"organization"},"links":{"related":"/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"}},"scan_item":{"data":{"id":"cecdbd27-0d35-467d-bac8-19c96d9e5c88","type":"project"},"links":{"related":"/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/projects/cecdbd27-0d35-467d-bac8-19c96d9e5c88"}}}}]}'
+  recorded_at: Fri, 02 Aug 2024 18:24:47 GMT
+recorded_with: VCR 6.1.0

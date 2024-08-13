@@ -25,13 +25,13 @@ Complete list of Options:
 | Option | Required | Description | Default |
 | --- | --- | --- | --- |
 | snyk_api_token | true | Snyk API Token | n/a |
-| retrieve_from | false | Default will be 60 days before today | 60 |
-| include_license | false | Retrieve license issues | false |
-| page_size | false | The number of objects per page (Min 10┃Max 100┃multiple of 10) | 100 |
-| batch_size | false | The maximum number of issues to submit to Kenna in each batch | 500 |
-| page_num | false | Max pagination number | 5000 |
+| retrieve_from | false | default will be 30 days before today format: YYYY-MM-DD | 30 |
+| include_license | false | retrieve license issues | false |
+| page_size | false | The number of objects per page (Min 10┃Max 100┃multiple of 10) | 10 |
+| batch_size | false | The maximum number of issues to submit to Kenna in each batch | 10 |
+| page_num | false | Max pagination number | 1 |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
 | kenna_api_key | false | Kenna API Key | n/a |
 | kenna_api_host | false | Kenna API Hostname | api.kennasecurity.com |
-| snyk_api_base | true  | Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io | n/a |
+| snyk_api_base | true  | Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io | api.eu.snyk.io |
 | output_directory | false | If set, will write a file upon completion. Path is relative to toolkit root directory | output/snyk |
