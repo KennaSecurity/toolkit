@@ -1,12 +1,4 @@
 {
-  "jsonapi": {
-    "version": "1.0"
-  },
-  "links": {
-    "self": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?version=2024-04-29&limit=10&created_after=2024-05-06T00:00:00Z&created_before=2024-06-05T00:00:00Z",
-    "first": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&limit=10&version=2024-04-29",
-    "last": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=end&limit=10&version=2024-04-29",
-    "prev": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/issues?created_after=2024-05-06T00%3A00%3A00Z&created_before=2024-06-05T00%3A00%3A00Z&ending_before=eyJvcmdJZCI6ImUwMzE5ZDAxLTdhM2YtNDQyYS04ZTk0LTM2MTNiODFjNzA1YSIsInNldmVyaXR5Ijo0MCwiY3JlYXRlZEF0IjoiMjAyNC0wNS0wN1QwODo0ODoxMi40MjJaIiwiaWQiOiIwY2EwMzQ1My0zOTkxLTQ1OTYtYjYzOS1iYmE4NDM5ZWZhZjAiLCJ0b3RhbCI6eyJjYWxjdWxhdGVkQXQiOiIwMDAxLTAxLTAxVDAwOjAwOjAwWiJ9fQ%3D%3D&limit=10&version=2024-04-29"
-  },
-  "data": []
+  "results": [],
+  "total": 0
 }

@@ -10,7 +10,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
   describe "#run" do
     let(:connector_run_success) { true }
     let(:kenna_client) { instance_double(Kenna::Api::Client, upload_to_connector: { "data_file" => 12 }, run_files_on_connector: { "success" => connector_run_success }) }
-    let(:options) { { snyk_api_token: '2dfbc991-a5e2-487b-a19c-eeb213bd0c7c', import_type: } }
+    let(:options) { { snyk_api_token: '0xdeadbeef', import_type: } }
 
     before do
       stub_orgs_request
@@ -18,76 +18,102 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       stub_issues_request
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
+      task.run(options)
     end
 
     context "vulnerability" do
       let(:import_type) { "vulns" }
 
       it "creates normalized (non-duplicative) vuln_defs" do
-        VCR.use_cassette('snyk_v2_task_run') do
-          task.run(options) # Ejecución de la tarea dentro del bloque VCR
-        end
-
         expect(task.vuln_defs).to include(
           {
-            "name" => "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175",
-            "scanner_type" => "Snyk",
-            "cve_identifiers" => "CVE-2024-34750",
-            "cwe_identifiers" => "CWE-613",
-            "description" => "CVE-2024-34750: Insufficient Session Expiration_package_vulnerability",
-            "solution" => "For more information, go to this link: https://nvd.nist.gov/vuln/detail/CVE-2024-34750"
+            "cve_identifiers" => "CVE-2015-7501,CVE-2015-4852",
+            "description" => "Deserialization of Untrusted Data",
+            "name" => "CVE-2015-7501",
+            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+            "scanner_type" => "Snyk"
           }
         )
       end
 
       it "creates normalized (non-duplicative) vulns on assets" do
-        VCR.use_cassette('snyk_v2_task_run') do
-          task.run(options)
-        end
-
         expect(task.assets).to include(
           {
-            "file" => "Snyk_DUMMYORGAPACHETOMCATEMBEDXX_d62c5f6a-ABCD-41b3-EFGH-487c83881841",
-            "tags" => ["Org:abcd1234-5678-90ef-ghij-klmnopqrstuv"],
-            "os" => "JAVA",
-            "priority" => 10,
-            "findings" => [
-              {
-                "additional_fields" => {
-                  "dependency" => {
-                    "package_name" => "org.apache.tomcat.embed:tomcat-embed-core",
-                    "package_version" => "9.0.12"
-                  },
-                  "is_fixable_manually" => false,
-                  "is_fixable_snyk" => true,
-                  "is_fixable_upstream" => false,
-                  "is_patchable" => false,
-                  "is_upgradeable" => true,
-                  "reachability" => "no-info"
-                },
-                "created_at" => "2024-07-08T10:13:37.548Z",
-                "last_seen_at" => "2024-07-08T10:13:37.548Z",
-                "scanner_identifier" => "d62c5f6a-ABCD-41b3-EFGH-487c83881841",
-                "scanner_type" => "Snyk",
-                "severity" => 6,
-                "triage_state" => "new",
-                "vuln_def_name" => "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175"
-              }
-            ],
+            "file" => "pom.xml",
+            "application" => "JoyChou93/java-sec-code:pom.xml",
+            "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
             "vulns" => [
-              {
-                "created_at" => "2024-07-08T10:13:37.548Z",
-                "details" => "CVE-2024-34750 : Insufficient Session Expiration_package_vulnerability",
-                "last_seen_at" => "2024-07-08T10:13:37.548Z",
-                "scanner_identifier" => "d62c5f6a-ABCD-41b3-EFGH-487c83881841",
-                "scanner_score" => 6,
+              { "created_at" => "2023-04-26",
+                "details" => be_kind_of(String),
+                "last_seen_at" => be_kind_of(String),
+                "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+                "scanner_score" => 9,
                 "scanner_type" => "Snyk",
                 "status" => "open",
-                "vuln_def_name" => "SNYK-JAVA-DUMMYORGAPACHETOMCATEMBEDXX-7430175"
-              }
+                "vuln_def_name" => "CVE-2015-7501" }
             ]
           }
         )
+      end
+    end
+
+    context "finding that has multiple CVEs" do
+      let(:import_type) { "findings" }
+
+      it "creates duplicate vuln_defs" do
+        expect(task.vuln_defs).to include(
+          {
+            "cve_identifiers" => "CVE-2015-7501",
+            "description" => "Deserialization of Untrusted Data",
+            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
+            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-7501",
+            "scanner_type" => "Snyk"
+          },
+          {
+            "cve_identifiers" => "CVE-2015-4852",
+            "description" => "Deserialization of Untrusted Data",
+            "name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
+            "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-CVE-2015-4852",
+            "scanner_type" => "Snyk"
+          }
+        )
+      end
+
+      it "creates assets with duplicate findings" do
+        expect(task.assets).to include(
+          hash_including("file" => "pom.xml",
+                         "application" => "JoyChou93/java-sec-code:pom.xml",
+                         "tags" => ["github", "maven", "Org:Kenna Security NFR - Shared"],
+                         "findings" => [
+                           asset_finding_for_cve("CVE-2015-7501"), asset_finding_for_cve("CVE-2015-4852")
+                         ])
+        )
+      end
+
+      def asset_finding_for_cve(cve)
+        { "scanner_identifier" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
+          "scanner_type" => "Snyk",
+          "vuln_def_name" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078-#{cve}",
+          "severity" => 9,
+          "last_seen_at" => "2023-04-26",
+          "additional_fields" =>
+                          { "url" => "http://security.snyk.io/vuln/SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+                            "id" => "SNYK-JAVA-COMMONSCOLLECTIONS-30078",
+                            "title" => "Deserialization of Untrusted Data",
+                            "file" => "pom.xml",
+                            "application" => "JoyChou93/java-sec-code:pom.xml",
+                            "introducedDate" => "2023-04-26",
+                            "isPatchable" => "false",
+                            "isUpgradable" => "false",
+                            "language" => "java",
+                            "semver" => "{\n  \"vulnerable\": [\n    \"[3.0,3.2.2)\"\n  ]\n}",
+                            "cvssScore" => "9.8",
+                            "severity" => "critical",
+                            "package" => "commons-collections:commons-collections",
+                            "version" => "3.1",
+                            "identifiers" => { "CVE" => ["CVE-2015-7501", "CVE-2015-4852"], "CWE" => ["CWE-502"] },
+                            "publicationTime" => "2015-11-06T16:51:56.000Z" },
+          "triage_state" => "new" }
       end
     end
   end

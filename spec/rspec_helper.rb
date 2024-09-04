@@ -30,11 +30,9 @@ VCR.configure do |config|
     AWS_ACCESS_KEY_ID
     AWS_SECRET_ACCESS_KEY
     GITHUB_TOKEN
-    SNYK_API_TOKEN
   ].each do |key|
     config.filter_sensitive_data("<#{key}>") { ENV[key] }
   end
-  config.debug_logger = File.open("log/vcr_debug.log", "w")
 end
 
 module Kenna

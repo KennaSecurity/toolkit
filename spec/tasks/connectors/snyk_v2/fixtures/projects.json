@@ -1,124 +1,68 @@
 {
-  "jsonapi": {
-    "version": "1.0"
+  "org": {
+    "name": "Kenna Security NFR - Shared",
+    "id": "f0495cb5-f188-4745-86f7-289672d3a137"
   },
-  "data": [
+  "projects": [
     {
-      "type": "project",
-      "id": "abcd5678-1234-efgh-ijkl-mnopqrstuvwx",
-      "meta": {
-        "cli_monitored_at": "2024-06-10T11:19:36.263Z"
+      "id": "9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "name": "JoyChou93/java-sec-code:pom.xml",
+      "created": "2023-04-26T15:33:04.803Z",
+      "origin": "github",
+      "type": "maven",
+      "readOnly": false,
+      "testFrequency": "daily",
+      "isMonitored": true,
+      "totalDependencies": 199,
+      "issueCountsBySeverity": {
+        "low": 14,
+        "high": 128,
+        "medium": 92,
+        "critical": 10
       },
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "1.0.0",
+      "lastTestedDate": "2023-04-26T15:33:30.181Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/9a134a37-7420-4418-9b85-b675ed9ac3dc",
+      "owner": null,
+      "tags": [],
       "attributes": {
-        "name": "sim-management-ui",
-        "type": "npm",
-        "target_file": "",
-        "target_reference": "main",
-        "origin": "cli",
-        "created": "2024-06-10T11:19:36.268Z",
-        "status": "active",
-        "business_criticality": [],
-        "environment": [],
+        "criticality": [],
         "lifecycle": [],
-        "tags": [],
-        "read_only": false,
-        "settings": {
-          "recurring_tests": {
-            "frequency": "daily"
-          },
-          "pull_requests": {
-            "fail_only_for_issues_with_fix": false
-          }
-        }
+        "environment": []
       },
-      "relationships": {
-        "organization": {
-          "data": {
-            "type": "org",
-            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
-          }
-        },
-        "target": {
-          "data": {
-            "type": "target",
-            "id": "ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
-          }
-        },
-        "importer": {
-          "data": {
-            "type": "user",
-            "id": "abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
-          }
-        }
-      }
+      "branch": "master",
+      "targetReference": "master"
     },
     {
-      "type": "project",
-      "id": "abcd5678-ijkl-90mn-opqr-stuvwxyzabcd",
-      "meta": {
-        "cli_monitored_at": "2024-06-10T11:19:34.049Z"
+      "id": "3e297402-893c-4a69-86dc-c642dce18fe6",
+      "name": "JoyChou93/java-sec-code",
+      "created": "2023-04-26T15:33:05.588Z",
+      "origin": "github",
+      "type": "sast",
+      "readOnly": false,
+      "testFrequency": "weekly",
+      "isMonitored": true,
+      "totalDependencies": null,
+      "issueCountsBySeverity": {
+        "low": 4,
+        "high": 86,
+        "medium": 27,
+        "critical": 0
       },
+      "remoteRepoUrl": "https://github.com/JoyChou93/java-sec-code",
+      "imageTag": "",
+      "lastTestedDate": "2023-04-26T15:33:06.012Z",
+      "browseUrl": "https://app.snyk.io/org/kenna-security-nfr-shared/project/3e297402-893c-4a69-86dc-c642dce18fe6",
+      "owner": null,
+      "tags": [],
       "attributes": {
-        "name": "com.sdi:VerisureSimManagement",
-        "type": "maven",
-        "target_file": "",
-        "target_reference": "main",
-        "origin": "cli",
-        "created": "2024-06-10T11:19:34.055Z",
-        "status": "active",
-        "business_criticality": [],
-        "environment": [],
+        "criticality": [],
         "lifecycle": [],
-        "tags": [],
-        "read_only": false,
-        "settings": {
-          "recurring_tests": {
-            "frequency": "daily"
-          },
-          "pull_requests": {
-            "fail_only_for_issues_with_fix": false
-          }
-        }
+        "environment": []
       },
-      "relationships": {
-        "organization": {
-          "data": {
-            "type": "org",
-            "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv"
-          }
-        },
-        "target": {
-          "data": {
-            "type": "target",
-            "id": "ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/targets/ijkl9012-3456-mnop-qrst-uvwxyzabcd12"
-          }
-        },
-        "importer": {
-          "data": {
-            "type": "user",
-            "id": "abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
-          },
-          "links": {
-            "related": "/rest/orgs/abcd1234-5678-90ef-ghij-klmnopqrstuv/users/abcd3456-7890-efgh-ijkl-mnopqrstuvwx"
-          }
-        }
-      }
+      "branch": "master",
+      "targetReference": "master"
     }
-  ],
-  "links": {}
+  ]
 }
