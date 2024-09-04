@@ -1,14 +1,29 @@
 {
-  "orgs": [
+  "data": [
     {
-      "id": "f0495cb5-f188-4745-86f7-289672d3a137",
-      "name": "Kenna Security NFR - Shared",
-      "slug": "kenna-security-nfr-shared",
-      "url": "https://app.snyk.io/org/kenna-security-nfr-shared",
-      "group": {
-        "name": "Kenna Security - Partner NFR",
-        "id": "a3728e08-d40a-454f-bf19-1ba18a7a2ce9"
+      "id": "abcd1234-5678-90ef-ghij-klmnopqrstuv",
+      "type": "org",
+      "attributes": {
+        "group_id": "48e855c0-d1c6-4065-90c6-a648cd5dfc83",
+        "is_personal": false,
+        "name": "xN.PU",
+        "slug": "xn.pu"
+      },
+      "relationships": {
+        "member_role": {
+          "data": {
+            "id": "ffb95696-f8a0-4e7e-87a7-50b5bf032402",
+            "type": "org_role"
+          }
+        }
       }
     }
-  ]
+  ],
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "links": {
+    "self": "/rest/orgs?limit=10&version=2024-04-29",
+    "first": "/rest/orgs?limit=10&version=2024-04-29"
+  }
 }

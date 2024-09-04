@@ -6,7 +6,7 @@ module Kenna
   module Toolkit
     class SnykV2Task < Kenna::Toolkit::BaseTask
       SCANNER_TYPE = "Snyk"
-      ISSUE_SEVERITY_MAPPING = { "high" => 6, "medium" => 4, "low" => 1 }.freeze
+      ISSUE_SEVERITY_MAPPING = { "critical" => 10, "high" => 6, "medium" => 4, "low" => 1, "info" => 0 }.freeze
 
       def self.metadata
         {
@@ -19,51 +19,31 @@ module Kenna
               required: true,
               default: nil,
               description: "Snyk API Token" },
-            { name: "import_type",
-              type: "string",
-              required: false,
-              default: "vulns",
-              description: "what to import \"vulns\" or \"findings\". By default \"vulns\"" },
             { name: "retrieve_from",
               type: "date",
               required: false,
-              default: 90,
-              description: "default will be 90 days before today" },
+              default: 30,
+              description: "default will be 30 days before today format: YYYY-MM-DD" },
             { name: "include_license",
               type: "boolean",
               required: false,
               default: false,
               description: "retrieve license issues." },
-            { name: "projectName_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from Project Name - used as application identifier" },
-            { name: "packageManager_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from packageManager - used in asset file locator" },
-            { name: "package_strip_colon",
-              type: "boolean",
-              required: false,
-              default: false,
-              description: "strip colon and following data from package - used in asset file locator" },
-            { name: "application_locator_mapping",
-              type: "string",
-              required: false,
-              default: "application",
-              description: "indicates which field should be used in application locator. Valid options are application and organization. Default is application." },
             { name: "page_size",
               type: "integer",
               required: false,
-              default: 1000,
-              description: "The number of objects per page (currently limited from 1 to 1000)." },
+              default: 10,
+              description: "The number of objects per page (Min 10 |Max 100| multiple of 10)." },
             { name: "batch_size",
               type: "integer",
               required: false,
-              default: 500,
+              default: 10,
               description: "The maximum number of issues to submit to Kenna in each batch." },
+            { name: "page_num",
+              type: "integer",
+              required: false,
+              default: 1,
+              description: "Max pagination number" },
             { name: "kenna_connector_id",
               type: "integer",
               required: false,
@@ -83,8 +63,12 @@ module Kenna
               type: "filename",
               required: false,
               default: "output/snyk",
-              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" }
-
+              description: "If set, will write a file upon completion. Path is relative to #{$basedir}" },
+            { name: "snyk_api_base",
+              type: "string",
+              required: false,
+              default: "api.eu.snyk.io",
+              description: "Snyk environment API base URL without prefix e.g. api.eu.snyk.io, api.snyk.io or api.au.snyk.io" }
           ]
         }
       end
@@ -95,131 +79,97 @@ module Kenna
         initialize_options
         initialize_client
 
-        cves = nil
-        cwes = nil
-        page_num = 0
-        more_pages = true
-        suffix = @import_findings ? "findings" : "vulns"
+        suffix = "findings_vulns"
 
         kdi_batch_upload(@batch_size, "#{$basedir}/#{@options[:output_directory]}", "snyk_kdi_#{suffix}.json",
                          @kenna_connector_id, @kenna_api_host, @kenna_api_key, @skip_autoclose, @retries,
                          @kdi_version) do |batch|
-          org_json    = client.snyk_get_orgs
-          org_ids     = fetch_orgs_ids(org_json)
-          projects    = fetch_projects(org_json)
+          org_json = client.snyk_get_orgs
+          org_ids = fetch_orgs_ids(org_json)
+          projects = fetch_projects(org_json)
 
           types = ["vuln"]
           types << "license" if @include_license
 
-          while more_pages
-            issue_json = []
-
-            projects.keys.each_slice(500) do |sliced_ids|
-              issue_filter_json = "{
-                 \"filters\": {
-                  \"orgs\": #{org_ids},
-                  \"projects\": #{sliced_ids},
-                  \"isFixed\": false,
-                  \"types\": #{types}
-                }
-              }"
-              print_debug "issue filter json = #{issue_filter_json}"
-
-              page_num += 1
-              issues_page_data = client.snyk_get_issues(@page_size, issue_filter_json, page_num, @from_date, @to_date)
-              issue_json << issues_page_data unless issues_page_data.empty?
-
-              print_debug "issue json = #{issue_json}"
-              issue_json.flatten!
+          issue_json = []
+          projects.keys.each_slice(500) do
+            org_ids.each do |org_id|
+              issues_page_data = client.snyk_get_issues(@page_size, @page_num, @from_date, @to_date, org_id)
+              issue_json.concat(issues_page_data) unless issues_page_data.empty?
             end
 
-            if issue_json.nil? || issue_json.empty? || issue_json.length.zero?
-              more_pages = false
-              break
-            end
+            print_debug "issue json = #{issue_json}"
+          end
 
-            issue_json.each do |issue_obj|
-              issue = issue_obj["issue"]
-              project = issue_obj["project"]
-              identifiers = issue["identifiers"]
-              application = project.fetch("name")
-              application = application.slice(0..(application.rindex(":") - 1)) if @project_name_strip_colon && !application.rindex(":").nil?
-              package_manager = issue["packageManager"]
-              package = issue.fetch("package")
+          issue_json.each do |issue_arr|
+            issue_arr.each do |issue_obj|
+              issue = issue_obj["attributes"]
+              org_id = issue_obj["relationships"]["organization"]["data"]["id"]
+              issue_identifier = issue["key"]
 
-              target_file = target_file(project, package)
-
-              org_name = projects[project.fetch("id")]["org"]["name"]
-              tags = []
-              tags << project.fetch("source") if project.key?("source")
-              tags << package_manager if !package_manager.nil? && !package_manager.empty?
-              tags << "Org:#{org_name}"
+              tags = ["Org:#{org_id}"]
 
               asset = {
-                "file" => target_file,
-                "application" => @options[:application_locator_mapping] == "organization" ? org_name : application,
-                "tags" => tags
+                "file" => "Snyk_#{issue_identifier.split('-')[2]}_#{issue_obj['id']}",
+                "tags" => tags,
+                "os" => (match = issue_identifier.match(/SNYK-([A-Z0-9]+)-/)) ? match[1] : nil,
+                "priority" => 10
               }
 
-              scanner_score = if issue.key?("cvssScore")
-                                issue.fetch("cvssScore").to_i
-                              else
-                                ISSUE_SEVERITY_MAPPING.fetch(issue.fetch("severity"))
-                              end
+              issue_severity = issue["effective_severity_level"]
+              scanner_score = ISSUE_SEVERITY_MAPPING[issue_severity]
 
-              additional_fields = extract_additional_fields(issue, issue_obj, project, target_file)
+              issue["problems"].each do |problem|
+                next unless problem["source"] == "NVD"
 
-              unless identifiers.nil?
-                cve_array = identifiers["CVE"] unless identifiers["CVE"].nil? || identifiers["CVE"].length.zero?
-                cwe_array = identifiers["CWE"] unless identifiers["CWE"].nil? || identifiers["CWE"].length.zero?
-                cve_array.delete_if { |x| x.start_with?("RHBA", "RHSA") } unless cve_array.nil? || cve_array.length.zero?
-                cves = cve_array.join(",") if cve_array.present?
-                cwes = cwe_array.join(",") if cwe_array.present?
-              end
+                scanner_identifier = issue_obj['id'].to_s
+                vuln_def_name = issue_identifier
+                scanner_type = "Snyk"
+                created_at = format_date(issue["created_at"])
 
-              vuln_names = vuln_def_names(cve_array, cwe_array, issue)
-              vuln_names = @import_findings ? vuln_names : [vuln_names.first]
+                additional_fields = {
+                  "is_fixable_manually" => issue["coordinates"][0]["is_fixable_manually"],
+                  "is_fixable_snyk" => issue["coordinates"][0]["is_fixable_snyk"],
+                  "is_fixable_upstream" => issue["coordinates"][0]["is_fixable_upstream"],
+                  "is_patchable" => issue["coordinates"][0]["is_patchable"],
+                  "is_upgradeable" => issue["coordinates"][0]["is_upgradeable"],
+                  "reachability" => issue["coordinates"][0]["reachability"],
+                  "dependency" => issue["coordinates"][0]["representations"][0]["dependency"]
+                }.compact
 
-              vuln_names.each do |vuln_name|
-                unique_vuln_identifier = scanner_identifier(issue, vuln_name)
-                kdi_issue = {
-                  "scanner_identifier" => unique_vuln_identifier,
-                  "scanner_type" => SCANNER_TYPE,
-                  "vuln_def_name" => @import_findings ? unique_vuln_identifier : vuln_name
+                finding = {
+                  "scanner_identifier" => scanner_identifier,
+                  "vuln_def_name" => vuln_def_name,
+                  "scanner_type" => scanner_type,
+                  "created_at" => created_at,
+                  "last_seen_at" => format_date(issue["updated_at"]),
+                  "severity" => scanner_score,
+                  "additional_fields" => additional_fields
                 }
-                kdi_issue_data = if @import_findings
-                                   { "severity" => scanner_score,
-                                     "last_seen_at" => issue_obj.fetch("introducedDate"),
-                                     "additional_fields" => additional_fields }
-                                 else
-                                   { "scanner_score" => scanner_score,
-                                     "created_at" => issue_obj.fetch("introducedDate"),
-                                     "details" => JSON.pretty_generate(additional_fields) }
-                                 end
-                kdi_issue.merge!(kdi_issue_data)
-                kdi_issue.compact!
 
-                vuln_def = extract_vuln_def(vuln_name, issue)
-                if @import_findings
-                  if vuln_name.starts_with?('CVE')
-                    vuln_def["cve_identifiers"] = vuln_name
-                  elsif vuln_name.starts_with?('CWE')
-                    vuln_def["cwe_identifiers"] = vuln_name
-                  end
-                elsif cves.present?
-                  vuln_def["cve_identifiers"] = cves
-                elsif cwes.present?
-                  vuln_def["cwe_identifiers"] = cwes
-                end
+                kdi_issue = {
+                  "scanner_identifier" => scanner_identifier,
+                  "vuln_def_name" => vuln_def_name,
+                  "scanner_type" => scanner_type,
+                  "created_at" => created_at,
+                  "last_seen_at" => format_date(issue["updated_at"]),
+                  "status" => issue["status"] == "resolved" ? "closed" : issue["status"],
+                  "details" => issue["title"] == "details" ? nil : "#{problem['id']} : #{issue['title']}_#{issue['type']}",
+                  "scanner_score" => scanner_score
+                }
+
+                vuln_def = {
+                  "name" => vuln_def_name,
+                  "scanner_type" => scanner_type,
+                  "cve_identifiers" => problem["id"],
+                  "cwe_identifiers" => issue["classes"] && issue["classes"][0] ? issue["classes"][0]["id"] : nil,
+                  "description" => issue["title"] == "details" ? nil : "#{problem['id']}: #{issue['title']}_#{issue['type']}",
+                  "solution" => problem["url"] ? "For more information, go to this link: #{problem['url']}" : nil
+                }.compact
 
                 batch.append do
-                  # Create the KDI entries
-                  if @import_findings
-                    create_kdi_asset_finding(asset, kdi_issue)
-                  else
-                    create_kdi_asset_vuln(asset, kdi_issue)
-                  end
-
+                  create_kdi_asset_finding(asset, finding)
+                  create_kdi_asset_vuln(asset, kdi_issue)
                   create_kdi_vuln_def(vuln_def)
                 end
               end
@@ -234,25 +184,22 @@ module Kenna
       attr_reader :client
 
       def initialize_client
-        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token)
+        @client = Kenna::Toolkit::SnykV2::SnykV2Client.new(@snyk_api_token, @snyk_api_base)
       end
 
       def initialize_options
         @snyk_api_token = @options[:snyk_api_token]
-        @import_findings = @options[:import_type] == "findings"
+        @snyk_api_base = @options[:snyk_api_base]
         @output_directory = @options[:output_directory]
         @include_license = @options[:include_license]
 
-        @project_name_strip_colon = @options[:projectName_strip_colon]
-        @package_manager_strip_colon = @options[:packageManager_strip_colon]
-        @package_strip_colon = @options[:package_strip_colon]
-
         @retrieve_from = @options[:retrieve_from]
-        @from_date = (Date.today - @retrieve_from.to_i).strftime("%Y-%m-%d")
-        @to_date = Date.today.strftime("%Y-%m-%d")
+        @from_date = "#{(Date.today - @retrieve_from.to_i).strftime('%Y-%m-%d')}T00:00:00Z"
+        @to_date = "#{Date.today.strftime('%Y-%m-%d')}T00:00:00Z"
 
         @page_size = @options[:page_size].to_i
         @batch_size = @options[:batch_size].to_i
+        @page_num = @options[:page_num].to_i
 
         @kenna_api_host = @options[:kenna_api_host]
         @kenna_api_key = @options[:kenna_api_key]
@@ -274,7 +221,7 @@ module Kenna
       end
 
       def fetch_orgs_ids(org_json)
-        org_ids = org_json.map { |org| org.fetch("id") }
+        org_ids = Array.wrap(org_json).map { |org| org.fetch("id") }
 
         print_debug org_json
         print_debug "orgs = #{org_ids}"
@@ -282,66 +229,8 @@ module Kenna
         org_ids
       end
 
-      def extract_additional_fields(issue, issue_obj, project, target_file)
-        fields = {}
-        fields["url"]             = issue.fetch("url") if issue.key?("url")
-        fields["id"]              = issue.fetch('id')
-        fields["title"]           = issue.fetch("title") if issue.key?("title")
-        fields["file"]            = target_file
-        fields["application"]     = project.fetch("name")
-        fields["introducedDate"]  = issue_obj.fetch("introducedDate")
-        fields["source"]          = project.fetch("source") if issue.key?("source")
-        fields["fixedIn"]         = issue.fetch("fixedIn") if issue.key?("fixedIn")
-        fields["from"]            = issue.fetch("from") if issue.key?("from")
-        fields["functions"]       = issue.fetch("functions") if issue.key?("functions")
-        fields["isPatchable"]     = issue.fetch("isPatchable").to_s if issue.key?("isPatchable")
-        fields["isUpgradable"]    = issue.fetch("isUpgradable").to_s if issue.key?("isUpgradable")
-        fields["language"]        = issue.fetch("language") if issue.key?("language")
-        fields["references"]      = issue.fetch("references") if issue.key?("references")
-        fields["semver"]          = JSON.pretty_generate(issue.fetch("semver")) if issue.key?("semver")
-        fields["cvssScore"]       = issue.fetch("cvssScore") if issue.key?("cvssScore")
-        fields["severity"]        = issue.fetch("severity") if issue.key?("severity")
-        fields["package"]         = issue.fetch("package")
-        fields["version"]         = issue.fetch("version") if issue.key?("version")
-        fields["identifiers"]     = issue.fetch("identifiers")
-        fields["publicationTime"] = issue.fetch("publicationTime") if issue.key?("publicationTime")
-        fields.compact
-      end
-
-      def extract_vuln_def(vuln_name, issue)
-        vuln_identifier = scanner_identifier(issue, vuln_name)
-        vuln_def = { "name" => @import_findings ? vuln_identifier : vuln_name,
-                     "scanner_type" => SCANNER_TYPE,
-                     "scanner_identifier" => vuln_identifier }
-        vuln_def["description"]        = issue["description"] || issue.fetch("title") if issue.key?("title")
-        vuln_def["solution"]           = issue["patches"].first.to_s unless issue["patches"].nil? || issue["patches"].empty?
-        vuln_def.compact
-      end
-
-      def target_file(project, package)
-        if project.key?("targetFile")
-          project.fetch("targetFile")
-        else
-          print_debug "using strip colon params if set"
-          package_manager = package_manager.slice(0..(package_manager.rindex(":") - 1)) if !package_manager.nil? && !package_manager.empty? && @package_manager_strip_colon && !package_manager.rindex(":").nil?
-          package = package.slice(0..(package.rindex(":") - 1)) if !package.nil? && !package.empty? && @package_strip_colon && !package.rindex(":").nil?
-          target_file = package_manager.to_s
-          target_file = "#{target_file}/" if !package_manager.nil? && !package.nil?
-          "#{target_file}#{package}"
-        end
-      end
-
-      def vuln_def_names(cves, cwes, issue)
-        title = issue.fetch("title") if issue.key?("title")
-        cves || cwes || [title]
-      end
-
-      def scanner_identifier(issue, vuln_name)
-        if @import_findings
-          "#{issue.fetch('id')}-#{vuln_name}"
-        else
-          issue.fetch('id')
-        end
+      def format_date(date_string)
+        date_string.include?('T') ? date_string : "#{date_string}T00:00:00Z"
       end
     end
   end
