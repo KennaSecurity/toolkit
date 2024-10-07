@@ -25,7 +25,7 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
 
       it "creates normalized (non-duplicative) vuln_defs" do
         VCR.use_cassette('snyk_v2_task_run') do
-          task.run(options) # Ejecución de la tarea dentro del bloque VCR
+          task.run(options)
         end
 
         expect(task.vuln_defs).to include(
