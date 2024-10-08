@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rspec_helper"
+require "timecop"
 require_relative "snyk_v2_stubs"
 
 RSpec.describe Kenna::Toolkit::SnykV2Task do
@@ -13,6 +14,9 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
     let(:options) { { snyk_api_token: '2dfbc991-a5e2-487b-a19c-eeb213bd0c7c', import_type: } }
 
     before do
+      @now = Date.new(2024, 10, 8)
+      Timecop.freeze(@now)
+
       stub_orgs_request
       stub_projects_request
       stub_issues_request
