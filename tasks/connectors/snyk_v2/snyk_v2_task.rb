@@ -23,7 +23,7 @@ module Kenna
               type: "integer",
               required: false,
               default: 30,
-              description: "Default will be 30 days before today, format: integer" },
+              description: "Default will be 30 days before today, format: Integer" },
             { name: "include_license",
               type: "boolean",
               required: false,
