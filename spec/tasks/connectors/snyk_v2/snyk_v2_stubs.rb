@@ -15,7 +15,7 @@ module SnykV2Stubs
   end
 
   def stub_issues_request
-    stub_request(:get, Addressable::Template.new("https://api.eu.snyk.io/rest/orgs/{orgId}/issues?created_after=2024-07-14T00:00:00Z&created_before=2024-08-13T00:00:00Z&limit=10&version=2024-04-29"))
+    stub_request(:get, Addressable::Template.new("https://api.eu.snyk.io/rest/orgs/{orgId}/issues?created_after=2024-09-08T00:00:00Z&created_before=2024-10-08T00:00:00Z&limit=10&version=2024-04-29"))
       .to_return_json(body: read_fixture_file("issues.json"))
   end
 end
