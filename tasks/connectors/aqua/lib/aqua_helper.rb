@@ -49,7 +49,7 @@ module Kenna
 
           if auth_response.code == 200
             auth_json = JSON.parse(auth_response.body)
-            token = auth_json.dig("data", "token")
+            token = auth_json["token"]
 
             print_error "Login failed: No token received" unless token
           else
