@@ -49,7 +49,11 @@ module Kenna
 
           if auth_response.code == 200
             auth_json = JSON.parse(auth_response.body)
-            token = auth_json.dig("data", "token")
+            token = if cloud? # working against cloud.aquasec URL prefix
+                      auth_json.dig("data", "token")
+                    else
+                      auth_json["token"]
+                    end
 
             print_error "Login failed: No token received" unless token
           else
