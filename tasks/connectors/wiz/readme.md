@@ -35,7 +35,7 @@ Complete list of Options:
 | vuln_object_types | false | Array of object types for VULNS import. Allowed values: VIRTUAL_MACHINE,CONTAINER_IMAGE,SERVERLESS. Import all if not present. | n/a |
 | severity | false | Array of severity types for VULNS and ISSUES (ALL) import. Allowed values: CRITICAL,HIGH,MEDIUM,LOW,INFO. Import all if not present. | n/a |
 | issue_status | false | Array of issue status for ISSUES import. Allowed values: OPEN,IN_PROGRESS,RESOLVED,REJECTED. Import all if not present. | n/a |
-| import_type | false | What to import, ISSUES, VULNS or ALL | ALL |
+| import_type | false | What to import, ISSUES, VULNS or ALL | ISSUES |
 | issues_external_id_attr | false | For ISSUES, the entitySnapshot attribute used to map Kenna asset's external_id, for instance, `providerId` or `resourceGroupExternalId`. If not present or the value for the passed attribute is not present the provideId attribute value is used. | n/a |
 | vulns_external_id_attr | false | For VULNS, the `vulnerableEntity` attribute used to map Kenna asset's external_id, for instance, `id`, `providerUniqueId` or `name`. If not present or the value for the passed attribute is not present the `id` attribute value is used. | n/a |
 | issues_hostname_attr | false | For ISSUES, the entitySnapshot attribute used to map Kenna asset's hostname, for instance, `name`, `subscriptionId`, `subscriptionExternalId`, `subscriptionName`, `resourceGroupId`, `resourceGroupExternalId`, `providerId`. If not present or the value for the passed attribute is not present the `name` attribute value is used. | n/a |
