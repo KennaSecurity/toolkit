@@ -44,6 +44,7 @@ module Kenna
             print "Retrying!"
             sleep(15)
             retry
+          end
         rescue RestClient::ExceptionWithResponse => e
           log_exception(e)
           if retries < max_retries
