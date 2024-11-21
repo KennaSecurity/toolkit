@@ -65,7 +65,7 @@ module Kenna
             { name: "import_type",
               type: "string",
               required: false,
-              default: "ALL",
+              default: "ISSUES",
               description: "What to import, ISSUES, VULNS or ALL" },
             { name: "issues_external_id_attr",
               type: "string",
