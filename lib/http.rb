@@ -39,6 +39,12 @@ module Kenna
           log_exception(e)
         rescue RestClient::ServerBrokeConnection => e
           log_exception(e)
+          if retries < max_retries
+            retries += 1
+            print "Retrying!"
+            sleep(15)
+            retry
+          end
         rescue RestClient::ExceptionWithResponse => e
           log_exception(e)
           if retries < max_retries
@@ -103,6 +109,12 @@ module Kenna
           end
         rescue RestClient::ServerBrokeConnection => e
           log_exception(e)
+          if retries < max_retries
+            retries += 1
+            print "Retrying!"
+            sleep(15)
+            retry
+          end
         rescue RestClient::ExceptionWithResponse => e
           log_exception(e)
           if retries < max_retries
