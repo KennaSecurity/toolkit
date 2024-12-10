@@ -19,11 +19,11 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            docker build . -t toolkit:latest
+            docker build . -t toolkit
       - run:
           name: Tag Docker Image
           command: |
-            docker tag kennasecurity/toolkit $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
+            docker tag kennasecurity/toolkit $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1 $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
       - run:
           name: Authenticate with Artifactory
           command: |
@@ -42,4 +42,5 @@ workflows:
           filters:
             branches:
               only:
+                - main
                 - cmans/artifactory-upload
