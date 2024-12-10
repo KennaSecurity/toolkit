@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Push Docker Image to Artifactory
           command: |
-            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$latest
+            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
             docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
 workflows:
   version: 2
