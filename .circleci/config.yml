@@ -1,0 +1,42 @@
+version: 2.1
+executors:
+  docker-executor:
+    docker:
+      - image: circleci/python:3.9
+    working_directory: ~/repo
+jobs:
+  build_and_push:
+    executor: docker-executor
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Install Docker CLI and Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build . -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1 -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
+      - run:
+          name: Authenticate with Artifactory
+          command: |
+            docker login $ARTIFACTORY_URL -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_TOKEN
+      - run:
+          name: Push Docker Image to Artifactory
+          command: |
+            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
+            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build_and_push:
+          context: devhub-artifactory
+          filters:
+            branches:
+              only:
+                - main
+                - cmans/artifactory-upload
