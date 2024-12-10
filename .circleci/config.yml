@@ -19,11 +19,11 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            docker build . -t kennasecurity/toolkit
+            docker build . -t toolkit
       - run:
           name: Tag Docker Image
           command: |
-            docker tag kennasecurity/toolkit $ARTIFACTORY_URL/cvm-toolkit-docker-local/kennasecurity/toolkit:latest
+            docker tag kennasecurity/toolkit $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
       - run:
           name: Authenticate with Artifactory
           command: |
@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Push Docker Image to Artifactory
           command: |
-            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/kennasecurity/toolkit:latest
+            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA
 workflows:
   version: 2
   build_and_deploy:
