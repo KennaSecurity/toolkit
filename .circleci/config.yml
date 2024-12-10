@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            docker build . -t toolkit
+            docker build . -t toolkit:latest
       - run:
           name: Tag Docker Image
           command: |
@@ -31,6 +31,7 @@ jobs:
       - run:
           name: Push Docker Image to Artifactory
           command: |
+            docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$latest
             docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
 workflows:
   version: 2
