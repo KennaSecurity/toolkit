@@ -362,6 +362,9 @@ module Kenna
             scanner_id = row[map_scanner_id.to_s]
             raise "No scanner id found: Check meta file mapping or input file column at ~ line #{total_skipped + total_processed + kdi_entry_total + 2}!!" unless !scanner_id.nil? && !scanner_id.empty?
 
+            scanner_id_max_length = 255 - (scanner_type.length + 1)
+            scanner_id.slice(0, scanner_id_max_length)
+
             details = row[map_details.to_s] # (string) - Details about vuln
             created = row[map_created.to_s]
             if score_map.nil? || score_map.empty?
