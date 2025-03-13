@@ -159,6 +159,7 @@ module Kenna
         map_os = $mapping_array.assoc("os").last.to_s.strip
         map_os_version = $mapping_array.assoc("os_version").last.to_s.strip
         map_priority = $mapping_array.assoc("priority").last.to_s.strip
+        map_due_date = $mapping_array.assoc("due_date").last.to_s.strip
 
         if @assets_only == "false" # Added for ASSET ONLY Run
           map_scanner_source = $mapping_array.assoc("scanner_source").last.to_s.strip
@@ -187,7 +188,7 @@ module Kenna
           score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
           status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?
         end
-
+        print_debug($mapping_array)
         # Configure Date format
         ###########################
         # CUSTOMIZE Date format
@@ -379,6 +380,7 @@ module Kenna
 
             closed = row[map_closed.to_s] # (string) Date it was closed
             port = row[map_port.to_s].to_i unless row[map_port.to_s].nil? || row[map_port.to_s].empty?
+            due_date = row[map_due_date.to_s]
 
             ############################
             # Vulnerability Definition #
@@ -429,7 +431,9 @@ module Kenna
           # Convert the dates
           created = Time.strptime(created, $date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
           last_fixed = Time.strptime(last_fixed, $date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
-
+          print_debug("Source file Due date is #{due_date}")
+          due_date = Time.strptime(due_date, $date_format_in).strftime(date_format_KDI) unless due_date.nil? || due_date.empty?
+          print_debug("formatted due date is #{due_date}")
           last_seen = if last_seen.nil? || last_seen.empty?
                         # last_seen = "2019-03-01-14:00:00"
                         Time.now.strftime(date_format_KDI)
@@ -459,7 +463,6 @@ module Kenna
 
           ### CREATE THE ASSET
           done = create_asset(file, ip_address, mac_address, hostname, container_id, image_id, asset_type, ec2, netbios, url, fqdn, external_id, database, application, tags, owner, os, os_version, priority)
-          # puts "create assset = #{done}"
           next unless done
 
           ### ASSOCIATE THE ASSET TO THE VULN
@@ -467,11 +470,11 @@ module Kenna
             kdi_entry_total += 1
             if @appsec_findings == "false"
               create_asset_vuln(hostname, container_id, image_id, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
-                                last_seen, status, closed, port)
+                                last_seen, status, closed, port, due_date)
             else
               ### ASSOCIATE THE ASSET TO THE findings/vuln
               create_asset_findings(file, url, external_id, scanner_type, scanner_id, additional_fields, created, scanner_score,
-                                    last_seen, status, closed)
+                                    last_seen, status, closed, due_date)
             end
             # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN/finding
             create_vuln_def(scanner_type, scanner_id, cve_id, wasc_id, cwe_id, name, description, solution)

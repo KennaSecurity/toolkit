@@ -97,7 +97,7 @@ module Kenna
       end
 
       def create_asset_vuln(hostname, container_id, image_id, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
-                            last_seen, status, closed, port)
+                            last_seen, status, closed, port, due_date)
 
         # find the asset
         case $map_locator
@@ -143,6 +143,7 @@ module Kenna
         assetvulns << { closed_at: closed.to_s } unless closed.nil?
         assetvulns << { port: } unless port.nil?
         assetvulns << { status: status.to_s }
+        assetvulns << { due_date: due_date.to_s}
 
         asset[:vulns] << assetvulns.reduce(&:merge)
       end
