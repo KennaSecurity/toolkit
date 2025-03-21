@@ -49,4 +49,3 @@ workflows:
             branches:
               only:
                 - main
-                - cmans/dockerhub
