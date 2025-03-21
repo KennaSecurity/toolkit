@@ -37,7 +37,7 @@ jobs:
       - run:
           name: Push Docker Image to Dockerhub
           command: |
-            docker push $DOCKERHUB_USERNAME/toolkit:latest
+            docker push kennasecurity/toolkit:latest
 workflows:
   version: 2
   build_and_deploy:
