@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Build Docker Image
           command: |
-            docker build . -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1 -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
+            docker build . -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1 -t $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest -t kennasecurity/toolkit:latest
       - run:
           name: Authenticate with Artifactory
           command: |
@@ -29,14 +29,23 @@ jobs:
           command: |
             docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:latest
             docker push $ARTIFACTORY_URL/cvm-toolkit-docker-local/toolkit:$CIRCLE_SHA1
+      - run:
+          name: Authenticate with Dockerhub
+          command: |
+            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+      - run:
+          name: Push Docker Image to Dockerhub
+          command: |
+            docker push kennasecurity/toolkit:latest
 workflows:
   version: 2
   build_and_deploy:
     jobs:
       - build_and_push:
-          context: devhub-artifactory
-          filters:
+           context: 
+            - devhub-artifactory
+            - dockerhub
+           filters:
             branches:
               only:
                 - main
-                - cmans/artifactory-upload
