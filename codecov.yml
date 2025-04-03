@@ -4,5 +4,9 @@ coverage:
       default:
         target: auto  # auto compares coverage to the previous base commit
         threshold: 1% # Allow coverage to decrease by this %
+    patch:
+      default:
+        target: 90%
+        threshold: 1% # Fudge factor
 comment:
   require_changes: "coverage_drop OR uncovered_patch"
