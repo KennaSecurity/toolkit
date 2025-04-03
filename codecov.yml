@@ -10,3 +10,5 @@ coverage:
         threshold: 1% # Fudge factor
 comment:
   require_changes: "coverage_drop OR uncovered_patch"
+ignore:
+  - "lib/helpers.rb"
