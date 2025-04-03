@@ -1,8 +1,12 @@
+![Lint Code Base](https://github.com/KennaSecurity/toolkit/workflows/Lint%20Code%20Base/badge.svg)
+![Tests](https://github.com/KennaSecurity/toolkit/workflows/Native-Ruby-Test/badge.svg)
+[![codecov](https://codecov.io/gh/KennaSecurity/toolkit/graph/badge.svg?token=40PYREIHLV)](https://codecov.io/gh/KennaSecurity/toolkit)
+![Bundler Audit](https://github.com/KennaSecurity/toolkit/workflows/Bundler%20Audit/badge.svg)
+![CodeQL](https://github.com/KennaSecurity/toolkit/workflows/CodeQL/badge.svg)
 
 # ABOUT
 
 The Kenna toolkit is a set of functions for data and api manipulation around the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
-
 
 # USAGE
 
@@ -136,23 +140,22 @@ If you need to use a proxy with this container the suggested implementation is t
 When you find an error, please create a GitHub issue with a detailed description of the error. Our team will solve it as
 soon as possible. [Instructions for creating an issue.](https://docs.github.com/en/issues/tracking-your-work-with-issues/creating-an-issue)
 
-Please send all toolkit feature requests to kenna.toolkit.list@cisco.com.
+Please send all toolkit feature requests to <kenna.toolkit.list@cisco.com>.
 
 # Development
 
-You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation). 
+You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation).
 
 ## Pull requests
 
 If you have fixed a bug, enhanced a task, or added a new toolkit task, please share it! To submit a pull request:
 
 1. Fork this repository.
-2. Make your changes in a feature branch. Please include specs!
-3. It will speed things along if the lint checks pass and all your specs are green. You can use [act](https://nektosact.com/installation/index.html) to run the checks locally before submitting.
+2. Make your changes in a feature branch. You must write specs for your change. PRs that reduce code coverage will not be accepted.
+3. The lint checks and all specs must pass. You can use [act](https://nektosact.com/installation/index.html) to run the checks locally before submitting.
 4. [Submit a pull request](https://github.com/KennaSecurity/toolkit/compare) to merge your feature branch into this repository's main branch (not your fork) as illustrated below.
 
 <img width="819" alt="proper fork comparison when creating a PR" src="https://github.com/jgarber/toolkit/assets/8061/c3c5cca7-f8af-427f-a932-6f798d91c7e1">
-
 
 ## QA
 
@@ -171,8 +174,4 @@ Prerequisites: API token generated in UI, version of ruby that is specified in `
 - @jcran (initial implementation, various tasks)
 - @jdoss (container work)
 - @caleb-eckenwiler (Documentation)
-
-## Security Badges
-
-![Lint Code Base](https://github.com/KennaPublicSamples/toolkit/workflows/Lint%20Code%20Base/badge.svg)
-![Bundler Audit](https://github.com/KennaPublicSamples/toolkit/workflows/Bundler%20Audit/badge.svg)
+- @jagarber-cisco (DevOps improvements)

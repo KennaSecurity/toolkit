@@ -30,11 +30,13 @@ group :development, :test do
   gem "pry-byebug"
   gem "rspec"
   gem "rubocop", require: false
+  gem 'simplecov'
+  gem 'simplecov-cobertura'
   gem "solargraph", require: false
-  gem 'yard', '>= 0.9.36'
   gem "timecop"
   gem "vcr", "~> 6.1"
   gem "webmock", "~> 3.18"
+  gem 'yard', '>= 0.9.36'
 end
 
 group :test do

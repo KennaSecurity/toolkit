@@ -20,4 +20,8 @@ jobs:
         run: ruby toolkit.rb task=help
       - name: Run tests
         run: bundle exec rspec --format RSpec::Github::Formatter --format documentation
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
