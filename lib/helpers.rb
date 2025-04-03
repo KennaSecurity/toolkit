@@ -3,6 +3,7 @@
 module Kenna
   module Toolkit
     module Helpers
+      # :nocov:
       def print_usage
         puts "[ ]                                                                    "
         puts "[+] ========================================================           "
@@ -78,6 +79,7 @@ module Kenna
         print_error(message)
         exit 1
       end
+      # :nocov:
 
       ###
       ### Helper to read a file consistently
@@ -87,6 +89,7 @@ module Kenna
         output.sanitize_unicode
       end
 
+      # :nocov:
       def print_readme(task_name)
         if File.exist?("#{$basedir}/tasks/#{task_name}/readme.md")
           readme = File.read("#{$basedir}/tasks/#{task_name}/readme.md")
@@ -102,6 +105,7 @@ module Kenna
           print_error("No readme.md found for #{task_name}")
         end
       end
+      # :nocov:
 
       ###
       ### Helper to write a file consistently
