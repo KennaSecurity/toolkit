@@ -144,7 +144,7 @@ Please send all toolkit feature requests to <kenna.toolkit.list@cisco.com>.
 
 # Development
 
-You can find connector development documentation in the project [Wiki](https://github.com/KennaSecurity/toolkit/wiki/Toolkit-Documentation).
+You can find a [connector development guide](https://github.com/KennaSecurity/toolkit/wiki/Development-Guide) in the project [wiki](https://github.com/KennaSecurity/toolkit/wiki).
 
 ## Pull requests
 
