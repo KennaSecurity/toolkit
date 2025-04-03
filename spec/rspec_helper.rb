@@ -5,7 +5,9 @@ Bundler.setup(:default, :test)
 require 'pry-byebug'
 
 require 'simplecov'
-SimpleCov.start # Must come before application code is loaded
+SimpleCov.start do # Must come before application code is loaded
+  add_filter ['/initialize/', '/scripts/', '/spec/', '/util/']
+end
 require 'simplecov-cobertura'
 SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter # Format for Codecov by Sentry
 
