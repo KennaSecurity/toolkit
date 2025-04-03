@@ -6,5 +6,3 @@ coverage:
         threshold: 1% # Allow coverage to decrease by this %
 comment:
   require_changes: "coverage_drop OR uncovered_patch"
-codecov:
-  max_report_age: off # Don't know why reports from GitHub Actions are outdated
