@@ -74,6 +74,54 @@ module Kenna
         }
       end
 
+      def poorly_covered_method
+        # Compute pi to 100 digits
+        pi = Math::PI
+        pi_digits = pi.to_s[2..-1]
+        pi_digits = pi_digits.chars.map(&:to_i)
+        pi_digits.each do |digit|
+          puts digit
+        end
+        (1..100).each do |i|
+          puts "Pi to #{i} digits: #{pi.round(i)}"
+        end
+        # Loop over my deeply nested data structure
+        data = {
+          a: {
+            b: {
+              c: {
+                d: {
+                  e: {
+                    f: {
+                      g: {
+                        h: {
+                          "foo" => "bar"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        data.each do |key, value|
+          puts "#{key}: #{value}"
+          value.each do |sub_key, sub_value|
+            puts "#{sub_key}: #{sub_value}"
+            sub_value.each do |sub_sub_key, sub_sub_value|
+              puts "#{sub_sub_key}: #{sub_sub_value}"
+              sub_sub_value.each do |sub_sub_sub_key, sub_sub_sub_value|
+                puts "#{sub_sub_sub_key}: #{sub_sub_sub_value}"
+                sub_sub_sub_value.each do |sub_sub_sub_sub_key, sub_sub_sub_sub_value|
+                  puts "#{sub_sub_sub_sub_key}: #{sub_sub_sub_sub_value}"
+                end
+              end
+            end
+          end
+        end
+      end
+
       def run(opts)
         super # opts -> @options
         kdi_initialize
