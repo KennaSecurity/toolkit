@@ -6,7 +6,7 @@ module Kenna
       def print_usage
         puts "[ ]                                                                    "
         puts "[+] ========================================================           "
-        puts "[+]  Welcome to the Kenna Security API & Scripting Toolkit!            "
+        puts "[+]  Welcome to the Cisco Vulnerability Management Toolkit!            "
         puts "[+] ========================================================           "
         puts "[ ]                                                                    "
         puts "[ ] Usage:                                                             "

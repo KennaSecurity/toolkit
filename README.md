@@ -6,7 +6,7 @@
 
 # ABOUT
 
-The Kenna toolkit is a set of functions for data and api manipulation around the Kenna Security Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
+The Kenna toolkit is a set of functions for data and api manipulation around the Cisco Vulnerability Management platform.  It's organized into 'tasks' - units of functionality that can be called and interacted with from the Docker or Podman command line.
 
 # USAGE
 
