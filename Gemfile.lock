@@ -36,6 +36,7 @@ GEM
       rexml
     crass (1.0.6)
     diff-lcs (1.5.0)
+    docile (1.4.1)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     e2mmap (0.1.0)
@@ -125,6 +126,15 @@ GEM
     sanitize (6.0.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-cobertura (2.1.0)
+      rexml
+      simplecov (~> 0.19)
+    simplecov-html (0.13.1)
+    simplecov_json_formatter (0.1.4)
     solargraph (0.48.0)
       backport (~> 1.2)
       benchmark
@@ -191,6 +201,8 @@ DEPENDENCIES
   rubocop
   ruby-limiter
   sanitize
+  simplecov
+  simplecov-cobertura
   solargraph
   strscan
   timecop

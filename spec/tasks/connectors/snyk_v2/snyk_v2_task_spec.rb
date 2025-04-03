@@ -24,6 +24,10 @@ RSpec.describe Kenna::Toolkit::SnykV2Task do
       spy_on_accumulators
     end
 
+    after do
+      Timecop.return
+    end
+
     context "vulnerability" do
       let(:import_type) { "vulns" }
 

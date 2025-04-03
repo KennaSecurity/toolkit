@@ -4,6 +4,11 @@ require 'bundler'
 Bundler.setup(:default, :test)
 require 'pry-byebug'
 
+require 'simplecov'
+SimpleCov.start # Must come before application code is loaded
+require 'simplecov-cobertura'
+SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter # Format for Codecov by Sentry
+
 require_relative "../lib/toolkit"
 
 require "timecop"
