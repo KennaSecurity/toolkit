@@ -80,7 +80,6 @@ module Kenna
         vulns_in_batch = 0
         batch_number = 1
         vulns_for_kenna.each do |synack_vulnerability|
-
           tags = synack_vulnerability.fetch('tag_list')
           kenna_asset_tag = tags.find { |tag| tag.fetch('name').start_with?('kenna::') }
           next if @asset_defined_in_tag && kenna_asset_tag.nil?
@@ -102,12 +101,12 @@ module Kenna
 
           create_kdi_vuln_def vuln_def_proxy
           vulns_in_batch += 1
-          if vulns_in_batch >= @batch_size
-            filename = "synack-#{batch_number}.json"
-            kdi_upload(@output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version)
-            batch_number += 1
-            vulns_in_batch = 0
-          end
+          next unless vulns_in_batch >= @batch_size
+
+          filename = "synack-#{batch_number}.json"
+          kdi_upload(@output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version)
+          batch_number += 1
+          vulns_in_batch = 0
         end
         if vulns_in_batch.positive?
           filename = "synack-#{batch_number}.json"
@@ -213,7 +212,6 @@ module Kenna
       end
 
       def create_asset_proxy_from_exploitable_location(exploitable_location, assessment)
-
         url = nil
         file = nil
         ip_address = nil
@@ -239,7 +237,6 @@ module Kenna
           "application" => application_value
         }.compact
       end
-
     end
   end
 end
