@@ -41,7 +41,7 @@ module Kenna
             { name: "asset_defined_in_tag",
               type: "boolean",
               required: false,
-              default: true,
+              default: false,
               description: "If set to true, will only process Synack vulnerabilities tagged with special asset-defining tags." },
             { name: "batch_size",
               type: "integer",
