@@ -6,7 +6,6 @@ RSpec.describe Kenna::Toolkit::SynackTask do
   subject(:task) { described_class.new }
 
   describe "#run" do
-    let(:options) { { snyk_api_host: 'api.synack.com', synack_api_token: 'abc123' } }
     let(:options) do
       {
         synack_api_host: 'api.synack.com',

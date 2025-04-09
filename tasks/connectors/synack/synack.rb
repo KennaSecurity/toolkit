@@ -47,7 +47,12 @@ module Kenna
               type: "integer",
               required: false,
               default: 500,
-              description: "Maximum number of issues to retrieve in batches." },
+              description: "Maximum number of vulnerabilities to retrieve in batches." },
+            { name: "kenna_batch_size",
+              type: "integer",
+              required: false,
+              default: 1000,
+              description: "Maximum number of vulnerabilities to upload to Kenna in each batch. Increasing this value could improve performance." },
             { name: "output_directory",
               type: "filename",
               required: false,
@@ -77,40 +82,31 @@ module Kenna
         end
         print_good "Found #{vulns_for_kenna.length} total vulns for Kenna in Synack"
 
-        vulns_in_batch = 0
-        batch_number = 1
-        vulns_for_kenna.each do |synack_vulnerability|
-          tags = synack_vulnerability.fetch('tag_list')
-          kenna_asset_tag = tags.find { |tag| tag.fetch('name').start_with?('kenna::') }
-          next if @asset_defined_in_tag && kenna_asset_tag.nil?
+        kdi_batch_upload(@kenna_batch_size, @output_directory, 'synack.json', @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version) do |batch|
+          vulns_for_kenna.each do |synack_vulnerability|
+            tags = synack_vulnerability.fetch('tag_list')
+            kenna_asset_tag = tags.find { |tag| tag.fetch('name').start_with?('kenna::') }
+            next if @asset_defined_in_tag && kenna_asset_tag.nil?
 
-          asset_vuln_proxy = create_asset_vuln_proxy(synack_vulnerability)
-          vuln_def_proxy = create_vuln_def_proxy(synack_vulnerability)
+            asset_vuln_proxy = create_asset_vuln_proxy(synack_vulnerability)
+            vuln_def_proxy = create_vuln_def_proxy(synack_vulnerability)
 
-          if @asset_defined_in_tag
-            # if by kenna tag
-            asset_proxy = create_asset_proxy_from_tag(kenna_asset_tag)
-            create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
-          else
-            # if by exploitable locations
-            synack_vulnerability["exploitable_locations"].each do |exploitable_location|
-              asset_proxy = create_asset_proxy_from_exploitable_location(exploitable_location, synack_vulnerability["listing"])
-              create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
+            batch.append do
+              if @asset_defined_in_tag
+                # if by kenna tag
+                asset_proxy = create_asset_proxy_from_tag(kenna_asset_tag)
+                create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
+              else
+                # if by exploitable locations
+                synack_vulnerability["exploitable_locations"].each do |exploitable_location|
+                  asset_proxy = create_asset_proxy_from_exploitable_location(exploitable_location, synack_vulnerability["listing"])
+                  create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
+                end
+              end
+
+              create_kdi_vuln_def vuln_def_proxy
             end
           end
-
-          create_kdi_vuln_def vuln_def_proxy
-          vulns_in_batch += 1
-          next unless vulns_in_batch >= @batch_size
-
-          filename = "synack-#{batch_number}.json"
-          kdi_upload(@output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version)
-          batch_number += 1
-          vulns_in_batch = 0
-        end
-        if vulns_in_batch.positive?
-          filename = "synack-#{batch_number}.json"
-          kdi_upload(@output_directory, filename, @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version)
         end
         kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
       rescue Kenna::Toolkit::Synack::SynackClient::ApiError => e
@@ -128,6 +124,7 @@ module Kenna
         @asset_defined_in_tag = @options[:asset_defined_in_tag]
         @output_directory = @options[:output_directory]
         @batch_size = @options[:batch_size].to_i
+        @kenna_batch_size = @options[:kenna_batch_size].to_i
         @skip_autoclose = false
         @retries = 3
         @kdi_version = 2
