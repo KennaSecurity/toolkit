@@ -46,7 +46,7 @@ module Kenna
             { name: "batch_size",
               type: "integer",
               required: false,
-              default: 500,
+              default: 50,
               description: "Maximum number of vulnerabilities to retrieve in batches." },
             { name: "kenna_batch_size",
               type: "integer",
@@ -70,7 +70,7 @@ module Kenna
         client = Kenna::Toolkit::Synack::SynackClient.new(@synack_api_host, @synack_api_token, @asset_defined_in_tag)
 
         print_good "Attempting to fetch vulns from Synack at #{@synack_api_host}"
-        synack_vulnerabilities = client.fetch_synack_vulnerabilities
+        synack_vulnerabilities = client.fetch_synack_vulnerabilities(page_size: @batch_size)
         print_good "Found #{synack_vulnerabilities.length} total vulns in Synack"
 
         vulns_for_kenna = synack_vulnerabilities

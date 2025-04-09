@@ -27,10 +27,12 @@ RSpec.describe Kenna::Toolkit::SynackTask do
     let(:filter) { '' }
 
     before do
-      [1, 2].each do |page_number|
-        stub_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities?#{filter}&filter[include_attachments]=0&page[size]=50&page[number]=#{page_number}")
-          .to_return_json(body: read_fixture_file("response-#{page_number}.json"))
-      end
+      stub_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
+        .with(query: hash_including)
+        .to_return do |request|
+          page_number = WebMock::Util::QueryMapper.query_to_values(URI(request.uri).query)["page"]["number"]
+          { body: read_fixture_file("response-#{page_number}.json") }
+        end
       allow(Kenna::Api::Client).to receive(:new) { kenna_client }
       spy_on_accumulators
     end
@@ -83,6 +85,28 @@ RSpec.describe Kenna::Toolkit::SynackTask do
             a_string_including("The /api/empl_document/17/ endpoint should check that the user requesting a document")
         )
       )
+    end
+
+    it 'creates the output file with the correct number of assets and vulnerabilities' do
+      task.run(options)
+      expect(File).to exist("output/synack/synack_batch_1.json")
+      output = JSON.parse(File.read("output/synack/synack_batch_1.json"))
+      assets = output['assets']
+      expect(assets).to be_an(Array)
+      expect(assets.size).to eq(46)
+      expect(assets.sum { |asset| asset['vulns'].size }).to eq(48)
+    end
+
+    context 'when batch_size is set' do
+      let(:options_with_batch_size) do
+        options.merge(batch_size: 2)
+      end
+
+      it 'uses it in the page[size] query param for the API request' do
+        task.run(options_with_batch_size)
+        expect(a_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
+          .with(query: hash_including("page" => { "size" => "2", "number" => "1" }))).to have_been_made
+      end
     end
   end
 

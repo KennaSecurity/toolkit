@@ -13,11 +13,11 @@ module Kenna
           }
         end
 
-        def fetch_synack_vulnerabilities
+        def fetch_synack_vulnerabilities(page_size: 50)
           vulnerabilities = []
           page_number = 1
           loop do
-            page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number)
+            page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number, page_size)
             break if page_vulnerabilities.empty? || vulnerabilities.length > 5000
 
             page_vulnerabilities.each { |vulnerability| vulnerabilities << vulnerability }
@@ -27,15 +27,14 @@ module Kenna
           vulnerabilities
         end
 
-        def fetch_synack_vulnerabilities_page(page_number)
+        def fetch_synack_vulnerabilities_page(page_number, page_size = 50)
           filter = @asset_defined_in_tag ? "filter[search]=kenna::" : ""
-          url = "#{@api_url}/v1/vulnerabilities?#{filter}&filter[include_attachments]=0&page[size]=50&page[number]=#{page_number}"
+          url = "#{@api_url}/v1/vulnerabilities?#{filter}&filter[include_attachments]=0&page[size]=#{page_size}&page[number]=#{page_number}"
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve vulnerabilities from Synack, please check url and token." unless response
 
           JSON.parse(response.body)
         end
-
       end
     end
   end
