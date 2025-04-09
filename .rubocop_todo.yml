@@ -25,7 +25,7 @@ Lint/UselessAssignment:
 # Offense count: 179
 # Configuration parameters: AllowedMethods, AllowedPatterns, IgnoredMethods, CountRepeatedAttributes.
 Metrics/AbcSize:
-  Max: 581
+  Max: 585
 
 # Offense count: 46
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods, AllowedMethods, AllowedPatterns, IgnoredMethods.
@@ -41,7 +41,7 @@ Metrics/BlockNesting:
 # Offense count: 55
 # Configuration parameters: CountComments, CountAsOne.
 Metrics/ClassLength:
-  Max: 415
+  Max: 417
 
 # Offense count: 76
 # Configuration parameters: AllowedMethods, AllowedPatterns, IgnoredMethods.
@@ -51,7 +51,7 @@ Metrics/CyclomaticComplexity:
 # Offense count: 316
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods, AllowedMethods, AllowedPatterns, IgnoredMethods.
 Metrics/MethodLength:
-  Max: 323
+  Max: 325
 
 # Offense count: 8
 # Configuration parameters: CountComments, CountAsOne.

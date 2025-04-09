@@ -1,14 +1,14 @@
 # CSV Converstion to Kenna KDI JSON Format & ingest to Kenna Platform
 
 ## This Task will take a CSV (utf-8) file as input and utilize the metafile to map the field for conversion into the Kenna KDI JSON format
-## More information on the Kenna KDI can be found at help.kennasecurity.com
-## A non-toolkit version of the script and sample metafiles can be found at:
+
+**More information on the Kenna KDI can be found at help.kennasecurity.com**
+**A non-toolkit version of the script and sample metafiles can be found at:**
    https://github.com/KennaPublicSamples/All_Samples/tree/master/KDI%20Importer
 
 This script will transform csv files into json that can be consumed by the Kenna Data Importer. It also can process assets only if required.
 
-
-Meta Data file
+### Meta Data file
 Sample file for this csv2kdi toolkit task:
   https://github.com/KennaSecurity/toolkit/blob/master/tasks/utilities/csv2kdi/tk_meta.csv
 
@@ -16,57 +16,54 @@ Notes show fields that are required to be mapped. Column can reference the colum
 
 Locator column is required and is used to deduplicate data in the script itself. Additional deduplication may occur in Kenna after the upload depend on the set locator preference order.
 
+**Scanner ID and Scanner Type are concatenated in CVM in order to create the scanner identifier in the database. The maximum length of scanner identifier is 255 characters, if the provided values are longer than that they will be truncated to 255.**
+
 ## Options
 
-- Task Option: csv_in (string): CSV to be converted to KDI JSON
-               Required:(false): Default: input.csv
-- Task Option: has_header (boolean): Does the input file have a header?
-               Required:(false): Default: true
-- Task Option: meta_file (string): File to map input to Kenna fields
-               Required:(false): Default: meta.csv
-- Task Option: skip_autoclose (string): If vuln not in scan, do you want to close vulns?
-               Required:(false): Default: false
-- Task Option: appsec_findings (string): Field to populate findings appsec model
-               Required:(false): Default: false
-- Task Option: assets_only (string): Field to indicate assets only - no vulns
-               Required:(false): Default: false
-- Task Option: domain_suffix (string): Optional domain suffix for hostnames
-               Required:(false): Default:
-- Task Option: input_directory (string): Where input files are found. Path is relative to /opt/app/toolkit/
-               Required:(false): Default: input
-- Task Option: output_directory (string): If set, will write a file upon completion. Path is relative to /opt/app/toolkit/
-               Required:(false): Default: output
-- Task Option: kenna_api_host (string): Host used for the API endpoint
-               Required:(false): Default: api.kennasecurity.com
-- Task Option: kenna_connector_id (integer): ID required for connector to ingest file converted
-               Required:(false): Default:
-- Task Option: kenna_api_key (string): Kenna API code to be used to ingest
-               Required:(false): Default:
-- Task Option: batch_page_size (integer): Number of assets and their vulns to batch to the connector
-               Required:(false): Default: 500
-- Task Option: file_cleanup (boolean): Use this parameter to clean up files after upload to Kenna
-               Required:(false): Default: false
-- Task Option: max_retries (integer): Use this parameter to change retries on connector actions
-               Required:(false): Default: 5
-- Task Option: precheck (boolean): Use this parameter to check meta file mappings to input csv
-               Required:(false): Default: false
+| Option | Required | Description | default |
+| --- | --- | --- | --- |
+| csv_in | false | CSV to be converted to KDI JSON | input.csv |
+| has_header | false | Does the input file have a header? | true |
+| meta_file | false | File to map input to CVM fields | meta.csv |
+| skip_autoclose | false | If vuln not in scan, do you want to close vulns? | false |
+| appsec_findings | false | Field to populate findings appsec model | false |
+| assets_only | false | Field to indicate assets only (no vulns) | false |
+| domain_suffix | false | Optional domain suffix for hostnames | n/a |
+| input_directory | false | Where input files are found in the container. Path is relative to /opt/app/toolkit/ | input |
+| output_directory | false | If set, will write a file upon completion in the container. Path is relative to /opt/app/toolkit/ | output|
+| kenna_api_host | false | Host used for the API endpoint | api.kennasecurity.com |
+| kenna_connector_id | false | ID required for connector to ingest file converted | n/a |
+| kenna_api_key | false | Kenna API code to be used to ingest. $ signs must be escaped with back slash (\). | n/a |
+| batch_page_size | false | Number of assets and their vulns to batch to the connector | 500 |
+| file_cleanup | false | Use this parameter to clean up files after upload to Kenna | false |
+| max_retries | false | Use this parameter to change retries on connector actions | 5 |
+| precheck | false | Use this parameter to check meta file mappings to input csv | false |
 
 
 Example command to get task help for csv2kdi:
+
+```
 docker run -it --rm toolkit:latest task=csv2kdi:help
+```
+
 
 Example command
+
+```
 docker run -it --rm  \
      -v ~/input:/opt/app/toolkit/input \
 	   -v ~/output:/opt/app/toolkit/output \
 	   toolkit:latest task=csv2kdi csv_in=input.csv \
      meta_file=metafile.csv:kenna_connector_id=156373 \
      kenna_api_key=APICODE-KEY
+```
 
 	   ( Note: on -v option: Example above has the ~/input on host and /opt/app/toolkit/input resides in the container )
-     ( Note - 2: The container will run as the default user starting it so therefore will need perms to write to the mounted output volume or change perms appropriately)
+     ( Note 2: The container will run as the default user starting it so therefore will need perms to write to the mounted output volume or change perms appropriately)
 
 Sample run output:
+
+```
 docker run -it --rm \
  -v ~/input:/opt/app/toolkit/input -v ~/output:/opt/app/toolkit/output \
  -t toolkit task=csv2kdi csv_in=findings1.csv meta_file=findings1_meta.csv \
@@ -112,3 +109,4 @@ Running: Kenna::Toolkit::Csv2kdi
 [+] (20201205153011) Kenna Data Importer connector running!
 [+] (20201205153032) Kenna Data Importer connector running!
 [+] (20201205172509) Done!
+```

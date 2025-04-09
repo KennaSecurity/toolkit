@@ -36,6 +36,7 @@ GEM
       rexml
     crass (1.0.6)
     diff-lcs (1.5.0)
+    docile (1.4.1)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     e2mmap (0.1.0)
@@ -64,13 +65,13 @@ GEM
     minitest (5.20.0)
     multi_xml (0.6.0)
     netrc (0.11.0)
-    nokogiri (1.16.5-aarch64-linux)
+    nokogiri (1.18.4-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.16.5-arm64-darwin)
+    nokogiri (1.18.4-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.5-x86_64-darwin)
+    nokogiri (1.18.4-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.16.5-x86_64-linux)
+    nokogiri (1.18.4-x86_64-linux-gnu)
       racc (~> 1.4)
     parallel (1.22.1)
     parser (3.2.0.0)
@@ -82,7 +83,7 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     public_suffix (5.0.1)
-    racc (1.7.3)
+    racc (1.8.1)
     rainbow (3.1.1)
     regexp_parser (2.6.1)
     rest-client (2.1.0)
@@ -125,6 +126,15 @@ GEM
     sanitize (6.0.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
+    simplecov (0.22.0)
+      docile (~> 1.1)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-cobertura (2.1.0)
+      rexml
+      simplecov (~> 0.19)
+    simplecov-html (0.13.1)
+    simplecov_json_formatter (0.1.4)
     solargraph (0.48.0)
       backport (~> 1.2)
       benchmark
@@ -191,6 +201,8 @@ DEPENDENCIES
   rubocop
   ruby-limiter
   sanitize
+  simplecov
+  simplecov-cobertura
   solargraph
   strscan
   timecop
