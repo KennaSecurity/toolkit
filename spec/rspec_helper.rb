@@ -8,8 +8,10 @@ require 'simplecov'
 SimpleCov.start do # Must come before application code is loaded
   add_filter ['/initialize/', '/scripts/', '/spec/', '/util/', '/lib/http.rb']
 end
-require 'simplecov-cobertura'
-SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter # Format for Codecov by Sentry
+if ENV['CI']
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter # Format for Codecov by Sentry
+end
 
 require_relative "../lib/toolkit"
 
