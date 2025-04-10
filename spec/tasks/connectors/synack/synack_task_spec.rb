@@ -24,11 +24,10 @@ RSpec.describe Kenna::Toolkit::SynackTask do
         get_connector_runs: { results: [{ success: true, start_time: Time.now.to_s }] }
       )
     end
-    let(:filter) { '' }
 
     before do
       stub_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
-        .with(query: hash_including)
+        .with(query: hash_including({}))
         .to_return do |request|
           page_number = WebMock::Util::QueryMapper.query_to_values(URI(request.uri).query)["page"]["number"]
           { body: read_fixture_file("response-#{page_number}.json") }
@@ -59,7 +58,7 @@ RSpec.describe Kenna::Toolkit::SynackTask do
           "vulns" => [
             { "closed_at" => "2024-06-12-18:30:17",
               "created_at" => "2023-10-19-12:28:39",
-              "last_seen_at" => "2025-04-09",
+              "last_seen_at" => Time.now.utc.strftime("%Y-%m-%d"),
               "scanner_identifier" => "synack-demo-w002-2",
               "scanner_score" => 6,
               "scanner_type" => "Synack",
@@ -106,6 +105,28 @@ RSpec.describe Kenna::Toolkit::SynackTask do
         task.run(options_with_batch_size)
         expect(a_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
           .with(query: hash_including("page" => { "size" => "2", "number" => "1" }))).to have_been_made
+      end
+    end
+
+    context 'when asset_defined_in_tag is true' do
+      let(:options_with_asset_defined_in_tag) do
+        options.merge(asset_defined_in_tag: true)
+      end
+
+      it 'uses it in the filter[search] query param for the API request' do
+        task.run(options_with_asset_defined_in_tag)
+        expect(a_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
+          .with(query: hash_including("filter" => { "include_attachments" => "0", "search" => "kenna::" }))).to have_been_made.at_least_once
+      end
+
+      it 'selects only assets with the kenna::* tag' do
+        task.run(options_with_asset_defined_in_tag)
+        expect(task.assets).to all(include("tags" => []))
+        expect(task.assets).to include(
+          hash_including(
+            "application" => "demo"
+          )
+        )
       end
     end
   end

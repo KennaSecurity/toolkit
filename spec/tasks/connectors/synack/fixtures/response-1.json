@@ -3,7 +3,9 @@
     "id": "synack-demo-w002-2",
     "title": "Insufficient Authorization Controls on Employee Document URLs",
     "tag_list": [
-
+      {
+        "name": "kenna::application::demo"
+      }
     ],
     "description": "There is an Insecure Direct Object Reference vulnerability due to a lack of sufficient authentication controls on empl_document URLs. As these URLs are referenced by sequential numeric ID, it is possible to enumerate all URLs across all organizations. As these URLs point to employee documents and, as in and of themselves access to the URLs does not require authentication, this poses a risk to the confidentiality of employee documents and details across all registered companies in the Client’s HR platform.",
     "impact": "As an HR Admin of a registered organization, it is trivial to enumerate over all sequential Document ID's to gather othersite.com URLs for HR sensitive employee documents across all of the client’s customer organizations. These othersite.com URLs do not require authentication to access.\r\n\r\nThis is estimated to be a very high-risk confidentiality impact.",
