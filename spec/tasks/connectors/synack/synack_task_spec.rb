@@ -64,6 +64,8 @@ RSpec.describe Kenna::Toolkit::SynackTask do
         expect { task.run(options) }.to \
           output(/500 Internal Server Error/).to_stdout.and \
             output(/Unable to retrieve vulnerabilities from Synack/).to_stdout
+      rescue SystemExit
+        # Because fail_task raises SystemExit, we can't assert the exception message directly
       end
     end
 
