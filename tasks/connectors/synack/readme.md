@@ -26,7 +26,6 @@ Complete list of Options:
 |----------------------|----------|----------------------------------------------------------------------------------------------------------------------|-----------------------|
 | synack_api_host      | false    | Synack API hostname without prefixes.                                                                                | api.synack.com        |
 | synack_api_token     | true     | Synack API token                                                                                                     | n/a                   |
-| page_size            | false    | Maximum number of vulnerabilities to retrieve per page from the Synack API.                                          | 50                    |
 | kenna_api_key        | false    | Kenna API Key for use with connector option                                                                          | n/a                   |
 | kenna_api_host       | false    | Kenna API Hostname                                                                                                   | api.kennasecurity.com |
 | kenna_connector_id   | false    | If set, we'll try to upload to this connector                                                                        | n/a                   |

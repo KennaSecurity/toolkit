@@ -14,10 +14,10 @@ module Kenna
           }
         end
 
-        def fetch_synack_vulnerabilities(page_size: 50)
+        def fetch_synack_vulnerabilities
           [].tap do |result|
             (1..).each do |page_number|
-              page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number, page_size)
+              page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number)
               break if page_vulnerabilities.empty? || result.length > 5000
 
               result.concat(page_vulnerabilities)
