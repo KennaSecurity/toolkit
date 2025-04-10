@@ -48,6 +48,25 @@ RSpec.describe Kenna::Toolkit::SynackTask do
       end
     end
 
+    context 'when the API returns an error' do
+      before do
+        stub_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
+          .with(query: hash_including({}))
+          .to_return(status: [500, "Internal Server Error"])
+        allow_any_instance_of(Object).to receive(:sleep) # Instant retries
+      end
+
+      it 'fails the task' do
+        expect { task.run(options) }.to raise_error(SystemExit) { |e| expect(e.status).to_not be_zero }
+      end
+
+      it 'outputs an error message' do
+        expect { task.run(options) }.to \
+          output(/500 Internal Server Error/).to_stdout.and \
+            output(/Unable to retrieve vulnerabilities from Synack/).to_stdout
+      end
+    end
+
     it 'creates assets with vulnerabilities' do
       task.run(options)
       expect(task.assets).to include(
