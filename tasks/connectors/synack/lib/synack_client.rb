@@ -5,31 +5,32 @@ module Kenna
         class ApiError < StandardError; end
 
         def initialize(api_domain, token, asset_defined_in_tag)
-          @token = token
-          @api_url = "https://#{api_domain}"
+          @url_base = api_domain
           @asset_defined_in_tag = asset_defined_in_tag
           @headers = {
-            "Authorization" => "Bearer #{@token}"
+            "Authorization" => "Bearer #{token}"
           }
         end
 
         def fetch_synack_vulnerabilities(page_size: 50)
-          vulnerabilities = []
-          page_number = 1
-          loop do
-            page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number, page_size)
-            break if page_vulnerabilities.empty? || vulnerabilities.length > 5000
+          [].tap do |result|
+            (1..).each do |page_number|
+              page_vulnerabilities = fetch_synack_vulnerabilities_page(page_number, page_size)
+              break if page_vulnerabilities.empty? || result.length > 5000
 
-            page_vulnerabilities.each { |vulnerability| vulnerabilities << vulnerability }
-            print_good "Fetched page #{page_number} with #{page_vulnerabilities.length} vulnerabilities from Synack. Total #{vulnerabilities.length}"
-            page_number += 1
+              result.concat(page_vulnerabilities)
+              puts "Fetched page #{page_number} with #{page_vulnerabilities.length} vulnerabilities from Synack."
+            end
           end
-          vulnerabilities
         end
 
         def fetch_synack_vulnerabilities_page(page_number, page_size = 50)
-          filter = @asset_defined_in_tag ? "filter[search]=kenna::" : ""
-          url = "#{@api_url}/v1/vulnerabilities?#{filter}&filter[include_attachments]=0&page[size]=#{page_size}&page[number]=#{page_number}"
+          query = {
+            filter: { include_attachments: 0 },
+            page: { size: page_size, number: page_number }
+          }
+          query[:filter][:search] = "kenna::" if @asset_defined_in_tag
+          url = URI::HTTPS.build(host: @url_base, path: "/v1/vulnerabilities", query: query.to_query).to_s
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve vulnerabilities from Synack, please check url and token." unless response
 

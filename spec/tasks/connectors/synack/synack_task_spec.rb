@@ -107,6 +107,15 @@ RSpec.describe Kenna::Toolkit::SynackTask do
       )
     end
 
+    describe 'vuln_defs details' do
+      it 'sorts and concatenates validation steps' do
+        task.run(options)
+        # Steps 1-10 should be in numerical order, not alpha order like 1, 10, 11, 2...
+        regex = Regexp.new((1..10).map { |n| "#{n}\\. .+" }.join("\\n"), Regexp::MULTILINE)
+        expect(task.vuln_defs.first['details']).to match(regex)
+      end
+    end
+
     it 'creates the output file with the correct number of assets and vulnerabilities' do
       task.run(options)
       expect(File).to exist("output/synack/synack_batch_1.json")

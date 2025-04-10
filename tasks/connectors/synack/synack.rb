@@ -69,42 +69,33 @@ module Kenna
 
         client = Kenna::Toolkit::Synack::SynackClient.new(@synack_api_host, @synack_api_token, @asset_defined_in_tag)
 
-        print_good "Attempting to fetch vulns from Synack at #{@synack_api_host}"
-        synack_vulnerabilities = client.fetch_synack_vulnerabilities(page_size: @batch_size)
-        print_good "Found #{synack_vulnerabilities.length} total vulns in Synack"
+        print_good "Fetching vulns from Synack at #{@synack_api_host}"
+        vulnerabilities = client.fetch_synack_vulnerabilities(page_size: @batch_size)
 
-        vulns_for_kenna = synack_vulnerabilities
-        if @asset_defined_in_tag
-          vulns_for_kenna = synack_vulnerabilities.select do |vulnerability|
-            tags = vulnerability.fetch('tag_list')
-            tags.select { |tag| tag.fetch('name').start_with?('kenna::') }.length.positive?
-          end
-        end
-        print_good "Found #{vulns_for_kenna.length} total vulns for Kenna in Synack"
+        vulnerabilities.select! { |v| extract_kenna_tag(v) } if @asset_defined_in_tag
+        print_good "Found #{vulnerabilities.length} total vulns for Kenna in Synack"
 
         kdi_batch_upload(@kenna_batch_size, @output_directory, 'synack.json', @kenna_connector_id, @kenna_api_host, @kenna_api_key, false, @retries, @kdi_version) do |batch|
-          vulns_for_kenna.each do |synack_vulnerability|
-            tags = synack_vulnerability.fetch('tag_list')
-            kenna_asset_tag = tags.find { |tag| tag.fetch('name').start_with?('kenna::') }
+          vulnerabilities.each do |vulnerability|
+            kenna_asset_tag = extract_kenna_tag(vulnerability)
             next if @asset_defined_in_tag && kenna_asset_tag.nil?
 
-            asset_vuln_proxy = create_asset_vuln_proxy(synack_vulnerability)
-            vuln_def_proxy = create_vuln_def_proxy(synack_vulnerability)
+            vuln = extract_vulnerability(vulnerability)
 
             batch.append do
               if @asset_defined_in_tag
                 # if by kenna tag
-                asset_proxy = create_asset_proxy_from_tag(kenna_asset_tag)
-                create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
+                asset_proxy = extract_asset_from_tag(kenna_asset_tag)
+                create_kdi_asset_vuln(asset_proxy, vuln)
               else
                 # if by exploitable locations
-                synack_vulnerability["exploitable_locations"].each do |exploitable_location|
-                  asset_proxy = create_asset_proxy_from_exploitable_location(exploitable_location, synack_vulnerability["listing"])
-                  create_kdi_asset_vuln(asset_proxy, asset_vuln_proxy)
+                vulnerability["exploitable_locations"].each do |exploitable_location|
+                  asset_proxy = extract_asset_from_exploitable_location(exploitable_location, vulnerability["listing"])
+                  create_kdi_asset_vuln(asset_proxy, vuln)
                 end
               end
 
-              create_kdi_vuln_def vuln_def_proxy
+              create_kdi_vuln_def extract_vuln_def(vulnerability)
             end
           end
         end
@@ -130,69 +121,43 @@ module Kenna
         @kdi_version = 2
       end
 
-      def create_asset_vuln_proxy(synack_vulnerability)
-        scanner_id = synack_vulnerability.fetch('id')
-        vuln_name = synack_vulnerability.fetch('title')
-        scanner_score = synack_vulnerability.fetch('cvss_final')
-
-        vuln_status_info = synack_vulnerability['vulnerability_status']
-
-        created = synack_vulnerability.fetch('resolved_at')
+      def extract_vulnerability(vuln)
+        created = vuln.fetch('resolved_at')
         created = DateTime.strptime(created, '%Y-%m-%dT%T%:z').strftime(DATE_FORMAT_KDI) unless created.nil? || created.empty?
-        closed = synack_vulnerability.fetch('closed_at')
+        closed = vuln.fetch('closed_at')
         closed = DateTime.strptime(closed, '%Y-%m-%dT%T%:z').strftime(DATE_FORMAT_KDI) unless closed.nil? || closed.empty?
-        synack_status_type = vuln_status_info.fetch('flow_type')
-        kenna_status = synack_status_type == 2 ? 'closed' : 'open'
+        kenna_status = vuln.dig('vulnerability_status', 'flow_type') == 2 ? 'closed' : 'open'
 
         {
-          "scanner_identifier" => scanner_id.to_s,
-          "scanner_type" => "Synack",
-          "scanner_score" => scanner_score.to_i,
-          "vuln_def_name" => vuln_name,
+          "scanner_identifier" => vuln.fetch('id').to_s,
+          "scanner_type" => SCANNER_TYPE,
+          "scanner_score" => vuln.fetch('cvss_final').to_i,
+          "vuln_def_name" => vuln['title'],
           "status" => kenna_status,
           "created_at" => created,
           "closed_at" => closed
         }.compact
       end
 
-      def create_vuln_def_proxy(synack_vulnerability)
-        scanner_id = synack_vulnerability.fetch('id')
-        vuln_name = synack_vulnerability.fetch('title')
-        description = synack_vulnerability.fetch('description')
-        solution = synack_vulnerability.fetch('recommended_fix')
-        scanner_score = synack_vulnerability.fetch('cvss_final')
-        validation_steps = synack_vulnerability.fetch('validation_steps')
-
-        details = []
-        validation_steps.each do |step|
-          number = step.fetch('number')
-          detail = step.fetch('detail')
-          detail_url = step.fetch('url')
-          details << "#{number}. #{detail} \n #{detail_url} \n"
-        end
-
-        details = details.sort
-        details = details.join('')
-
-        cve_ids = synack_vulnerability.fetch('cve_ids')
-        cve_identifiers = cve_ids.join(",") unless cve_ids.empty?
-        cwe_ids = synack_vulnerability.fetch('cwe_ids')
-        cwe_identifiers = cwe_ids.join(",") unless cwe_ids.empty?
+      def extract_vuln_def(vuln)
+        details = vuln.fetch('validation_steps').sort_by { |step| step['number'] }.map do |step|
+          "#{step['number']}. #{step['detail']}\n#{step['url']}"
+        end.join("\n")
 
         {
-          "name" => vuln_name,
-          "scanner_identifier" => scanner_id.to_s,
-          "scanner_type" => "Synack",
-          "scanner_score" => scanner_score.to_i,
-          "description" => description,
-          "solution" => solution,
+          "name" => vuln['title'],
+          "scanner_identifier" => vuln.fetch('id').to_s,
+          "scanner_type" => SCANNER_TYPE,
+          "scanner_score" => vuln.fetch('cvss_final').to_i,
+          "description" => vuln['description'],
+          "solution" => vuln['recommended_fix'],
           "details" => details,
-          "cve_identifiers" => cve_identifiers,
-          "cwe_identifiers" => cwe_identifiers
+          "cve_identifiers" => vuln.fetch('cve_ids').join(","),
+          "cwe_identifiers" => vuln.fetch('cwe_ids').join(",")
         }.compact
       end
 
-      def create_asset_proxy_from_tag(kenna_tag_in_synack)
+      def extract_asset_from_tag(kenna_tag_in_synack)
         # supported kenna asset type values:
         #  file, ip_address, mac_address, hostname, ec2, netbios, url, fqdn, external_id, database, application
         kenna_asset_tag_value = kenna_tag_in_synack.fetch('name')
@@ -200,15 +165,11 @@ module Kenna
         tag_data = kenna_asset_tag_value.to_s.split('::')
         return nil if tag_data.nil? || tag_data.length != 3
 
-        asset_type = kenna_asset_tag_value.to_s.split('::')[1]
-        asset_value = kenna_asset_tag_value.to_s.split('::')[2]
-        asset = {
-          asset_type => asset_value
-        }
-        asset.compact
+        _, asset_type, asset_value = kenna_asset_tag_value.to_s.split('::')
+        { asset_type => asset_value }
       end
 
-      def create_asset_proxy_from_exploitable_location(exploitable_location, assessment)
+      def extract_asset_from_exploitable_location(exploitable_location, assessment)
         url = nil
         file = nil
         ip_address = nil
@@ -220,7 +181,7 @@ module Kenna
         when 'url'
           url = location_value
         when 'other', 'app-location'
-          application_value = location_value.nil? ? application_value : "#{application_value} #{location_value}".strip
+          application_value = [application_value, location_value].compact.join(' ').strip
         when 'file'
           file = location_value
         when 'ip'
@@ -233,6 +194,10 @@ module Kenna
           "ip_address" => ip_address,
           "application" => application_value
         }.compact
+      end
+
+      def extract_kenna_tag(vulnerability)
+        vulnerability.fetch('tag_list').find { |tag| tag.fetch('name').start_with?('kenna::') }
       end
     end
   end
