@@ -43,11 +43,11 @@ module Kenna
               required: false,
               default: false,
               description: "If set to true, will only process Synack vulnerabilities tagged with special asset-defining tags." },
-            { name: "batch_size",
+            { name: "page_size",
               type: "integer",
               required: false,
               default: 50,
-              description: "Maximum number of vulnerabilities to retrieve in batches." },
+              description: "Maximum number of vulnerabilities to retrieve per page from the Synack API." },
             { name: "kenna_batch_size",
               type: "integer",
               required: false,
@@ -70,7 +70,7 @@ module Kenna
         client = Kenna::Toolkit::Synack::SynackClient.new(@synack_api_host, @synack_api_token, @asset_defined_in_tag)
 
         print_good "Fetching vulns from Synack at #{@synack_api_host}"
-        vulnerabilities = client.fetch_synack_vulnerabilities(page_size: @batch_size)
+        vulnerabilities = client.fetch_synack_vulnerabilities(page_size: @page_size)
 
         vulnerabilities.select! { |v| extract_kenna_tag(v) } if @asset_defined_in_tag
         print_good "Found #{vulnerabilities.length} total vulns for Kenna in Synack"
@@ -114,7 +114,7 @@ module Kenna
         @kenna_connector_id = @options[:kenna_connector_id]
         @asset_defined_in_tag = @options[:asset_defined_in_tag]
         @output_directory = @options[:output_directory]
-        @batch_size = @options[:batch_size].to_i
+        @page_size = @options[:page_size].to_i
         @kenna_batch_size = @options[:kenna_batch_size].to_i
         @skip_autoclose = false
         @retries = 3

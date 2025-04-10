@@ -126,13 +126,13 @@ RSpec.describe Kenna::Toolkit::SynackTask do
       expect(assets.sum { |asset| asset['vulns'].size }).to eq(48)
     end
 
-    context 'when batch_size is set' do
-      let(:options_with_batch_size) do
-        options.merge(batch_size: 2)
+    context 'when page_size is set' do
+      let(:options_with_page_size) do
+        options.merge(page_size: 2)
       end
 
       it 'uses it in the page[size] query param for the API request' do
-        task.run(options_with_batch_size)
+        task.run(options_with_page_size)
         expect(a_request(:get, "https://#{options[:synack_api_host]}/v1/vulnerabilities")
           .with(query: hash_including("page" => { "size" => "2", "number" => "1" }))).to have_been_made
       end
