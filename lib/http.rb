@@ -71,7 +71,7 @@ module Kenna
             sleep(15)
             retry
           end
-        rescue TimeoutLLError => e
+        rescue Timeout::Error => e
           log_exception(e)
           if retries < max_retries
             retries += 1
