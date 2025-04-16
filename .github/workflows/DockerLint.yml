@@ -50,6 +50,13 @@ jobs:
           # super-linter needs the full git history to get the
           # list of files that changed across commits
           fetch-depth: 0
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Rubocop
+        # SuperLinter uses the latest Rubocop, which causes a malloc error
+        run: bundle exec rubocop
 
       ################################
       # Run Linter against code base #
@@ -61,7 +68,7 @@ jobs:
           LINTER_RULES_PATH: /
           RUBY_CONFIG_FILE: .rubocop.yml
           # Enable only the following linters
-          VALIDATE_RUBY: true 
+          # VALIDATE_RUBY: true 
           VALIDATE_BASH: true
           VALIDATE_JSON: true
           VALIDATE_YAML: true
