@@ -98,6 +98,7 @@ module Kenna
 
       def create_asset_vuln(hostname, container_id, image_id, ip_address, file, mac_address, netbios, url, ec2, fqdn, external_id, database, scanner_type, scanner_id, details, created, scanner_score, last_fixed,
                             last_seen, status, closed, port)
+
         # find the asset
         case $map_locator
         when "ip_address"
@@ -148,6 +149,7 @@ module Kenna
 
       def create_asset_findings(file, url, external_id, scanner_type, scanner_id, additional_fields,
                                 created, scanner_score, last_seen, status, due_date)
+
         # find the asset
         case $map_locator
         when "file"
