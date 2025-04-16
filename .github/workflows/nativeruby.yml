@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Toolkit Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
-      - name: Install dependencies
-        run: bundle install
+        with:
+          bundler-cache: true
       - name: Smoke test
-        run: ruby toolkit.rb task=help
+        run: bundle exec ruby toolkit.rb task=help
       - name: Run tests
         run: bundle exec rspec --format RSpec::Github::Formatter --format documentation
       - name: Upload coverage reports to Codecov

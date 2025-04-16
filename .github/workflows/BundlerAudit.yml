@@ -10,7 +10,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: 'Bundler Audit'
         # uses: andrewmcodes/bundler-audit-action@main
         uses: laicuRoot/bundler-audit-action@use-ruby-3.2.2 # Temporarily fixes Ruby 3 issue: andrewmcodes/bundler-audit-action#6
