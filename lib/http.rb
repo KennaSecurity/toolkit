@@ -12,7 +12,7 @@ module Kenna
             headers:,
             verify_ssl:
           )
-          # meaningless comment
+          # another meaningless comment
         rescue RestClient::TooManyRequests => e
           log_exception(e)
           if retries < max_retries
