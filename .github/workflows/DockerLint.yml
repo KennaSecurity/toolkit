@@ -60,3 +60,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: /
           RUBY_CONFIG_FILE: .rubocop.yml
+          # Enable only the following linters
+          VALIDATE_RUBY: true 
+          VALIDATE_BASH: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true
+          GITHUB_ACTIONS: true
