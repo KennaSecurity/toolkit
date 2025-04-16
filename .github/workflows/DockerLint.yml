@@ -54,8 +54,8 @@ jobs:
       ################################
       # Run Linter against code base #
       ################################
-      - name: Lint Code Base
-        uses: super-linter/super-linter@v7.3.0
+      - name: Super-Linter
+        uses: super-linter/super-linter/slim@v7.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LINTER_RULES_PATH: /
