@@ -34,7 +34,6 @@ RSpec.describe Kenna::Toolkit::CyleraTask do
 
     it 'succeeds' do
       VCR.use_cassette('cylera') do
-        raise "Force spec failure"
         expect { task.run(options) }.to_not raise_error
       end
     end
