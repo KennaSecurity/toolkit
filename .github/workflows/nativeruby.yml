@@ -17,7 +17,7 @@ jobs:
         with:
           bundler-cache: true
       - name: Smoke test
-        run: ruby toolkit.rb task=help
+        run: bundle exec ruby toolkit.rb task=help
       - name: Run tests
         run: bundle exec rspec --format RSpec::Github::Formatter --format documentation
       - name: Upload coverage reports to Codecov
