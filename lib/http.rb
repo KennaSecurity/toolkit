@@ -11,7 +11,7 @@ module Kenna
             url:,
             headers:,
             verify_ssl:
-          )
+          
         rescue RestClient::TooManyRequests => e
           log_exception(e)
           if retries < max_retries
