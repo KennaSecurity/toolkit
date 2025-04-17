@@ -26,11 +26,10 @@ module Kenna
         rescue RestClient::UnprocessableEntity, RestClient::BadRequest, 
                RestClient::NotFound => e
           log_exception(e)
-        rescue RestClient::InternalServerError, RestClient::ServerBrokeConnection,
-               RestClient::ExceptionWithResponse, RestClient::Exception, 
-               RestClient::RequestTimeout, RestClient::Exceptions::OpenTimeout, 
-               Errno::ECONNREFUSED => e
+        rescue RestClient::Exception => e
           handle_retry(e, retries, max_retries)
+        rescue Errno::ECONNREFUSED => e
+          log_exception(e)
         end
 
         def log_exception(error)
