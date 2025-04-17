@@ -13,23 +13,29 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          retries ||= 0
-          RestClient::Request.execute(
-            method:,
-            url:,
-            headers:,
-            payload:,
-            verify_ssl:
-          )
-        rescue RestClient::TooManyRequests => e
-          handle_retry(e, retries, max_retries, rate_limit_reset: true)
-        rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
-               RestClient::NotFound => e
-          log_exception(e)
-        rescue RestClient::Exception => e
-          handle_retry(e, retries, max_retries)
-        rescue Errno::ECONNREFUSED => e
-          log_exception(e)
+          retries = 0
+          begin
+            RestClient::Request.execute(
+              method:,
+              url:,
+              headers:,
+              payload:,
+              verify_ssl:
+            )
+          rescue RestClient::TooManyRequests => e
+            retries += 1
+            handle_retry(e, retries, max_retries, rate_limit_reset: true)
+            retry if retries < max_retries
+          rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
+                 RestClient::NotFound => e
+            log_exception(e)
+          rescue RestClient::Exception => e
+            retries += 1
+            handle_retry(e, retries, max_retries)
+            retry if retries < max_retries
+          rescue Errno::ECONNREFUSED => e
+            log_exception(e)
+          end
         end
 
         def log_exception(error)
