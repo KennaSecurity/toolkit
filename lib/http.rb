@@ -53,8 +53,8 @@ module Kenna
             puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
             sleep(sleep_time)
             retry
+          end
         end
-      end
       end
     end
   end
