@@ -23,7 +23,7 @@ module Kenna
           )
         rescue RestClient::TooManyRequests => e
           handle_retry(e, retries, max_retries, rate_limit_reset: true)
-        rescue RestClient::UnprocessableEntity, RestClient::BadRequest, 
+        rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
                RestClient::NotFound => e
           log_exception(e)
         rescue RestClient::Exception => e
