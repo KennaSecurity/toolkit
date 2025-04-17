@@ -16,22 +16,22 @@ module Kenna
           retries = 0
           begin
             RestClient::Request.execute(
-              method:,
-              url:,
-              headers:,
-              payload:,
-              verify_ssl:
+              method: method,
+              url: url,
+              headers: headers,
+              payload: payload,
+              verify_ssl: verify_ssl
             )
           rescue RestClient::TooManyRequests => e
-            retries += 1
             handle_retry(e, retries, max_retries, rate_limit_reset: true)
+            retries += 1
             retry if retries < max_retries
           rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
                  RestClient::NotFound => e
             log_exception(e)
           rescue RestClient::Exception => e
-            retries += 1
             handle_retry(e, retries, max_retries)
+            retries += 1
             retry if retries < max_retries
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
@@ -55,11 +55,9 @@ module Kenna
           log_exception(exception)
           return unless retries < max_retries
 
-          retries += 1
           sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
           puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
           sleep(sleep_time)
-          retry
         end
       end
     end
