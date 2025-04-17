@@ -28,7 +28,8 @@ module Kenna
           log_exception(e)
         rescue RestClient::InternalServerError, RestClient::ServerBrokeConnection,
                RestClient::ExceptionWithResponse, RestClient::Exception, 
-               RestClient::RequestTimeout, Errno::ECONNREFUSED => e
+               RestClient::RequestTimeout, RestClient::Exceptions::OpenTimeout, 
+               Errno::ECONNREFUSED => e
           handle_retry(e, retries, max_retries)
         end
 
