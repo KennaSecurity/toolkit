@@ -71,6 +71,14 @@ module Kenna
             sleep(15)
             retry
           end
+        rescue RestClient::Exceptions::OpenTimeout => e
+          log_exception(e)
+          if retries < max_retries
+            retries += 1
+            print "Retrying!"
+            sleep(30)
+            retry
+          end
         rescue Errno::ECONNREFUSED => e
           log_exception(e)
           if retries < max_retries
