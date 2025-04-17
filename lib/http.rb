@@ -9,17 +9,17 @@ module Kenna
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          http_request(:post, url, headers, nil, max_retries, verify_ssl)
+          http_request(:post, url, headers, payload, max_retries, verify_ssl)
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
           retries ||= 0
           RestClient::Request.execute(
-            method: method,
-            url: url,
-            headers: headers,
-            payload: payload,
-            verify_ssl: true
+            method:,
+            url:,
+            headers:,
+            payload:,
+            verify_ssl:
           )
         rescue RestClient::TooManyRequests => e
           handle_retry(e, retries, max_retries, rate_limit_reset: true)
@@ -47,7 +47,8 @@ module Kenna
 
         def handle_retry(exception, retries, max_retries, rate_limit_reset: false)
           log_exception(exception)
-          if retries < max_retries
+          return unless retries < max_retries
+          
             retries += 1
             sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
             puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
