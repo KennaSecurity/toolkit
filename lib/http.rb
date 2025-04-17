@@ -19,7 +19,7 @@ module Kenna
             url: url,
             headers: headers,
             payload: payload,
-            verify_ssl: true:
+            verify_ssl: true
           )
         rescue RestClient::TooManyRequests => e
           handle_retry(e, retries, max_retries, rate_limit_reset: true)
@@ -53,7 +53,9 @@ module Kenna
             puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
             sleep(sleep_time)
             retry
+          end
         end
+      end
       end
     end
   end
