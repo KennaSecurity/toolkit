@@ -48,13 +48,12 @@ module Kenna
         def handle_retry(exception, retries, max_retries, rate_limit_reset: false)
           log_exception(exception)
           return unless retries < max_retries
-          
-            retries += 1
-            sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
-            puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
-            sleep(sleep_time)
-            retry
-          end
+
+          retries += 1
+          sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
+          puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
+          sleep(sleep_time)
+          retry
         end
       end
     end
