@@ -5,157 +5,38 @@ module Kenna
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          retries ||= 0
-          RestClient::Request.execute(
-            method: :get,
-            url:,
-            headers:,
-            verify_ssl:
-          )
-        rescue RestClient::TooManyRequests => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            sleep_time = 15
-            if e.response.headers.key?('RateLimit-Reset')
-              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
-              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
-            end
-            sleep(sleep_time)
-            print "Retrying!"
-            retry
-          end
-        rescue RestClient::UnprocessableEntity => e
-          log_exception(e)
-        rescue RestClient::BadRequest => e
-          log_exception(e)
-        rescue RestClient::InternalServerError => e
-          if retries < max_retries
-            retries += 1
-            sleep(15)
-            print "Retrying!"
-            retry
-          end
-          log_exception(e)
-        rescue RestClient::ServerBrokeConnection => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ExceptionWithResponse => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::NotFound => e
-          log_exception(e)
-        rescue RestClient::Exception => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            sleep(15)
-            print "Retrying!"
-            retry
-          end
-        rescue RestClient::RequestTimeout => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::Exceptions::OpenTimeout => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(30)
-            retry
-          end
-        rescue Errno::ECONNREFUSED => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
+          http_request(:get, url, headers, nil, max_retries, verify_ssl)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          retries ||= 0
-          RestClient::Request.execute(
-            method: :post,
-            url:,
-            payload:,
-            headers:,
-            verify_ssl:
-          )
-        rescue RestClient::TooManyRequests => e
-          log_exception(e)
-          if retries < max_retries
+          http_request(:post, url, headers, payload, max_retries, verify_ssl)
+        end
+
+        def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+          retries = 0
+          begin
+            RestClient::Request.execute(
+              method: method,
+              url: url,
+              headers: headers,
+              payload: payload,
+              verify_ssl: verify_ssl
+            )
+          rescue RestClient::TooManyRequests => e
+            log_exception(e)
+            handle_retry(e, retries, max_retries, rate_limit_reset: true)
             retries += 1
-            sleep_time = 15
-            if e.response.headers.key?('RateLimit-Reset')
-              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
-              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
-            end
-            print "Retrying!"
-            sleep(sleep_time)
-            retry
-          end
-        rescue RestClient::UnprocessableEntity => e
-          log_exception(e)
-        rescue RestClient::BadRequest => e
-          log_exception(e)
-        rescue RestClient::InternalServerError => e
-          log_exception(e)
-          if retries < max_retries
+            retry if retries < max_retries
+          rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
+                 RestClient::NotFound => e
+            log_exception(e)
+          rescue RestClient::Exception => e
+            log_exception(e)
+            handle_retry(e, retries, max_retries)
             retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ServerBrokeConnection => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ExceptionWithResponse => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::NotFound => e
-          log_exception(e)
-        rescue RestClient::Exception => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue Errno::ECONNREFUSED => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
+            retry if retries < max_retries
+          rescue Errno::ECONNREFUSED => e
+            log_exception(e)
           end
         end
 
@@ -170,6 +51,14 @@ module Kenna
 
         def log_request?
           debug? && running_local?
+        end
+
+        def handle_retry(exception, retries, max_retries, rate_limit_reset: false)
+          return unless retries < max_retries
+
+          sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
+          puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
+          sleep(sleep_time)
         end
       end
     end
