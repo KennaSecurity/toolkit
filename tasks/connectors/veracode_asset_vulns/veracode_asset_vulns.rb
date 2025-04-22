@@ -83,7 +83,7 @@ module Kenna
         @filename = ".json"
 
         if page_size.to_i > 500
-          puts "Maximum Veracode Page Size is 500.  Resetting to 500."
+          puts "Maximum Veracode Page Size is 500.  Resetting to 500. Using FARADAY"
           page_size = 500
         end
 
