@@ -20,17 +20,15 @@ module Kenna
           retries = 0
           begin
             response = conn.run_request(method.to_sym, url, payload, headers)
-          
+            return response
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, 
                  Faraday::TooManyRequestsError => e
             log_exception(e)
             handle_retry(e, retries, max_retries)
             retries += 1
             retry if retries < max_retries
-
           rescue Faraday::ClientError => e 
             case e
-              
             when Faraday::UnprocessableEntityError, Faraday::BadRequestError, 
                  Faraday::ResourceNotFoundError
               log_exception(e)
@@ -40,7 +38,6 @@ module Kenna
               retries += 1
               retry if retries < max_retries
             end
-
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
           end
@@ -62,7 +59,7 @@ module Kenna
         def handle_retry(exception, retries, max_retries, rate_limit_reset: false)
           return unless retries < max_retries
 
-          sleep_time = rate_limit_reset && e.response.headers.key?('RateLimit-Reset') ? e.response.headers['RateLimit-Reset'].to_i + 1 : 15
+          sleep_time = rate_limit_reset && exception.response[:headers].key?('RateLimit-Reset') ? exception.response[:headers]['RateLimit-Reset'].to_i + 1 : 15
           puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
           sleep(sleep_time)
         end
