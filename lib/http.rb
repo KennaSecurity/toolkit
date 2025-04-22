@@ -13,28 +13,34 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+          conn = Faraday.new(url: url) do |faraday|
+            faraday.ssl.verify = verify_ssl
+            faraday.adapter Faraday.default_adapter
+          end
           retries = 0
           begin
-            RestClient::Request.execute(
-              method: method,
-              url: url,
-              headers: headers,
-              payload: payload,
-              verify_ssl: verify_ssl
-            )
-          rescue RestClient::TooManyRequests => e
-            log_exception(e)
-            handle_retry(e, retries, max_retries, rate_limit_reset: true)
-            retries += 1
-            retry if retries < max_retries
-          rescue RestClient::UnprocessableEntity, RestClient::BadRequest,
-                 RestClient::NotFound => e
-            log_exception(e)
-          rescue RestClient::Exception => e
+            response = conn.run_request(method.to_sym, url, payload, headers)
+          
+          rescue Faraday::ConnectionFailed, Faraday::TimeoutError, 
+                 Faraday::TooManyRequestsError => e
             log_exception(e)
             handle_retry(e, retries, max_retries)
             retries += 1
             retry if retries < max_retries
+
+          rescue Faraday::ClientError => e 
+            case e
+              
+            when Faraday::UnprocessableEntityError, Faraday::BadRequestError, 
+                 Faraday::ResourceNotFoundError
+              log_exception(e)
+            else
+              log_exception(e)
+              handle_retry(e, retries, max_retries)
+              retries += 1
+              retry if retries < max_retries
+            end
+
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
           end
