@@ -16,6 +16,7 @@ gem "addressable"
 gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
 gem "aws-sdk-inspector2"
+gem "faraday"
 gem "httparty"
 gem "ipaddress"
 gem "rest-client"
@@ -24,7 +25,7 @@ gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
 gem "tty-pager"
-gem "faraday"
+
 
 group :development, :test do
   gem "pry"
