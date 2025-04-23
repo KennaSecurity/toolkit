@@ -13,7 +13,7 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          puts "using Faraday"
+          puts "second version FARADAY"
           conn = Faraday.new(url: url) do |faraday|
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
