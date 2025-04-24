@@ -92,6 +92,7 @@ module Kenna
             return unless response
 
             result = JSON.parse(response.body)
+            puts "result #{result}"
             cwes = result["_embedded"]["cwes"]
 
             cwes.lazy.each do |cwe|

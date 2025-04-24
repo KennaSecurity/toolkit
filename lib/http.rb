@@ -7,7 +7,6 @@ module Kenna
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          puts "using faraday"
           http_request(:get, url, headers, nil, max_retries, verify_ssl)
         end
 
@@ -22,7 +21,7 @@ module Kenna
           end
           retries = 0
           begin
-            conn.run_request(method.to_sym, url, payload, headers)
+            responses = conn.run_request(method.to_sym, url, payload, headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError,
                  Faraday::TooManyRequestsError => e
             log_exception(e)
