@@ -7,6 +7,7 @@ module Kenna
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
+          puts "using faraday"
           http_request(:get, url, headers, nil, max_retries, verify_ssl)
         end
 
