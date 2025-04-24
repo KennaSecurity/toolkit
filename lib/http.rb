@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'faraday/middleware'
 
 module Kenna
   module Toolkit
@@ -16,29 +17,28 @@ module Kenna
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
           conn = Faraday.new(url:) do |faraday|
+            faraday.request :json
+            faraday.response :raise_error
+            faraday.response :logger 
+
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
           end
           retries = 0
           begin
-            responses = conn.run_request(method.to_sym, url, payload, headers)
-          rescue Faraday::ConnectionFailed, Faraday::TimeoutError,
-                 Faraday::TooManyRequestsError => e
+            responses = conn.run_request(method, url, payload, headers)
+            puts responses.body
+            return responses.body
+          rescue Faraday::ConnectionFailed, Faraday::TimeoutError => e
             log_exception(e)
             handle_retry(e, retries, max_retries)
             retries += 1
             retry if retries < max_retries
           rescue Faraday::ClientError => e
-            case e
-            when Faraday::UnprocessableEntityError, Faraday::BadRequestError,
-                 Faraday::ResourceNotFoundError
-              log_exception(e)
-            else
               log_exception(e)
               handle_retry(e, retries, max_retries)
               retries += 1
               retry if retries < max_retries
-            end
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
           end
@@ -46,7 +46,7 @@ module Kenna
 
         def log_exception(error)
           print_error "Exception! #{error}"
-          return unless log_request? && error.is_a?(RestClient::Exception)
+          return unless log_request? 
 
           print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
           print_debug "Request Payload: #{error.response.request.payload}"

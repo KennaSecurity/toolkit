@@ -83,15 +83,11 @@ module Kenna
 
         def cwe_recommendations(page_size)
           cwe_request = "#{CWE_PATH}?size=#{page_size}"
-          puts "CWE Request: #{cwe_request}"
           url = "https://#{HOST}#{cwe_request}"
-          puts "CWE URL: #{url}"
           cwe_rec_list = []
           until url.nil?
             uri = URI.parse(url)
-            puts "CWE URI: #{uri}"
             auth_path = "#{uri.path}?#{uri.query}"
-            puts "CWE Auth Path: #{auth_path}"
             response = http_get(url, hmac_auth_options(auth_path))
             return unless response
 
