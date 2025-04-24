@@ -13,13 +13,13 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          conn = Faraday.new(url: url) do |faraday|
+          conn = Faraday.new(url:) do |faraday|
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
           end
           retries = 0
           begin
-            response = conn.run_request(method.to_sym, url, payload, headers)
+            conn.run_request(method.to_sym, url, payload, headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError,
                  Faraday::TooManyRequestsError => e
             log_exception(e)

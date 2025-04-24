@@ -26,7 +26,6 @@ gem "sanitize"
 gem "strscan"
 gem "tty-pager"
 
-
 group :development, :test do
   gem "pry"
   gem "pry-byebug"
