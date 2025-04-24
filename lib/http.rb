@@ -19,16 +19,17 @@ module Kenna
           conn = Faraday.new(url:) do |faraday|
             faraday.request :json
             faraday.response :raise_error
-            faraday.response :logger 
+            faraday.response :logger, nil, { headers: true, bodies: true }
 
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
           end
+          normalized_headers = headers.transform_keys(&:to_s)
+          puts "normalized_headers: #{normalized_headers}"
           retries = 0
           begin
-            responses = conn.run_request(method, url, payload, headers)
-            puts responses.body
-            return responses.body
+            response = conn.run_request(method, url, payload, normalized_headers)
+            response
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError => e
             log_exception(e)
             handle_retry(e, retries, max_retries)
@@ -48,9 +49,9 @@ module Kenna
           print_error "Exception! #{error}"
           return unless log_request? 
 
-          print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
-          print_debug "Request Payload: #{error.response.request.payload}"
-          print_debug "Server Response: #{error.response.body}"
+          # print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
+          # print_debug "Request Payload: #{error.response.request.payload}"
+          # print_debug "Server Response: #{error.response.body}"
         end
 
         def log_request?
