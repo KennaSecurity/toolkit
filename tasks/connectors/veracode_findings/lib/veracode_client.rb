@@ -16,7 +16,7 @@ module Kenna
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
 
-        def initialize(id, key, output_dir, filename, kenna_api_host, kenna_connector_id, kenna_api_key)
+        def initialize(id, key, output_dir, filename, kenna_api_host, kenna_connector_id, kenna_api_key, match_key)
           @id = id
           @key = key
           @output_dir = output_dir
@@ -24,6 +24,7 @@ module Kenna
           @kenna_api_host = kenna_api_host
           @kenna_connector_id = kenna_connector_id
           @kenna_api_key = kenna_api_key
+          @match_key = match_key
           @category_recommendations = []
         end
 
@@ -75,7 +76,7 @@ module Kenna
           @category_recommendations = cat_rec_list
         end
 
-        def get_findings(app_guid, app_name, tags, page_size, omit_line_number)
+        def get_findings(app_guid, app_name, tags, page_size)
           print_debug "pulling issues for #{app_name}"
           puts "pulling issues for #{app_name}" # DBRO
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
@@ -109,7 +110,6 @@ module Kenna
                 url = finding["finding_details"]["url"]
                 ext_id = "[#{app_name}] - #{url}"
               end
-              finding_id = "#{app_name}:#{finding['issue_id']}"
 
               # Pull Status from finding["finding_status"]["status"]
               # Per docs this shoule be "OPEN" or "CLOSED"
@@ -166,7 +166,7 @@ module Kenna
 
               # craft the vuln hash
               finding = {
-                "scanner_identifier" => finding_id,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "severity" => scanner_score * 2,
                 "triage_state" => status,
@@ -178,7 +178,7 @@ module Kenna
               finding.compact!
 
               vuln_def = {
-                "scanner_identifier" => finding_id,
+                "scanner_identifier" => cwe,
                 "scanner_type" => "veracode",
                 "cwe_identifiers" => cwe,
                 "name" => cwe_name,
@@ -188,7 +188,7 @@ module Kenna
               vuln_def.compact!
 
               # Create the KDI entries
-              create_kdi_asset_finding(asset, finding)
+              create_kdi_asset_finding(asset, finding, @match_key)
               create_kdi_vuln_def(vuln_def)
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
@@ -302,16 +302,16 @@ module Kenna
               vuln_def.compact!
 
               # Create the KDI entries
-              create_kdi_asset_finding(asset, finding)
+              create_kdi_asset_finding(asset, finding, @match_key)
               create_kdi_vuln_def(vuln_def)
             end
             url = (result["_links"]["next"]["href"] unless result["_links"]["next"].nil?) || nil
           end
         end
 
-        def issues(app_guid, app_name, tags, page_size, omit_line_number)
+        def issues(app_guid, app_name, tags, page_size)
           # Get Findings
-          get_findings(app_guid, app_name, tags, page_size, omit_line_number)
+          get_findings(app_guid, app_name, tags, page_size)
           # Get SCA Findings
           get_findings_sca(app_guid, app_name, tags, page_size)
 
