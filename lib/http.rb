@@ -20,7 +20,7 @@ module Kenna
           @connection ||= Faraday.new(url: url) do |faraday|
             faraday.request :json
             faraday.response :raise_error
-            faraday.response :logger, nil, { headers: true, bodies: false }
+            faraday.response :logger, nil, { headers: true, bodies: true }
 
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
