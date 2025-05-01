@@ -50,9 +50,11 @@ module Kenna
         def cwe_recommendations
           cwe_request = "#{CWE_PATH}?size=#{@page_size}"
           url = "https://#{HOST}#{cwe_request}"
+          puts "cwe url #{url}"
           results = []
           get_paged_results(url) do |result|
             cwes = result["_embedded"]["cwes"]
+            puts "cwes result #{cwes}"
             cwes.each do |cwe|
               results << { "id" => cwe.fetch("id"), "recommendation" => cwe.fetch("recommendation") }
             end

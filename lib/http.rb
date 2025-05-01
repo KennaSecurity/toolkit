@@ -8,6 +8,7 @@ module Kenna
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
+          puts "faraday get request"
           http_request(:get, url, headers, nil, max_retries, verify_ssl)
         end
 
@@ -15,17 +16,20 @@ module Kenna
           http_request(:post, url, headers, payload, max_retries, verify_ssl)
         end
 
-        def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          conn = Faraday.new(url:) do |faraday|
+        def connection(url, verify_ssl)
+          @connection ||= Faraday.new(url: url) do |faraday|
             faraday.request :json
             faraday.response :raise_error
-            faraday.response :logger, nil, { headers: true, bodies: true }
+            faraday.response :logger, nil, { headers: true, bodies: false }
 
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
           end
+        end
+
+        def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+          conn = connection(url, verify_ssl)
           normalized_headers = headers.transform_keys(&:to_s)
-          puts "normalized_headers: #{normalized_headers}"
           retries = 0
           begin
             response = conn.run_request(method, url, payload, normalized_headers)
@@ -36,10 +40,10 @@ module Kenna
             retries += 1
             retry if retries < max_retries
           rescue Faraday::ClientError => e
-              log_exception(e)
-              handle_retry(e, retries, max_retries)
-              retries += 1
-              retry if retries < max_retries
+            log_exception(e)
+            handle_retry(e, retries, max_retries)
+            retries += 1
+            retry if retries < max_retries
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
           end
