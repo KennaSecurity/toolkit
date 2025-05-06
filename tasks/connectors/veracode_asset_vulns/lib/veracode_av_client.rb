@@ -93,7 +93,6 @@ module Kenna
 
             result = JSON.parse(response.body)
             cwes = result["_embedded"]["cwes"]
-
             cwes.lazy.each do |cwe|
               # cwe_rec_list << { "id" => cwe.fetch("id"), "severity" => cwe.fetch("severity"), "remediation_effort" => cwe.fetch("remediation_effort"), "recommendation" => cwe.fetch("recommendation") }
               cwe_rec_list << { "id" => cwe.fetch("id"), "recommendation" => cwe.fetch("recommendation") }
