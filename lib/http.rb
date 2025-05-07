@@ -157,6 +157,14 @@ module Kenna
             sleep(15)
             retry
           end
+        rescue Errno::ECONNRESET => e
+          log_exception(e)
+          if retries < max_retries
+            retries += 1
+            print "Retrying after connection reset!"
+            sleep(15)
+            retry
+          end
         end
 
         def log_exception(error)
