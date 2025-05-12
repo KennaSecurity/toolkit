@@ -17,10 +17,10 @@ module Kenna
         end
 
         def connection(url, verify_ssl)
-          @connection ||= Faraday.new(url: url) do |faraday|
+          Faraday.new(url: url) do |faraday|
             faraday.request :json
             faraday.response :raise_error
-            faraday.response :logger, nil, { headers: true, bodies: true }
+            faraday.response :logger, nil, { headers: true, bodies: false }
 
             faraday.ssl.verify = verify_ssl
             faraday.adapter Faraday.default_adapter
@@ -29,7 +29,7 @@ module Kenna
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
           conn = connection(url, verify_ssl)
-          normalized_headers = headers.transform_keys(&:to_s)
+          normalized_headers = headers.transform_keys(&:to_sym)
           retries = 0
           begin
             response = conn.run_request(method, url, payload, normalized_headers)
