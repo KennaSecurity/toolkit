@@ -82,19 +82,23 @@ module Kenna
         end
 
         def cwe_recommendations(page_size)
-          cwe_request = "#{CWE_PATH}?size=#{page_size}"
+          #cwe_request = "#{CWE_PATH}?size=#{page_size}"
+          cwe_request = "#{CWE_PATH}?size=#{page_size}&user_visible=true&page=2"
           url = "https://#{HOST}#{cwe_request}"
+          puts "urlUsed #{url}"
           cwe_rec_list = []
           until url.nil?
             uri = URI.parse(url)
+            puts "uriOriginal #{uri}"
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+            puts "responseInspect #{response.inspect}"
             puts "uri query #{uri.query}"
-            puts "responses #{response.body}"
             return unless response
 
             result = JSON.parse(response.body)
             cwes = result["_embedded"]["cwes"]
+            puts "cwesResponse #{cwes.class} - #{cwes.inspect}"
             cwes.lazy.each do |cwe|
               # cwe_rec_list << { "id" => cwe.fetch("id"), "severity" => cwe.fetch("severity"), "remediation_effort" => cwe.fetch("remediation_effort"), "recommendation" => cwe.fetch("recommendation") }
               cwe_rec_list << { "id" => cwe.fetch("id"), "recommendation" => cwe.fetch("recommendation") }
