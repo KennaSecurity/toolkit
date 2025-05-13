@@ -2,14 +2,21 @@
 
 require 'faraday'
 require 'faraday/middleware'
+require 'net/http'
+require 'uri'
+require 'openssl'
 
 module Kenna
   module Toolkit
     module Helpers
       module Http
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          puts "faraday get request url #{url} headers: #{headers} verify_ssl #{verify_ssl}" 
-          http_request(:get, url, headers, nil, max_retries, verify_ssl)
+          # http_request(:get, url, headers, nil, max_retries, verify_ssl)
+          conn = Faraday.new(
+          url: url,
+          headers: headers
+        )
+          conn.get(url)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
@@ -17,33 +24,31 @@ module Kenna
         end
 
         def connection(url, verify_ssl)
-          Faraday.new(url: url) do |faraday|
+          Faraday.new do |faraday|
             faraday.request :json
             faraday.response :raise_error
             faraday.response :logger, nil, { headers: true, bodies: false }
 
             faraday.ssl.verify = verify_ssl
-            faraday.adapter Faraday.default_adapter
           end
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          conn = connection(url, verify_ssl)
-          normalized_headers = headers.transform_keys(&:to_sym)
           retries = 0
           begin
-            response = conn.run_request(method, url, payload, normalized_headers)
+            conn = connection(url, verify_ssl) # Create a new connection for each retry
+            puts "urlprefix #{conn.url_prefix}"
+            normalized_headers = headers.transform_keys(&:to_sym) 
+            response = conn.run_request(method, url, payload, normalized_headers) 
             response
-          rescue Faraday::ConnectionFailed, Faraday::TimeoutError => e
+          rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
-            handle_retry(e, retries, max_retries)
             retries += 1
-            retry if retries < max_retries
-          rescue Faraday::ClientError => e
-            log_exception(e)
-            handle_retry(e, retries, max_retries)
-            retries += 1
-            retry if retries < max_retries
+            if retries < max_retries
+              puts "Retrying request (attempt #{retries})..."
+              sleep(5)
+              retry
+            end
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
           end

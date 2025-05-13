@@ -89,6 +89,8 @@ module Kenna
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, hmac_auth_options(auth_path))
+            puts "uri query #{uri.query}"
+            puts "responses #{response.body}"
             return unless response
 
             result = JSON.parse(response.body)
