@@ -33,7 +33,7 @@ module Kenna
           http_request(:post, normalized_url, headers, payload, max_retries, verify_ssl)
         end
 
-        def connection(url, verify_ssl)
+        def connection(verify_ssl)
           Faraday.new do |faraday|
             faraday.request :json
             faraday.response :raise_error
@@ -48,9 +48,8 @@ module Kenna
           retries = 0
           begin
             conn = connection(normalized_url, verify_ssl) # Create a new connection for each retry
-            normalized_headers = headers.transform_keys(&:to_sym) 
-            response = conn.run_request(method, normalized_url, payload, normalized_headers) 
-            response
+            normalized_headers = headers.transform_keys(&:to_sym)
+            conn.run_request(method, normalized_url, payload, normalized_headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
@@ -66,7 +65,7 @@ module Kenna
 
         def log_exception(error)
           print_error "Exception! #{error}"
-          return unless log_request? 
+          return unless log_request?
 
           # print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
           # print_debug "Request Payload: #{error.response.request.payload}"
