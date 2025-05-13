@@ -10,17 +10,27 @@ module Kenna
   module Toolkit
     module Helpers
       module Http
+        def normalize_url(url)
+          uri = URI.parse(url)
+          sorted_query = URI.encode_www_form(URI.decode_www_form(uri.query || '').sort)
+          uri.query = sorted_query unless sorted_query.empty?
+          uri.to_s
+        end
+
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          # http_request(:get, url, headers, nil, max_retries, verify_ssl)
-          conn = Faraday.new(
-          url: url,
-          headers: headers
-        )
-          conn.get(url)
+          normalized_url = normalize_url(url)
+          conn = Faraday.new(url: normalized_url) do |faraday|
+            faraday.headers = headers
+            faraday.headers['Content-Type'] = 'application/json'
+            faraday.adapter Faraday.default_adapter
+          end
+
+          conn.get
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          http_request(:post, url, headers, payload, max_retries, verify_ssl)
+          normalized_url = normalize_url(url)
+          http_request(:post, normalized_url, headers, payload, max_retries, verify_ssl)
         end
 
         def connection(url, verify_ssl)
@@ -34,12 +44,12 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+          normalized_url = normalize_url(url)
           retries = 0
           begin
-            conn = connection(url, verify_ssl) # Create a new connection for each retry
-            puts "urlprefix #{conn.url_prefix}"
+            conn = connection(normalized_url, verify_ssl) # Create a new connection for each retry
             normalized_headers = headers.transform_keys(&:to_sym) 
-            response = conn.run_request(method, url, payload, normalized_headers) 
+            response = conn.run_request(method, normalized_url, payload, normalized_headers) 
             response
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
