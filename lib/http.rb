@@ -17,49 +17,49 @@ module Kenna
           uri.to_s
         end
 
-        def http_get(url, headers, max_retries = 5, verify_ssl = true)
+        def connection(url, headers, verify_ssl = true)
           normalized_url = normalize_url(url)
-          conn = Faraday.new(url: normalized_url) do |faraday|
-            faraday.headers = headers
+          normalized_headers = headers.transform_keys(&:to_sym)
+
+          Faraday.new(url: normalized_url) do |faraday|
+            faraday.headers = normalized_headers
             faraday.headers['Content-Type'] = 'application/json'
             faraday.adapter Faraday.default_adapter
-          end
-
-          conn.get
-        end
-
-        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          normalized_url = normalize_url(url)
-          http_request(:post, normalized_url, headers, payload, max_retries, verify_ssl)
-        end
-
-        def connection(verify_ssl)
-          Faraday.new do |faraday|
-            faraday.request :json
-            faraday.response :raise_error
-            faraday.response :logger, nil, { headers: true, bodies: false }
-
             faraday.ssl.verify = verify_ssl
           end
         end
 
+        def http_get(url, headers, max_retries = 5, verify_ssl = true)
+          http_request(:get, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+        end
+
+        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
+          http_request(:post, normalized_url, headers, payload, max_retries, verify_ssl)
+        end
+
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          normalized_url = normalize_url(url)
           retries = 0
+
           begin
-            conn = connection(normalized_url, verify_ssl) # Create a new connection for each retry
-            normalized_headers = headers.transform_keys(&:to_sym)
-            conn.run_request(method, normalized_url, payload, normalized_headers)
+            conn = connection(url, headers, verify_ssl)
+            
+            response = conn.run_request(method, url, payload, headers)
+            return response
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
+
             if retries < max_retries
-              puts "Retrying request (attempt #{retries})..."
-              sleep(5)
+              sleep_time = [2**retries, 30].min # Exponential backoff with a cap at 30 seconds
+              puts "Retrying request (attempt #{retries}) after #{sleep_time} seconds..."
+              sleep(sleep_time)
               retry
+            else
+              raise "Max retries reached for #{method.upcase} request to #{url}: #{e.message}"
             end
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
+            raise "Connection refused for #{method.upcase} request to #{url}: #{e.message}"
           end
         end
 
@@ -74,14 +74,6 @@ module Kenna
 
         def log_request?
           debug? && running_local?
-        end
-
-        def handle_retry(exception, retries, max_retries, rate_limit_reset: false)
-          return unless retries < max_retries
-
-          sleep_time = rate_limit_reset && exception.response[:headers].key?('RateLimit-Reset') ? exception.response[:headers]['RateLimit-Reset'].to_i + 1 : 15
-          puts rate_limit_reset ? "RateLimit-Reset header provided. sleeping #{sleep_time}" : "Retrying!"
-          sleep(sleep_time)
         end
       end
     end
