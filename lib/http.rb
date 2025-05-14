@@ -30,7 +30,7 @@ module Kenna
         end
 
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          http_request(:get, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
+          http_request(:get, url, headers, payload = nil, max_retries, verify_ssl)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
@@ -42,21 +42,18 @@ module Kenna
 
           begin
             conn = connection(url, headers, verify_ssl)
-            
+
             response = conn.run_request(method, url, payload, headers)
-            return response
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
 
-            if retries < max_retries
-              sleep_time = [2**retries, 30].min # Exponential backoff with a cap at 30 seconds
-              puts "Retrying request (attempt #{retries}) after #{sleep_time} seconds..."
-              sleep(sleep_time)
-              retry
-            else
-              raise "Max retries reached for #{method.upcase} request to #{url}: #{e.message}"
-            end
+            raise "Max retries reached for #{method.upcase} request to #{url}: #{e.message}" unless retries < max_retries
+
+            sleep_time = [2**retries, 30].min # Exponential backoff with a cap at 30 seconds
+            puts "Retrying request (attempt #{retries}) after #{sleep_time} seconds..."
+            sleep(sleep_time)
+            retry
           rescue Errno::ECONNREFUSED => e
             log_exception(e)
             raise "Connection refused for #{method.upcase} request to #{url}: #{e.message}"
