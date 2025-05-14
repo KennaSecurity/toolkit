@@ -29,12 +29,12 @@ module Kenna
           end
         end
 
-        def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          http_request(:get, url, headers, payload = nil, max_retries, verify_ssl)
+        def http_get(url, headers, payload, max_retries = 5, verify_ssl = true)
+          http_request(:get, url, headers, payload, max_retries, verify_ssl)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          http_request(:post, normalized_url, headers, payload, max_retries, verify_ssl)
+          http_request(:post, url, headers, payload, max_retries, verify_ssl)
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
@@ -43,7 +43,7 @@ module Kenna
           begin
             conn = connection(url, headers, verify_ssl)
 
-            response = conn.run_request(method, url, payload, headers)
+            conn.run_request(method, url, payload, headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
