@@ -18,6 +18,7 @@ require_relative "../lib/toolkit"
 require "timecop"
 require 'vcr'
 require 'webmock/rspec'
+require 'fileutils'
 
 RSpec.configure do |config|
   # Use the GitHub Annotations formatter for CI
@@ -43,6 +44,9 @@ VCR.configure do |config|
   ].each do |key|
     config.filter_sensitive_data("<#{key}>") { ENV[key] }
   end
+
+  # Ensure the log directory exists
+  FileUtils.mkdir_p("log")
   config.debug_logger = File.open("log/vcr_debug.log", "w")
 end
 
