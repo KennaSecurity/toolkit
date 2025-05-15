@@ -10,16 +10,7 @@ module Kenna
   module Toolkit
     module Helpers
       module Http
-        def normalize_url(url)
-          uri = URI.parse(url)
-          sorted_query = URI.encode_www_form(URI.decode_www_form(uri.query || '').sort)
-          uri.query = sorted_query unless sorted_query.empty?
-          uri.to_s
-        end
-
         def connection(verify_ssl = true)
-          # normalized_url = normalize_url(url)
-
           Faraday.new do |faraday|
             faraday.request :json
             faraday.ssl.verify = verify_ssl
@@ -43,9 +34,8 @@ module Kenna
           begin
             conn = connection(verify_ssl)
 
-            normalized_url = normalize_url(url)
             normalized_headers = headers.transform_keys(&:to_sym).transform_values(&:to_s)
-            conn.run_request(method, normalized_url, payload, normalized_headers)
+            conn.run_request(method, url, payload, normalized_headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
