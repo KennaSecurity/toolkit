@@ -34,18 +34,12 @@ RSpec.describe Kenna::Toolkit::BitsightTask do
 
     after do
       Timecop.return
-      $stdout = STDOUT
     end
 
     it "does a full run" do
-      stdout = StringIO.new
-      $stdout = stdout
-
-      subject.run(options)
-
-      last_stdout = stdout.string.split("\n").last
-      expect(last_stdout).to match(/Attempting to run Kenna Connector at api.kennasecurity.com/)
-      $stdout = STDOUT
+      expect do
+        subject.run(options)
+      end.to output(/Attempting to run Kenna Connector at api.kennasecurity.com/).to_stdout
     end
   end
 end
