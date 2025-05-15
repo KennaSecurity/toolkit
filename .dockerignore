@@ -1,10 +1,10 @@
 # https://docs.docker.com/engine/reference/builder/#dockerignore-file
 README.md
 LICENSE.md
-# Dockerfile
+Dockerfile
 Containerfile
-.rubocop.yml
-rubocop_todo.yml
+.rubocop,yml
+rubocop_todo.ymp
 .gitignore
 .dockerignore
 /.github
