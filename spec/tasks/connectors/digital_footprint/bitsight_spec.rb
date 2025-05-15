@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rspec_helper"
+require "timecop"
 
 RSpec.describe Kenna::Toolkit::BitsightTask do
   let(:options) { { bitsight_api_key: "1234" } }
@@ -46,7 +47,7 @@ RSpec.describe Kenna::Toolkit::BitsightTask do
 
   describe "#run" do
     before do
-      allow(DateTime).to receive(:now).and_return('2023-10-30T00:00:00+00:00'.to_datetime)
+      Timecop.freeze(DateTime.parse("2023-10-30T00:00:00+00:00"))
 
       allow(RestClient::Request)
         .to receive(:execute)
@@ -74,6 +75,7 @@ RSpec.describe Kenna::Toolkit::BitsightTask do
     end
 
     after do
+      Timecop.return
       $stdout = STDOUT
     end
 
