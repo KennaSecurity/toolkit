@@ -17,12 +17,10 @@ module Kenna
           uri.to_s
         end
 
-        def connection(url, headers, verify_ssl = true)
-          normalized_url = normalize_url(url)
-          normalized_headers = headers.transform_keys(&:to_sym)
+        def connection(verify_ssl = true)
+          # normalized_url = normalize_url(url)
 
-          Faraday.new(url: normalized_url) do |faraday|
-            faraday.headers = normalized_headers
+          Faraday.new do |faraday|
             faraday.request :json
             faraday.ssl.verify = verify_ssl
             faraday.response :raise_error
@@ -43,9 +41,11 @@ module Kenna
           retries = 0
 
           begin
-            conn = connection(url, headers, verify_ssl)
+            conn = connection(verify_ssl)
 
-            conn.run_request(method, url, payload, headers)
+            normalized_url = normalize_url(url)
+            normalized_headers = headers.transform_keys(&:to_sym).transform_values(&:to_s)
+            conn.run_request(method, normalized_url, payload, normalized_headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1
