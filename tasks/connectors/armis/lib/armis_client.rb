@@ -153,7 +153,7 @@ module Kenna
           headers = { "params": { "secret_key": @secret_token } }
           begin
             response = RestClient::Request.execute(method: :post, url:, headers:)
-            json_response = JSON.parse(response)
+            json_response = JSON.parse(response.body)
 
             @access_token = json_response.dig("data", "access_token")
             @expiration_time = json_response.dig("data", "expiration_utc")
@@ -175,7 +175,7 @@ module Kenna
 
         def make_http_get_request(max_retries = 5)
           response = yield()
-          JSON.parse(response) if response
+          JSON.parse(response.body) if response
         rescue RestClient::TooManyRequests, RestClient::Unauthorized => e
           log_exception(e)
           retries ||= 0

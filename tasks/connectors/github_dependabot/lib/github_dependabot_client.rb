@@ -22,7 +22,7 @@ module Kenna
             response = http_post(@endpoint, @headers, query(repositories_query, organization_name: @organization_name, end_cursor:, page_size: @page_size))
             raise ApiError, "Unable to retrieve data from GitHub GraphQL API, please check credentials" unless response
 
-            response_hash = JSON.parse(response)
+            response_hash = JSON.parse(response.body)
 
             raise ApiError, "Unable to retrieve data. GitHub GraphQL API returned the following errors:\n\n#{build_api_errors_string(response_hash['errors'])}" if response_hash["errors"]
 
@@ -45,7 +45,7 @@ module Kenna
             response = http_post(@endpoint, @headers, query(vulnerabilities_query, repo_name:, repo_owner: @organization_name, end_cursor:, page_size: @page_size))
             raise ApiError, "Unable to retrieve data from GitHub GraphQL API, please check credentials" unless response
 
-            response_hash = JSON.parse(response)
+            response_hash = JSON.parse(response.body)
             raise ApiError, "Unable to retrieve data. GitHub GraphQL API returned the following errors:\n\n#{build_api_errors_string(response_hash['errors'])}" if response_hash["errors"]
 
             raise ApiError, "GitHub GraphQL API unrecognized response format." unless response_hash.dig("data", "repository", "vulnerabilityAlerts", "nodes")

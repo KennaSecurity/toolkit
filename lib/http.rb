@@ -23,14 +23,16 @@ module Kenna
 
           Faraday.new(url: normalized_url) do |faraday|
             faraday.headers = normalized_headers
-            faraday.headers['Content-Type'] = 'application/json'
-            faraday.adapter Faraday.default_adapter
+            faraday.request :json
             faraday.ssl.verify = verify_ssl
+            faraday.response :raise_error
+            # Faraday can automatically parse JSON responses, but client code expects RestClient responses that didn't.
+            # faraday.response :json
           end
         end
 
-        def http_get(url, headers, payload, max_retries = 5, verify_ssl = true)
-          http_request(:get, url, headers, payload, max_retries, verify_ssl)
+        def http_get(url, headers, max_retries = 5, verify_ssl = true)
+          http_request(:get, url, headers, nil, max_retries, verify_ssl)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)

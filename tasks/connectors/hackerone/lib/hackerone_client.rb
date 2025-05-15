@@ -19,7 +19,7 @@ module Kenna
 
           raise ApiError, "Unable to retrieve submissions, please check credentials." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def headers(page_number, page_size, filters)

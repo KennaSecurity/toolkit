@@ -41,7 +41,7 @@ module Kenna
           response = http_post("#{@endpoint}/v1/reports/vulnerabilities/#{vulns_report_id}?direction=asc&page_num=#{page_num}&num_of_rows=#{num_of_rows}&order_by=impacted_artifact", @headers, "")
           raise ApiError, "Unable to to retrieve vulnerabilities report content." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         private
@@ -51,7 +51,7 @@ module Kenna
           response = http_post("#{@endpoint}/v1/reports/vulnerabilities", @headers, payload)
           raise ApiError, "Unable to create JFrog vulnerabilities report, please check credentials" unless response
 
-          response_data = JSON.parse(response)
+          response_data = JSON.parse(response.body)
           response_data["report_id"]
         end
 
@@ -73,7 +73,7 @@ module Kenna
 
         def completed_report?(report_id)
           response = http_get("#{@endpoint}/v1/reports/#{report_id}", @headers)
-          response_data = JSON.parse(response)
+          response_data = JSON.parse(response.body)
           response_data["status"] == "completed"
         end
       end

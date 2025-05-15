@@ -22,7 +22,7 @@ module Kenna
           response = http_get(url, @headers, 2)
           raise ApiError, "Unable to retrieve submissions, please check credentials." unless response
 
-          build_issues(JSON.parse(response))
+          build_issues(JSON.parse(response.body))
         end
 
         def cwe_map

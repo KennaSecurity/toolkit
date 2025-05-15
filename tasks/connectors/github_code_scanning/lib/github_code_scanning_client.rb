@@ -22,7 +22,7 @@ module Kenna
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve alerts, please check credentials or GitHub permissions" unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
       end
     end

@@ -57,7 +57,7 @@ module Kenna
           response = http_get(url, @headers)
           raise ApiError, "Unable to retrieve query result. PLease check credentials" unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def alarm_category_filter
