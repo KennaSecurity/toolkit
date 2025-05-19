@@ -8,7 +8,8 @@ module Kenna
     module Helpers
       module Http
         RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [
-          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError]
+          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
+        ]
 
         def connection(verify_ssl = true, max_retries = 5)
           Faraday.new do |faraday|
@@ -19,7 +20,7 @@ module Kenna
               interval: 0.1,
               max_interval: 30,
               backoff_factor: 5,
-              methods: [:get, :post],
+              methods: %i[get, post],
               exceptions: RETRY_EXCEPTIONS,
               retry_statuses: [429, 500, 502, 503, 504],
               retry_block: method(:log_retry),
@@ -39,7 +40,7 @@ module Kenna
           connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
         end
 
-        def log_retry(env:, options:, retry_count:, exception:, will_retry_in:)
+        def log_retry(retry_count:, exception:, will_retry_in:)
           log_exception(exception)
           puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
         end
@@ -52,7 +53,7 @@ module Kenna
           print_error error.message
           return unless log_request?
 
-          if request = error&.response&.fetch(:request, false)
+          if (request = error&.response&.fetch(:request, false))
             print_debug "#{request[:method].upcase}: #{request[:url]}"
             print_debug "Request Body: #{request[:body]}"
             print_debug "Server Response: #{error.response[:body]}"
