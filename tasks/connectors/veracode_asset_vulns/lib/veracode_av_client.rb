@@ -461,14 +461,7 @@ module Kenna
         private
 
         def hmac_auth_options(api_path)
-          # Parse and normalize the query string
-          uri = URI.parse("https://#{HOST}#{api_path}")
-          sorted_query = URI.encode_www_form(URI.decode_www_form(uri.query || '').sort)
-          normalized_path = uri.path
-          normalized_path += "?#{sorted_query}" unless sorted_query.empty?
-
-          # Generate the HMAC signature using the normalized path
-          { Authorization: veracode_signature(normalized_path) }
+          { Authorization: veracode_signature(api_path) }
         end
 
         def veracode_signature(api_path)
