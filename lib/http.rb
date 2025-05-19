@@ -3,9 +3,6 @@
 require 'faraday'
 require 'faraday/middleware'
 require 'faraday/retry'
-require 'net/http'
-require 'uri'
-require 'openssl'
 
 module Kenna
   module Toolkit
@@ -23,6 +20,7 @@ module Kenna
               interval: 0.1,
               max_interval: 30,
               backoff_factor: 5,
+              methods: [:get, :post],
               exceptions: RETRY_EXCEPTIONS,
               retry_statuses: [429, 500, 502, 503, 504],
               retry_block: method(:log_retry),
@@ -35,16 +33,11 @@ module Kenna
         end
 
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          http_request(:get, url, headers, nil, max_retries, verify_ssl)
+          connection(verify_ssl, max_retries).run_request(:get, url, nil, headers)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          http_request(:post, url, headers, payload, max_retries, verify_ssl)
-        end
-
-        def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-            conn = connection(verify_ssl, max_retries)
-            conn.run_request(method, url, payload, headers)
+          connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
         end
 
         def log_retry(env:, options:, retry_count:, exception:, will_retry_in:)
@@ -60,7 +53,7 @@ module Kenna
           print_error error.message
           return unless log_request?
 
-          if request = error&.response.fetch(:request, false)
+          if request = error&.response&.fetch(:request, false)
             print_debug "#{request[:method].upcase}: #{request[:url]}"
             print_debug "Request Body: #{request[:body]}"
             print_debug "Server Response: #{error.response[:body]}"
