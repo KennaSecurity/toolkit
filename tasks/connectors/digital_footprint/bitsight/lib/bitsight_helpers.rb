@@ -23,7 +23,7 @@ module Kenna
       def bitsight_findings_and_create_kdi(bitsight_create_benign_findings, bitsight_benign_finding_grades, company_guids, dfm, lookback)
         limit = 100
         page_count = 0
-        from_date = (lookback.to_i.days.ago.utc).strftime("%Y-%m-%d")
+        from_date = lookback.to_i.days.ago.utc.strftime("%Y-%m-%d")
         company_guids = [@company_guid] if company_guids.nil?
         company_guids.lazy.each do |company_guid|
           company = @companies.lazy.find { |comp| comp["guid"] == company_guid }
