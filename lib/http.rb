@@ -34,8 +34,7 @@ module Kenna
           begin
             conn = connection(verify_ssl)
 
-            normalized_headers = headers.transform_keys(&:to_sym).transform_values(&:to_s)
-            conn.run_request(method, url, payload, normalized_headers)
+            conn.run_request(method, url, payload, headers)
           rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
             log_exception(e)
             retries += 1

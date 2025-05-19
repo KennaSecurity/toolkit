@@ -13,8 +13,6 @@ module Kenna
       def globals(bitsight_api_key)
         @headers = {
           "Authorization" => "Basic #{Base64.strict_encode64(bitsight_api_key)}",
-          "accept" => :json,
-          "content_type" => :json,
           "X-BITSIGHT-CALLING-PLATFORM-VERSION" => "Kenna Security",
           "X-BITSIGHT-CONNECTOR-NAME-VERSION" => "Kenna Toolkit Bitsight Connector V1"
         }
@@ -56,7 +54,7 @@ module Kenna
 
       def my_company
         # First get my company
-        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", { accept: :json, content_type: :json })
+        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", {})
         portfolio = JSON.parse(response.body)
         @companies = portfolio["companies"]
         @company_guid = portfolio["my_company"]["guid"]
