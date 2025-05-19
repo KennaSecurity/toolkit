@@ -2,6 +2,7 @@
 
 require 'faraday'
 require 'faraday/middleware'
+require 'faraday/retry'
 require 'net/http'
 require 'uri'
 require 'openssl'
@@ -10,10 +11,23 @@ module Kenna
   module Toolkit
     module Helpers
       module Http
-        def connection(verify_ssl = true)
+        RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [
+          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError]
+
+        def connection(verify_ssl = true, max_retries = 5)
           Faraday.new do |faraday|
             faraday.request :json
             faraday.ssl.verify = verify_ssl
+            faraday.request :retry, {
+              max: max_retries,
+              interval: 0.1,
+              max_interval: 30,
+              backoff_factor: 5,
+              exceptions: RETRY_EXCEPTIONS,
+              retry_statuses: [429, 500, 502, 503, 504],
+              retry_block: method(:log_retry),
+              exhausted_retries_block: method(:log_retries_exhausted)
+            }
             faraday.response :raise_error
             # Faraday can automatically parse JSON responses, but client code expects RestClient responses that didn't.
             # faraday.response :json
@@ -29,36 +43,27 @@ module Kenna
         end
 
         def http_request(method, url, headers, payload = nil, max_retries = 5, verify_ssl = true)
-          retries = 0
-
-          begin
-            conn = connection(verify_ssl)
-
+            conn = connection(verify_ssl, max_retries)
             conn.run_request(method, url, payload, headers)
-          rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::ClientError => e
-            log_exception(e)
-            retries += 1
+        end
 
-            raise "Max retries reached for #{method.upcase} request to #{url}: #{e.message}" unless retries < max_retries
+        def log_retry(env:, options:, retry_count:, exception:, will_retry_in:)
+          log_exception(exception)
+          puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
+        end
 
-            sleep_time = [2**retries, 30].min # Exponential backoff with a cap at 30 seconds
-            puts "Retrying request (attempt #{retries}) after #{sleep_time} seconds..."
-            sleep(sleep_time)
-            retry
-          rescue Errno::ECONNREFUSED => e
-            log_exception(e)
-            raise "Connection refused for #{method.upcase} request to #{url}: #{e.message}"
-          end
+        def log_retries_exhausted(env:, exception:, options:)
+          puts "Max retries reached for #{env.method.upcase} request to #{env.url}: #{exception.message}"
         end
 
         def log_exception(error)
-          print_error "Exception! #{error}"
+          print_error error.message
           return unless log_request?
 
-          if error.response&.request
-            print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
-            print_debug "Request Payload: #{error.response.request.payload}"
-            print_debug "Server Response: #{error.response.body}"
+          if request = error&.response.fetch(:request, false)
+            print_debug "#{request[:method].upcase}: #{request[:url]}"
+            print_debug "Request Body: #{request[:body]}"
+            print_debug "Server Response: #{error.response[:body]}"
           else
             print_debug "No response or request details available for this error."
           end

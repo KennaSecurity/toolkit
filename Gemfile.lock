@@ -46,6 +46,8 @@ GEM
       logger
     faraday-net_http (3.4.0)
       net-http (>= 0.5.0)
+    faraday-retry (2.3.1)
+      faraday (~> 2.0)
     hashdiff (1.0.1)
     http-accept (1.7.0)
     http-cookie (1.0.5)
@@ -200,7 +202,8 @@ DEPENDENCIES
   aws-sdk-guardduty
   aws-sdk-inspector
   aws-sdk-inspector2
-  faraday
+  faraday (~> 2.13)
+  faraday-retry (~> 2.3)
   httparty
   ipaddress
   pry
