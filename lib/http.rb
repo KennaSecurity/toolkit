@@ -20,7 +20,7 @@ module Kenna
               interval: 0.1,
               max_interval: 30,
               backoff_factor: 5,
-              methods: %i[get, post],
+              methods: %i[get post],
               exceptions: RETRY_EXCEPTIONS,
               retry_statuses: [429, 500, 502, 503, 504],
               retry_block: method(:log_retry),
@@ -45,7 +45,7 @@ module Kenna
           puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
         end
 
-        def log_retries_exhausted(env:, exception:, options:)
+        def log_retries_exhausted(env:, exception:, _options:)
           puts "Max retries reached for #{env.method.upcase} request to #{env.url}: #{exception.message}"
         end
 
