@@ -1,91 +1,45 @@
 # frozen_string_literal: true
 
 require "rspec_helper"
+require "timecop"
 
 RSpec.describe Kenna::Toolkit::BitsightTask do
+  def read_fixture_file(filename)
+    File.read(File.join(%w[spec tasks connectors digital_footprint fixtures], filename))
+  end
   let(:options) { { bitsight_api_key: "1234" } }
-  let(:aws_host_params) do
-    {
-      method: :get,
-      timeout: 1,
-      url: "http://169.254.169.254/latest/metadata/"
-    }
-  end
-  let(:validate_key_expected_params) do
-    {
-      method: :get,
-      url: "https://api.bitsighttech.com/"
-    }
-  end
-  let(:portafolio_expected_params) do
-    {
-      method: :get,
-      url: "https://1234:@api.bitsighttech.com/portfolio"
-    }
-  end
-  let(:findings1_expected_params) do
-    {
-      method: :get,
-      url: 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?limit=100&last_seen_gte=2023-08-01'
-    }
-  end
-  let(:findings2_expected_params) do
-    {
-      method: :get,
-      url: 'https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings?last_seen_gte=2023-08-01&limit=100&offset=100'
-    }
-  end
-  let(:validate_key_json_file) { File.read 'spec/fixtures/digital_footprint/bitsight_validate_key.json' }
-  let(:validate_key_response) { double(body: validate_key_json_file) }
-  let(:portafolio_json_file) { File.read 'spec/fixtures/digital_footprint/bitsight_portafolio.json' }
-  let(:portafolio_response) { double(body: portafolio_json_file) }
-  let(:findings1_json_file) { File.read 'spec/fixtures/digital_footprint/bitsight_findings_page_1.json' }
-  let(:findings2_json_file) { File.read 'spec/fixtures/digital_footprint/bitsight_findings_page_2.json' }
-  let(:findings1_response) { double(body: findings1_json_file) }
-  let(:findings2_response) { double(body: findings2_json_file) }
+  let(:validate_key_json) { read_fixture_file 'bitsight_validate_key.json' }
+  let(:portfolio_json) { read_fixture_file 'bitsight_portfolio.json' }
+  let(:findings1_json) { read_fixture_file 'bitsight_findings_page_1.json' }
+  let(:findings2_json) { read_fixture_file 'bitsight_findings_page_2.json' }
 
   describe "#run" do
     before do
-      allow(DateTime).to receive(:now).and_return('2023-10-30T00:00:00+00:00'.to_datetime)
+      Timecop.freeze(DateTime.parse("2023-10-30T00:00:00+00:00"))
 
-      allow(RestClient::Request)
-        .to receive(:execute)
-        .with(hash_including(aws_host_params)).twice
+      stub_request(:get, "https://api.bitsighttech.com/")
+        .to_return_json(body: validate_key_json)
 
-      allow(RestClient::Request)
-        .to receive(:execute)
-        .with(hash_including(validate_key_expected_params))
-        .and_return(validate_key_response)
+      stub_request(:get, "https://api.bitsighttech.com/portfolio")
+        .to_return_json(body: portfolio_json)
 
-      allow(RestClient::Request)
-        .to receive(:execute)
-        .with(hash_including(portafolio_expected_params))
-        .and_return(portafolio_response)
+      stub_request(:get, "https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings")
+        .with(query: { last_seen_gte: "2023-08-01", limit: "100" })
+        .to_return_json(body: findings1_json)
 
-      allow(RestClient::Request)
-        .to receive(:execute)
-        .with(hash_including(findings2_expected_params))
-        .and_return(findings2_response)
-
-      allow(RestClient::Request)
-        .to receive(:execute)
-        .with(hash_including(findings1_expected_params))
-        .and_return(findings1_response)
+      stub_request(:get, "https://api.bitsighttech.com/ratings/v1/companies/01bkac90-0000-3333-8888-c333faf7f50t/findings")
+        .with(query: { last_seen_gte: "2023-08-01", limit: "100", offset: "100" })
+        .to_return_json(body: findings2_json)
     end
 
     after do
-      $stdout = STDOUT
+      Timecop.return
     end
 
     it "does a full run" do
-      stdout = StringIO.new
-      $stdout = stdout
-
-      subject.run(options)
-
-      last_stdout = stdout.string.split("\n").last
-      expect(last_stdout).to match(/Attempting to run Kenna Connector at api.kennasecurity.com/)
-      $stdout = STDOUT
+      expect do
+        subject.run(options)
+      end.to output(/Attempting to run Kenna Connector at api.kennasecurity.com/).to_stdout
     end
   end
 end

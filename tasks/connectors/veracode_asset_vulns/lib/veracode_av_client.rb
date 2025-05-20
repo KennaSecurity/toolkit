@@ -88,12 +88,12 @@ module Kenna
           until url.nil?
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            hmac_headers = hmac_auth_options(auth_path)
+            response = http_get(url, hmac_headers)
             return unless response
 
             result = JSON.parse(response.body)
             cwes = result["_embedded"]["cwes"]
-
             cwes.lazy.each do |cwe|
               # cwe_rec_list << { "id" => cwe.fetch("id"), "severity" => cwe.fetch("severity"), "remediation_effort" => cwe.fetch("remediation_effort"), "recommendation" => cwe.fetch("recommendation") }
               cwe_rec_list << { "id" => cwe.fetch("id"), "recommendation" => cwe.fetch("recommendation") }
@@ -461,7 +461,14 @@ module Kenna
         private
 
         def hmac_auth_options(api_path)
-          { Authorization: veracode_signature(api_path) }
+          # Parse and normalize the query string
+          uri = URI.parse("https://#{HOST}#{api_path}")
+          sorted_query = URI.encode_www_form(URI.decode_www_form(uri.query || '').sort)
+          normalized_path = uri.path
+          normalized_path += "?#{sorted_query}" unless sorted_query.empty?
+
+          # Generate the HMAC signature using the normalized path
+          { Authorization: veracode_signature(normalized_path) }
         end
 
         def veracode_signature(api_path)
