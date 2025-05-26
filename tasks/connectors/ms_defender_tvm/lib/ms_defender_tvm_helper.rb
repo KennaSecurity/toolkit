@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'uri'
 
 module Kenna
@@ -39,9 +40,7 @@ module Kenna
         end
         return nil unless response
 
-        json = response.body
-
-        json
+        response.body
       end
 
       def tvm_get_vulns(page_param = nil)
@@ -68,9 +67,7 @@ module Kenna
         end
         return nil unless response
 
-        json = response.body
-
-        json
+        response.body
       end
 
       def valid_auth_token?
