@@ -28,7 +28,7 @@ module Kenna
             }
             faraday.response :raise_error
             # Faraday can automatically parse JSON responses, but client code expects RestClient responses that didn't.
-            # faraday.response :json
+            faraday.response :json
           end
         end
 

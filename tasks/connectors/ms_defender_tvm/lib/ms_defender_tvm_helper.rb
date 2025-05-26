@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'uri'
 
 module Kenna
   module Toolkit
@@ -28,7 +29,7 @@ module Kenna
         begin
           headers = { "Content-Type" => "application/json", "Accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
           response = http_get(url, headers, 1)
-          if !response.code == 200
+          if response.status != 200
             response = nil
             raise "unauthorized"
           end
@@ -38,11 +39,7 @@ module Kenna
         end
         return nil unless response
 
-        begin
-          json = JSON.parse(response.body)
-        rescue JSON::ParserError
-          print_error "Unable to process response!"
-        end
+        json = response.body
 
         json
       end
@@ -60,7 +57,8 @@ module Kenna
         begin
           headers = { "content-type" => "application/json", "accept" => "application/json", "Authorization" => "Bearer #{@token}", "accept-encoding" => "identity" }
           response = http_get(url, headers, 1)
-          if !response.code == 200
+          puts "vulns response type #{response.body.class}"
+          if response.status != 200
             response = nil
             raise "unauthorized"
           end
@@ -70,16 +68,13 @@ module Kenna
         end
         return nil unless response
 
-        begin
-          json = JSON.parse(response.body)
-        rescue JSON::ParserError
-          print_error "Unable to process response!"
-        end
+        json = response.body
 
         json
       end
 
       def valid_auth_token?
+        puts "check is token is nil #{@token.nil?}"
         tvm_get_auth_token if @token.nil?
 
         !@token.nil?
@@ -96,14 +91,16 @@ module Kenna
           "client_secret" => @client_secret.to_s,
           "grant_type" => "client_credentials"
         }
+        encoded_payload = URI.encode_www_form(mypayload)
+        response = http_post(oauth_url, headers, encoded_payload)
         print_debug "oauth_url = #{oauth_url}"
-        response = http_post(oauth_url, headers, mypayload)
-        return nil unless response
 
-        begin
-          json = JSON.parse(response.body)
-        rescue JSON::ParserError
-          print_error "Unable to process response!"
+        json = response.body # Faraday already parses JSON, so this is a Hash
+
+        unless json.key?("access_token")
+          print_error "No access_token found in OAuth response!"
+          print_error "OAuth response: #{json}"
+          return nil
         end
 
         @token = json.fetch("access_token")
