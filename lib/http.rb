@@ -27,8 +27,8 @@ module Kenna
               exhausted_retries_block: method(:log_retries_exhausted)
             }
             faraday.response :raise_error
-            # Faraday can automatically parse JSON responses, but client code expects RestClient responses that didn't.
-            faraday.response :json
+            # Faraday can automatically parse JSON responses if this is enabled. However, we shouldn't use JSON.parse if this is enabled
+            # faraday.response :json
           end
         end
 
