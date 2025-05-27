@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'uri'
+require 'json'
 
 module Kenna
   module Toolkit
@@ -67,7 +68,7 @@ module Kenna
         end
         return nil unless response
 
-        response.body
+        JSON.parse(response.body)
       end
 
       def valid_auth_token?
@@ -92,7 +93,7 @@ module Kenna
         response = http_post(oauth_url, headers, encoded_payload)
         print_debug "oauth_url = #{oauth_url}"
 
-        json = response.body # Faraday already parses JSON, so this is a Hash
+        json = JSON.parse(response.body)
 
         unless json.key?("access_token")
           print_error "No access_token found in OAuth response!"
