@@ -96,7 +96,7 @@ module Kenna
           response = http_post(endpoint, headers, payload)
           raise ApiError, "Unable to retrieve Auth Token. Check credentials." unless response
 
-          JSON.parse(response)["access_token"]
+          JSON.parse(response.body)["access_token"]
         end
 
         def headers
