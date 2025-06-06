@@ -27,7 +27,7 @@ module Kenna
 
           raise ApiError, "Unable to retrieve vulnerabilities, please check credentials." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def receive_module(module_id)
@@ -35,7 +35,7 @@ module Kenna
 
           raise ApiError, "Unable to retrieve modules, please check credentials." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def fetch_vulns(app_id, filters, page_number, page_size)
@@ -73,7 +73,7 @@ module Kenna
 
           raise ApiError, "Unable to retrieve applications, please check credentials." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
       end
     end

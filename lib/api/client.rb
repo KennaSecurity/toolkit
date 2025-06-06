@@ -4,8 +4,10 @@
 module Kenna
   module Api
     class Client
+      include Kenna::Toolkit::Helpers::Http
+
       def version
-        "1.0.0"
+        "1.1.0"
       end
 
       def initialize(api_token, api_host)
@@ -131,169 +133,100 @@ module Kenna
       end
 
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3, debug = false)
-        kenna_api_endpoint = "#{@base_url}/connectors"
-        # puts "Uploading to: #{kenna_api_endpoint}"
-        headers = get_http_headers
+        resource = "connectors/#{connector_id}/data_file"
+        resource += "?run=true" if run_now
 
-        connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/data_file"
-
-        connector_endpoint = "#{connector_endpoint}?run=true" if run_now
+        payload = { multipart: true, file: File.new(filepath, "rb") }
+        retries = 0
 
         begin
           print_good "Sending request"
-          query_response = RestClient::Request.execute(
-            method: :post,
-            url: connector_endpoint,
-            headers:,
-            payload: {
-              multipart: true,
-              file: File.new(filepath, "rb")
-            }
-          )
-
-          query_response_json = JSON.parse(query_response.body)
-          raise StandardError "File upload failed. kenna response: #{query_response_json}" unless query_response_json.fetch("success") == "true"
+          out = _kenna_api_request(:post, resource, payload)
+          unless out[:status] == "success" && out[:results].fetch("success", nil) == "true"
+            raise StandardError, "File upload failed. Kenna response: #{out[:results]}"
+          end
 
           print_good "Success!"
           File.delete(filepath) unless debug
-          running = true
 
           if run_now
-
-            connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
+            running = true
+            check_resource = "connectors/#{connector_id}"
             while running
               sleep(20)
-
-              # print_good "Checking on connector status..."
-              connector_check_response = RestClient::Request.execute(
-                method: :get,
-                url: connector_check_endpoint,
-                headers:
-              )
-
-              connector_check_json = JSON.parse(connector_check_response)["connector"]
-              print_good "#{connector_check_json['name']} connector running" if connector_check_json["running"]
-
-              # check our value to see if we need to keep going
-              running = connector_check_json["running"]
+              check_out = _kenna_api_request(:get, check_resource)
+              connector_check_json = check_out[:results]["connector"] rescue nil
+              if connector_check_json && connector_check_json["running"]
+                print_good "#{connector_check_json['name']} connector running"
+              end
+              running = connector_check_json ? connector_check_json["running"] : false
             end
           end
-        rescue RestClient::Exceptions::OpenTimeout => e
-          print_error "Timeout: #{e.message}..."
-          retries ||= 0
-          if retries < max_retries
-            print_error "Retrying in 60s..."
-            retries += 1
+        rescue StandardError => e
+          print_error "Exception: #{e.message}"
+          retries += 1
+          if retries <= max_retries
+            print_error "Retrying in 60s... (#{retries}/#{max_retries})"
             sleep(60)
             retry
           else
             print_error "Max retries hit, failing with... #{e}"
-            return
-          end
-        rescue RestClient::BadRequest => e
-          print_error "Bad Request: #{e.message}... #{e}"
-        rescue RestClient::Unauthorized => e
-          print_error "Unauthorized: #{e.message}... #{e}"
-        rescue RestClient::Exception, RestClient::UnprocessableEntity, StandardError => e
-          print_error "Unknown Exception: #{e}"
-          puts e.backtrace
-          print_error "Are you sure you provided a valid connector id?"
-
-          retries ||= 0
-          if retries < max_retries
-            print_error "Retrying in 60s..."
-            retries += 1
-            sleep(60)
-            retry
-          else
-            print_error "Max retries hit, failing with... #{e}"
-            return
+            return { status: "fail", message: e.message, results: {} }
           end
         end
 
         print_good "Done!"
-        query_response_json
+        out[:results]
       end
 
       def run_files_on_connector(connector_id, upload_ids, max_retries = 3)
-        kenna_api_endpoint = "#{@base_url}/connectors"
-        # puts "Uploading to: #{kenna_api_endpoint}"
-
-        headers = get_http_headers
-
-        # connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run?data_files[]="
-
-        # connector_endpoint = "#{connector_endpoint}#{upload_ids.join('&data_files[]=')}"
-        connector_endpoint = "#{kenna_api_endpoint}/#{connector_id}/run"
-        pload = {}
-        pload["data_files"] = upload_ids
-
+        resource = "connectors/#{connector_id}/run"
+        payload = { "data_files" => upload_ids }
+        retries = 0
+        out = nil
+      
         begin
           print_good "Sending request"
-          query_response = RestClient::Request.execute(
-            method: :post,
-            url: connector_endpoint,
-            headers:,
-            payload: pload
-          )
-
-          query_response_json = JSON.parse(query_response.body)
-          print_good "Success!" if query_response_json.fetch("success")
-
-          running = true
-
-          connector_check_endpoint = "#{kenna_api_endpoint}/#{connector_id}"
-          while running
-            # print_good "Waiting for 20 seconds... "
-            sleep(20)
-
-            # print_good "Checking on connector status..."
-            connector_check_response = RestClient::Request.execute(
-              method: :get,
-              url: connector_check_endpoint,
-              headers:
-            )
-
-            connector_check_json = JSON.parse(connector_check_response)["connector"]
-            print_good "#{connector_check_json['name']} connector running" if connector_check_json["running"]
-
-            # check our value to see if we need to keep going
-            running = connector_check_json["running"]
+          out = _kenna_api_request(:post, resource, payload)
+          unless out[:status] == "success" && out[:results].fetch("success", nil)
+            raise StandardError, "Run request failed. Kenna response: #{out[:results]}"
           end
-
-          connector_run_status_response = RestClient::Request.execute(
-            method: :get,
-            url: "#{connector_check_endpoint}/connector_runs/#{query_response_json['connector_run_id']}",
-            headers:
-          )
-          connector_run_status_json = JSON.parse(connector_run_status_response)
-        rescue RestClient::Exceptions::OpenTimeout => e
-          print_error "Timeout: #{e.message}..."
-        rescue RestClient::UnprocessableEntity => e
-          print_error "Unprocessable Entity: #{e.message}..."
-        rescue RestClient::BadRequest => e
-          print_error "Bad Request: #{e.message}... #{e}"
-        rescue RestClient::Unauthorized => e
-          print_error "Unauthorized: #{e.message}... #{e}"
-        rescue RestClient::Exception, StandardError => e
-          print_error "Unknown Exception: #{e}"
-          print_error "Are you sure you provided a valid connector id?"
-
-          retries ||= 0
-          if retries < max_retries
-            print_error "Retrying in 60s..."
-            retries += 1
+      
+          print_good "Success!" if out[:results].fetch("success", nil)
+      
+          running = true
+          check_resource = "connectors/#{connector_id}"
+          while running
+            sleep(20)
+            check_out = _kenna_api_request(:get, check_resource)
+            connector_check_json = check_out[:results]["connector"] rescue nil
+            if connector_check_json && connector_check_json["running"]
+              print_good "#{connector_check_json['name']} connector running"
+            end
+            running = connector_check_json ? connector_check_json["running"] : false
+          end
+      
+          # Get connector run status if connector_run_id is present
+          if out[:results]["connector_run_id"]
+            run_status_resource = "connectors/#{connector_id}/connector_runs/#{out[:results]['connector_run_id']}"
+            run_status_out = _kenna_api_request(:get, run_status_resource)
+            return run_status_out[:results]
+          end
+        rescue StandardError => e
+          print_error "Exception: #{e.message}"
+          retries += 1
+          if retries <= max_retries
+            print_error "Retrying in 60s... (#{retries}/#{max_retries})"
             sleep(60)
             retry
-
           else
             print_error "Max retries hit, failing with... #{e}"
-            return
+            return { status: "fail", message: e.message, results: {} }
           end
         end
-
+      
         print_good "Done!"
-        connector_run_status_json
+        out[:results]
       end
 
       private
@@ -303,36 +236,26 @@ module Kenna
         endpoint = "#{@base_url}/#{resource}"
         out = { method: method.to_s, resource: resource.to_s }
 
-        case method
-        when :get
-
-          begin
-            results = RestClient.get endpoint, headers
-          rescue RestClient::Forbidden
-            out.merge!({ status: "fail", message: "access denied", results: {} })
-          end
-
-        when :post
-
-          begin
-            results = RestClient.post endpoint, body, headers
-          rescue RestClient::Forbidden
-            out.merge!({ status: "fail", message: "access denied", results: {} })
-          end
-
-        else
-          # uknown method
-          out.merge!({ status: "fail", message: "unknown method", results: {} })
-        end
-
-        # parse up the results
         begin
-          parsed_results = JSON.parse(results.body)
+          case method 
+          when :get 
+            response = http_get(endpoint, headers)
+          when :post
+            response = http_post(endpoint, headers, body.to_json)
+          else 
+            out.merge!({ status: "fail", message: "unknown method", results: {} })
+            return out
+          end
+          
+          parsed_results = JSON.parse(response.body)
           out.merge!({ status: "success", results: parsed_results })
+        rescue Faraday::Error::ClientError => e
+          out.merge!({ status: "fail", message: e.message, results: {} })
+          log_exception(e)
         rescue StandardError => e
-          out.merge!({ status: "fail", message: "error parsing: #{e}", results: {} })
+          out.merge!({ status: "fail", message: e.message, results: {} })
+          log_exception(e)    
         end
-
         out
       end
     end

@@ -121,7 +121,7 @@ module Kenna
 
           # rubocop: disable Style/GuardClause
           if @page_size > 500 || @page_size <= 0
-            print "Maximum Veracode Page Size is 500.  Resetting to 500."
+            print "Maximum Veracode Page Size is 500. Resetting to 500."
             @page_size = 500
           end
           # rubocop: enable Style/GuardClause

@@ -23,7 +23,7 @@ module Kenna
             response = http_get("#{@base_path}/api/scanning/v1/resultsDirect?offset=#{results_offset}&limit=#{@page_size}", @headers)
             raise ApiError, "Unable to retrieve resultsDirect, please check credentials." unless response
 
-            results_hash = JSON.parse(response)
+            results_hash = JSON.parse(response.body)
             results = results_hash.fetch("results")
             results.each do |result|
               sha = result.fetch("imageDigest")
@@ -57,7 +57,7 @@ module Kenna
             response = http_post("#{@base_path}/api/scanning/v1/hosts?offset=#{results_offset}&limit=#{@page_size}", @headers, {}.to_json)
             raise ApiError, "Unable to retrieve Hosts, please check credentials." unless response
 
-            results_hash = JSON.parse(response)
+            results_hash = JSON.parse(response.body)
             results = results_hash.fetch("results")
             results.each do |result|
               hostname = result.fetch("hostname")
@@ -91,7 +91,7 @@ module Kenna
             response = http_get("#{@base_path}/api/scanning/v1/anchore/query/vulnerabilities?id=#{ids.join(',')}", @headers)
             raise ApiError, "Unable to retrieve vulnerability definitions." unless response
 
-            def_data = JSON.parse(response)
+            def_data = JSON.parse(response.body)
 
             definitions.concat(def_data.fetch("vulnerabilities").map { |vuln_def| { "name" => vuln_def["id"], "description" => vuln_def["description"] || vuln_def["link"] || "n/a" } })
           end

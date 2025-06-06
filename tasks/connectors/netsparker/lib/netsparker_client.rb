@@ -20,7 +20,7 @@ module Kenna
           return unless id
 
           response = http_get(get_vulnerabilities_url(id), @headers)
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def retrieve_all_scheduled_scans
@@ -44,7 +44,7 @@ module Kenna
 
         def scheduled_scan_result(page)
           response = http_get(list_scheduled_url(page), @headers)
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def get_last_scan_id(schedule_id, schedule_scans)

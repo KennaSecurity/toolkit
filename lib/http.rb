@@ -1,179 +1,65 @@
 # frozen_string_literal: true
 
+require 'faraday'
+require 'faraday/retry'
+
 module Kenna
   module Toolkit
     module Helpers
       module Http
+        RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [
+          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
+        ]
+
+        def connection(verify_ssl = true, max_retries = 5)
+          Faraday.new do |faraday|
+            faraday.request :json
+            faraday.ssl.verify = verify_ssl
+            faraday.request :retry, {
+              max: max_retries,
+              interval: 0.1,
+              max_interval: 30,
+              backoff_factor: 5,
+              methods: %i[get post],
+              exceptions: RETRY_EXCEPTIONS,
+              retry_statuses: [429, 500, 502, 503, 504],
+              retry_block: method(:log_retry),
+              exhausted_retries_block: method(:log_retries_exhausted)
+            }
+            faraday.response :raise_error
+            # Faraday can automatically parse JSON responses if this is enabled. However, we shouldn't use JSON.parse if this is enabled
+            # faraday.response :json
+          end
+        end
+
         def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          retries ||= 0
-          RestClient::Request.execute(
-            method: :get,
-            url:,
-            headers:,
-            verify_ssl:
-          )
-        rescue RestClient::TooManyRequests => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            sleep_time = 15
-            if e.response.headers.key?('RateLimit-Reset')
-              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
-              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
-            end
-            sleep(sleep_time)
-            print "Retrying!"
-            retry
-          end
-        rescue RestClient::UnprocessableEntity => e
-          log_exception(e)
-        rescue RestClient::BadRequest => e
-          log_exception(e)
-        rescue RestClient::InternalServerError => e
-          if retries < max_retries
-            retries += 1
-            sleep(15)
-            print "Retrying!"
-            retry
-          end
-          log_exception(e)
-        rescue RestClient::ServerBrokeConnection => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ExceptionWithResponse => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::NotFound => e
-          log_exception(e)
-        rescue RestClient::Exception => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            sleep(15)
-            print "Retrying!"
-            retry
-          end
-        rescue RestClient::RequestTimeout => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::Exceptions::OpenTimeout => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(30)
-            retry
-          end
-        rescue Errno::ECONNREFUSED => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
+          connection(verify_ssl, max_retries).run_request(:get, url, nil, headers)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          retries ||= 0
-          RestClient::Request.execute(
-            method: :post,
-            url:,
-            payload:,
-            headers:,
-            verify_ssl:
-          )
-        rescue RestClient::TooManyRequests => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            sleep_time = 15
-            if e.response.headers.key?('RateLimit-Reset')
-              sleep_time = e.response.headers['RateLimit-Reset'].to_i + 1
-              puts "RateLimit-Reset header provided. sleeping #{sleep_time}"
-            end
-            print "Retrying!"
-            sleep(sleep_time)
-            retry
-          end
-        rescue RestClient::UnprocessableEntity => e
-          log_exception(e)
-        rescue RestClient::BadRequest => e
-          log_exception(e)
-        rescue RestClient::InternalServerError => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ServerBrokeConnection => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::ExceptionWithResponse => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue RestClient::NotFound => e
-          log_exception(e)
-        rescue RestClient::Exception => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue Errno::ECONNREFUSED => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying!"
-            sleep(15)
-            retry
-          end
-        rescue Errno::ECONNRESET => e
-          log_exception(e)
-          if retries < max_retries
-            retries += 1
-            print "Retrying after connection reset!"
-            sleep(15)
-            retry
-          end
+          connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
+        end
+
+        def log_retry(retry_count:, exception:, will_retry_in:)
+          log_exception(exception)
+          puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
+        end
+
+        def log_retries_exhausted(env:, exception:, _options:)
+          puts "Max retries reached for #{env.method.upcase} request to #{env.url}: #{exception.message}"
         end
 
         def log_exception(error)
-          print_error "Exception! #{error}"
-          return unless log_request? && error.is_a?(RestClient::Exception)
+          print_error error.message
+          return unless log_request?
 
-          print_debug "#{error.response.request.method.upcase}: #{error.response.request.url}"
-          print_debug "Request Payload: #{error.response.request.payload}"
-          print_debug "Server Response: #{error.response.body}"
+          if (request = error&.response&.fetch(:request, false))
+            print_debug "#{request[:method].upcase}: #{request[:url]}"
+            print_debug "Request Body: #{request[:body]}"
+            print_debug "Server Response: #{error.response[:body]}"
+          else
+            print_debug "No response or request details available for this error."
+          end
         end
 
         def log_request?

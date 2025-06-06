@@ -30,7 +30,7 @@ module Kenna
           response = http_get(url.to_s, headers)
           raise ApiError, "Unable to retrieve last scheduled scan, please check credentials" unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def get_vulndictionary(page)
@@ -43,7 +43,7 @@ module Kenna
           response = http_get(url.to_s, headers)
           raise ApiError, "Unable to retrieve scan." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
       end
     end
