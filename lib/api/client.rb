@@ -155,9 +155,9 @@ module Kenna
               check_out = _kenna_api_request(:get, check_resource)
 
               begin
-              connector_check_json = check_out[:results]["connector"]
+                connector_check_json = check_out[:results]["connector"]
               rescue StandardError
-              connector_check_json = nil
+                connector_check_json = nil
               end
 
               print_good "#{connector_check_json['name']} connector running" if connector_check_json && connector_check_json["running"]
@@ -199,10 +199,14 @@ module Kenna
           while running
             sleep(20)
             check_out = _kenna_api_request(:get, check_resource)
-            connector_check_json = check_out[:results]["connector"] rescue nil
-            if connector_check_json && connector_check_json["running"]
-              print_good "#{connector_check_json['name']} connector running"
+
+            begin
+              connector_check_json = check_out[:results]["connector"]
+            rescue StandardError
+              connector_check_json = nil
             end
+
+            print_good "#{connector_check_json['name']} connector running" if connector_check_json && connector_check_json["running"]
             running = connector_check_json ? connector_check_json["running"] : false
           end
 
