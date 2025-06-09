@@ -142,9 +142,7 @@ module Kenna
         begin
           print_good "Sending request"
           out = _kenna_api_request(:post, resource, payload)
-          unless out[:status] == "success" && out[:results].fetch("success", nil) == "true"
-            raise StandardError, "File upload failed. Kenna response: #{out[:results]}"
-          end
+          raise StandardError, "File upload failed. Kenna response: #{out[:results]}" unless out[:status] == "success" && out[:results].fetch("success", nil) == "true"
 
           print_good "Success!"
           File.delete(filepath) unless debug
@@ -155,10 +153,14 @@ module Kenna
             while running
               sleep(20)
               check_out = _kenna_api_request(:get, check_resource)
-              connector_check_json = check_out[:results]["connector"] rescue nil
-              if connector_check_json && connector_check_json["running"]
-                print_good "#{connector_check_json['name']} connector running"
+
+              begin
+              connector_check_json = check_out[:results]["connector"]
+              rescue StandardError
+              connector_check_json = nil
               end
+
+              print_good "#{connector_check_json['name']} connector running" if connector_check_json && connector_check_json["running"]
               running = connector_check_json ? connector_check_json["running"] : false
             end
           end
@@ -184,16 +186,14 @@ module Kenna
         payload = { "data_files" => upload_ids }
         retries = 0
         out = nil
-      
+
         begin
           print_good "Sending request"
           out = _kenna_api_request(:post, resource, payload)
-          unless out[:status] == "success" && out[:results].fetch("success", nil)
-            raise StandardError, "Run request failed. Kenna response: #{out[:results]}"
-          end
-      
+          raise StandardError, "Run request failed. Kenna response: #{out[:results]}" unless out[:status] == "success" && out[:results].fetch("success", nil)
+
           print_good "Success!" if out[:results].fetch("success", nil)
-      
+
           running = true
           check_resource = "connectors/#{connector_id}"
           while running
@@ -205,7 +205,7 @@ module Kenna
             end
             running = connector_check_json ? connector_check_json["running"] : false
           end
-      
+
           # Get connector run status if connector_run_id is present
           if out[:results]["connector_run_id"]
             run_status_resource = "connectors/#{connector_id}/connector_runs/#{out[:results]['connector_run_id']}"
@@ -224,7 +224,7 @@ module Kenna
             return { status: "fail", message: e.message, results: {} }
           end
         end
-      
+
         print_good "Done!"
         out[:results]
       end
@@ -237,16 +237,16 @@ module Kenna
         out = { method: method.to_s, resource: resource.to_s }
 
         begin
-          case method 
-          when :get 
+          case method
+          when :get
             response = http_get(endpoint, headers)
           when :post
             response = http_post(endpoint, headers, body.to_json)
-          else 
+          else
             out.merge!({ status: "fail", message: "unknown method", results: {} })
             return out
           end
-          
+
           parsed_results = JSON.parse(response.body)
           out.merge!({ status: "success", results: parsed_results })
         rescue Faraday::Error::ClientError => e
@@ -254,7 +254,7 @@ module Kenna
           log_exception(e)
         rescue StandardError => e
           out.merge!({ status: "fail", message: e.message, results: {} })
-          log_exception(e)    
+          log_exception(e)
         end
         out
       end
