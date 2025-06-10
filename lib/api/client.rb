@@ -138,7 +138,7 @@ module Kenna
 
         payload = { multipart: true, file: File.new(filepath, "rb") }
         retries = 0
-
+        
         begin
           print_good "Sending request"
           out = _kenna_api_request(:post, resource, payload)
@@ -253,7 +253,7 @@ module Kenna
 
           parsed_results = JSON.parse(response.body)
           out.merge!({ status: "success", results: parsed_results })
-        rescue Faraday::Error::ClientError => e
+        rescue Faraday::ClientError => e
           out.merge!({ status: "fail", message: e.message, results: {} })
           log_exception(e)
         rescue StandardError => e

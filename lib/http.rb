@@ -40,12 +40,12 @@ module Kenna
           connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
         end
 
-        def log_retry(retry_count:, exception:, will_retry_in:)
+        def log_retry(retry_count:, exception:, will_retry_in:, **kwargs)
           log_exception(exception)
           puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
         end
 
-        def log_retries_exhausted(env:, exception:, _options:)
+        def log_retries_exhausted(env:, exception:, _options:, **kwargs)
           puts "Max retries reached for #{env.method.upcase} request to #{env.url}: #{exception.message}"
         end
 
