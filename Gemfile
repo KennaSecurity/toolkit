@@ -26,6 +26,7 @@ gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
 gem "tty-pager"
+gem 'faraday-multipart'
 
 group :development, :test do
   gem "pry"

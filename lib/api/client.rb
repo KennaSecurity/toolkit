@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'faraday/multipart'
 # rubocop:disable Naming/AccessorMethodName
 module Kenna
   module Api
@@ -135,10 +135,9 @@ module Kenna
       def upload_to_connector(connector_id, filepath, run_now = true, max_retries = 3, debug = false)
         resource = "connectors/#{connector_id}/data_file"
         resource += "?run=true" if run_now
-
         payload = { multipart: true, file: File.new(filepath, "rb") }
         retries = 0
-        
+
         begin
           print_good "Sending request"
           out = _kenna_api_request(:post, resource, payload)
@@ -245,7 +244,16 @@ module Kenna
           when :get
             response = http_get(endpoint, headers)
           when :post
-            response = http_post(endpoint, headers, body.to_json)
+            # continue to fix this to support multipart file uploads
+            if body.is_a?(Hash) && body[:multipart]
+              file_part = Faraday::Multipart::FilePart.new(body[:file], 'application/octet-stream')
+              multipart_body = { file: file_part }
+              headers.delete("content-type")
+              puts "multipart_body: #{multipart_body.inspect}" if debug?
+              response = http_post(endpoint, headers, multipart_body)
+            else
+              response = http_post(endpoint, headers, body)
+            end
           else
             out.merge!({ status: "fail", message: "unknown method", results: {} })
             return out

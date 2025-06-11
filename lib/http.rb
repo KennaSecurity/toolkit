@@ -13,6 +13,7 @@ module Kenna
 
         def connection(verify_ssl = true, max_retries = 5)
           Faraday.new do |faraday|
+            faraday.request :multipart 
             faraday.request :json
             faraday.ssl.verify = verify_ssl
             faraday.request :retry, {
