@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'faraday/multipart'
 # rubocop:disable Naming/AccessorMethodName
+
 module Kenna
   module Api
     class Client

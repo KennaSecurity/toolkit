@@ -18,6 +18,7 @@ gem "aws-sdk-inspector"
 gem "aws-sdk-inspector2"
 gem "faraday", "~> 2.13"
 gem "faraday-retry", "~> 2.3"
+gem 'faraday-multipart'
 gem "httparty"
 gem "ipaddress"
 gem "rest-client"
@@ -26,7 +27,7 @@ gem "ruby-limiter"
 gem "sanitize"
 gem "strscan"
 gem "tty-pager"
-gem 'faraday-multipart'
+
 
 group :development, :test do
   gem "pry"
