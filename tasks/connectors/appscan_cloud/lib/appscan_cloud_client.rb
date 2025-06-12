@@ -23,7 +23,7 @@ module Kenna
           response = http_get(endpoint, @headers)
           raise ApiError, "Unknown error while trying to get issues." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def applications
@@ -32,7 +32,7 @@ module Kenna
           response = http_get(endpoint, @headers)
           raise ApiError, "Unknown error while trying to get applications." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         private
@@ -44,7 +44,7 @@ module Kenna
           response = http_post(endpoint, { "content-type": "application/json" }, payload)
           raise ApiError, "Unable to retrieve /Account/ApiKeyLogin. Please check credentials" unless response
 
-          JSON.parse(response).fetch("Token")
+          JSON.parse(response.body).fetch("Token")
         end
 
         def severities_filter(severities = [])

@@ -24,7 +24,7 @@ module Kenna
           response = http_get(get_vulnerabilities_url(id), @headers)
           raise ApiError, "Unknown error while trying to get vulnerabilities." unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         private
@@ -36,7 +36,7 @@ module Kenna
             response = http_get(list_scheduled_url(page), @headers)
             raise ApiError, "Unable to retrieve scheduled scans, please check credentials." unless response
 
-            scheduled_scan_result = JSON.parse(response)
+            scheduled_scan_result = JSON.parse(response.body)
             found = scheduled_scan_result["List"].detect { |scheduled_scan| scheduled_scan["Id"] == schedule_id }
             break if found || scheduled_scan_result["IsLastPage"]
 

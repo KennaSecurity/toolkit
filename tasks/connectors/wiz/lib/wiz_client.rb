@@ -56,7 +56,7 @@ module Kenna
           response = http_post(auth_endpoint, headers, payload)
           raise ApiError, "Unable to get authorization token. Please check credentials and wiz_auth_host." unless response
 
-          JSON.parse(response).fetch("access_token")
+          JSON.parse(response.body).fetch("access_token")
         end
 
         def query(string, params = {})
@@ -68,7 +68,7 @@ module Kenna
           response = http_post(@api_host, @headers, api_query)
           raise ApiError, "Unable to retrieve query result." unless response
 
-          response_json = JSON.parse(response)
+          response_json = JSON.parse(response.body)
           raise ApiError, response_json["errors"].map { |e| e["message"] }.join(" / / ") if response_json.key?("errors")
 
           response_json

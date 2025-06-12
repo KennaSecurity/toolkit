@@ -117,7 +117,6 @@ module Kenna
                                else
                                  tvm_get_vulns(vuln_next_link)
                                end
-
           vuln_json = vuln_json_response["value"]
 
           vuln_json.each do |vuln|

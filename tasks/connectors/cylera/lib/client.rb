@@ -21,7 +21,7 @@ module Kenna
 
           raise ApiError, 'Unable to retrieve inventory devices' unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def get_risk_vulnerabilities(params)
@@ -29,7 +29,7 @@ module Kenna
 
           raise ApiError, 'Unable to retrieve risk vulnerabilities' unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         def get_risk_mitigations(vulnerability_name)
@@ -37,7 +37,7 @@ module Kenna
 
           raise ApiError, 'Unable to retrieve risk mitigations' unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
 
         private
@@ -51,7 +51,7 @@ module Kenna
 
           raise ApiError, 'Unable to authenticate, please check credentials' unless response
 
-          JSON.parse(response)
+          JSON.parse(response.body)
         end
       end
     end

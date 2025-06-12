@@ -2,3 +2,4 @@
 output/*
 .idea
 coverage
+log/vcr_debug.log
