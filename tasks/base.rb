@@ -136,13 +136,14 @@ module Kenna
       def running_hosted?
         @running_hosted ||= aws_host_info.present?
       end
-
+      
       def aws_host_info
-        url = "http://169.254.169.254/latest/metadata/"
-        headers = {}
-        response = http_get(url, headers, 1, false)
-        response.body if response.status == 200
-      rescue StandardError
+        conn = Faraday.new(url: "http://169.254.169.254") do |f|
+          f.options.open_timeout = 1   # Time to open connection
+          f.options.timeout = 1        # Time to read response
+        end
+        conn.get("/latest/metadata/").body
+      rescue Faraday::TimeoutError, Faraday::ConnectionFailed, SocketError
         nil
       end
     end
