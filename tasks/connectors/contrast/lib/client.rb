@@ -29,7 +29,7 @@ module Kenna
           print "Fetched #{ceiling} of #{body['count']} vulnerabilities"
 
           [body["traces"], more_results, body["count"]]
-        rescue RestClient::ExceptionWithResponse => e
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error getting vulnerabilities: #{e.message}"
         rescue SocketError => e
           print_error "Error calling API, check server address: #{e.message}"
@@ -53,7 +53,7 @@ module Kenna
           print "Fetched #{ceiling} of #{body['count']} libraries"
 
           [body["libraries"], more_results, body["count"]]
-        rescue RestClient::ExceptionWithResponse => e
+        rescue RFaraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error getting vulnerable libraries for apps #{apps}: #{e}"
         end
 
@@ -64,7 +64,7 @@ module Kenna
 
           temp = JSON.parse response.body
           temp["applications"]
-        rescue RestClient::ExceptionWithResponse => e
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error getting applications for tags #{tags}: #{e}"
         end
 
@@ -77,7 +77,7 @@ module Kenna
             @tags[app_id] = temp["tags"]
           end
           @tags[app_id]
-        rescue RestClient::ExceptionWithResponse => e
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error getting application tags for app id #{app_id}: #{e}"
         end
 
@@ -89,7 +89,7 @@ module Kenna
             @recs[rule_name] = JSON.parse response.body
           end
           @recs[rule_name]
-        rescue RestClient::ExceptionWithResponse => e
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error fetching trace recommendation for #{id}: #{e}"
         end
 
@@ -98,7 +98,7 @@ module Kenna
 
           response = http_get(url, @headers)
           JSON.parse response.body
-        rescue RestClient::ExceptionWithResponse => e
+        rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error fetching trace story for #{id}: #{e}"
         end
       end
