@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "faraday"
+
 module Kenna
   module Toolkit
     class UserRoleSync < Kenna::Toolkit::BaseTask
@@ -196,12 +198,8 @@ module Kenna
 
       def pull_roles_list
         puts @role_post_url
-        RestClient::Request.execute(
-          method: :get,
-          url: @role_post_url,
-          # payload: json_data,
-          headers: @headers
-        ).body
+        response = http_get(@role_post_url, @headers)
+        response.body
       rescue StandardError => e
         print_good e.message
         print_good e.backtrace.inspect
@@ -210,12 +208,9 @@ module Kenna
       end
 
       def pull_user_list
-        RestClient::Request.execute(
-          method: :get,
-          url: @user_post_url,
-          # payload: json_data,
-          headers: @headers
-        ).body
+        puts @user_post_url
+        response = http_get(@user_post_url, @headers)
+        response.body
       rescue StandardError => e
         print_good e.message
         print_good e.backtrace.inspect
@@ -238,12 +233,8 @@ module Kenna
         print_good json_data if @debug
 
         begin
-          RestClient::Request.execute(
-            method: :post,
-            url: @role_post_url,
-            payload: json_data,
-            headers: @headers
-          )
+          response = http_post(@role_post_url, @headers, json_data)
+          response
         rescue StandardError => e
           print_error e.message
           print_error e.backtrace.inspect
@@ -273,13 +264,9 @@ module Kenna
         }
         # print_good json_data
         begin
-          RestClient::Request.execute(
-            method: :post,
-            url: @user_post_url,
-            payload: json_data,
-            headers: @headers
-          )
-        rescue RestClient::UnprocessableEntity => e
+          response = http_post(@role_post_url, @headers, json_data)
+          response
+        rescue rescue Faraday::ClientError, Faraday::Error => e
           print_good e.message
           print_error "Unable to create this user (email:#{email})"
           @log_output << "\r#{e.message}"
@@ -326,13 +313,8 @@ module Kenna
           end
 
           begin
-            RestClient::Request.execute(
-              method: :put,
-              url:,
-              payload: json_data,
-              headers: @headers
-            )
-          rescue RestClient::UnprocessableEntity => e
+            http_put(url, @headers, json_data)
+          rescue Faraday::ClientError, Faraday::Error => e
             print_error e.message
             print_error "Unable to update this user (id:#{uid} email:#{email})"
             @log_output << "\r#{e.message}"
@@ -351,12 +333,8 @@ module Kenna
         print_good url # if @debug
 
         begin
-          RestClient::Request.execute(
-            method: :delete,
-            url:,
-            headers: @headers
-          )
-        rescue RestClient::UnprocessableEntity => e
+          http_delete(url, @headers)
+        rescue Faraday::ClientError, Faraday::Error => e
           print_error e.message
           print_error "Unable to delete this user (id:#{uid})"
           @log_output << "\r#{e.message}"

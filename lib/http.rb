@@ -44,6 +44,14 @@ module Kenna
           connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
         end
 
+        def http_put(url, headers, payload, max_retries = 5, verify_ssl = true)
+          connection(verify_ssl, max_retries).run_request(:put, url, payload, headers)
+        end
+
+        def http_delete(url, headers, max_retries = 5, verify_ssl = true)
+          connection(verify_ssl, max_retries).run_request(:delete, url, nil, headers)
+        end
+
         def log_retry(retry_count:, exception:, will_retry_in:, **_kwargs)
           log_exception(exception)
           puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
