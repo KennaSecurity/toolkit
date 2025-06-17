@@ -28,7 +28,9 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_raise(RestClient::Exceptions::OpenTimeout)
+    # Use WebMock to stub Faraday HTTP requests
+    require 'webmock/rspec'
+    stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_timeout
   end
 end
 

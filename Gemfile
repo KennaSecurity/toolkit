@@ -44,4 +44,5 @@ end
 
 group :test do
   gem 'rspec-github', require: false
+  gem 'webmock'
 end
