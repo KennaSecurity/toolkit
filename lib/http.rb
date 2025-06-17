@@ -16,6 +16,9 @@ module Kenna
             faraday.request :multipart
             faraday.request :json
             faraday.ssl.verify = verify_ssl
+            if @options && @options[:debug] == true
+              faraday.response :logger # This logs to STDOUT by default
+            end
             faraday.request :retry, {
               max: max_retries,
               interval: 0.1,
