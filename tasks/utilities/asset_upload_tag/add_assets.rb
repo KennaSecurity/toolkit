@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'faraday'
 
 module Kenna
   module Toolkit
@@ -182,12 +183,7 @@ module Kenna
           print_good json_data
           print_good @post_url
           begin
-            query_post_return = RestClient::Request.execute(
-              method: :post,
-              url: @post_url,
-              payload: json_data,
-              headers: @headers
-            )
+            query_post_return = http_post(@post_url, @headers, json_data)
 
             # Need to find the new asset ID
             # asset_id = query_post_return........
@@ -195,14 +191,8 @@ module Kenna
           rescue JSON::ParserError
             print_error "Failed to parse correctly"
             next
-          rescue RestClient::UnprocessableEntity
-            print_error query_post_return.to_s
-            next
-          rescue RestClient::TooManyRequests
-            print_error "Too many requests, sleeping 60s..."
-            sleep 60
-          rescue RestClient::BadRequest
-            print_error "Unable to add....Primary Locator data missing for this item."
+          rescue Faraday::ClientError => e
+            print_error "Request failed after retries: #{e.message}"
             next
           end
 
@@ -223,15 +213,9 @@ module Kenna
             print_good tag_update_json if @debug
 
             begin
-              RestClient::Request.execute(
-                method: :put,
-                url: tag_api_url,
-                headers: @headers,
-                payload: tag_update_json,
-                timeout: 10
-              )
-            rescue RestClient::TooManyRequests
-              print_error "Too many requests, sleeping 60s..."
+              http_put(tag_api_url, @headers, tag_update_json)
+            rescue Faraday::ClientError => e
+              print_error "Request failed after retries: #{e.message}"
               sleep 60
             end
 
