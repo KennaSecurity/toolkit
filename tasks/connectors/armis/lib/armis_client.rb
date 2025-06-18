@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require "cgi"
+require "faraday"
 
 module Kenna
   module Toolkit
     module Armis
       class Client
         class ApiError < StandardError; end
+        include Kenna::Toolkit::Helpers::Http
 
         VULNERABILITY_MATCH_ENDPOINT = "/api/v1/vulnerability-match/"
         SEARCH_ENDPOINT = "/api/v1/search/"
@@ -51,7 +53,7 @@ module Kenna
               }
             }
 
-            RestClient::Request.execute(method: :get, url: endpoint, headers:) if headers["Authorization"]
+            http_get(endpoint, headers) if headers['Authorization']
           end
 
           response_dict ? response_dict["data"] : {}
@@ -94,7 +96,7 @@ module Kenna
                 "fields": VULNS_FIELDS
               }
             }
-            RestClient::Request.execute(method: :get, url: endpoint, headers:) if headers["Authorization"]
+            http_get(endpoint, headers) if headers["Authorization"]
           end
 
           return vulnerability_description_map if response_dict.nil?
@@ -127,7 +129,7 @@ module Kenna
                 }
               }
 
-              RestClient::Request.execute(method: :get, url: endpoint, headers:) if headers["Authorization"]
+              http_get(endpoint, headers) if headers["Authorization"]
             end
             break if response_dict.nil?
 
@@ -152,16 +154,15 @@ module Kenna
           url = "#{@base_path}#{ACCESS_TOKEN_ENDPOINT}"
           headers = { "params": { "secret_key": @secret_token } }
           begin
-            response = RestClient::Request.execute(method: :post, url:, headers:)
+            response = http_post(url, headers, nil)
             json_response = JSON.parse(response.body)
 
             @access_token = json_response.dig("data", "access_token")
             @expiration_time = json_response.dig("data", "expiration_utc")
             print_debug("Generated Secret Token!")
-          rescue RestClient::BadRequest,
-                 RestClient::InternalServerError,
-                 RestClient::ExceptionWithResponse,
-                 RestClient::Exception,
+          rescue Faraday::ClientError,
+                 Faraday::ServerError,
+                 Faraday::Error,
                  Errno::ECONNREFUSED => e
             print_error(
               "Unable to generate access token, Please check task options armis_api_host and armis_api_secret_token!"
@@ -176,22 +177,29 @@ module Kenna
         def make_http_get_request(max_retries = 5)
           response = yield()
           JSON.parse(response.body) if response
-        rescue RestClient::TooManyRequests, RestClient::Unauthorized => e
+        rescue Faraday::ClientError => e
+          status = e.response[:status] rescue nil
+
+          case status
+            when 429, 401
+            log_exception(e)
+            retries ||= 0
+            if retries < max_retries
+              prev = 2**(retries - 1).to_f
+              curr = 2**retries.to_f
+              sleep_time = curr + Random.rand(prev..curr)
+              sleep(sleep_time)
+              print "Retrying!"
+              get_access_token(force: true)
+              retries += 1
+              retry
+            end
+          when 422, 400, 404 
           log_exception(e)
-          retries ||= 0
-          if retries < max_retries
-            prev = 2**(retries - 1).to_f
-            curr = 2**retries.to_f
-            sleep_time = curr + Random.rand(prev..curr)
-            sleep(sleep_time)
-            print "Retrying!"
-            get_access_token(force: true)
-            retries += 1
-            retry
+          else 
+            log_exception(e)
           end
-        rescue RestClient::UnprocessableEntity, RestClient::BadRequest, RestClient::NotFound, RestClient::ServerBrokeConnection => e
-          log_exception(e)
-        rescue RestClient::InternalServerError, RestClient::ExceptionWithResponse, RestClient::Exception, Errno::ECONNREFUSED => e
+        rescue Faraday::ConnectionFailed, Faraday::ServerError, Errno::ECONNREFUSED, Faraday::Error => e
           log_exception(e)
           retries ||= 0
           if retries < max_retries
