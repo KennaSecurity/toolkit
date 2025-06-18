@@ -4,7 +4,6 @@ require "active_support"
 require "active_support/core_ext"
 
 # standard dependencies
-require "rest-client"
 require "json"
 require "csv"
 
