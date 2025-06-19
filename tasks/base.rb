@@ -136,7 +136,7 @@ module Kenna
       def running_hosted?
         @running_hosted ||= aws_host_info.present?
       end
-      
+
       def aws_host_info
         conn = Faraday.new(url: "http://169.254.169.254") do |f|
           f.options.open_timeout = 1   # Time to open connection
