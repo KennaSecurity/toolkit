@@ -24,6 +24,7 @@ module Kenna
         print_debug "Fetching Page = #{page}"
         payload = {
           "ServiceRequest": {
+            "filters": {},
             "preferences": {
               "verbose": "true",
               "limitResults": page_size,
