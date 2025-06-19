@@ -178,10 +178,14 @@ module Kenna
           response = yield()
           JSON.parse(response.body) if response
         rescue Faraday::ClientError => e
-          status = e.response[:status] rescue nil
+          begin
+            status = e.response[:status]
+          rescue
+            status = nil
+          end
 
           case status
-            when 429, 401
+          when 429, 401
             log_exception(e)
             retries ||= 0
             if retries < max_retries
@@ -194,9 +198,9 @@ module Kenna
               retries += 1
               retry
             end
-          when 422, 400, 404 
-          log_exception(e)
-          else 
+          when 422, 400, 404
+            log_exception(e)
+          else
             log_exception(e)
           end
         rescue Faraday::ConnectionFailed, Faraday::ServerError, Errno::ECONNREFUSED, Faraday::Error => e

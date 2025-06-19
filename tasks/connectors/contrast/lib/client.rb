@@ -32,8 +32,6 @@ module Kenna
           [body["traces"], more_results, body["count"]]
         rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::Error, SocketError => e
           print_error "Error getting vulnerabilities: #{e.message}"
-        rescue SocketError => e
-          print_error "Error calling API, check server address: #{e.message}"
         end
 
         def get_vulnerable_libraries(apps, offset, limit)

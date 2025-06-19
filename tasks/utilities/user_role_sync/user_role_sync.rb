@@ -266,7 +266,7 @@ module Kenna
         begin
           response = http_post(@role_post_url, @headers, json_data)
           response
-        rescue rescue Faraday::ClientError, Faraday::Error => e
+        rescue Faraday::ClientError, Faraday::Error => e
           print_good e.message
           print_error "Unable to create this user (email:#{email})"
           @log_output << "\r#{e.message}"

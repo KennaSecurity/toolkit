@@ -131,7 +131,7 @@ module Kenna
             url = website_list_url.to_s
             headers = { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
             response = http_get(url, headers)
-            
+
             # convert to JSON
             result = JSON.parse(response.body)
 
