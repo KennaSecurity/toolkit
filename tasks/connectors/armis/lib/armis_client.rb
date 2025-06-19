@@ -177,7 +177,7 @@ module Kenna
         def make_http_get_request(max_retries = 5)
           response = yield()
           JSON.parse(response.body) if response
-        retries ||= 0
+          retries ||= 0
         rescue Faraday::ClientError => e
           status = begin
             e.response[:status]
