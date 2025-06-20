@@ -87,6 +87,14 @@ module Kenna
             sleep(15)
             retry
           end
+        rescue RestClient::Exceptions::ReadTimeout => e
+          log_exception(e)
+          if retries < max_retries
+            retries += 1
+            print "Retrying!"
+            sleep(15)
+            retry
+          end
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
