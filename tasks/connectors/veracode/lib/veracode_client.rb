@@ -82,7 +82,6 @@ module Kenna
         def get_paged_results(url)
           next_page = url
           until next_page.nil?
-            uri = URI.parse(next_page)
             response = http_get(next_page, {}, hmac_client: self)
             raise ApiError, "Unable to retrieve data for #{next_page}. Please, check credentials." unless response
 
