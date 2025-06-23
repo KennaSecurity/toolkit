@@ -69,10 +69,6 @@ module Kenna
         end
 
         # Faraday library is the gem used by toolkit to make http requests
-        # If you pass a symbolized header it converts it. For instance, passing :asc_xsrf_token would be converted to "Asc-Xsrf-Token".
-        # To avoid this we send stringify_keys to the headers hash.
-        # There is something special about the cookies too. Cookies should be passed in the headers hash using the :cookies Symbol as key.
-        # Passing cookies using "cookies" String as key would generate an invalid cookies header.
         def request_headers(**additional_headers)
           cookies = { asc_session_id: @asc_session_id }
           request_headers = @headers.dup
