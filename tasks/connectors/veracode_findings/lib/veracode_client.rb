@@ -33,8 +33,7 @@ module Kenna
           app_list = []
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
             return unless response
 
             result = JSON.parse(response.body)
@@ -61,7 +60,7 @@ module Kenna
           until url.nil?
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
             return unless response
 
             result = JSON.parse(response.body)
@@ -83,7 +82,7 @@ module Kenna
           until url.nil?
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -204,7 +203,7 @@ module Kenna
           until url.nil?
             uri = URI.parse(url)
             auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -334,8 +333,6 @@ module Kenna
         def kdi_kickoff
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
-
-        private
 
         def hmac_auth_options(api_path)
           uri = URI.parse("https://#{HOST}#{api_path}")

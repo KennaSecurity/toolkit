@@ -11,11 +11,15 @@ module Kenna
           Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
         ]
 
-        def connection(verify_ssl = true, max_retries = 5)
+        def connection(verify_ssl = true, max_retries = 5, hmac_client: nil)
           Faraday.new do |faraday|
             faraday.request :multipart
             faraday.request :json
             faraday.ssl.verify = verify_ssl
+            if hmac_client
+              require_relative './faraday_middlewares/faraday_hmac_middleware'
+              faraday.use FaradayHmac, hmac_client
+            end
             if @options && @options[:debug] == true
               faraday.response :logger # This logs to STDOUT by default
             end
@@ -36,12 +40,12 @@ module Kenna
           end
         end
 
-        def http_get(url, headers, max_retries = 5, verify_ssl = true)
-          connection(verify_ssl, max_retries).run_request(:get, url, nil, headers)
+        def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil)
+          connection(verify_ssl, max_retries, hmac_client: hmac_client).run_request(:get, url, nil, headers)
         end
 
-        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true)
-          connection(verify_ssl, max_retries).run_request(:post, url, payload, headers)
+        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true, hmac_client: nil)
+          connection(verify_ssl, max_retries, hmac_client: hmac_client).run_request(:post, url, payload, headers)
         end
 
         def http_put(url, headers, payload, max_retries = 5, verify_ssl = true)
