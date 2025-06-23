@@ -83,8 +83,7 @@ module Kenna
           next_page = url
           until next_page.nil?
             uri = URI.parse(next_page)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(next_page, {} , hmac_client: self)
+            response = http_get(next_page, {}, hmac_client: self)
             raise ApiError, "Unable to retrieve data for #{next_page}. Please, check credentials." unless response
 
             result = JSON.parse(response.body)

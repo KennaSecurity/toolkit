@@ -52,7 +52,6 @@ module Kenna
           app_list = []
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, {}, hmac_client: self)
             return unless response
 
@@ -87,7 +86,6 @@ module Kenna
           cwe_rec_list = []
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, {}, hmac_client: self)
             return unless response
 
@@ -108,7 +106,6 @@ module Kenna
           cat_rec_list = []
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, {}, hmac_client: self)
             return unless response
 
@@ -130,7 +127,6 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
@@ -257,7 +253,6 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           until url.nil?
             uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
             response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
