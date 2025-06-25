@@ -66,7 +66,6 @@ module Kenna
 
       def run(opts)
         super
-        RestClient.log = 'stdout' if @options[:debug] == true
 
         initialize_options
         initialize_client

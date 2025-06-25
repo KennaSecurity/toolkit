@@ -153,7 +153,7 @@ module Kenna
         def extract_asset(alert)
           locations = @client.alert_locations(alert.fetch("locations_url"))
           url = alert.fetch("url")
-          matches = url.match(%r{https://api.github.com/repos/(.*)/(.*)/secret-scanning/alerts/.*})
+          matches = url.match(%r{^https://api.github.com/repos/([^/]+)/([^/]+)/secret-scanning/alerts})
           org = matches[1]
           repo = matches[2]
           fail_task "Unable to extract repo info from #{url}." if org.blank? || repo.blank?

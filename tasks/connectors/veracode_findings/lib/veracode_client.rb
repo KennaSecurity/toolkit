@@ -32,9 +32,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           app_list = []
           until url.nil?
-            uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
             return unless response
 
             result = JSON.parse(response.body)
@@ -59,9 +57,7 @@ module Kenna
           url = "https://#{HOST}#{cat_request}"
           cat_rec_list = []
           until url.nil?
-            uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
             return unless response
 
             result = JSON.parse(response.body)
@@ -81,9 +77,7 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
-            uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -202,9 +196,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
 
           until url.nil?
-            uri = URI.parse(url)
-            auth_path = "#{uri.path}?#{uri.query}"
-            response = http_get(url, hmac_auth_options(auth_path))
+            response = http_get(url, {}, hmac_client: self)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -335,10 +327,13 @@ module Kenna
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
 
-        private
-
         def hmac_auth_options(api_path)
-          { Authorization: veracode_signature(api_path) }
+          uri = URI.parse("https://#{HOST}#{api_path}")
+          sorted_query = URI.encode_www_form(URI.decode_www_form(uri.query || '').sort)
+          normalized_path = uri.path
+          normalized_path += "?#{sorted_query}" unless sorted_query.empty?
+
+          { Authorization: veracode_signature(normalized_path) }
         end
 
         def veracode_signature(api_path)

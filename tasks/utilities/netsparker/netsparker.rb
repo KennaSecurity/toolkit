@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "faraday"
+
 module Kenna
   module Toolkit
     class DeprecatedNetsparker < Kenna::Toolkit::BaseTask
@@ -106,12 +108,8 @@ module Kenna
       def pull_scan_file(scan_id)
         begin
           scan_post_url = "https://#{@netsparker_api_host}/api/1.0/scans/report/?excludeResponseData=false&format=Xml&type=Vulnerabilities&id="
-
-          response = RestClient::Request.execute(
-            method: :get,
-            url: "#{scan_post_url} + #{scan_id}",
-            headers: { "Accept" => "application/xml", "Authorization" => "Basic #{@netsparker_token}" }
-          )
+          url = "#{scan_post_url}#{scan_id}"
+          response = http_get(url, headers)
         rescue StandardError => e
           print_error e.message
           print_error e.backtrace.inspect
@@ -130,11 +128,9 @@ module Kenna
             website_list_url = "https://#{@netsparker_api_host}/api/1.0/websites/list?page=#{page}&pageSize=20"
 
             # make the request
-            response = RestClient::Request.execute(
-              method: :get,
-              url: website_list_url.to_s,
-              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
-            )
+            url = website_list_url.to_s
+            headers = { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
+            response = http_get(url, headers)
 
             # convert to JSON
             result = JSON.parse(response.body)
@@ -168,12 +164,9 @@ module Kenna
             scan_list_url = "https://#{@netsparker_api_host}/api/1.0/scans/list?websiteUrl=#{website_url}&page=#{page}&pageSize=20"
 
             # make the request
-            response = RestClient::Request.execute(
-              method: :get,
-              url: scan_list_url.to_s,
-              headers: { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
-            )
-
+            url = scan_list_url.to_s
+            headers = { "Accept" => "application/json", "Authorization" => "Basic #{@netsparker_token}" }
+            response = http_get(url, headers)
             # convert to JSON
             result = JSON.parse(response.body)
 

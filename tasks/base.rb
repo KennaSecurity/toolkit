@@ -11,6 +11,7 @@ module Kenna
   module Toolkit
     class BaseTask
       include Kenna::Toolkit::Helpers
+      include Kenna::Toolkit::Helpers::Http
       include Kenna::Toolkit::KdiHelpers
 
       def self.inherited(base)
@@ -137,12 +138,12 @@ module Kenna
       end
 
       def aws_host_info
-        RestClient::Request.execute(
-          method: :get,
-          url: "http://169.254.169.254/latest/metadata/",
-          timeout: 1
-        )
-      rescue StandardError
+        conn = Faraday.new(url: "http://169.254.169.254") do |f|
+          f.options.open_timeout = 1   # Time to open connection
+          f.options.timeout = 1        # Time to read response
+        end
+        conn.get("/latest/metadata/").body
+      rescue Faraday::TimeoutError, Faraday::ConnectionFailed, SocketError
         nil
       end
     end

@@ -20,7 +20,7 @@ module Kenna
           response = http_post(@endpoint, @headers, request_body)
           raise ApiError, "Unable to retrieve alerts, please check credentials" unless response
 
-          JSON.parse(response)["alerts"]
+          JSON.parse(response.body)["alerts"]
         end
 
         private

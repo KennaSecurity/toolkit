@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "lib/client"
+require 'faraday'
+require 'net/http' # For Net::OpenTimeout
 
 module Kenna
   module Toolkit
@@ -319,7 +321,8 @@ module Kenna
 
                 print "Processed #{[i + 10, libs.count].min}/#{libs.count}" if (i % 10).zero? || i == libs.count
               end
-            rescue RestClient::ExceptionWithResponse => e
+            rescue Faraday::TimeoutError, Faraday::ConnectionFailed, Faraday::ClientError,
+                   Net::OpenTimeout, Errno::ECONNREFUSED, EOFError => e
               print_error "Error processing #{l['file_name']}: #{e.message}"
             end
 

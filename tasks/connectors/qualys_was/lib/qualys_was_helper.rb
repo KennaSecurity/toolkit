@@ -24,6 +24,7 @@ module Kenna
         print_debug "Fetching Page = #{page}"
         payload = {
           "ServiceRequest": {
+            "filters": {},
             "preferences": {
               "verbose": "true",
               "limitResults": page_size,
@@ -41,15 +42,16 @@ module Kenna
         end
 
         auth_response = http_post(qualys_was_auth_api, @headers, payload.to_json)
-        return nil if auth_response["ServiceResponse"]["responseCode"] == "INVALID_REQUEST"
 
         begin
           res = JSON.parse(auth_response.body)
+          return nil if res["ServiceResponse"]["responseCode"] == "INVALID_REQUEST"
+
+          res
         rescue JSON::ParserError
           print_error "Unable to process findings response!"
+          nil
         end
-
-        res
       end
 
       def qualys_was_get_vuln(qids, token)

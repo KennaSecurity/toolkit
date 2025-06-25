@@ -29,7 +29,7 @@ module Kenna
           raise ApiError, "Unable to login, please check credentials" unless response
 
           @asc_session_id = response.cookies["asc_session_id"]
-          @session_id = JSON.parse(response)["sessionId"]
+          @session_id = JSON.parse(response.body)["sessionId"]
         end
 
         def logout
@@ -48,7 +48,7 @@ module Kenna
             response = http_get("#{@base_path}/issues?query=#{issues_query}&compactResponse=false", request_headers("Range": "items=#{range_start}-#{range_end}"), 3, @verify_ssl)
             raise ApiError, "Unable to retrieve issues." unless response
 
-            issues = JSON.parse(response)
+            issues = JSON.parse(response.body)
             block.yield(issues, range_start)
             break if issues.count < (range_end - range_start + 1)
 
@@ -68,11 +68,7 @@ module Kenna
           query
         end
 
-        # RestClient, which is the gem used by toolkit to make http requests, does some magic with headers under the hood.
-        # If you pass a symbolized header it converts it. For instance, passing :asc_xsrf_token would be converted to "Asc-Xsrf-Token".
-        # To avoid this we send stringify_keys to the headers hash.
-        # There is something special about the cookies too. Cookies should be passed in the headers hash using the :cookies Symbol as key.
-        # Passing cookies using "cookies" String as key would generate an invalid cookies header.
+        # Faraday library is the gem used by toolkit to make http requests
         def request_headers(**additional_headers)
           cookies = { asc_session_id: @asc_session_id }
           request_headers = @headers.dup

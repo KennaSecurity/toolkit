@@ -18,6 +18,7 @@ require_relative "../lib/toolkit"
 require "timecop"
 require 'vcr'
 require 'webmock/rspec'
+require 'fileutils'
 
 RSpec.configure do |config|
   # Use the GitHub Annotations formatter for CI
@@ -27,7 +28,9 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_raise(RestClient::Exceptions::OpenTimeout)
+    # Use WebMock to stub Faraday HTTP requests
+    require 'webmock/rspec'
+    stub_request(:any, 'http://169.254.169.254/latest/metadata/').to_timeout
   end
 end
 
@@ -43,6 +46,9 @@ VCR.configure do |config|
   ].each do |key|
     config.filter_sensitive_data("<#{key}>") { ENV[key] }
   end
+
+  # Ensure the log directory exists
+  FileUtils.mkdir_p("log")
   config.debug_logger = File.open("log/vcr_debug.log", "w")
 end
 

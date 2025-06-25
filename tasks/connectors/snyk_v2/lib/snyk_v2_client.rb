@@ -22,7 +22,7 @@ module Kenna
           response = http_get("#{@api_base_url}/orgs?version=2024-04-29", @headers)
           raise ApiError, "Unable to retrieve organizations, please check credentials." unless response
 
-          JSON.parse(response)["data"]
+          JSON.parse(response.body)["data"]
         end
 
         def snyk_get_projects(org)
@@ -31,7 +31,7 @@ module Kenna
           response = http_get("#{@api_base_url}/orgs/#{org}/projects?version=2024-04-29&limit=100", @headers)
           raise ApiError, "Unable to retrieve projects, please check credentials." unless response
 
-          JSON.parse(response)["data"]
+          JSON.parse(response.body)["data"]
         end
 
         def snyk_get_issues(per_page, page_num, from_date, to_date, org)
@@ -47,7 +47,7 @@ module Kenna
             response = http_get(next_url, @headers)
             raise ApiError, "Unable to retrieve issues, please check credentials." unless response
 
-            data = JSON.parse(response)
+            data = JSON.parse(response.body)
             page_issues = data["data"]
             all_issues << page_issues
 

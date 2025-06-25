@@ -182,8 +182,7 @@ module Kenna
       end
 
       def remove_html_tags(string)
-        regex = /<("[^"]*"|'[^']*'|[^'">])*>/
-        string.gsub(regex, "")
+        Sanitize.fragment(string)
       end
 
       def kdi_batch_upload(batch_size, output_dir, filename, kenna_connector_id, kenna_api_host, kenna_api_key, skip_autoclose = false, max_retries = 3, version = 1, &block)

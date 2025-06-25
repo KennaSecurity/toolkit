@@ -39,7 +39,7 @@ module Kenna
             response = http_post(endpoint, @headers, { start: offset, rows: @page_size, criteria: filters }.to_json)
             raise ApiError, "Unable to retrieve #{endpoint}, please check credentials" unless response
 
-            response_hash = JSON.parse(response)
+            response_hash = JSON.parse(response.body)
             num_found = response_hash.fetch("num_found")
             results = response_hash.fetch("results")
             block.yield(results, num_found, offset)
