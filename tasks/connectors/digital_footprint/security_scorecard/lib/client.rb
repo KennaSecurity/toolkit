@@ -27,49 +27,80 @@ module Kenna
         def portfolios
           endpoint = "#{@baseapi}/portfolios"
 
-          response = http_get(endpoint, @headers)
-
-          JSON.parse(response.body.to_s)
+          begin
+            response = http_get(endpoint, @headers)
+            JSON.parse(response.body.to_s)
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for portfolios: #{e.message}"
+            { "entries" => [] }
+          end
         end
 
         def companies_by_portfolio(portfolio_id)
           endpoint = "#{@baseapi}/portfolios/#{portfolio_id}/companies"
-
           print_debug "Requesting #{endpoint}"
-
-          response = http_get(endpoint, @headers)
-          JSON.parse(response.body)
+          
+          begin
+            response = http_get(endpoint, @headers)
+            JSON.parse(response.body)
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for portfolio #{portfolio_id}: #{e.message}"
+            { "entries" => [] }
+          end
         end
 
         def issues_by_type_for_company(company_id, itype = "patching_cadence_low")
           endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
-          response = http_get(endpoint, @headers, 0)
-          JSON.parse(response.body.to_s) unless response.nil?
+          print_debug "Requesting #{endpoint}"
+          
+          begin
+            response = http_get(endpoint, @headers, 0)
+            JSON.parse(response.body.to_s) unless response.nil?
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for company #{company_id}, issue type #{itype}: #{e.message}"
+            nil
+          end
         end
 
         def issues_by_factors(detail_url)
-          response = http_get(detail_url, @headers)
-          JSON.parse(response.body.to_s) unless response.nil?
+          begin
+            response = http_get(detail_url, @headers)
+            JSON.parse(response.body.to_s) unless response.nil?
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for URL #{detail_url}: #{e.message}"
+            nil
+          end
         end
 
         def types_by_factors(company_id)
           endpoint = "#{@baseapi}/companies/#{company_id}/factors"
-          response = http_get(endpoint, @headers)
-          factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
-          types = []
-          factors.each do |factor|
-            factor["issue_summary"]&.each do |detail|
-              types << detail
+          
+          begin
+            response = http_get(endpoint, @headers)
+            factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
+            types = []
+            factors&.each do |factor|
+              factor["issue_summary"]&.each do |detail|
+                types << detail
+              end
             end
+            types
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for company #{company_id} factors: #{e.message}"
+            []
           end
-          types
         end
 
         def issue_types_list(ssc_exclude_severity)
           endpoint = "#{@baseapi}/metadata/issue-types"
 
-          response = http_get(endpoint, @headers)
-          JSON.parse(response.body.to_s)["entries"].filter_map { |x| x["key"] unless ssc_exclude_severity.include? x["severity"] }
+          begin
+            response = http_get(endpoint, @headers)
+            JSON.parse(response.body.to_s)["entries"].filter_map { |x| x["key"] unless ssc_exclude_severity.include? x["severity"] }
+          rescue Faraday::ResourceNotFound => e
+            print_debug "Resource not found for issue types: #{e.message}"
+            []
+          end
         end
       end
     end
