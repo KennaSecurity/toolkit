@@ -54,7 +54,7 @@ module Kenna
 
       def my_company
         # First get my company
-        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", {})
+        response = http_get("https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio", @headers)
         portfolio = JSON.parse(response.body)
         @companies = portfolio["companies"]
         @company_guid = portfolio["my_company"]["guid"]
