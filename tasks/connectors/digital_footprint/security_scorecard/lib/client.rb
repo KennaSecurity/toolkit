@@ -39,7 +39,7 @@ module Kenna
         def companies_by_portfolio(portfolio_id)
           endpoint = "#{@baseapi}/portfolios/#{portfolio_id}/companies"
           print_debug "Requesting #{endpoint}"
-          
+
           begin
             response = http_get(endpoint, @headers)
             JSON.parse(response.body)
@@ -52,7 +52,7 @@ module Kenna
         def issues_by_type_for_company(company_id, itype = "patching_cadence_low")
           endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
           print_debug "Requesting #{endpoint}"
-          
+
           begin
             response = http_get(endpoint, @headers, 0)
             JSON.parse(response.body.to_s) unless response.nil?
@@ -74,7 +74,7 @@ module Kenna
 
         def types_by_factors(company_id)
           endpoint = "#{@baseapi}/companies/#{company_id}/factors"
-          
+
           begin
             response = http_get(endpoint, @headers)
             factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
