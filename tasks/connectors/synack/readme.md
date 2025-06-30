@@ -1,17 +1,31 @@
-## Running the Synack task
+## Support
+For help or any questions related to Synack toolkit task, please contact Synack support at help@synack.com
 
-This toolkit brings in data from Synack
+## About the Synack task
 
-To run this task you need the following information from Synack:
+This toolkit task fetches Exploitable Vulnerabilities from Synack platform and ingests them into Kenna.
+In Kenna, the Vulnerabilities will be added to an Asset. It will either create new Assets, or map to an existing one if there is a match.
 
-1. Synack API Url. Just the domain name, no prefixes. For example, api.synack.com.
-2. Synack API token
+It is recommended to use the option **asset_defined_in_tag** (enabled by default). It allows you to:
+- filter the list of Synack Exploitable Vulnerabilities that would be ingested into Kenna
+- put the Vulnerabilities in the desired Assets in Kenna
+
+To run this task you need the following information
+### From Synack
+- Synack API Url. Just the domain name, no prefixes. For example, api.synack.com
+- Synack API token
+
+### From Kenna
+- Kenna Connector ID
+- Kenna API key
 
 ## Command Line
 
-See the main Toolkit for instructions on running tasks. For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to the Kenna directly.
+See the main Toolkit readme for [general instructions](https://github.com/KennaSecurity/toolkit/blob/master/README.md) on running Kenna toolkit tasks.
 
-Recommended Steps:
+For this task, if you leave off the Kenna API Key and Kenna Connector ID, the task will create a json file in the default or specified output directory. You can review the file before attempting to upload to Kenna directly.
+
+### Recommended Steps:
 
 1. Run with Synack keys only to ensure you are able to get data properly from Synack
 1. Review output for expected data
@@ -20,15 +34,15 @@ Recommended Steps:
 1. Click on the name of the connector to get the connector id
 1. Run the task with Synack keys and Kenna key/connector id
 
-Complete list of Options:
+### Complete list of Options:
 
-| Option               | Required | Description                                                                                                          | default               |
-|----------------------|----------|----------------------------------------------------------------------------------------------------------------------|-----------------------|
-| synack_api_host      | false    | Synack API hostname without prefixes.                                                                                | api.synack.com        |
-| synack_api_token     | true     | Synack API token                                                                                                     | n/a                   |
-| kenna_api_key        | false    | Kenna API Key for use with connector option                                                                          | n/a                   |
-| kenna_api_host       | false    | Kenna API Hostname                                                                                                   | api.kennasecurity.com |
-| kenna_connector_id   | false    | If set, we'll try to upload to this connector                                                                        | n/a                   |
-| kenna_batch_size     | false    | Maximum number of vulnerabilities to upload to Kenna in each batch. Increasing this value could improve performance. | 1000                  |
-| output_directory     | false    | If set, will write a file upon completion. Path is relative to #{$basedir}                                           | output/synack         |
-| asset_defined_in_tag | false    | If set to false, we will only fetch from Synack vulnerbilities that have tag starting with "kenna::". The Kenna asset for vulnerability is defined by the tag "kenna::\<asset locator type\>::\<asset locator value\>". For example, if your Synack vulnerability has a tag "kenna::url::https\:\/\/www\.cisco\.com" it will be added to asset with locator type URL set to https\:\/\/www\.cisco\.com <br/><br/> If set to false - the assets will be created from Synack vulnerability's vulnerability location field. | true                  |
+| Option               | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | default               |
+|----------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------|
+| synack_api_host      | false    | Synack API hostname without prefixes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | api.synack.com        |
+| synack_api_token     | true     | Synack API token                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | n/a                   |
+| kenna_api_key        | false    | Kenna API Key for use with connector option                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | n/a                   |
+| kenna_api_host       | false    | Kenna API Hostname                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | api.kennasecurity.com |
+| kenna_connector_id   | false    | If set, we'll try to upload to this connector                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | n/a                   |
+| kenna_batch_size     | false    | Maximum number of vulnerabilities to upload to Kenna in each batch. Increasing this value could improve performance.                                                                                                                                                                                                                                                                                                                                                                                                   | 1000                  |
+| output_directory     | false    | If set, will write a file upon completion. Path is relative to #{$basedir}                                                                                                                                                                                                                                                                                                                                                                                                                                             | output/synack         |
+| asset_defined_in_tag | false    | If set to true, we will only fetch from Synack vulnerbilities that have tag starting with "kenna::".<br/>The Kenna asset for vulnerability is defined by the tag "kenna::\<asset locator type\>::\<asset locator value\>".<br/>For example, if your Synack vulnerability has a tag "kenna::url::https\:\/\/www\.cisco\.com" it will be added to asset with locator type URL set to https\:\/\/www\.cisco\.com <br/><br/>If set to false - the assets will be created from Synack vulnerability's vulnerability location field. | true                  |
