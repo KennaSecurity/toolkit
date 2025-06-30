@@ -292,7 +292,7 @@ module Kenna
             companies = client.companies_by_portfolio(portfolio)
             companies["entries"].each do |company|
               company_issues = []
-              if @options[:debug]&.downcase == "true"
+              if debug?
                 issue_types = %w[
                   patching_cadence_high
                   patching_cadence_medium
