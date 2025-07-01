@@ -46,3 +46,29 @@ For this task, if you leave off the Kenna API Key and Kenna Connector ID, the ta
 | kenna_batch_size     | false    | Maximum number of vulnerabilities to upload to Kenna in each batch. Increasing this value could improve performance.                                                                                                                                                                                                                                                                                                                                                                                                   | 1000                  |
 | output_directory     | false    | If set, will write a file upon completion. Path is relative to #{$basedir}                                                                                                                                                                                                                                                                                                                                                                                                                                             | output/synack         |
 | asset_defined_in_tag | false    | If set to true, we will only fetch from Synack vulnerbilities that have tag starting with "kenna::".<br/>The Kenna asset for vulnerability is defined by the tag "kenna::\<asset locator type\>::\<asset locator value\>".<br/>For example, if your Synack vulnerability has a tag "kenna::url::https\:\/\/www\.cisco\.com" it will be added to asset with locator type URL set to https\:\/\/www\.cisco\.com <br/><br/>If set to false - the assets will be created from Synack vulnerability's vulnerability location field. | true                  |
+
+## Data Mappings
+
+Here is how Synack Vulnerability data fields map to Kenna Vulnerability data
+
+| Kenna Vulnerability Attribute | Synack Vulnerability Attribute (attribute name as seen in the UI) |
+|-------------------------------|-------------------------------------------------------------------|
+| name                          | title (Title)                                                     |
+| scanner_identifier            | id                                                                |
+| scanner_type                  | "Synack"                                                          |
+| scanner_score                 | cvss_final (Score)                                                |
+| description                   | description (Description)                                         |
+| solution                      | recommended_fix (Recommended fix)                                 |
+| details                       | validation_steps (Steps to Reproduce)                             |
+| cve_identifiers               | cve_ids (Reported CVE/CWE Identifiers)                            |
+| cwe_identifiers               | cwe_ids (Reported CVE/CWE Identifiers)                            |
+
+
+If you set **asset_defined_in_tag** to false - the Kenna asset details will be created from Synack Vulnerability's "Vulnerability Locations" field
+
+| Kenna Asset Attribute | Synack Vulnerability Location Attribute        | Condition                                                                           |
+|-----------------------|------------------------------------------------|-------------------------------------------------------------------------------------|
+| url                   | exploitable_location.value                     | exploitable_location.type == 'url'                                                  |
+| application           | assessment.codename exploitable_location.value | exploitable_location.type == 'app-location' or exploitable_location.type == 'other' |
+| file                  | exploitable_location.value                     | exploitable_location.type == 'file'                                                 |
+| ip_address            | exploitable_location.address                   | exploitable_location.type == 'ip'                                                   |
