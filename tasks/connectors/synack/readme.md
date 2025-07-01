@@ -64,7 +64,7 @@ Here is how Synack Vulnerability data fields map to Kenna Vulnerability data
 | cwe_identifiers               | cwe_ids (Reported CVE/CWE Identifiers)                            |
 
 
-If you set **asset_defined_in_tag** to false - the Kenna asset details will be created from Synack Vulnerability's "Vulnerbility Locations" field
+If you set **asset_defined_in_tag** to false - the Kenna asset details will be created from Synack Vulnerability's "Vulnerability Locations" field
 
 | Kenna Asset Attribute | Synack Vulnerability Location Attribute        | Condition                                                                           |
 |-----------------------|------------------------------------------------|-------------------------------------------------------------------------------------|
