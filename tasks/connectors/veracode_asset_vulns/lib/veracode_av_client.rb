@@ -363,6 +363,9 @@ module Kenna
         def find_missing_kenna_assets(application)
           return print "Warning: not connected to Kenna, cannot find missing assets." unless @kenna_api_host && @kenna_api_key && @kenna_connector_id
 
+          # Ensure @assets is initialized
+          kdi_initialize unless @assets
+
           # encoding help
           # enc_open_paren = "%28"
           # enc_close_paren = "%29"
