@@ -8,7 +8,7 @@ module Kenna
     module Helpers
       module Http
         RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [
-          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout,Errno::ECONNREFUSED, EOFError
+          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
         ]
 
         def connection(verify_ssl = true, max_retries = 5, hmac_client: nil)
