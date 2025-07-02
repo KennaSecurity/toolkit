@@ -28,8 +28,7 @@ module Kenna
           endpoint = "#{@baseapi}/portfolios"
 
           response = http_get(endpoint, @headers)
-
-          JSON.parse(response.body.to_s)
+          JSON.parse(response.body.to_s) unless response.nil?
         end
 
         def companies_by_portfolio(portfolio_id)
@@ -38,13 +37,18 @@ module Kenna
           print_debug "Requesting #{endpoint}"
 
           response = http_get(endpoint, @headers)
-          JSON.parse(response.body)
+
+          begin
+            JSON.parse(response.body)
+          rescue JSON::ParserError => e
+            { "error" => "Invalid JSON response", "raw_body" => response.body }
+          end
         end
 
         def issues_by_type_for_company(company_id, itype = "patching_cadence_low")
           endpoint = "#{@baseapi}/companies/#{company_id}/issues/#{itype}"
           response = http_get(endpoint, @headers, 0)
-          JSON.parse(response.body.to_s) unless response.nil?
+          JSON.parse(response.body) unless response.nil?
         end
 
         def issues_by_factors(detail_url)
