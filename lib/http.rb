@@ -59,17 +59,6 @@ module Kenna
         def log_retry(retry_count:, exception:, will_retry_in:, env: nil, **_kwargs)
           log_exception(exception)
           puts "Retrying request (attempt #{retry_count + 1}) after #{will_retry_in} seconds..."
-          
-          # Log HMAC header to see if it's being regenerated
-          if env && env.request_headers && env.request_headers['Authorization']
-            auth_header = env.request_headers['Authorization']
-            if auth_header&.include?('VERACODE-HMAC-SHA-256')
-              # Extract timestamp and nonce from the header
-              timestamp = auth_header[/ts=(\d+)/, 1]
-              nonce = auth_header[/nonce=([^,]+)/, 1]
-              puts "RETRY: HMAC timestamp=#{timestamp}, nonce=#{nonce}"
-            end
-          end
         end
 
         def log_retries_exhausted(env:, exception:, _options:, **_kwargs)
