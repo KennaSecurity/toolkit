@@ -8,7 +8,7 @@ module Kenna
     module Helpers
       module Http
         RETRY_EXCEPTIONS = Faraday::Retry::Middleware::DEFAULT_EXCEPTIONS + [
-          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
+          Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout,Errno::ECONNREFUSED, EOFError
         ]
 
         def connection(verify_ssl = true, max_retries = 5, hmac_client: nil)
@@ -16,10 +16,6 @@ module Kenna
             faraday.request :multipart
             faraday.request :json
             faraday.ssl.verify = verify_ssl
-            if hmac_client
-              require_relative './faraday_middlewares/faraday_hmac_middleware'
-              faraday.use FaradayHmac, hmac_client
-            end
             if @options && @options[:debug] == true
               faraday.response :logger # This logs to STDOUT by default
             end
@@ -34,6 +30,10 @@ module Kenna
               retry_block: method(:log_retry),
               exhausted_retries_block: method(:log_retries_exhausted)
             }
+            if hmac_client
+              require_relative './faraday_middlewares/faraday_hmac_middleware'
+              faraday.use FaradayHmac, hmac_client
+            end
             faraday.response :raise_error
             # Faraday can automatically parse JSON responses if this is enabled. However, we shouldn't use JSON.parse if this is enabled
             # faraday.response :json
