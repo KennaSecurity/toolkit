@@ -6,6 +6,9 @@ https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio
 Then getting findings seen in the last 90 days for each company:
 https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings
 
+This toolkit brings in data from Bitsight by first retrieving the portfolio and thereby the "my_company" guid by default: https://help.bitsighttech.com/hc/en-us/articles/360037305694-GET-Portfolio-Details-v1
+If the bitsight_company_guids command line option is specified, only the included companies will be imported.
+
 To run this task you need the following information from Bitsight: 
 
 1. API Key
@@ -34,6 +37,7 @@ Complete list of Options:
 | bitsight_api_key | true | This is the Bitsight key used to query the API.| n/a |
 | bitsight_benign_finding_grades | false | Any bitsight findings with this grade will be considered benign (comma delimited list) | "GOOD, NEUTRAL" |
 | bitsight_create_benign_findings | false | Boolean | true |
+| bitsight_company_guids | false | Comma separated list of company guids to use for data pull | By default, script will pull for 'My Company' only |
 | kenna_api_key | false | Kenna API Key for use with connector option | n/a |
 | kenna_api_host | false | Kenna API Hostname if not US shared | api.kennasecurity.com |
 | kenna_connector_id | false | If set, we'll try to upload to this connector | n/a |
