@@ -6,7 +6,8 @@ https://#{@bitsight_api_key}:@api.bitsighttech.com/portfolio
 Then getting findings seen in the last 90 days for each company:
 https://api.bitsighttech.com/ratings/v1/companies/#{@company_guid}/findings
 
-If bitsight_company_guids is not specified, portfolio["my_company"]["guid"] is used.
+This toolkit brings in data from Bitsight by first retrieving the portfolio and thereby the "my_company" guid by default: https://help.bitsighttech.com/hc/en-us/articles/360037305694-GET-Portfolio-Details-v1
+If the bitsight_company_guids command line option is specified, only the included companies will be imported.
 
 To run this task you need the following information from Bitsight: 
 
