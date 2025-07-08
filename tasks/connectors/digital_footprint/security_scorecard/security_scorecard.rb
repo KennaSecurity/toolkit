@@ -12,7 +12,7 @@ module Kenna
 
       def url?(str)
         uri = URI(str)
-        true if %w[http https].include?(uri.scheme) && !uri.host.nil?
+        %w[http https].include?(uri.scheme) && !uri.host.nil?
       rescue URI::InvalidURIError
         false
       end
