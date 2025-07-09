@@ -289,4 +289,74 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
                 expect(security_scorecard.map_ssc_to_kdi_severity(nil)).to eq(0)
             end
     end
+
+    describe "#run" do
+        let(:client) { instance_double(Kenna::Toolkit::Ssc::Client) }
+        let(:options) do
+            {
+                ssc_api_key: "test_api_key",
+                ssc_domain: "example.com",
+                ssc_exclude_severity: "info,low",
+                output_directory: "output/security_scorecard"
+            }
+        end
+
+        before do
+            allow(Kenna::Toolkit::Ssc::Client).to receive(:new).and_return(client)
+            allow(client).to receive(:successfully_authenticated?).and_return(true)
+            allow(client).to receive(:portfolios).and_return({ "entries" => [] })
+            allow(security_scorecard).to receive(:print_good)
+            allow(security_scorecard).to receive(:print_debug)
+            allow(security_scorecard).to receive(:create_kdi_asset_vuln)
+            allow(security_scorecard).to receive(:create_kdi_vuln_def)
+            allow(security_scorecard).to receive(:kdi_upload)
+        end
+
+        context "when authentication fails" do
+            before do
+                allow(client).to receive(:successfully_authenticated?).and_return(false)
+                allow(client).to receive(:types_by_factors).and_return([])
+            end
+
+            it "fails the task" do
+                expect(security_scorecard).to receive(:fail_task).with("Unable to proceed, invalid key for Security Scorecard?")
+                security_scorecard.run(options)
+            end
+        end
+
+        context "when using ssc_domain" do
+            let(:issue_types) { [{ "type" => "ssl_issue", "severity" => "medium", "detail_url" => "test_url" }] }
+            let(:issues) { [{ "id" => 1, "hostname" => "example.com" }] }
+
+            before do
+                allow(client).to receive(:types_by_factors).and_return(issue_types)
+                allow(client).to receive(:issues_by_factors).and_return({ "entries" => issues })
+                allow(security_scorecard).to receive(:ssc_issue_to_kdi_asset_hash).and_return({ "hostname" => "example.com" })
+                allow(security_scorecard).to receive(:ssc_issue_to_kdi_vuln_hash).and_return([{}, {}])
+            end
+
+            it "processes issues for the domain" do
+                expect(client).to receive(:types_by_factors).with("example.com")
+                expect(client).to receive(:issues_by_factors).with("test_url")
+                security_scorecard.run(options)
+            end
+        end
+
+        context "when using portfolio_ids" do
+            let(:portfolio_options) do
+                options.merge(ssc_domain: nil, ssc_portfolio_ids: "123")
+            end
+            let(:companies) { { "entries" => [{ "domain" => "example.com" }] } }
+
+            before do
+                allow(client).to receive(:companies_by_portfolio).and_return(companies)
+                allow(client).to receive(:types_by_factors).and_return([])
+            end
+
+            it "processes companies in the portfolio" do
+                expect(client).to receive(:companies_by_portfolio).with("123")
+                security_scorecard.run(portfolio_options)
+            end
+        end
+    end
 end
