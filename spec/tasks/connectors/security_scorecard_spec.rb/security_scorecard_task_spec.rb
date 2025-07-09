@@ -108,4 +108,185 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
             end
         end
     end
+
+    describe "#ssc_issue_to_kdi_vuln_hash" do 
+        let(:issue) do 
+            {
+                "connection_attributes" => {
+                    "dst_ip" => "127.0.0.1",
+                    "dst_port" => 8080
+                },
+                "vulnerability_id" => "12345",
+                "cve" => "CVE-2023-12345",
+                "port" => 80,
+                "type" => "patching_cadence_high", 
+                "created_at" => "2023-10-01T12:00:00Z",
+                "last_seen_at" => "2023-10-02T12:00:00Z",
+                "issue_type_severity" => "High",
+                "severity" => "High",
+                "first_seen_time" => "2023-10-01T12:00:00Z",
+                "last_seen_time" => "2023-10-02T12:00Z"
+            }
+        end
+
+        context "test different issue type logic - patching_cadence and service_vuln" do 
+            context "when issue type includes patching_cadence or service_vuln" do
+                let(:patching_cadence_issue) do
+                {
+                    "connection_attributes" => {
+                    "dst_port" => 443
+                    },
+                    "vulnerability_id" => "VULN-12345",
+                    "cve" => "CVE-2023-12345",
+                    "type" => "patching_cadence_critical",
+                    "first_seen_time" => "2023-10-01T12:00:00Z",
+                    "last_seen_time" => "2023-10-02T12:00:00Z"
+                }
+                end
+
+                let(:service_vuln_issue) do
+                {
+                    "connection_attributes" => {
+                    "dst_port" => 22
+                    },
+                    "vulnerability_id" => "SSH-VULN-001",
+                    "type" => "service_vuln_ssh",
+                    "first_seen_time" => "2023-10-01T12:00:00Z",
+                    "last_seen_time" => "2023-10-02T12:00:00Z"
+                }
+                end
+
+                it "returns correct vuln_attributes for patching_cadence issue" do
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
+
+                expect(vuln_attributes["scanner_identifier"]).to eq("VULN-12345")
+                expect(vuln_attributes["vuln_def_name"]).to eq("VULN-12345")
+                expect(vuln_attributes["scanner_type"]).to eq("SecurityScorecard")
+                expect(vuln_attributes["status"]).to eq("open")
+                expect(vuln_attributes["port"]).to eq(443)
+                expect(vuln_attributes["created_at"]).to eq("2023-10-01T12:00:00Z")
+                expect(vuln_attributes["last_seen_at"]).to eq("2023-10-02T12:00:00Z")
+                end
+
+                it "returns correct vuln_def_attributes for patching_cadence issue" do
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
+
+                expect(vuln_def_attributes["name"]).to eq("VULN-12345")
+                expect(vuln_def_attributes["cve_identifiers"]).to eq("VULN-12345")
+                expect(vuln_def_attributes["scanner_type"]).to eq("SecurityScorecard")
+                expect(vuln_def_attributes["description"]).to eq("patching_cadence_critical")
+                end
+
+                it "returns correct attributes for service_vuln issue" do
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(service_vuln_issue)
+
+                expect(vuln_attributes["scanner_identifier"]).to eq("SSH-VULN-001")
+                expect(vuln_attributes["vuln_def_name"]).to eq("SSH-VULN-001")
+                expect(vuln_attributes["port"]).to eq(22)
+                expect(vuln_def_attributes["description"]).to eq("service_vuln_ssh")
+                end
+
+                it "falls back to cve when vulnerability_id is not present" do
+                issue_with_cve = patching_cadence_issue.dup
+                issue_with_cve.delete("vulnerability_id")
+                issue_with_cve["cve"] = "CVE-2023-99999"
+
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_cve)
+
+                expect(vuln_attributes["scanner_identifier"]).to eq("CVE-2023-99999")
+                expect(vuln_attributes["vuln_def_name"]).to eq("CVE-2023-99999")
+                end
+            end
+
+            context "when issue type does not include patching_cadence or service_vuln" do
+                let(:other_issue) do
+                {
+                    "type" => "ssl_certificate_issue",
+                    "issue_type_severity" => "medium",
+                    "severity" => "medium",
+                    "first_seen_time" => "2023-10-01T12:00:00Z",
+                    "last_seen_time" => "2023-10-02T12:00:00Z"
+                }
+                end
+
+                before do
+                # Mock the extract_vuln_def method since @fm is not present
+                allow(security_scorecard).to receive(:extract_vuln_def).and_return({
+                    "name" => "SSL Certificate Issue",
+                    "scanner_score" => 6,
+                    "description" => "SSL certificate vulnerability"
+                })
+                end
+
+                it "goes through the mapper logic for other issue types" do
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(other_issue)
+
+                expect(vuln_attributes["scanner_identifier"]).to eq("ssl_certificate_issue")
+                expect(vuln_attributes["scanner_type"]).to eq("SecurityScorecard")
+                expect(vuln_attributes["scanner_score"]).to eq(6)
+                expect(vuln_attributes["vuln_def_name"]).to eq("SSL Certificate Issue")
+                expect(vuln_def_attributes["name"]).to eq("SSL Certificate Issue")
+                end
+
+                it "does not include port when port is not positive" do
+                issue_with_zero_port = other_issue.dup
+                issue_with_zero_port["port"] = 0
+
+                vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_zero_port)
+
+                expect(vuln_attributes).not_to have_key("port")
+                end
+            end
+        end
+    end
+
+    describe "#extract_vuln_def" do
+        let(:issue) do
+            {
+                "type" => "ssl_certificate_issue",
+                "issue_type_severity" => "High"
+            }
+        end
+
+        before do
+            allow(security_scorecard).to receive(:map_ssc_to_kdi_severity).and_return(7)
+        end
+
+        it "returns vulnerability definition hash with correct attributes" do
+            result = security_scorecard.extract_vuln_def(issue)
+            
+            expect(result["name"]).to eq("ssl_certificate_issue")
+            expect(result["scanner_score"]).to eq(7)
+            expect(result["override_score"]).to eq(70)
+            expect(result["description"]).to eq("Ssl certificate issue")
+            expect(result["scanner_type"]).to eq("SecurityScorecard")
+        end
+
+        it "falls back to severity when issue_type_severity is missing" do
+            issue_without_type_severity = { "type" => "test", "severity" => "Medium" }
+            
+            expect(security_scorecard).to receive(:map_ssc_to_kdi_severity).with("Medium")
+            security_scorecard.extract_vuln_def(issue_without_type_severity)
+        end
+    end
+
+    describe "#map_ssc_to_kdi_severity" do
+            it "returns 3 for low severity" do
+                expect(security_scorecard.map_ssc_to_kdi_severity("low")).to eq(3)
+            end
+
+            it "returns 6 for medium severity" do
+                expect(security_scorecard.map_ssc_to_kdi_severity("medium")).to eq(6)
+            end
+
+            it "returns 10 for high severity" do
+                expect(security_scorecard.map_ssc_to_kdi_severity("high")).to eq(10)
+            end
+
+            it "returns 0 for unknown severity" do
+                expect(security_scorecard.map_ssc_to_kdi_severity("critical")).to eq(0)
+                expect(security_scorecard.map_ssc_to_kdi_severity("unknown")).to eq(0)
+                expect(security_scorecard.map_ssc_to_kdi_severity(nil)).to eq(0)
+            end
+    end
 end
