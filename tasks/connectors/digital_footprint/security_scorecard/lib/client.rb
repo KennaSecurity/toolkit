@@ -43,6 +43,7 @@ module Kenna
             JSON.parse(response.body)
           rescue JSON::ParserError => e
             {"error" => "Invalid JSON response", "raw_body" => response.body }
+          end
         end
 
         def issues_by_type_for_company(company_id, itype = "patching_cadence_low")
