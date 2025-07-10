@@ -1,20 +1,20 @@
 require 'rspec_helper'
 
-RSpec.describe Kenna::Toolkit::SecurityScorecard do 
+RSpec.describe Kenna::Toolkit::SecurityScorecard do
     let(:security_scorecard) { described_class.new }
 
-    describe "#ip?" do 
-        context "when given a valid ip input" do 
-            it "returns truthy for valid ipv4" do 
+    describe "#ip?" do
+        context "when given a valid ip input" do
+            it "returns truthy for valid ipv4" do
                 expect(security_scorecard.ip?('192.168.1.1')).to be_truthy
             end
 
-            it "returns truthy for valid ipv6" do 
+            it "returns truthy for valid ipv6" do
                 expect(security_scorecard.ip?('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).to be_truthy
             end
         end
 
-        context "when given invalid ip input" do 
+        context "when given invalid ip input" do
             it "return false for incomplete ipv4" do
                 expect(security_scorecard.ip?('00.32.123')).to be false
             end
@@ -23,25 +23,25 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
                 expect(security_scorecard.ip?('1234')).to be false
             end
 
-            it "return false for nil input" do 
+            it "return false for nil input" do
                 expect(security_scorecard.ip?(nil)).to be false
             end
 
-            it "return false for empty input" do 
+            it "return false for empty input" do
                 expect(security_scorecard.ip?('')).to be false
             end
         end
     end
 
-    describe "#url" do 
+    describe "#url" do
         context "when given valid url" do
-            it "return true for valid url" do 
+            it "return true for valid url" do
                 expect(security_scorecard.url?('https://example.com')).to be_truthy
-            end 
+            end
         end
 
-        context "when given invalid url" do 
-            it "retrun false for empty string" do 
+        context "when given invalid url" do
+            it "retrun false for empty string" do
                 expect(security_scorecard.url?('')).to be false
             end
 
@@ -51,7 +51,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
         end
     end
 
-    describe "#scc_issue_to_kdi_asset_hash" do 
+    describe "#scc_issue_to_kdi_asset_hash" do
         let(:issue) do
             {
                 "connection_attributes" => {
@@ -60,7 +60,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
                     "dst_port" => 80
                 },
                 "hostname" => "example.com",
-                "subdomain" => "sub.example.com", 
+                "subdomain" => "sub.example.com",
                 "common_name" => "example.com",
                 "target" => "example.com",
                 "ip_address" => "192.168.1.1",
@@ -73,7 +73,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
         context "when issue has valid attributes" do
             it "returns asset attributes hash" do
                 result = security_scorecard.ssc_issue_to_kdi_asset_hash(issue)
-                
+
                 expect(result).to be_a(Hash)
                 expect(result["tags"]).to include("SecurityScorecard")
                 expect(result["hostname"]).to eq("example.com")
@@ -86,7 +86,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
                 issue_with_missing_attributes = issue.dup
                 issue_with_missing_attributes.delete("connection_attributes")
                 result = security_scorecard.ssc_issue_to_kdi_asset_hash(issue_with_missing_attributes)
-                
+
                 expect(result).to be_a(Hash)
                 expect(result["tags"]).to include("SecurityScorecard")
                 expect(result["hostname"]).to eq("example.com") # from issue["hostname"]
@@ -96,21 +96,21 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
             it "returns nil when no valid identifiers are found" do
                 empty_issue = {}
                 result = security_scorecard.ssc_issue_to_kdi_asset_hash(empty_issue)
-                
+
                 expect(result).to be_nil
             end
 
             it "returns nil when connection_attributes is not a hash" do
                 invalid_issue = { "connection_attributes" => "not a hash" }
                 result = security_scorecard.ssc_issue_to_kdi_asset_hash(invalid_issue)
-                
+
                 expect(result).to be_nil
             end
         end
     end
 
-    describe "#ssc_issue_to_kdi_vuln_hash" do 
-        let(:issue) do 
+    describe "#ssc_issue_to_kdi_vuln_hash" do
+        let(:issue) do
             {
                 "connection_attributes" => {
                     "dst_ip" => "127.0.0.1",
@@ -119,7 +119,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
                 "vulnerability_id" => "12345",
                 "cve" => "CVE-2023-12345",
                 "port" => 80,
-                "type" => "patching_cadence_high", 
+                "type" => "patching_cadence_high",
                 "created_at" => "2023-10-01T12:00:00Z",
                 "last_seen_at" => "2023-10-02T12:00:00Z",
                 "issue_type_severity" => "High",
@@ -129,7 +129,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
             }
         end
 
-        context "test different issue type logic - patching_cadence and service_vuln" do 
+        context "test different issue type logic - patching_cadence and service_vuln" do
             context "when issue type includes patching_cadence or service_vuln" do
                 let(:patching_cadence_issue) do
                 {
@@ -254,7 +254,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
 
         it "returns vulnerability definition hash with correct attributes" do
             result = security_scorecard.extract_vuln_def(issue)
-            
+
             expect(result["name"]).to eq("ssl_certificate_issue")
             expect(result["scanner_score"]).to eq(7)
             expect(result["override_score"]).to eq(70)
@@ -264,7 +264,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
 
         it "falls back to severity when issue_type_severity is missing" do
             issue_without_type_severity = { "type" => "test", "severity" => "Medium" }
-            
+
             expect(security_scorecard).to receive(:map_ssc_to_kdi_severity).with("Medium")
             security_scorecard.extract_vuln_def(issue_without_type_severity)
         end
