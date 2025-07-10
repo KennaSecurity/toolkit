@@ -12,7 +12,7 @@ module Kenna
 
       def url?(str)
         uri = URI(str)
-        true if %w[http https].include?(uri.scheme) && !uri.host.nil?
+        %w[http https].include?(uri.scheme) && !uri.host.nil?
       rescue URI::InvalidURIError
         false
       end
@@ -292,13 +292,13 @@ module Kenna
             companies = client.companies_by_portfolio(portfolio)
             companies["entries"].each do |company|
               company_issues = []
-              if @options[:debug]
+              if debug?
                 issue_types = %w[
                   patching_cadence_high
                   patching_cadence_medium
                   patching_cadence_low
                   service_imap
-                  csp_no_policy
+                  csp_no_policy_v2
                 ] # nil
                 print_debug "Only getting #{issue_types}... "
                 issue_types ||= client.issue_types_list(ssc_exclude_severity)
