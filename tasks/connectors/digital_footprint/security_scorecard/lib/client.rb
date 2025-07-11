@@ -61,7 +61,7 @@ module Kenna
           endpoint = "#{@baseapi}/companies/#{company_id}/factors"
           response = http_get(endpoint, @headers)
           return [] if response.nil?
-          
+
           factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
           types = []
           factors.each do |factor|
