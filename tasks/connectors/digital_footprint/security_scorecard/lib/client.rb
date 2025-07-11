@@ -41,8 +41,8 @@ module Kenna
 
           begin
             JSON.parse(response.body)
-          rescue JSON::ParserError => e
-            { "error" => "Invalid JSON response: #{e}", "raw_body" => response.body }
+          rescue JSON::ParserError
+            { "error" => "Invalid JSON response", "raw_body" => response.body }
           end
         end
 
@@ -60,6 +60,8 @@ module Kenna
         def types_by_factors(company_id)
           endpoint = "#{@baseapi}/companies/#{company_id}/factors"
           response = http_get(endpoint, @headers)
+          return [] if response.nil?
+          
           factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
           types = []
           factors.each do |factor|
