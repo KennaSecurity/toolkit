@@ -32,6 +32,8 @@ Metrics/AbcSize:
 # AllowedMethods: refine
 Metrics/BlockLength:
   Max: 233
+  Exclude:
+    - 'spec/**/*'
 
 # Offense count: 14
 # Configuration parameters: CountBlocks.
