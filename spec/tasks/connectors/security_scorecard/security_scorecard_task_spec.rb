@@ -159,7 +159,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
         end
 
         it "returns correct vuln_attributes for patching_cadence issue" do
-          vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
+          vuln_attributes, _vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
 
           expect(vuln_attributes["scanner_identifier"]).to eq("VULN-12345")
           expect(vuln_attributes["vuln_def_name"]).to eq("VULN-12345")
@@ -171,7 +171,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
         end
 
         it "returns correct vuln_def_attributes for patching_cadence issue" do
-          vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
+          _vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(patching_cadence_issue)
 
           expect(vuln_def_attributes["name"]).to eq("VULN-12345")
           expect(vuln_def_attributes["cve_identifiers"]).to eq("VULN-12345")
@@ -193,7 +193,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
           issue_with_cve.delete("vulnerability_id")
           issue_with_cve["cve"] = "CVE-2023-99999"
 
-          vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_cve)
+          vuln_attributes, _vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_cve)
 
           expect(vuln_attributes["scanner_identifier"]).to eq("CVE-2023-99999")
           expect(vuln_attributes["vuln_def_name"]).to eq("CVE-2023-99999")
@@ -213,11 +213,13 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
 
         before do
           # Mock the extract_vuln_def method since @fm is not present
-          allow(security_scorecard).to receive(:extract_vuln_def).and_return({
-            "name" => "SSL Certificate Issue",
-            "scanner_score" => 6,
-            "description" => "SSL certificate vulnerability"
-          })
+          allow(security_scorecard).to receive(:extract_vuln_def).and_return(
+            {
+              "name" => "SSL Certificate Issue",
+              "scanner_score" => 6,
+              "description" => "SSL certificate vulnerability"
+            }
+          )
         end
 
         it "goes through the mapper logic for other issue types" do
@@ -234,7 +236,7 @@ RSpec.describe Kenna::Toolkit::SecurityScorecard do
           issue_with_zero_port = other_issue.dup
           issue_with_zero_port["port"] = 0
 
-          vuln_attributes, vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_zero_port)
+          vuln_attributes, _vuln_def_attributes = security_scorecard.ssc_issue_to_kdi_vuln_hash(issue_with_zero_port)
 
           expect(vuln_attributes).not_to have_key("port")
         end

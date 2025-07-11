@@ -42,7 +42,7 @@ module Kenna
           begin
             JSON.parse(response.body)
           rescue JSON::ParserError => e
-            {"error" => "Invalid JSON response", "raw_body" => response.body }
+            { "error" => "Invalid JSON response: #{e}", "raw_body" => response.body }
           end
         end
 
