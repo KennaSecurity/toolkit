@@ -10,6 +10,9 @@ module Kenna
         include HTTParty
         include KdiHelpers
 
+        # add timeout to HTTParty
+        default_timeout 300
+
         APP_PATH = "/appsec/v1/applications"
         CAT_PATH = "/appsec/v1/categories"
         CWE_PATH = "/appsec/v1/cwes"
