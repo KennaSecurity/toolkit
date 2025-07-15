@@ -10,9 +10,6 @@ module Kenna
         include HTTParty
         include KdiHelpers
 
-        # add timeout to HTTParty
-        default_timeout 300
-
         APP_PATH = "/appsec/v1/applications"
         CAT_PATH = "/appsec/v1/categories"
         CWE_PATH = "/appsec/v1/cwes"
@@ -54,7 +51,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           app_list = []
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, hmac_client: self, timeout: 300)
             return unless response
 
             result = JSON.parse(response.body)
@@ -87,7 +84,7 @@ module Kenna
           url = "https://#{HOST}#{cwe_request}"
           cwe_rec_list = []
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, hmac_client: self, timeout: 300)
             return unless response
 
             result = JSON.parse(response.body)
@@ -106,7 +103,7 @@ module Kenna
           url = "https://#{HOST}#{cat_request}"
           cat_rec_list = []
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, hmac_client: self, timeout: 300)
             return unless response
 
             result = JSON.parse(response.body)
@@ -126,7 +123,7 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=#{scan_type}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, hmac_client: self, timeout: 300)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -251,7 +248,7 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=SCA"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, hmac_client: self, timeout: 300)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."

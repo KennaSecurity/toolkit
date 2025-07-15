@@ -16,6 +16,8 @@ module Kenna
             faraday.request :multipart
             faraday.request :json
             faraday.ssl.verify = verify_ssl
+            faraday.options.timeout = timeout
+            faraday.options.open_timeout = 60
             if @options && @options[:debug] == true
               faraday.response :logger # This logs to STDOUT by default
             end
@@ -40,7 +42,7 @@ module Kenna
           end
         end
 
-        def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil)
+        def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil, timeout: 60)
           connection(verify_ssl, max_retries, hmac_client:).run_request(:get, url, nil, headers)
         end
 
