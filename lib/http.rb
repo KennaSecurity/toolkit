@@ -11,7 +11,7 @@ module Kenna
           Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError
         ]
 
-        def connection(verify_ssl = true, max_retries = 5, hmac_client: nil)
+        def connection(verify_ssl = true, max_retries = 5, hmac_client: nil, timeout: 60)
           Faraday.new do |faraday|
             faraday.request :multipart
             faraday.request :json
