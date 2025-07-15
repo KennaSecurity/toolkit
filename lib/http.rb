@@ -43,7 +43,7 @@ module Kenna
         end
 
         def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil, timeout: 60)
-          connection(verify_ssl, max_retries, hmac_client:).run_request(:get, url, nil, headers)
+          connection(verify_ssl, max_retries, hmac_client:, timeout:).run_request(:get, url, nil, headers)
         end
 
         def http_post(url, headers, payload, max_retries = 5, verify_ssl = true, hmac_client: nil)
