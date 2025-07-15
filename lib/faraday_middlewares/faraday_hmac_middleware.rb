@@ -18,7 +18,9 @@ class FaradayHmac < Faraday::Middleware
     if auth_header&.include?('VERACODE-HMAC-SHA-256')
       timestamp = auth_header[/ts=(\d+)/, 1]
       nonce = auth_header[/nonce=([^,]+)/, 1]
-      puts "HMAC MIDDLEWARE: Generated auth for #{env.method.upcase} #{env.url} - ts=#{timestamp}, nonce=#{nonce}"
+      puts "HMAC MIDDLEWARE: Generated auth for #{env.method.upcase} #{env.url} - ts=#{timestamp}, nonce=#{nonce}, header=#{auth_header}"
+    else
+      puts "HMAC MIDDLEWARE: No HMAC generated for #{env.method.upcase} #{env.url}"
     end
 
     @app.call(env)
