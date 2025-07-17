@@ -50,7 +50,7 @@ module Kenna
           url = uri.to_s
 
           vul_response = http_get(url, @headers)
-          vul_response = JSON.parse(vul_response.body)
+          vul_response = JSON.parse(vul_response)
 
           vulnerabilities = []
           vulnerabilities = transform_vulnurebilities(vul_response.first['cves'], device_id) if vul_response.first['cves'].is_a?(Array) && !vul_response.first['cves'].empty?
