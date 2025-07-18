@@ -29,7 +29,7 @@ module Kenna
 
           response = http_get(endpoint, @headers)
 
-          JSON.parse(response.body.to_s) unless response.nil?
+          JSON.parse(response.body) unless response.nil?
         end
 
         def companies_by_portfolio(portfolio_id)
@@ -54,7 +54,7 @@ module Kenna
 
         def issues_by_factors(detail_url)
           response = http_get(detail_url, @headers)
-          JSON.parse(response.body.to_s) unless response.nil?
+          JSON.parse(response.body) unless response.nil?
         end
 
         def types_by_factors(company_id)
@@ -62,7 +62,7 @@ module Kenna
           response = http_get(endpoint, @headers)
           return [] if response.nil?
 
-          factors = JSON.parse(response.body.to_s)["entries"] unless response.nil?
+          factors = JSON.parse(response.body)["entries"] unless response.nil?
           types = []
           factors.each do |factor|
             factor["issue_summary"]&.each do |detail|
@@ -76,7 +76,7 @@ module Kenna
           endpoint = "#{@baseapi}/metadata/issue-types"
 
           response = http_get(endpoint, @headers)
-          JSON.parse(response.body.to_s)["entries"].filter_map { |x| x["key"] unless ssc_exclude_severity.include? x["severity"] }
+          JSON.parse(response.body)["entries"].filter_map { |x| x["key"] unless ssc_exclude_severity.include? x["severity"] }
         end
       end
     end
