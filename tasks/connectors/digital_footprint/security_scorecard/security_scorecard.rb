@@ -307,7 +307,6 @@ module Kenna
                   issues_by_type = client.issues_by_type_for_company(company["domain"], type)
 
                   issues = issues_by_type["entries"] unless issues_by_type.nil?
-                  severity = type["severity"]
 
                   if issues
                     print_debug "#{issues.count} issues of type #{type}"
