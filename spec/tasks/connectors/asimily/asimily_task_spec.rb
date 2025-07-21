@@ -84,4 +84,3 @@ RSpec.describe Kenna::Toolkit::Asimily::Task do
     end
   end
 end
-
