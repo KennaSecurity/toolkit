@@ -1,5 +1,3 @@
-asimily client spec 
-
 # frozen_string_literal: true
 
 require 'rspec_helper'
