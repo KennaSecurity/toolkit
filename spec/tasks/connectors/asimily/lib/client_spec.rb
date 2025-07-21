@@ -13,11 +13,11 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
     describe "#fetch_devices" do
         let(:filters) { { filter: 'test' } }
         let(:current_page) { 0 }
-    
+
         before do
             allow(client).to receive(:http_get).and_return(double(body: '{"content": [], "totalElements": 0, "last": true}'))
         end
-    
+
         it "fetches devices with the correct parameters" do
             devices, has_more_pages = client.fetch_devices(page_size, current_page, filters)
             expect(devices).to eq([])
@@ -28,7 +28,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
     describe "#fetch_vulnerabilities" do
         let(:device_id) { 123 }
 
-        before do 
+        before do
             mock_response_body = [
             {
                 "cves" => [
@@ -40,7 +40,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
                     },
                     {
                         "cve_id" => "CVE-2021-5678",
-                        "severity" => "MEDIUM", 
+                        "severity" => "MEDIUM",
                         "score" => 6.2,
                         "description" => "Another test vulnerability"
                     }
@@ -48,17 +48,17 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
             }
         ]
             mock_response = double(body: mock_response_body.to_json)
-            allow(client).to receive(:http_get).and_return(mock_response) 
+            allow(client).to receive(:http_get).and_return(mock_response)
         end
 
-        it "fetches vulnerabilities for a device" do 
+        it "fetches vulnerabilities for a device" do
             vulnerabilities = client.fetch_vulnerabilities(device_id)
             expect(vulnerabilities).to be_an(Array)
         end
     end
 
     describe "#transform_vulnerabilities" do
-        let(:device_id) { 123 }  
+        let(:device_id) { 123 }
         let(:vul) do
         [
             {
@@ -70,7 +70,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
                 "fixedDate" => "2021-02-20T14:45:00Z"
             },
             {
-                "cveName" => "CVE-2021-5678", 
+                "cveName" => "CVE-2021-5678",
                 "cveTitle" => "Another Test Vulnerability",
                 "desciption" => "Another test vulnerability description",
                 "score" => 6.2,
@@ -80,7 +80,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         ]
         end
 
-        it "map the vuln accordingly" do 
+        it "map the vuln accordingly" do
             result = client.transform_vulnurebilities(vul, device_id)
 
             expect(result).to be_an(Array)
@@ -93,7 +93,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#cve_solution" do 
+    describe "#cve_solution" do
     let(:cve) do
         {
             "ruleTextTypeMap" => {
@@ -165,9 +165,9 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
                 ]
             }
         }
-        end 
+        end
 
-        it "return formatted cve details" do 
+        it "return formatted cve details" do
             result = client.cve_details(cve)
 
             expect(result).to be_a(String)
@@ -176,66 +176,66 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#check_cve_status" do 
-        let(:cve_open) do 
+    describe "#check_cve_status" do
+        let(:cve_open) do
             {
                 "status" => "open",
                 "cve_id" => "CVE-2021-1234"
             }
         end
 
-        let(:cve_fixed) do 
+        let(:cve_fixed) do
             {
                 "status" => "fixed",
                 "cve_id" => "CVE-2021-5678"
             }
         end
 
-        let(:cve_nil_status) do 
+        let(:cve_nil_status) do
             {
                 "status" => nil,
                 "cve_id" => "CVE-2021-9999"
             }
         end
 
-        let(:cve_no_status) do 
+        let(:cve_no_status) do
             {
                 "cve_id" => "CVE-2021-0000"
             }
         end
 
-        it "return open status" do 
+        it "return open status" do
             result = client.check_cve_status(cve_open)
-            expect(result).to eq("open") 
+            expect(result).to eq("open")
         end
 
-        it "return close status when fixed" do 
+        it "return close status when fixed" do
             result = client.check_cve_status(cve_fixed)
             expect(result).to eq("closed")
         end
 
-        it "return open status if cve status is nil" do 
+        it "return open status if cve status is nil" do
             result = client.check_cve_status(cve_nil_status)
             expect(result).to eq("open")
         end
 
-        it "return open status if cve status is nil" do 
+        it "return open status if cve status is nil" do
             result = client.check_cve_status(cve_nil_status)
             expect(result).to eq("open")
         end
 
-        it "return open status if cve doesn't have status" do 
+        it "return open status if cve doesn't have status" do
             result = client.check_cve_status(cve_nil_status)
             expect(result).to eq("open")
         end
     end
 
-    describe "#transform_vulnerability" do 
-        let(:cve) do 
+    describe "#transform_vulnerability" do
+        let(:cve) do
             {
                 "scanner_identifier" => "CVE-2021-1234|123",
                 "scanner_type" => "Asimily",
-                "scanner_score" => 85, 
+                "scanner_score" => 85,
                 "last_seen_at" => "2021-01-15T10:30:00Z",
                 "created_at" => "2021-01-10T08:00:00Z",
                 "status" => "open",
@@ -281,8 +281,8 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#transform_vulnerability_def" do 
-        let(:cve) do 
+    describe "#transform_vulnerability_def" do
+        let(:cve) do
             {
                 "scanner_identifier" => "CVE-2021-1234|123",
                 "scanner_type" => "Asimily",
@@ -327,8 +327,8 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#extract_tags" do 
-        let(:device) do 
+    describe "#extract_tags" do
+        let(:device) do
             {
                 "deviceTag" => ["tag1", "tag2", "custom_tag"],
                 "facility" => "Building A - Floor 2",
@@ -352,7 +352,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
 
         it "extracts tags from device with full data" do
             result = client.extract_tags(device)
-            
+
             expect(result).to be_an(Array)
             expect(result).to include("tag1", "tag2", "custom_tag")
             expect(result).to include("Facility: Building A - Floor 2")
@@ -364,7 +364,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
 
         it "handles device with nil deviceTag array" do
             result = client.extract_tags(device_with_nil_tags)
-            
+
             expect(result).to be_an(Array)
             expect(result).to include("Facility: Main Office")
             expect(result).to include("DeviceType: Laptop")
@@ -374,8 +374,8 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#transform_device" do 
-        let(:device) do 
+    describe "#transform_device" do
+        let(:device) do
             {
                 "v4IpAddrs" => ["192.168.1.100", "10.0.0.50"],
                 "deviceID" => 12345,
@@ -427,7 +427,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Client do
         end
     end
 
-    describe "#date_to_iso8601" do 
+    describe "#date_to_iso8601" do
         let(:string_date) { "2021-07-15 14:30:00" }
         let(:iso_date) { "2021-07-15T10:30:00Z" }
         let(:invalid_date) { "not-a-date" }

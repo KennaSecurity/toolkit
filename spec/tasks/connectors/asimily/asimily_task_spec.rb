@@ -22,7 +22,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Task do
   describe '.metadata' do
     it 'returns correct task metadata' do
       metadata = described_class.metadata
-      
+
       expect(metadata[:id]).to eq("asimily")
       expect(metadata[:name]).to eq("Asimily")
       expect(metadata[:description]).to eq("Pulls assets and vulnerabilities from Asimily")
@@ -43,7 +43,7 @@ RSpec.describe Kenna::Toolkit::Asimily::Task do
     it 'initializes client with correct parameters' do
       expect(Kenna::Toolkit::Asimily::Client).to receive(:new).with(
         "https://example.asimily.com",
-        "test_user", 
+        "test_user",
         "test_password",
         100
       )
@@ -55,9 +55,9 @@ RSpec.describe Kenna::Toolkit::Asimily::Task do
       allow(Kenna::Toolkit::Asimily::Client).to receive(:new).and_raise(
         Kenna::Toolkit::Asimily::Client::ApiError, "API connection failed"
       )
-      
+
       expect(task).to receive(:fail_task).with("API connection failed")
-      
+
       task.run(valid_options)
     end
 
@@ -65,9 +65,9 @@ RSpec.describe Kenna::Toolkit::Asimily::Task do
       allow(Kenna::Toolkit::Asimily::Client).to receive(:new).and_raise(
         StandardError, "Unexpected error"
       )
-      
+
       expect(task).to receive(:fail_task).with("An error occurred: Unexpected error")
-      
+
       task.run(valid_options)
     end
   end
