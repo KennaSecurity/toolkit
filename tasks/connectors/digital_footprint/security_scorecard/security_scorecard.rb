@@ -107,10 +107,11 @@ module Kenna
         url ||= issue["initial_url"] if issue["initial_url"] && hostname.nil?
         url ||= issue["url"] if issue["url"] && hostname.nil?
 
-        unless ip_address ||
-               hostname ||
-               url
+        unless [ip_address, hostname, url].any? { |v| v && !v.strip.empty? }
           print_debug "UNMAPPED ASSET FOR FINDING: #{issue}"
+          puts "Issue missing url, hostname, and ip_address - Issue ID: #{issue['id'] || 'N/A'}, Type: #{issue['type'] || 'N/A'}"
+          puts "DEBUG: ip_address='#{ip_address}', hostname='#{hostname}', url='#{url}'"
+          puts "DEBUG: Full issue data: #{JSON.pretty_generate(issue)}"
           return nil
         end
         asset_attributes["ip_address"] = ip_address unless ip_address.nil? || ip_address.empty?
@@ -339,6 +340,7 @@ module Kenna
                 ### Get things in an acceptable format
                 ###
                 asset_attributes = ssc_issue_to_kdi_asset_hash(issue)
+                puts "asset_attributes #{asset_attributes}"
                 next if asset_attributes.nil?
 
                 vuln_attributes, vuln_def_attributes = ssc_issue_to_kdi_vuln_hash(issue)
