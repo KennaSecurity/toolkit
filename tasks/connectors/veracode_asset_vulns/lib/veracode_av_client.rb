@@ -51,6 +51,8 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           app_list = []
           until url.nil?
+            # Add rate limiting delay before each API call
+            sleep(1) # 1 second delay between requests
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -84,6 +86,8 @@ module Kenna
           url = "https://#{HOST}#{cwe_request}"
           cwe_rec_list = []
           until url.nil?
+            # Add rate limiting delay before each API call
+            sleep(1) # 1 second delay between requests
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -103,6 +107,8 @@ module Kenna
           url = "https://#{HOST}#{cat_request}"
           cat_rec_list = []
           until url.nil?
+            # Add rate limiting delay before each API call
+            sleep(1) # 1 second delay between requests
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -123,6 +129,8 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=#{scan_type}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
+            # Add rate limiting delay before each API call
+            sleep(1) # 1 second delay between requests
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
             if response.nil?
@@ -248,6 +256,8 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}&scan_type=SCA"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
+            # Add rate limiting delay before each API call
+            sleep(1) # 1 second delay between requests
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
             if response.nil?
@@ -420,13 +430,25 @@ module Kenna
         def issues(app_guid, app_name, tags, owner, page_size, scan_types)
           scan_types_array = scan_types.split(",")
           # Get STATIC Findings
-          get_findings(app_guid, app_name, tags, owner, page_size, "STATIC") if scan_types_array.include? "STATIC"
+          if scan_types_array.include? "STATIC"
+            get_findings(app_guid, app_name, tags, owner, page_size, "STATIC")
+            sleep(2) # Delay between scan types
+          end
           # Get DYNAMIC Findings
-          get_findings(app_guid, app_name, tags, owner, page_size, "DYNAMIC") if scan_types_array.include? "DYNAMIC"
+          if scan_types_array.include? "DYNAMIC"
+            get_findings(app_guid, app_name, tags, owner, page_size, "DYNAMIC")
+            sleep(2) # Delay between scan types
+          end
           # Get MANUAL Findings
-          get_findings(app_guid, app_name, tags, owner, page_size, "MANUAL") if scan_types_array.include? "MANUAL"
+          if scan_types_array.include? "MANUAL"
+            get_findings(app_guid, app_name, tags, owner, page_size, "MANUAL")
+            sleep(2) # Delay between scan types
+          end
           # Get SCA Findings
-          get_findings_sca(app_guid, app_name, tags, owner, page_size) if scan_types_array.include? "SCA"
+          if scan_types_array.include? "SCA"
+            get_findings_sca(app_guid, app_name, tags, owner, page_size)
+            sleep(2) # Delay between scan types
+          end
 
           find_missing_kenna_assets(app_name)
 
