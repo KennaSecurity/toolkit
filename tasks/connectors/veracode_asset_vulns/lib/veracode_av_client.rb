@@ -61,7 +61,7 @@ module Kenna
             elapsed_minutes = ((current_time - @start_time) / 60).round(1)
             avg_calls_per_minute = (@api_call_count / elapsed_minutes).round(1)
             
-            puts "🔄 API Call Stats: #{@calls_in_current_minute} calls in last minute | Total: #{@api_call_count} calls in #{elapsed_minutes} minutes (#{avg_calls_per_minute} calls/min avg)"
+            puts "API Call Stats: #{@calls_in_current_minute} calls in last minute | Total: #{@api_call_count} calls in #{elapsed_minutes} minutes (#{avg_calls_per_minute} calls/min avg)"
             
             # Reset minute counter
             @calls_in_current_minute = 0
@@ -69,7 +69,7 @@ module Kenna
           end
           
           @calls_in_current_minute += 1
-          puts "📡 API Call ##{@api_call_count}: #{endpoint} [#{Time.now.strftime('%H:%M:%S')}]"
+          puts "API Call ##{@api_call_count}: #{endpoint} [#{Time.now.strftime('%H:%M:%S')}]"
         end
 
         def applications(page_size, custom_field_filter_name = "", custom_field_filter_value = "")
