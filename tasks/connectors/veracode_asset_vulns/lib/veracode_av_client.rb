@@ -28,6 +28,12 @@ module Kenna
           @category_recommendations = []
           @cwe_recommendations = []
           @score_map = build_score_map(veracode_score_mapping)
+          
+          # API call tracking
+          @api_call_count = 0
+          @start_time = Time.now
+          @last_minute_check = Time.now
+          @calls_in_current_minute = 0
         end
 
         def build_score_map(mapping)
@@ -46,6 +52,26 @@ module Kenna
           score_map
         end
 
+        def log_api_call(endpoint)
+          @api_call_count += 1
+          current_time = Time.now
+          
+          # Check if a minute has passed
+          if (current_time - @last_minute_check) >= 60
+            elapsed_minutes = ((current_time - @start_time) / 60).round(1)
+            avg_calls_per_minute = (@api_call_count / elapsed_minutes).round(1)
+            
+            puts "🔄 API Call Stats: #{@calls_in_current_minute} calls in last minute | Total: #{@api_call_count} calls in #{elapsed_minutes} minutes (#{avg_calls_per_minute} calls/min avg)"
+            
+            # Reset minute counter
+            @calls_in_current_minute = 0
+            @last_minute_check = current_time
+          end
+          
+          @calls_in_current_minute += 1
+          puts "📡 API Call ##{@api_call_count}: #{endpoint} [#{Time.now.strftime('%H:%M:%S')}]"
+        end
+
         def applications(page_size, custom_field_filter_name = "", custom_field_filter_value = "")
           app_request = "#{APP_PATH}?size=#{page_size}"
           url = "https://#{HOST}#{app_request}"
@@ -53,6 +79,7 @@ module Kenna
           until url.nil?
             # Add rate limiting delay before each API call
             sleep(1) # 1 second delay between requests
+            log_api_call("Applications: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -88,6 +115,7 @@ module Kenna
           until url.nil?
             # Add rate limiting delay before each API call
             sleep(1) # 1 second delay between requests
+            log_api_call("CWE Recommendations: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -109,6 +137,7 @@ module Kenna
           until url.nil?
             # Add rate limiting delay before each API call
             sleep(1) # 1 second delay between requests
+            log_api_call("Category Recommendations: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
 
@@ -131,6 +160,7 @@ module Kenna
           until url.nil?
             # Add rate limiting delay before each API call
             sleep(1) # 1 second delay between requests
+            log_api_call("#{scan_type} Findings for #{app_name}: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
             if response.nil?
@@ -258,6 +288,7 @@ module Kenna
           until url.nil?
             # Add rate limiting delay before each API call
             sleep(1) # 1 second delay between requests
+            log_api_call("SCA Findings for #{app_name}: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
             if response.nil?
@@ -469,6 +500,11 @@ module Kenna
         end
 
         def kdi_kickoff
+          # Log final API call statistics
+          total_elapsed_minutes = ((Time.now - @start_time) / 60).round(1)
+          avg_calls_per_minute = (@api_call_count / total_elapsed_minutes).round(1)
+          puts "🏁 FINAL API STATS: #{@api_call_count} total calls in #{total_elapsed_minutes} minutes (#{avg_calls_per_minute} calls/min average)"
+          
           kdi_connector_kickoff(@kenna_connector_id, @kenna_api_host, @kenna_api_key)
         end
 
