@@ -78,7 +78,7 @@ module Kenna
           app_list = []
           until url.nil?
             # Add rate limiting delay before each API call
-            sleep(1) # 1 second delay between requests
+            sleep(0.5) 
             log_api_call("Applications: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
@@ -114,7 +114,7 @@ module Kenna
           cwe_rec_list = []
           until url.nil?
             # Add rate limiting delay before each API call
-            sleep(1) # 1 second delay between requests
+            sleep(0.5) 
             log_api_call("CWE Recommendations: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
@@ -136,7 +136,7 @@ module Kenna
           cat_rec_list = []
           until url.nil?
             # Add rate limiting delay before each API call
-            sleep(1) # 1 second delay between requests
+            sleep(0.5) # 0.5 second delay between requests
             log_api_call("Category Recommendations: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
             return unless response
@@ -159,7 +159,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           until url.nil?
             # Add rate limiting delay before each API call
-            sleep(1) # 1 second delay between requests
+            sleep(0.5) # 0.5 second delay between requests
             log_api_call("#{scan_type} Findings for #{app_name}: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
@@ -287,7 +287,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           until url.nil?
             # Add rate limiting delay before each API call
-            sleep(1) # 1 second delay between requests
+            sleep(0.5) # 0.5 second delay between requests
             log_api_call("SCA Findings for #{app_name}: #{url}")
             response = http_get(url, {}, hmac_client: self, timeout: 600)
 
