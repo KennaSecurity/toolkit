@@ -16,7 +16,7 @@ gem "addressable"
 gem "aws-sdk-guardduty"
 gem "aws-sdk-inspector"
 gem "aws-sdk-inspector2"
-gem "faraday", "~> 2.13"
+gem "faraday", "~> 2.14"
 gem 'faraday-multipart'
 gem "faraday-retry", "~> 2.3"
 gem "httparty"
