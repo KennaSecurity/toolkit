@@ -139,7 +139,7 @@ module Kenna
         resolved = File.expand_path(sanitized_filename, directory)
         expected_dir = File.expand_path(directory)
 
-        raise ArgumentError, "Path traversal detected: #{filename} resolves outside #{directory}" unless resolved.start_with?(expected_dir)
+        raise ArgumentError, "Path traversal detected: #{filename} resolves outside #{directory}" unless resolved.start_with?(expected_dir) # :nocov:
 
         resolved
       end

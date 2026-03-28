@@ -47,6 +47,22 @@ RSpec.describe Kenna::Toolkit::Helpers do
     end
   end
 
+  describe "#write_file" do
+    it 'writes content to the file' do
+      dir = Dir.mktmpdir
+      example_class.write_file(dir, "test.txt", "hello world")
+      expect(File.read(File.join(dir, "test.txt"))).to eq("hello world")
+      FileUtils.rm_rf(dir)
+    end
+
+    it 'sanitizes path traversal in filename' do
+      dir = Dir.mktmpdir
+      example_class.write_file(dir, "../../etc/evil", "content")
+      expect(File.exist?(File.join(dir, "evil"))).to be true
+      FileUtils.rm_rf(dir)
+    end
+  end
+
   describe "#safe_output_path" do
     it 'returns resolved path for safe inputs' do
       path = example_class.safe_output_path("/tmp/output", "report.json")
