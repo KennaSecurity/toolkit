@@ -11,8 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 'Bundler Audit'
-        # uses: andrewmcodes/bundler-audit-action@main
-        uses: laicuRoot/bundler-audit-action@use-ruby-3.2.2 # Temporarily fixes Ruby 3 issue: andrewmcodes/bundler-audit-action#6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Run bundler-audit
+        run: |
+          gem install bundler-audit
+          bundle-audit check --update
