@@ -27,7 +27,7 @@ group :development, :test do
   gem "rspec", "~> 3.13"
   gem "rubocop", "~> 1.69", require: false
   gem "simplecov", "~> 0.22"
-  gem "simplecov-cobertura", "~> 2.1"
+  gem "simplecov-cobertura", "~> 3.1"
   gem "solargraph", "~> 0.50", require: false
   gem "timecop", "~> 0.9"
   gem "vcr", "~> 6.3"
