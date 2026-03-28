@@ -111,10 +111,8 @@ module Kenna
       ### Helper to write a file consistently
       ###
       def write_file(directory, filename, output)
-        FileUtils.mkdir_p directory
-
-        # create full output path
-        output_path = "#{directory}/#{filename}"
+        output_path = safe_output_path(directory, filename)
+        FileUtils.mkdir_p File.dirname(output_path)
 
         # write it, char by char to avoid large mem issues
         File.open(output_path, "wb") do |file|
@@ -123,8 +121,8 @@ module Kenna
       end
 
       def write_file_stream(directory, filename, autoclose, assets, vuln_defs, version = 1)
-        output_path = "#{directory}/#{filename}" # FIXME: The method should just take a path,
-        FileUtils.mkdir_p directory # FIXME: then this could be File.basename(path)
+        output_path = safe_output_path(directory, filename)
+        FileUtils.mkdir_p File.dirname(output_path)
 
         obj = {
           "skip_autoclose" => autoclose,
@@ -134,6 +132,18 @@ module Kenna
         }
 
         File.write(output_path, JSON.generate(obj))
+      end
+
+      def safe_output_path(directory, filename)
+        sanitized_filename = File.basename(filename)
+        resolved = File.expand_path(sanitized_filename, directory)
+        expected_dir = File.expand_path(directory)
+
+        unless resolved.start_with?(expected_dir)
+          raise ArgumentError, "Path traversal detected: #{filename} resolves outside #{directory}"
+        end
+
+        resolved
       end
 
       def run_files_on_kenna_connector(connector_id, api_host, api_token, upload_ids, max_retries = 3)
