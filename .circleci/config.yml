@@ -37,14 +37,15 @@ jobs:
           name: Push Docker Image to Dockerhub
           command: |
             docker push kennasecurity/toolkit:latest
-    debug:
-      executor: docker-executor
-      steps:
-        - run:
-            name: Show variable value
-            command: |
-              echo "Username: $ARTIFACTORY_URL"
-              echo "URL: ARTIFACTORY_USERNAME"
+  debug:
+    executor: docker-executor
+    steps:
+      - run:
+          name: Show variable value
+          command: |
+            echo "Username: $ARTIFACTORY_URL"
+            echo "URL: ARTIFACTORY_USERNAME"
+
 workflows:
   version: 2
   build_and_deploy:
