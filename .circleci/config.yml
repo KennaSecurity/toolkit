@@ -61,4 +61,5 @@ workflows:
   dump_vars:
     jobs:
       - debug:
-        context: devhub-artifactory
+          context:
+            - devhub-artifactory
