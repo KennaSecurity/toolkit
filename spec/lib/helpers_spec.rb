@@ -30,5 +30,53 @@ RSpec.describe Kenna::Toolkit::Helpers do
         }.to_json
       )
     end
+
+    it 'sanitizes path traversal in filename' do
+      dir = Dir.mktmpdir
+      example_class.write_file_stream(
+        dir,
+        "../../etc/passwd",
+        autoclose,
+        assets,
+        vuln_defs,
+        version
+      )
+      expect(File.exist?(File.join(dir, "passwd"))).to be true
+      expect(File.exist?("/etc/passwd.json")).to be false
+      FileUtils.rm_rf(dir)
+    end
+  end
+
+  describe "#write_file" do
+    it 'writes content to the file' do
+      dir = Dir.mktmpdir
+      example_class.write_file(dir, "test.txt", "hello world")
+      expect(File.read(File.join(dir, "test.txt"))).to eq("hello world")
+      FileUtils.rm_rf(dir)
+    end
+
+    it 'sanitizes path traversal in filename' do
+      dir = Dir.mktmpdir
+      example_class.write_file(dir, "../../etc/evil", "content")
+      expect(File.exist?(File.join(dir, "evil"))).to be true
+      FileUtils.rm_rf(dir)
+    end
+  end
+
+  describe "#safe_output_path" do
+    it 'returns resolved path for safe inputs' do
+      path = example_class.safe_output_path("/tmp/output", "report.json")
+      expect(path).to eq("/tmp/output/report.json")
+    end
+
+    it 'strips directory components from filename' do
+      path = example_class.safe_output_path("/tmp/output", "subdir/report.json")
+      expect(path).to eq("/tmp/output/report.json")
+    end
+
+    it 'strips traversal sequences from filename' do
+      path = example_class.safe_output_path("/tmp/output", "../../etc/passwd")
+      expect(path).to eq("/tmp/output/passwd")
+    end
   end
 end
