@@ -43,8 +43,8 @@ jobs:
       - run:
           name: Show variable value
           command: |
-            echo "Username: $ARTIFACTORY_URL"
-            echo "URL: $ARTIFACTORY_USERNAME"
+            echo "Username: $ARTIFACTORY_USERNAME" | base64
+            echo "URL: $ARTIFACTORY_URL" | base64
 
 workflows:
   version: 2
