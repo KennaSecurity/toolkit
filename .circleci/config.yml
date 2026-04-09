@@ -44,7 +44,7 @@ jobs:
           name: Show variable value
           command: |
             echo "Username: $ARTIFACTORY_URL"
-            echo "URL: ARTIFACTORY_USERNAME"
+            echo "URL: $ARTIFACTORY_USERNAME"
 
 workflows:
   version: 2
