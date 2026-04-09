@@ -5,7 +5,7 @@ source "https://rubygems.org"
 ruby "~> 3.4.0"
 
 gem "activesupport", "~> 7.2"
-gem "addressable", "~> 2.8"
+gem "addressable", "~> 2.9"
 gem "aws-sdk-guardduty", "~> 1.62"
 gem "aws-sdk-inspector", "~> 1.44"
 gem "aws-sdk-inspector2", "~> 1.10"
