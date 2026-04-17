@@ -32,7 +32,7 @@ group :development, :test do
   gem "timecop", "~> 0.9"
   gem "vcr", "~> 6.3"
   gem "webmock", "~> 3.24"
-  gem "yard", "~> 0.9", ">= 0.9.37"
+  gem "yard", "~> 0.9"
 end
 
 group :test do
