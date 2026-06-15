@@ -17,12 +17,62 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
     )
   end
 
+  let(:applications_response) do
+    {
+      "_embedded" => {
+        "applications" => [
+          {
+            "guid" => "test-guid",
+            "profile" => {
+              "name" => "Test App",
+              "tags" => "tag1,tag2",
+              "business_unit" => { "name" => "Test BU" },
+              "business_criticality" => "High",
+              "business_owners" => [{ "name" => "Test Owner" }],
+              "custom_fields" => []
+            }
+          }
+        ]
+      },
+      "_links" => {}
+    }.to_json
+  end
+
+  let(:cwe_response) do
+    {
+      "_embedded" => {
+        "cwes" => [
+          {
+            "id" => "CWE-79",
+            "recommendation" => "Sanitize input"
+          }
+        ]
+      },
+      "_links" => {}
+    }.to_json
+  end
+
+  let(:category_response) do
+    {
+      "_embedded" => {
+        "categories" => [
+          {
+            "id" => "CAT-1",
+            "recommendation" => "Fix this"
+          }
+        ]
+      },
+      "_links" => {}
+    }.to_json
+  end
+
   describe "#initialize" do
     it "initializes with required parameters" do
       expect(client.instance_variable_get(:@id)).to eq("test_id")
       expect(client.instance_variable_get(:@key)).to eq("test_key")
       expect(client.instance_variable_get(:@output_dir)).to eq("/tmp")
       expect(client.instance_variable_get(:@filename)).to eq("test_file.json")
+      expect(client.instance_variable_get(:@score_map)).to eq({ "1" => "10", "2" => "20", "3" => "30", "4" => "40", "5" => "50" })
     end
   end
 
@@ -48,15 +98,20 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
   describe "#applications" do
     context "successful response" do
       before do
-        allow(client).to receive(:http_get).and_return(
-          double(body: File.read("#{$basedir}/spec/tasks/connectors/veracode_findings/fixtures/applications.json"))
-        )
+        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+          .to_return(body: applications_response, status: 200)
       end
 
       it "fetches applications from API" do
         apps = client.applications(100)
         expect(apps).to be_an(Array)
-        expect(client).to have_received(:http_get)
+        expect(apps.first["guid"]).to eq("test-guid")
+      end
+
+      it "includes tags and owner information" do
+        apps = client.applications(100)
+        expect(apps.first["tags"]).to be_an(Array)
+        expect(apps.first["owner"]).to eq("Test Owner")
       end
     end
 
@@ -70,19 +125,32 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
         expect(apps).to be_nil
       end
     end
+
+    context "with custom field filters" do
+      before do
+        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+          .to_return(body: applications_response, status: 200)
+      end
+
+      it "applies custom field filter" do
+        apps = client.applications(100, "custom_field", "filter_value")
+        expect(apps).to be_an(Array)
+      end
+    end
   end
 
   describe "#cwe_recommendations" do
     context "successful response" do
       before do
-        allow(client).to receive(:http_get).and_return(
-          double(body: File.read("#{$basedir}/spec/tasks/connectors/veracode_findings/fixtures/cwe_recommendations.json"))
-        )
+        stub_request(:get, %r{https://api.veracode.com/appsec/v1/cwes})
+          .to_return(body: cwe_response, status: 200)
       end
 
       it "fetches CWE recommendations from API" do
         client.cwe_recommendations(100)
-        expect(client.instance_variable_get(:@cwe_recommendations)).to be_an(Array)
+        cwe_recs = client.instance_variable_get(:@cwe_recommendations)
+        expect(cwe_recs).to be_an(Array)
+        expect(cwe_recs.first["id"]).to eq("CWE-79")
       end
     end
 
@@ -101,14 +169,15 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
   describe "#category_recommendations" do
     context "successful response" do
       before do
-        allow(client).to receive(:http_get).and_return(
-          double(body: File.read("#{$basedir}/spec/tasks/connectors/veracode_findings/fixtures/category_recommendations.json"))
-        )
+        stub_request(:get, %r{https://api.veracode.com/appsec/v1/categories})
+          .to_return(body: category_response, status: 200)
       end
 
       it "fetches category recommendations from API" do
         client.category_recommendations(100)
-        expect(client.instance_variable_get(:@category_recommendations)).to be_an(Array)
+        cat_recs = client.instance_variable_get(:@category_recommendations)
+        expect(cat_recs).to be_an(Array)
+        expect(cat_recs.first["id"]).to eq("CAT-1")
       end
     end
 
