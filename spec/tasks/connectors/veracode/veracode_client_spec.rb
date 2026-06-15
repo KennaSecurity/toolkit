@@ -205,8 +205,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
 
     context "when API request fails" do
       before do
-        stub_request(:get, %r{https://api\.veracode\.com})
-          .to_return(status: 401)
+        allow(client).to receive(:http_get).and_return(nil)
       end
 
       it "raises ApiError when response is nil" do

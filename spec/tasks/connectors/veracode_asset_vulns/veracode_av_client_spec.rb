@@ -85,13 +85,13 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
     it "raises error for invalid score mapping with non-numeric score" do
       expect do
         client.build_score_map("1-abc,2-20")
-      end.to raise_error(RuntimeError)
+      end.to raise_error(SystemExit)
     end
 
     it "raises error for score outside 0-100 range" do
       expect do
         client.build_score_map("1-101,2-20")
-      end.to raise_error(RuntimeError)
+      end.to raise_error(SystemExit)
     end
   end
 
