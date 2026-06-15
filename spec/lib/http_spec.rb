@@ -84,7 +84,7 @@ RSpec.describe Kenna::Toolkit::Helpers::Http do
         .to_return(body: "success", status: 200)
 
       retry_opts = { retry_statuses: [504] }
-      response = helper.http_get("https://example.com/test", {}, 5, true, nil, retry_opts)
+      response = helper.http_get("https://example.com/test", {}, 5, true, retry_options: retry_opts)
       expect(response.status).to eq(200)
     end
   end
