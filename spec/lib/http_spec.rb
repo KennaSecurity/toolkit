@@ -88,4 +88,40 @@ RSpec.describe Kenna::Toolkit::Helpers::Http do
       expect(response.status).to eq(200)
     end
   end
+
+  describe "#http_post" do
+    it "makes POST requests with retry options" do
+      stub_request(:post, "https://example.com/test")
+        .to_return(body: "created", status: 201)
+
+      retry_opts = { retry_statuses: [504] }
+      response = helper.http_post("https://example.com/test", {}, { foo: "bar" }, 5, true, retry_options: retry_opts)
+      expect(response.status).to eq(201)
+      expect(response.body).to eq("created")
+    end
+  end
+
+  describe "#http_put" do
+    it "makes PUT requests with retry options" do
+      stub_request(:put, "https://example.com/test")
+        .to_return(body: "updated", status: 200)
+
+      retry_opts = { retry_statuses: [504] }
+      response = helper.http_put("https://example.com/test", {}, { foo: "bar" }, 5, true, retry_options: retry_opts)
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("updated")
+    end
+  end
+
+  describe "#http_delete" do
+    it "makes DELETE requests with retry options" do
+      stub_request(:delete, "https://example.com/test")
+        .to_return(body: "deleted", status: 200)
+
+      retry_opts = { retry_statuses: [504] }
+      response = helper.http_delete("https://example.com/test", {}, 5, true, retry_options: retry_opts)
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("deleted")
+    end
+  end
 end
