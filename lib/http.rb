@@ -23,14 +23,14 @@ module Kenna
             retry_block: method(:log_retry),
             exhausted_retries_block: method(:log_retries_exhausted)
           }
-          
+
           if retry_options
             # Merge retry_options while preserving default exceptions and statuses (union, don't replace)
             retry_config.merge!(retry_options) do |key, old_value, new_value|
-              if key == :exceptions || key == :retry_statuses
-                (old_value + new_value).uniq  # Union and remove duplicates
+              if %i[exceptions retry_statuses].include?(key)
+                (old_value + new_value).uniq # Union and remove duplicates
               else
-                new_value  # For other keys, new value takes precedence
+                new_value # For other keys, new value takes precedence
               end
             end
           end

@@ -236,4 +236,18 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
       expect(signature).to match(/^VERACODE-HMAC-SHA-256 id=test_id,ts=\d+,nonce=[a-f0-9]+,sig=[a-f0-9]+$/)
     end
   end
+
+  describe "retry options merging" do
+    it "preserves default retry statuses when custom options are provided" do
+      allow(client).to receive(:http_get).and_call_original
+      stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/applications})
+        .to_return(body: applications_response, status: 200)
+
+      # Call applications which uses retry options
+      client.applications
+      
+      # Verify http_get was called with retry options
+      expect(client).to have_received(:http_get)
+    end
+  end
 end

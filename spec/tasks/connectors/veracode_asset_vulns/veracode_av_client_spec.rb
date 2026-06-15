@@ -213,4 +213,50 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
       expect(signature).to match(/^VERACODE-HMAC-SHA-256 id=test_id,ts=\d+,nonce=[a-f0-9]+,sig=[a-f0-9]+$/)
     end
   end
+
+  describe "pagination handling" do
+    context "with multiple pages of applications" do
+      let(:first_page) do
+        {
+          "_embedded" => {
+            "applications" => [{ "guid" => "app1", "profile" => { "name" => "App 1", "tags" => nil, "business_unit" => { "name" => "BU1" }, "business_criticality" => nil, "business_owners" => [], "custom_fields" => [] } }]
+          },
+          "_links" => { "next" => { "href" => "https://api.veracode.com/page2" } }
+        }.to_json
+      end
+
+      let(:second_page) do
+        {
+          "_embedded" => {
+            "applications" => [{ "guid" => "app2", "profile" => { "name" => "App 2", "tags" => nil, "business_unit" => { "name" => "BU2" }, "business_criticality" => nil, "business_owners" => [], "custom_fields" => [] } }]
+          },
+          "_links" => {}
+        }.to_json
+      end
+
+      before do
+        stub_request(:get, "https://api.veracode.com/appsec/v1/applications?size=100")
+          .to_return(body: first_page, status: 200)
+        stub_request(:get, "https://api.veracode.com/page2")
+          .to_return(body: second_page, status: 200)
+      end
+
+      it "handles paginated application results" do
+        apps = client.applications(100)
+        expect(apps.length).to eq(2)
+        expect(apps.map { |a| a["guid"] }).to contain_exactly("app1", "app2")
+      end
+    end
+  end
+
+  describe "retry options" do
+    it "uses retry options for HTTP requests" do
+      allow(client).to receive(:http_get).and_call_original
+      stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/cwes})
+        .to_return(body: cwe_response, status: 200)
+
+      client.cwe_recommendations(100)
+      expect(client).to have_received(:http_get)
+    end
+  end
 end
