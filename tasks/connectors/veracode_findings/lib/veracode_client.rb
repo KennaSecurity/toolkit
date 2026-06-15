@@ -20,7 +20,6 @@ module Kenna
           max_interval: 30,
           backoff_factor: 1,
           methods: %i[get],
-          exceptions: [],
           retry_statuses: [504]
         }.freeze
         MAX_RETRIES_504_ONLY = 2
