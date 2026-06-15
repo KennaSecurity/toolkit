@@ -245,7 +245,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
 
       # Call applications which uses retry options
       client.applications
-      
+
       # Verify http_get was called with retry options
       expect(client).to have_received(:http_get)
     end

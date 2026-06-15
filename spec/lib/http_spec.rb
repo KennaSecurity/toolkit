@@ -3,17 +3,17 @@
 require "rspec_helper"
 require_relative "../../lib/http"
 
-RSpec.describe Kenna::Toolkit::Helpers::Http do
-  class TestHelper
-    include Kenna::Toolkit::Helpers::Http
+class TestHelper
+  include Kenna::Toolkit::Helpers::Http
 
-    attr_reader :options
+  attr_reader :options
 
-    def initialize(options = {})
-      @options = options
-    end
+  def initialize(options = {})
+    @options = options
   end
+end
 
+RSpec.describe Kenna::Toolkit::Helpers::Http do
   subject(:helper) { TestHelper.new }
 
   describe "#connection" do
