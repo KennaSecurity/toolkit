@@ -75,7 +75,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
   describe "#applications" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/applications})
           .to_return(body: applications_response, status: 200)
       end
 
@@ -95,7 +95,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
 
     context "with custom field filters" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/applications})
           .to_return(body: applications_response, status: 200)
       end
 
@@ -109,7 +109,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
   describe "#cwe_recommendations" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/cwes})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/cwes})
           .to_return(body: cwe_response, status: 200)
       end
 
@@ -127,7 +127,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
 
     context "when API returns no results" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/cwes})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/cwes})
           .to_return(body: { "_embedded" => { "cwes" => [] }, "_links" => {} }.to_json, status: 200)
       end
 
@@ -141,7 +141,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
   describe "#category_recommendations" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/categories})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/categories})
           .to_return(body: category_response, status: 200)
       end
 
@@ -161,7 +161,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
   describe "#process_paged_findings" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v2/applications})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v2/applications})
           .to_return(body: findings_response, status: 200)
       end
 
@@ -205,7 +205,7 @@ RSpec.describe Kenna::Toolkit::Veracode::Client do
 
     context "when API request fails" do
       before do
-        stub_request(:get, %r{https://api.veracode.com})
+        stub_request(:get, %r{https://api\.veracode\.com})
           .to_return(status: 401)
       end
 

@@ -98,7 +98,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
   describe "#applications" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/applications})
           .to_return(body: applications_response, status: 200)
       end
 
@@ -128,7 +128,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
 
     context "with custom field filters" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/applications})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/applications})
           .to_return(body: applications_response, status: 200)
       end
 
@@ -142,7 +142,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
   describe "#cwe_recommendations" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/cwes})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/cwes})
           .to_return(body: cwe_response, status: 200)
       end
 
@@ -169,7 +169,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
   describe "#category_recommendations" do
     context "successful response" do
       before do
-        stub_request(:get, %r{https://api.veracode.com/appsec/v1/categories})
+        stub_request(:get, %r{https://api\.veracode\.com/appsec/v1/categories})
           .to_return(body: category_response, status: 200)
       end
 
