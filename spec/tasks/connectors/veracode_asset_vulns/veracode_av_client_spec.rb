@@ -66,6 +66,59 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
     }.to_json
   end
 
+  let(:static_findings_response) do
+    {
+      "_embedded" => {
+        "findings" => [
+          {
+            "scan_type" => "STATIC",
+            "issue_id" => "issue-static-1",
+            "description" => "Static finding",
+            "violates_policy" => true,
+            "finding_details" => {
+              "file_name" => "app/models/user.rb",
+              "severity" => 5,
+              "finding_category" => { "id" => "CAT-1", "name" => "Category 1", "href" => "/categories/CAT-1" },
+              "cwe" => { "id" => "CWE-79", "name" => "XSS", "href" => "/cwes/CWE-79" }
+            },
+            "finding_status" => {
+              "status" => "OPEN",
+              "first_found_date" => "2024-01-01T00:00:00Z",
+              "last_seen_date" => "2024-01-02T00:00:00Z"
+            }
+          }
+        ]
+      },
+      "_links" => {}
+    }.to_json
+  end
+
+  let(:sca_findings_response) do
+    {
+      "_embedded" => {
+        "findings" => [
+          {
+            "scan_type" => "SCA",
+            "description" => "SCA finding",
+            "violates_policy" => false,
+            "finding_details" => {
+              "component_filename" => "rack-2.2.8.gem",
+              "severity" => 4,
+              "cve" => { "name" => "CVE-2024-0001", "href" => "/cves/CVE-2024-0001" },
+              "cwe" => { "id" => "CWE-89", "name" => "SQL Injection", "href" => "/cwes/CWE-89" }
+            },
+            "finding_status" => {
+              "status" => "CLOSED",
+              "first_found_date" => "2024-02-01T00:00:00Z",
+              "last_seen_date" => "2024-02-02T00:00:00Z"
+            }
+          }
+        ]
+      },
+      "_links" => {}
+    }.to_json
+  end
+
   describe "#initialize" do
     it "initializes with required parameters" do
       expect(client.instance_variable_get(:@id)).to eq("test_id")
@@ -257,6 +310,47 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
 
       client.cwe_recommendations(100)
       expect(client).to have_received(:http_get)
+    end
+  end
+
+  describe "#get_findings" do
+    it "uses the retry-enabled http_get call for static findings" do
+      client.instance_variable_set(:@category_recommendations, [{ "id" => "CAT-1", "recommendation" => "Fix this" }])
+      client.instance_variable_set(:@cwe_recommendations, [{ "id" => "CWE-79", "recommendation" => "Sanitize input" }])
+
+      allow(client).to receive(:http_get).and_return(instance_double("Response", body: static_findings_response))
+      allow(client).to receive(:create_kdi_asset_vuln)
+      allow(client).to receive(:create_kdi_vuln_def)
+
+      client.get_findings("app-guid", "Test App", [], "Test Owner", 100, "STATIC")
+
+      expect(client).to have_received(:http_get).with(
+        "https://api.veracode.com/appsec/v2/applications/app-guid/findings?size=100&scan_type=STATIC",
+        {},
+        described_class::MAX_RETRIES_504_ONLY,
+        true,
+        hmac_client: client,
+        retry_options: described_class::RETRY_OPTIONS_504_ONLY
+      )
+    end
+  end
+
+  describe "#get_findings_sca" do
+    it "uses the retry-enabled http_get call for SCA findings" do
+      allow(client).to receive(:http_get).and_return(instance_double("Response", body: sca_findings_response))
+      allow(client).to receive(:create_kdi_asset_vuln)
+      allow(client).to receive(:create_kdi_vuln_def)
+
+      client.get_findings_sca("app-guid", "Test App", [], "Test Owner", 100)
+
+      expect(client).to have_received(:http_get).with(
+        "https://api.veracode.com/appsec/v2/applications/app-guid/findings?size=100&scan_type=SCA",
+        {},
+        described_class::MAX_RETRIES_504_ONLY,
+        true,
+        hmac_client: client,
+        retry_options: described_class::RETRY_OPTIONS_504_ONLY
+      )
     end
   end
 end
