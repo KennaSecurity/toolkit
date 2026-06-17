@@ -12,7 +12,7 @@ module Kenna
         ]
 
         def connection(verify_ssl = true, max_retries = 5, hmac_client: nil, retry_options: nil)
-          retry_config = {
+          default_config = {
             max: max_retries,
             interval: 0.1,
             max_interval: 30,
@@ -24,15 +24,22 @@ module Kenna
             exhausted_retries_block: method(:log_retries_exhausted)
           }
 
+          priority_config = nil
           if retry_options
-            # Merge retry_options while preserving default exceptions and statuses (union, don't replace)
-            retry_config.merge!(retry_options) do |key, old_value, new_value|
-              if %i[exceptions retry_statuses].include?(key)
-                (old_value + new_value).uniq # Union and remove duplicates
-              else
-                new_value # For other keys, new value takes precedence
-              end
-            end
+            # `retry_options` configures a dedicated retry policy for a specific set of
+            # statuses (e.g. 504). It is applied as a separate, outer retry middleware so
+            # those statuses get their own max/interval, while every other error keeps the
+            # default behaviour below. The prioritised statuses are removed from the default
+            # middleware so they are never retried twice.
+            priority_statuses = Array(retry_options[:retry_statuses])
+            priority_config = default_config.merge(retry_options).merge(
+              methods: [], # rely solely on retry_if so only the prioritised statuses retry
+              retry_if: ->(env, exception) { priority_statuses.include?(retry_status(env, exception)) }
+            )
+
+            default_config[:retry_statuses] -= priority_statuses
+            default_config[:methods] = []
+            default_config[:retry_if] = ->(env, exception) { !priority_statuses.include?(retry_status(env, exception)) }
           end
 
           Faraday.new do |faraday|
@@ -42,7 +49,8 @@ module Kenna
             if @options && @options[:debug] == true
               faraday.response :logger # This logs to STDOUT by default
             end
-            faraday.request :retry, retry_config
+            faraday.request :retry, priority_config if priority_config
+            faraday.request :retry, default_config
             if hmac_client
               require_relative './faraday_middlewares/faraday_hmac_middleware'
               faraday.use FaradayHmac, hmac_client
@@ -50,6 +58,17 @@ module Kenna
             faraday.response :raise_error
             # Faraday can automatically parse JSON responses if this is enabled. However, we shouldn't use JSON.parse if this is enabled
             # faraday.response :json
+          end
+        end
+
+        # Resolves the HTTP status for a retry decision. `raise_error` runs before the retry
+        # middleware, so error responses arrive here as exceptions; we read the status from
+        # the exception when present and fall back to the response env otherwise.
+        def retry_status(env, exception)
+          if exception.respond_to?(:response_status) && exception.response_status
+            exception.response_status
+          else
+            env&.status
           end
         end
 
