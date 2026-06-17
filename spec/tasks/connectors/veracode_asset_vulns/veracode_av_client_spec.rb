@@ -327,7 +327,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
       expect(client).to have_received(:http_get).with(
         "https://api.veracode.com/appsec/v2/applications/app-guid/findings?size=100&scan_type=STATIC",
         {},
-        described_class::MAX_RETRIES_504_ONLY,
+        5,
         true,
         hmac_client: client,
         retry_options: described_class::RETRY_OPTIONS_504_ONLY
@@ -346,7 +346,7 @@ RSpec.describe Kenna::Toolkit::VeracodeAV::Client do
       expect(client).to have_received(:http_get).with(
         "https://api.veracode.com/appsec/v2/applications/app-guid/findings?size=100&scan_type=SCA",
         {},
-        described_class::MAX_RETRIES_504_ONLY,
+        5,
         true,
         hmac_client: client,
         retry_options: described_class::RETRY_OPTIONS_504_ONLY
