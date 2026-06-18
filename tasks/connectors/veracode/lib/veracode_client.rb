@@ -12,6 +12,15 @@ module Kenna
         CWE_PATH = "/appsec/v1/cwes"
         FINDING_PATH = "/appsec/v2/applications"
         REQUEST_VERSION = "vcode_request_version_1"
+        # 504 responses get their own retry policy: retry twice at a fixed 30s interval.
+        # All other errors fall back to the toolkit's default retry behaviour (5 retries).
+        RETRY_OPTIONS_504_ONLY = {
+          max: 2,
+          interval: 30,
+          max_interval: 30,
+          backoff_factor: 1,
+          retry_statuses: [504]
+        }.freeze
 
         def initialize(id, key, page_size)
           @id = id
@@ -82,7 +91,7 @@ module Kenna
         def get_paged_results(url)
           next_page = url
           until next_page.nil?
-            response = http_get(next_page, {}, hmac_client: self)
+            response = http_get(next_page, {}, 5, true, hmac_client: self, retry_options: RETRY_OPTIONS_504_ONLY)
             raise ApiError, "Unable to retrieve data for #{next_page}. Please, check credentials." unless response
 
             result = JSON.parse(response.body)

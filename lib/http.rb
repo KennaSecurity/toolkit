@@ -11,7 +11,37 @@ module Kenna
           Faraday::ConnectionFailed, Faraday::ClientError, Net::OpenTimeout, Errno::ECONNREFUSED, EOFError, Faraday::ServerError
         ]
 
-        def connection(verify_ssl = true, max_retries = 5, hmac_client: nil)
+        def connection(verify_ssl = true, max_retries = 5, hmac_client: nil, retry_options: nil)
+          default_config = {
+            max: max_retries,
+            interval: 0.1,
+            max_interval: 30,
+            backoff_factor: 5,
+            methods: %i[get post],
+            exceptions: RETRY_EXCEPTIONS,
+            retry_statuses: [429, 500, 502, 503, 504],
+            retry_block: method(:log_retry),
+            exhausted_retries_block: method(:log_retries_exhausted)
+          }
+
+          priority_config = nil
+          if retry_options
+            # `retry_options` configures a dedicated retry policy for a specific set of
+            # statuses (e.g. 504). It is applied as a separate, outer retry middleware so
+            # those statuses get their own max/interval, while every other error keeps the
+            # default behaviour below. The prioritised statuses are removed from the default
+            # middleware so they are never retried twice.
+            priority_statuses = Array(retry_options[:retry_statuses])
+            priority_config = default_config.merge(retry_options).merge(
+              methods: [], # rely solely on retry_if so only the prioritised statuses retry
+              retry_if: ->(env, exception) { priority_statuses.include?(retry_status(env, exception)) }
+            )
+
+            default_config[:retry_statuses] -= priority_statuses
+            default_config[:methods] = []
+            default_config[:retry_if] = ->(env, exception) { !priority_statuses.include?(retry_status(env, exception)) }
+          end
+
           Faraday.new do |faraday|
             faraday.request :multipart
             faraday.request :json
@@ -19,17 +49,8 @@ module Kenna
             if @options && @options[:debug] == true
               faraday.response :logger # This logs to STDOUT by default
             end
-            faraday.request :retry, {
-              max: max_retries,
-              interval: 0.1,
-              max_interval: 30,
-              backoff_factor: 5,
-              methods: %i[get post],
-              exceptions: RETRY_EXCEPTIONS,
-              retry_statuses: [429, 500, 502, 503, 504],
-              retry_block: method(:log_retry),
-              exhausted_retries_block: method(:log_retries_exhausted)
-            }
+            faraday.request :retry, priority_config if priority_config
+            faraday.request :retry, default_config
             if hmac_client
               require_relative './faraday_middlewares/faraday_hmac_middleware'
               faraday.use FaradayHmac, hmac_client
@@ -40,20 +61,31 @@ module Kenna
           end
         end
 
-        def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil)
-          connection(verify_ssl, max_retries, hmac_client:).run_request(:get, url, nil, headers)
+        # Resolves the HTTP status for a retry decision. `raise_error` runs before the retry
+        # middleware, so error responses arrive here as exceptions; we read the status from
+        # the exception when present and fall back to the response env otherwise.
+        def retry_status(env, exception)
+          if exception.respond_to?(:response_status) && exception.response_status
+            exception.response_status
+          else
+            env&.status
+          end
         end
 
-        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true, hmac_client: nil)
-          connection(verify_ssl, max_retries, hmac_client:).run_request(:post, url, payload, headers)
+        def http_get(url, headers, max_retries = 5, verify_ssl = true, hmac_client: nil, retry_options: nil)
+          connection(verify_ssl, max_retries, hmac_client:, retry_options:).run_request(:get, url, nil, headers)
         end
 
-        def http_put(url, headers, payload, max_retries = 5, verify_ssl = true)
-          connection(verify_ssl, max_retries).run_request(:put, url, payload, headers)
+        def http_post(url, headers, payload, max_retries = 5, verify_ssl = true, hmac_client: nil, retry_options: nil)
+          connection(verify_ssl, max_retries, hmac_client:, retry_options:).run_request(:post, url, payload, headers)
         end
 
-        def http_delete(url, headers, max_retries = 5, verify_ssl = true)
-          connection(verify_ssl, max_retries).run_request(:delete, url, nil, headers)
+        def http_put(url, headers, payload, max_retries = 5, verify_ssl = true, retry_options: nil)
+          connection(verify_ssl, max_retries, retry_options:).run_request(:put, url, payload, headers)
+        end
+
+        def http_delete(url, headers, max_retries = 5, verify_ssl = true, retry_options: nil)
+          connection(verify_ssl, max_retries, retry_options:).run_request(:delete, url, nil, headers)
         end
 
         def log_retry(retry_count:, exception:, will_retry_in:, **_kwargs)

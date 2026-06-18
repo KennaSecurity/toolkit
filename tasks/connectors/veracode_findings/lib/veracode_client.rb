@@ -15,6 +15,15 @@ module Kenna
         FINDING_PATH = "/appsec/v2/applications"
         HOST = "api.veracode.com"
         REQUEST_VERSION = "vcode_request_version_1"
+        # 504 responses get their own retry policy: retry twice at a fixed 30s interval.
+        # All other errors fall back to the toolkit's default retry behaviour (5 retries).
+        RETRY_OPTIONS_504_ONLY = {
+          max: 2,
+          interval: 30,
+          max_interval: 30,
+          backoff_factor: 1,
+          retry_statuses: [504]
+        }.freeze
 
         def initialize(id, key, output_dir, filename, kenna_api_host, kenna_connector_id, kenna_api_key)
           @id = id
@@ -32,7 +41,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
           app_list = []
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, 5, true, hmac_client: self, retry_options: RETRY_OPTIONS_504_ONLY)
             return unless response
 
             result = JSON.parse(response.body)
@@ -57,7 +66,7 @@ module Kenna
           url = "https://#{HOST}#{cat_request}"
           cat_rec_list = []
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, 5, true, hmac_client: self, retry_options: RETRY_OPTIONS_504_ONLY)
             return unless response
 
             result = JSON.parse(response.body)
@@ -77,7 +86,7 @@ module Kenna
           app_request = "#{FINDING_PATH}/#{app_guid}/findings?size=#{page_size}"
           url = "https://#{HOST}#{app_request}"
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, 5, true, hmac_client: self, retry_options: RETRY_OPTIONS_504_ONLY)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
@@ -196,7 +205,7 @@ module Kenna
           url = "https://#{HOST}#{app_request}"
 
           until url.nil?
-            response = http_get(url, {}, hmac_client: self)
+            response = http_get(url, {}, 5, true, hmac_client: self, retry_options: RETRY_OPTIONS_504_ONLY)
 
             if response.nil?
               puts "Unable to retrieve data for #{app_name}. Continuing..."
